@@ -1,0 +1,72 @@
+# Godot 4+ specific ignores
+requiem/.godot/
+requiem/android/
+
+# Godot-specific ignores
+.import/
+.import.cfg
+*.translation
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/tool-specific ignores
+.directory
+*~
+
+# .gdignore files (project structure)
+# A `.gdignore` file in a directory tells Godot to not import that directory.
+# Useful for, e.g., storing source code that should not be imported.
+
+# Godot 4 ignores for the import/export folder
+.idea/
+*.importer
+builds/
+
+# Asset pipeline ignores
+*.blend1
+*.blend2
+
+# OS files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor backups and lock files
+*.swp
+*.swo
+*~
+*.lock
+
+# Godot editor logs and crash logs
+requiem/core/logs/
+requiem/logs/
+*.log
+core.log.*
+core_dump_*
+
+# Addon/plugin generated files (when using gd-plug, asset library, etc.)
+.gd-plug/
+addons/*/plugin.cfg
+
+# Local/sensitive files
+.env
+.env.local
+*.local
+
+# VSCode / IDE specific
+.vscode/
+*.code-workspace
+
+# Python (for build tools, asset pipeline, etc.)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
