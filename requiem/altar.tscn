@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://cci6ad6gs3jxu"]
+
+[ext_resource type="Script" uid="uid://bpijkk2spl8f7" path="res://body_altar.gd" id="1_hm6q3"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_y1fia"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y1fia"]
+size = Vector2(40, 40)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_y1fia"]
+radius = 80.23092
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hm6q3"]
+bg_color = Color(0.6, 0.972549, 1, 1)
+
+[node name="Altar" type="Node2D" unique_id=405341331]
+
+[node name="BodyAltar" type="StaticBody2D" parent="." unique_id=2093135119]
+script = ExtResource("1_hm6q3")
+
+[node name="Sprite2D" type="Sprite2D" parent="BodyAltar" unique_id=649606900]
+modulate = Color(1, 1, 0, 1)
+self_modulate = Color(1, 1, 0, 1)
+texture = SubResource("PlaceholderTexture2D_y1fia")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BodyAltar" unique_id=849931913]
+shape = SubResource("RectangleShape2D_y1fia")
+
+[node name="Area2D" type="Area2D" parent="BodyAltar" unique_id=1656458861]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BodyAltar/Area2D" unique_id=695885070]
+shape = SubResource("CircleShape2D_y1fia")
+
+[node name="Label" type="Label" parent="BodyAltar" unique_id=1625805225]
+visible = false
+offset_left = -29.0
+offset_top = -35.0
+offset_right = 30.0
+offset_bottom = 33.0
+theme_override_constants/line_spacing = -2
+theme_override_constants/paragraph_spacing = 0
+theme_override_constants/shadow_offset_x = 0
+theme_override_font_sizes/font_size = 12
+text = "Press
+F
+to pray"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="BodyAltar" unique_id=1872756918]
+offset_left = -50.0
+offset_top = 24.0
+offset_right = 50.0
+offset_bottom = 44.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_hm6q3")
+step = 0.1
+show_percentage = false
+
+[connection signal="body_entered" from="BodyAltar/Area2D" to="BodyAltar" method="_on_area_2d_body_entered"]
+[connection signal="body_exited" from="BodyAltar/Area2D" to="BodyAltar" method="_on_area_2d_body_exited"]
