@@ -20,11 +20,16 @@ config/icon="res://icon.svg"
 NoiseManager="*uid://j0vrigg22l2b"
 GameState="*uid://c5u30ghxcndxe"
 GameOverUi="*uid://dwll4vh22kma6"
+NoiseDebug="*res://autoloads/noise_debug.gd"
 
 [display]
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
 
 [input]
 

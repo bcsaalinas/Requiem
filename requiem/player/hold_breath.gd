@@ -7,14 +7,17 @@ extends Node
 # Tambien muestra una barra de pulmon en pantalla (como la del
 # altar), visible solo mientras se mantiene la respiracion.
 
+# UNIDADES: 1 u = 64 px (docs/UNITS.md). Los radios se exportan en unidades.
+const PX_PER_UNIT: float = 64.0
+
 @export_group("Pulmon")
 @export var drain_rate_percent: float = 20.0
 @export var refill_rate_percent: float = 10.0
 
-@export_group("Ruido al soltar (px)")
-@export var quiet_exhale_radius: float = 60.0
-@export var gasp_radius: float = 300.0
-@export var forced_gasp_radius: float = 420.0
+@export_group("Ruido al soltar (u)")
+@export var quiet_exhale_radius_u: float = 1.0
+@export var gasp_radius_u: float = 5.0
+@export var forced_gasp_radius_u: float = 7.0
 @export var forced_lock_duration: float = 2.0
 
 @export_group("Audio")
@@ -103,9 +106,9 @@ func _release_breath() -> void:
 	_audio_player.stop()
 
 	if lung_percent > 20.0:
-		_emit_breath(quiet_exhale_radius, exhale_clips)
+		_emit_breath(quiet_exhale_radius_u, exhale_clips)
 	else:
-		_emit_breath(gasp_radius, gasp_clips)
+		_emit_breath(gasp_radius_u, gasp_clips)
 
 
 func _forced_gasp() -> void:
@@ -113,11 +116,11 @@ func _forced_gasp() -> void:
 	is_locked = true
 	_lock_timer = forced_lock_duration
 	_audio_player.stop()
-	_emit_breath(forced_gasp_radius, forced_gasp_clips)
+	_emit_breath(forced_gasp_radius_u, forced_gasp_clips)
 
 
-func _emit_breath(radius: float, clips: Array[AudioStream]) -> void:
-	NoiseManager.emit_noise(player.global_position, radius, NoiseManager.SourceType.BREATH)
+func _emit_breath(radius_u: float, clips: Array[AudioStream]) -> void:
+	NoiseManager.emit_noise(player.global_position, radius_u * PX_PER_UNIT, NoiseManager.SourceType.BREATH)
 	_play_random_clip(clips)
 
 

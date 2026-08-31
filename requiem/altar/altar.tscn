@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cci6ad6gs3jxu"]
 
-[ext_resource type="Script" uid="uid://bpijkk2spl8f7" path="res://body_altar.gd" id="1_hm6q3"]
-[ext_resource type="AudioStream" uid="uid://bdq37dkf83rnp" path="res://193812__geoneo0__four_voices_whispering_6.wav" id="2_eo3o5"]
+[ext_resource type="Script" uid="uid://bpijkk2spl8f7" path="res://altar/body_altar.gd" id="1_hm6q3"]
+[ext_resource type="AudioStream" uid="uid://bdq37dkf83rnp" path="res://assets/audio/193812__geoneo0__four_voices_whispering_6.wav" id="2_eo3o5"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_y1fia"]
 size = Vector2(40, 40)
