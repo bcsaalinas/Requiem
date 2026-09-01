@@ -2,10 +2,12 @@
 
 [ext_resource type="Texture2D" uid="uid://bv6jkqdt02ng4" path="res://assets/sprites/wall.png" id="2_0b4ue"]
 [ext_resource type="PackedScene" uid="uid://cci6ad6gs3jxu" path="res://altar/altar.tscn" id="3_f2txt"]
+[ext_resource type="Script" uid="uid://bcd7ciuve8s5i" path="res://entities/entity_ai.gd" id="3_ivpvi"]
 [ext_resource type="Texture2D" uid="uid://cpvkd1x0ocyb4" path="res://assets/Textures/light_texture.png" id="5_44x8d"]
 [ext_resource type="PackedScene" path="res://player/player.tscn" id="5_ktfr2"]
 [ext_resource type="Texture2D" uid="uid://dgqcswjb0xvcv" path="res://assets/Textures/prop_radius_0.png" id="6_44x8d"]
 [ext_resource type="Script" uid="uid://shms8v1p07m8" path="res://level/nav_setup.gd" id="9_i2t4f"]
+[ext_resource type="Script" uid="uid://b3kkiai512s0v" path="res://player/flashlight.gd" id="10_fl"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j87l1"]
 texture = ExtResource("2_0b4ue")
@@ -42,6 +44,7 @@ scale = Vector2(0.9759327, 1.414076)
 
 [node name="Entity" type="CharacterBody2D" parent="." unique_id=1178548851]
 position = Vector2(100, 300)
+script = ExtResource("3_ivpvi")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=2132043341]
 navigation_polygon = SubResource("NavigationPolygon_km5ld")
@@ -54,10 +57,10 @@ shadow_enabled = true
 texture = ExtResource("5_44x8d")
 
 [node name="flashlight" type="PointLight2D" parent="Player" unique_id=1295889400]
-position = Vector2(309, 5)
 shadow_enabled = true
 texture = ExtResource("6_44x8d")
 texture_scale = 4.3
+script = ExtResource("10_fl")
 
 [node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=372635755]
 color = Color(0.08750012, 0.097715504, 0.09005723, 1)

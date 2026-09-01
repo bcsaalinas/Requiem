@@ -26,8 +26,8 @@ func _ready() -> void:
 
 
 func _process(delta):
-	# Si el jugador está cerca y mantiene presionada la F
-	if jugador_cerca and Input.is_physical_key_pressed(KEY_F):
+	# Si el jugador está cerca y mantiene presionada la accion "pray" (E por defecto; se define en project.godot)
+	if jugador_cerca and Input.is_action_pressed("pray"):
 		label_texto.hide()
 		barra_progreso.show()
 

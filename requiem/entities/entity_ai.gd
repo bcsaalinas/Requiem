@@ -2,6 +2,9 @@ extends CharacterBody2D
 
 enum State { IDLE, INVESTIGATE, HUNT }
 
+# UNIDADES: 1 u = 32 px, misma convencion que player.gd.
+const PX_PER_UNIT: float = 32.0
+
 @export_group("Oido")
 @export var hearing_range: float = 1500.0
 
@@ -10,7 +13,10 @@ enum State { IDLE, INVESTIGATE, HUNT }
 @export var arrival_threshold: float = 8.0
 
 @export_group("Movimiento")
-@export var move_speed: float = 90.0
+## Velocidad de la Entity en unidades por segundo. 3.0 u = exactamente la misma
+## que el jugador caminando (walk_speed_u en player.gd): decision de diseño,
+## no un placeholder. Se convierte a px/s con PX_PER_UNIT al moverse.
+@export var move_speed_u: float = 3.0
 
 @export_group("Cacería")
 @export var catch_radius: float = 20.0
@@ -120,7 +126,7 @@ func _move_along_path() -> void:
 	var next_path_position: Vector2 = nav_agent.get_next_path_position()
 	var direction: Vector2 = (next_path_position - global_position).normalized()
 
-	velocity = direction * move_speed
+	velocity = direction * move_speed_u * PX_PER_UNIT
 	move_and_slide()
 
 
