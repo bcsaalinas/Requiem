@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://qvmplrwk2j6o"]
 
-[ext_resource type="Script" path="res://player/player.gd" id="1_player"]
-[ext_resource type="Script" path="res://player/footstep_noise.gd" id="2_footstep"]
-[ext_resource type="Script" path="res://player/hold_breath.gd" id="3_breath"]
-[ext_resource type="AudioStream" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
-[ext_resource type="AudioStream" path="res://assets/audio/389996__morganveilleux__man-holds-breath-gasp.wav" id="5_hold"]
+[ext_resource type="Script" uid="uid://o5a4tc70y5s1" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://cdbfenw3olwtf" path="res://player/footstep_noise.gd" id="2_footstep"]
+[ext_resource type="Script" uid="uid://d03iu060ho22s" path="res://player/hold_breath.gd" id="3_breath"]
+[ext_resource type="AudioStream" uid="uid://bx24sjvxib835" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
+[ext_resource type="AudioStream" uid="uid://dp8nbphatg8tp" path="res://assets/audio/389996__morganveilleux__man-holds-breath-gasp.wav" id="5_hold"]
+[ext_resource type="Script" uid="uid://cit8p1add57ro" path="res://player/throw.gd" id="6_g6k8r"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -12,25 +13,26 @@ size = Vector2(32, 32)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(24, 24)
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" unique_id=473472220]
 script = ExtResource("1_player")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1411517954]
 modulate = Color(0.4, 0.7, 1, 1)
 texture = SubResource("PlaceholderTexture2D_player")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1971566642]
 shape = SubResource("RectangleShape2D_player")
 
-[node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(1.0, 1.0)
+[node name="Camera2D" type="Camera2D" parent="." unique_id=473842570]
 position_smoothing_enabled = true
-position_smoothing_speed = 5.0
 
-[node name="FootstepNoise" type="Node" parent="."]
+[node name="FootstepNoise" type="Node" parent="." unique_id=627701284]
 script = ExtResource("2_footstep")
 walk_clips = Array[AudioStream]([ExtResource("4_walk")])
 
-[node name="HoldBreath" type="Node" parent="."]
+[node name="HoldBreath" type="Node" parent="." unique_id=2008094638]
 script = ExtResource("3_breath")
 hold_clips = Array[AudioStream]([ExtResource("5_hold")])
+
+[node name="Throw" type="Node" parent="." unique_id=397190245]
+script = ExtResource("6_g6k8r")
