@@ -6,11 +6,11 @@ extends Node
 # CharacterBody2D padre para saber si esta caminando o corriendo, reproduce el
 # audio real, y avisa a NoiseManager para que la entidad pueda reaccionar.
 #
-# UNIDADES: 1 u = 64 px (docs/UNITS.md). Radios y umbrales se exportan en
+# UNIDADES: 1 u = 32 px. Radios y umbrales se exportan en
 # unidades; la conversion a px pasa aqui adentro.
 # Estos radios NO estan fijados por la spec, se pueden tunear libremente.
 
-const PX_PER_UNIT: float = 64.0
+const PX_PER_UNIT: float = 32.0
 
 @export_group("Deteccion de movimiento (u/s)")
 ## Debajo de esto se considera quieto.

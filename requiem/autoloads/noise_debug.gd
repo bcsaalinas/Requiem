@@ -15,12 +15,12 @@ extends Node
 # coordenadas siguen siendo de mundo) pero el CanvasModulate del nivel no se lo
 # come y los circulos siguen siendo legibles con las luces apagadas.
 #
-# UNIDADES: 1 u = 64 px (docs/UNITS.md). La etiqueta siempre reporta el radio
+# UNIDADES: 1 u = 32 px. La etiqueta siempre reporta el radio
 # en unidades, no en pixeles, para poder verificar la escala de un vistazo.
 #
 # F3 activa / desactiva la visualizacion.
 
-const PX_PER_UNIT: float = 64.0
+const PX_PER_UNIT: float = 32.0
 
 
 ## Nodo interno que hace el dibujo. Vive dentro del CanvasLayer.

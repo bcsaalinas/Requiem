@@ -7,8 +7,8 @@ extends Node
 # Tambien muestra una barra de pulmon en pantalla (como la del
 # altar), visible solo mientras se mantiene la respiracion.
 
-# UNIDADES: 1 u = 64 px (docs/UNITS.md). Los radios se exportan en unidades.
-const PX_PER_UNIT: float = 64.0
+# UNIDADES: 1 u = 32 px. Los radios se exportan en unidades.
+const PX_PER_UNIT: float = 32.0
 
 @export_group("Pulmon")
 @export var drain_rate_percent: float = 20.0

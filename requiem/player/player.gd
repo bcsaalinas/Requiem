@@ -6,17 +6,17 @@ extends CharacterBody2D
 # Camera2D) vive en player.tscn como nodos REALES, ya no se crea por codigo:
 # asi se puede tunear desde el inspector sin tocar el script.
 #
-# UNIDADES: 1 u = 64 px = un tile = el ancho del jugador (ver docs/UNITS.md).
+# UNIDADES: 1 u = 32 px = un tile = el ancho del jugador.
 # Las velocidades se exportan en u/s y se convierten a px/s al usarse, para
 # que si algun dia cambia la escala solo haya que tocar PX_PER_UNIT.
 
-const PX_PER_UNIT: float = 64.0
+const PX_PER_UNIT: float = 32.0
 
 @export_group("Velocidad (u/s)")
 ## Caminando, en unidades por segundo (1 u = el ancho del jugador).
-@export var walk_speed_u: float = 3.0
+@export var walk_speed_u: float = 3.2
 ## Corriendo (Shift), en unidades por segundo.
-@export var sprint_speed_u: float = 5.0
+@export var sprint_speed_u: float = 5.4
 
 @export_group("Inercia")
 ## 0 = nunca arranca, 1 = arranque instantaneo.

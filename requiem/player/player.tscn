@@ -7,10 +7,10 @@
 [ext_resource type="AudioStream" path="res://assets/audio/389996__morganveilleux__man-holds-breath-gasp.wav" id="5_hold"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
-size = Vector2(64, 64)
+size = Vector2(32, 32)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(52, 52)
+size = Vector2(24, 24)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_player")
@@ -23,7 +23,7 @@ texture = SubResource("PlaceholderTexture2D_player")
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.75, 0.75)
+zoom = Vector2(1.0, 1.0)
 position_smoothing_enabled = true
 position_smoothing_speed = 5.0
 
