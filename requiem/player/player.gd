@@ -58,6 +58,13 @@ func _physics_process(_delta: float) -> void:
 		_brake()
 		return
 
+	# Enraizado por rezo: la spec pide que el ritual sea sin input de movimiento.
+	# body_altar.gd levanta la bandera mientras dura el rezo.
+	if GameState.is_praying:
+		is_sprinting = false
+		_brake()
+		return
+
 	# Acciones del InputMap (definidas en project.godot), no teclas fisicas
 	# sueltas: asi el jugador puede reasignar controles y funciona igual con mando.
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
