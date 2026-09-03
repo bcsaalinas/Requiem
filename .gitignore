@@ -70,3 +70,8 @@ __pycache__/
 *$py.class
 .venv/
 venv/
+
+
+# Godot 4+ specific ignores
+.godot/
+/android/

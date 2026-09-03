@@ -17,7 +17,7 @@ extends Node
 #     poco. Llegar a 100 -> el mismo gasp forzado, y ademas se pone en 0.
 #
 # Los dos medidores comparten el mismo castigo (_forced_gasp): 2s de bloqueo de
-# movimiento + ruido fuerte de 7 u.
+# movimiento + ruido fuerte de 7 u y el mismo clip (exertion_clips).
 #
 # UNIDADES: 1 u = 32 px. Los radios se exportan en unidades.
 const PX_PER_UNIT: float = 32.0
@@ -31,8 +31,13 @@ const PX_PER_UNIT: float = 32.0
 @export var exertion_rise_rate_percent: float = 6.0
 ## Baja solo mientras estas en calma (ni esprint, ni aguantar, ni bloqueado).
 @export var exertion_decay_rate_percent: float = 4.0
+## "Calma" = de verdad quieto. Caminar NO descansa. Sin esto el agotamiento
+## nunca puede subir aguantando la respiracion (ver nota de balance abajo).
+@export var calm_speed_threshold_u: float = 0.1
 
 @export_group("Ruido al soltar (u)")
+## Por encima de este % de pulmon sueltas en silencio; en o por debajo, gasp.
+@export var quiet_exhale_lung_threshold: float = 20.0
 @export var quiet_exhale_radius_u: float = 1.0
 @export var gasp_radius_u: float = 5.0
 @export var forced_gasp_radius_u: float = 7.0
@@ -42,7 +47,10 @@ const PX_PER_UNIT: float = 32.0
 @export var hold_clips: Array[AudioStream] = []
 @export var exhale_clips: Array[AudioStream] = []
 @export var gasp_clips: Array[AudioStream] = []
+## Se oye cuando el pulmon llega a 0 y el gasp es forzado.
 @export var forced_gasp_clips: Array[AudioStream] = []
+## Se oye cuando el agotamiento llega a 100 y delata la posicion del jugador.
+@export var exertion_clips: Array[AudioStream] = []
 @export var volume_db: float = -4.0
 
 var lung_percent: float = 100.0
@@ -119,17 +127,17 @@ func _physics_process(delta: float) -> void:
 
 
 func _continue_holding(delta: float) -> void:
+	# El clip de aguantar suena UNA sola vez, al empezar a aguantar; no se
+	# reengancha aunque termine antes de que sueltes.
 	if not is_holding:
 		is_holding = true
-		_play_random_clip(hold_clips)
-	elif not _audio_player.playing:
 		_play_random_clip(hold_clips)
 
 	lung_percent -= drain_rate_percent * delta
 
 	if lung_percent <= 0.0:
 		lung_percent = 0.0
-		_forced_gasp()
+		_forced_gasp(exertion_clips)
 
 
 func _refill_lung(delta: float) -> void:
@@ -146,8 +154,19 @@ func _tick_exertion(delta: float) -> void:
 	if exerting:
 		exertion_percent = min(100.0, exertion_percent + exertion_rise_rate_percent * delta)
 		if exertion_percent >= 100.0:
-			_forced_gasp()
-	else:
+			_forced_gasp(exertion_clips)
+		return
+
+	# Solo descansas si estas PARADO. Caminar deja el medidor donde esta.
+	#
+	# Por que: con la refill del pulmon a 10%/s y la drenada a 20%/s, cualquier
+	# ciclo sostenido de aguantar-soltar necesita descansar el DOBLE de lo que
+	# aguantas. Si caminar contara como calma, ese ciclo daria
+	# +6*t - 4*(2*t) = -2*t: aguantar la respiracion BAJARIA el agotamiento y
+	# el medidor solo lo podria llenar el sprint. Exigir estar quieto arregla
+	# el signo sin tocar las tasas de la spec (6%/s y 4%/s).
+	var speed_u: float = player.velocity.length() / PX_PER_UNIT
+	if speed_u <= calm_speed_threshold_u:
 		exertion_percent = max(0.0, exertion_percent - exertion_decay_rate_percent * delta)
 
 
@@ -155,7 +174,7 @@ func _release_breath() -> void:
 	is_holding = false
 	_audio_player.stop()
 
-	if lung_percent > 20.0:
+	if lung_percent > quiet_exhale_lung_threshold:
 		_emit_breath(quiet_exhale_radius_u, exhale_clips)
 	else:
 		_emit_breath(gasp_radius_u, gasp_clips)
@@ -164,8 +183,9 @@ func _release_breath() -> void:
 ## Castigo compartido: lo llaman TANTO el pulmon al llegar a 0 COMO el
 ## agotamiento al llegar a 100. Bloquea el movimiento forced_lock_duration
 ## segundos, suelta un ruido fuerte de 7 u, y deja el agotamiento en 0 para
-## no encadenar bloqueos infinitos.
-func _forced_gasp() -> void:
+## no encadenar bloqueos infinitos. `clips` es el sonido del medidor que lo
+## disparo, para poder distinguir de oido cual de los dos te delato.
+func _forced_gasp(clips: Array[AudioStream]) -> void:
 	if is_locked:
 		return
 	is_holding = false
@@ -173,7 +193,7 @@ func _forced_gasp() -> void:
 	_lock_timer = forced_lock_duration
 	exertion_percent = 0.0
 	_audio_player.stop()
-	_emit_breath(forced_gasp_radius_u, forced_gasp_clips)
+	_emit_breath(forced_gasp_radius_u, clips)
 
 
 func _emit_breath(radius_u: float, clips: Array[AudioStream]) -> void:

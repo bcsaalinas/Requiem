@@ -4,8 +4,9 @@
 [ext_resource type="Script" uid="uid://cdbfenw3olwtf" path="res://player/footstep_noise.gd" id="2_footstep"]
 [ext_resource type="Script" uid="uid://d03iu060ho22s" path="res://player/hold_breath.gd" id="3_breath"]
 [ext_resource type="AudioStream" uid="uid://bx24sjvxib835" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
-[ext_resource type="AudioStream" uid="uid://dp8nbphatg8tp" path="res://assets/audio/389996__morganveilleux__man-holds-breath-gasp.wav" id="5_hold"]
 [ext_resource type="Script" uid="uid://cit8p1add57ro" path="res://player/throw.gd" id="6_g6k8r"]
+[ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
+[ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -32,7 +33,8 @@ walk_clips = Array[AudioStream]([ExtResource("4_walk")])
 
 [node name="HoldBreath" type="Node" parent="." unique_id=2008094638]
 script = ExtResource("3_breath")
-hold_clips = Array[AudioStream]([ExtResource("5_hold")])
+hold_clips = Array[AudioStream]([ExtResource("7_hold")])
+exertion_clips = Array[AudioStream]([ExtResource("8_exertion")])
 
 [node name="Throw" type="Node" parent="." unique_id=397190245]
 script = ExtResource("6_g6k8r")
