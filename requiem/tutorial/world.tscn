@@ -1,0 +1,4899 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://tutorial/scenery.gdshader" id="1_i6v53"]
+[ext_resource type="Script" path="res://tutorial/world.gd" id="1_vfpk0"]
+[ext_resource type="Script" path="res://tutorial/art.gd" id="2_041dv"]
+[ext_resource type="Texture2D" path="res://assets/Textures/light_texture.png" id="3_i6v53"]
+[ext_resource type="Script" path="res://tutorial/prop_light.gd" id="5_0cr26"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qcvh1"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.1
+shader_parameter/contrast = 0.5
+shader_parameter/gain = 0.68
+shader_parameter/detail_radius = 3.5
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0cr26"]
+size = Vector2(960, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_qcvh1"]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_02dwp"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_02dwp"]
+size = Vector2(960, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_p4681"]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p4681"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5ylgn"]
+size = Vector2(24, 640)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_xik0q"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 640, 0, 640)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5ylgn"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q6423"]
+size = Vector2(24, 640)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ghvob"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 640, 0, 640)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xik0q"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q6423"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dejkf"]
+size = Vector2(140, 220)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_dejkf"]
+polygon = PackedVector2Array(34.72, 77, 105.28001, 77, 128.8, 100.52, 128.8, 196.48, 105.28001, 220, 34.72, 220, 11.2, 196.48, 11.2, 100.52)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3ycle"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i4aai"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4aai"]
+size = Vector2(220, 85)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_4p3xr"]
+polygon = PackedVector2Array(25.25, 46.75, 194.75002, 46.75, 202.40001, 54.4, 202.40001, 77.35, 194.75002, 85, 25.25, 85, 17.6, 77.35, 17.6, 54.4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ohtp7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ohtp7"]
+size = Vector2(110, 150)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_i8uy4"]
+polygon = PackedVector2Array(22.3, 82.5, 87.700005, 82.5, 101.200005, 96, 101.200005, 136.5, 87.700005, 150, 22.3, 150, 8.8, 136.5, 8.8, 96)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8eev8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_b860k"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_no5fy"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_adby7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_14y7t"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r82a2"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8ahsx"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ge6bc"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vfpk0"]
+size = Vector2(75, 90)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_mvf21"]
+polygon = PackedVector2Array(14.1, 49.5, 60.9, 49.5, 69, 57.6, 69, 81.9, 60.9, 90, 14.1, 90, 6, 81.9, 6, 57.6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2xehl"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i6v53"]
+size = Vector2(105, 52)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_6ux8l"]
+polygon = PackedVector2Array(13.08, 28.6, 91.92, 28.6, 96.6, 33.28, 96.6, 47.32, 91.92, 52, 13.08, 52, 8.4, 47.32, 8.4, 33.28)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lyk7k"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8eev8"]
+size = Vector2(960, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_b860k"]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m0jn8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_no5fy"]
+size = Vector2(960, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_adby7"]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0l7rf"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_14y7t"]
+size = Vector2(24, 640)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_r82a2"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 640, 0, 640)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y1ufk"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8ahsx"]
+size = Vector2(24, 640)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ge6bc"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 640, 0, 640)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w32ch"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mvf21"]
+size = Vector2(912, 266)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_2xehl"]
+polygon = PackedVector2Array(0, 0, 912, 0, 912, 266, 0, 266)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nyxwd"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6ux8l"]
+size = Vector2(406, 226)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_lyk7k"]
+polygon = PackedVector2Array(0, 0, 406, 0, 406, 226, 0, 226)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7c1dp"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m0jn8"]
+size = Vector2(346, 226)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_0l7rf"]
+polygon = PackedVector2Array(0, 0, 346, 0, 346, 226, 0, 226)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o3sin"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y1ufk"]
+size = Vector2(160, 62)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_w32ch"]
+polygon = PackedVector2Array(0, 0, 160, 0, 160, 62, 0, 62)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2epig"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y2rbs"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oowyn"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f2d16"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kdoqd"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nyxwd"]
+size = Vector2(120, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ad72g"]
+polygon = PackedVector2Array(11.76, 13.2, 108.24, 13.2, 110.4, 15.36, 110.4, 21.84, 108.24, 24, 11.76, 24, 9.6, 21.84, 9.6, 15.36)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6aryl"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0aduh"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f6ebn"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f8dq7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nbn0f"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dd5ag"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y46m7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qcvh1"]
+size = Vector2(40, 35)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_pq606"]
+polygon = PackedVector2Array(6.35, 19.25, 33.649998, 19.25, 36.8, 22.4, 36.8, 31.85, 33.649998, 35, 6.35, 35, 3.2, 31.85, 3.2, 22.4)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o3sin"]
+size = Vector2(1440, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_2epig"]
+polygon = PackedVector2Array(0, 0, 1440, 0, 1440, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ldj3y"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y2rbs"]
+size = Vector2(1440, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_oowyn"]
+polygon = PackedVector2Array(0, 0, 1440, 0, 1440, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xtfg8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f2d16"]
+size = Vector2(24, 800)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_kdoqd"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 800, 0, 800)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dgc4c"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ad72g"]
+size = Vector2(24, 800)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_6aryl"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 800, 0, 800)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jffjb"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2ux4c"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0aduh"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_rdk1f"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_igttx"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_f8dq7"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_g04m7"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_st8xn"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dd5ag"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ug5os"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k72vk"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pq606"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_xdrr2"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iw65x"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xtfg8"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_iik6m"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n72d1"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jffjb"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ht30j"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ct6o6"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rdk1f"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_t1w7s"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d8l8b"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g04m7"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_7v40c"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ndbtg"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ug5os"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_2i8wi"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a3dfl"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xdrr2"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_3swje"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ipkla"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iik6m"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_uvif3"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pp4qp"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ht30j"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_wy556"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6s6fg"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t1w7s"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_vpce3"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nwspj"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7v40c"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ek37e"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aorbt"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2i8wi"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_aie8e"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vs0gn"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3swje"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_k2oi0"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sjb05"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uvif3"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_b8mxl"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nwvin"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wy556"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_yfv48"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4pjhj"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vpce3"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_7ujk8"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vhfrv"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ek37e"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ot687"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wcfk2"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_aie8e"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_6ps4t"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mxn3d"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k2oi0"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_o725y"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vyv3i"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b8mxl"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ne8ds"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pvvad"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yfv48"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ad0sl"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c8w73"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7ujk8"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_3c1d3"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qdk7y"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ot687"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_xg05r"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u3c0f"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6ps4t"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ir86m"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_07ss5"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_o725y"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_xs1eq"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1io7n"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ne8ds"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_1b666"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h1ptp"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ad0sl"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_gqjo8"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rqytg"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3c1d3"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_v2lb4"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2gbjb"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xg05r"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_r2msu"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nhvf1"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ir86m"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_0sky3"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_s6nri"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xs1eq"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ookwg"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_krbu8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1b666"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_kuwtf"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_iiv2w"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gqjo8"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_2e6p7"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qf1ye"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v2lb4"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_fxl8y"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p2xvr"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r2msu"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_rgxvx"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_duplf"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0sky3"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_5shjy"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rwl7n"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ookwg"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_wt3up"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ukkg7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kuwtf"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_uh5pd"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f4q66"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2e6p7"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_u24tl"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tl73c"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fxl8y"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_5utcg"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_esupq"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rgxvx"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_1t3q4"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1ui7d"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5shjy"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_yahbl"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flxea"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wt3up"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_d4ohl"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5yu2b"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uh5pd"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_sn5dl"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pod4i"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u24tl"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_lp0lv"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lbguy"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5utcg"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ej5r7"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ntrdq"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.12
+shader_parameter/contrast = null
+shader_parameter/gain = 0.7
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1t3q4"]
+size = Vector2(20, 28)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_qhlv3"]
+polygon = PackedVector2Array(4, 0, 16, 0, 20, 4, 20, 24, 16, 28, 4, 28, 0, 24, 0, 4)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q87s6"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ilt54"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aew80"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_144g8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2v145"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r4ip3"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_18u7w"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_127is"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_q1fot"]
+vertices = PackedVector2Array(3478.1328, 290.85156, 4310.828, 288.85156, 4360.828, 288.85156, 4283.633, 348.22656, 4233.633, 348.22656, 4601, 39, 4601, 761, 4599.289, 428.79688, 4599.289, 370.79688, 3715.2266, 269.25, 3813.2813, 263.27344, 4161.367, 261.09375, 4211.367, 261.09375, 4006.0234, 672.22656, 3956.0234, 672.22656, 3774.5703, 670.7422, 3774.5703, 612.7422, 4320.6094, 197.84375, 4468.3125, 177.35156, 4539.2813, 176.20313, 4589.2813, 176.20313, 4468.3906, 205.45313, 4418.3906, 205.45313, 4375.133, 416.04688, 4375.133, 358.04688, 4389.133, 265.14844, 4418.3906, 263.45313, 4468.3906, 263.45313, 4549.289, 370.79688, 4549.289, 428.79688, 3763.2813, 263.27344, 4589.2813, 118.203125, 3740.9922, 541.25, 3740.9922, 483.25, 4273.703, 470.84375, 4323.703, 470.84375, 4006.0234, 730.22656, 4325.133, 416.04688, 3665.2266, 269.25, 3451.1875, 693.7422, 3451.1875, 751.7422, 3445.8828, 737.9219, 3445.8828, 679.9219, 3868.7813, 152.07813, 3868.7813, 210.07813, 3853.4063, 183.63281, 3853.4063, 125.63281, 3422.0078, 240.82031, 3422.0078, 182.82031, 3428.1328, 232.85156, 3428.1328, 290.85156, 3400.9922, 321.02344, 3400.9922, 379.02344, 3384.5313, 359.1875, 3384.5313, 301.1875, 3327.1484, 707.09375, 3327.1484, 649.09375, 3341.9297, 691.5781, 3341.9297, 749.5781, 4323.703, 412.84375, 4325.133, 358.04688, 3675.9688, 731.15625, 3675.9688, 673.15625, 3703.039, 707.4922, 3703.039, 761, 3595.4766, 761, 3625.9688, 731.15625, 3595.4766, 709.14844, 3625.9688, 673.15625, 4384.4297, 142.90625, 4384.4297, 84.90625, 4418.3125, 119.35156, 4418.3125, 177.35156, 4310.828, 230.85156, 4211.367, 203.09375, 4270.6094, 197.84375, 3478.1328, 232.85156, 3486.0469, 210.38281, 3547.5625, 168.90625, 3547.5625, 226.90625, 3486.0469, 152.38281, 3597.5625, 226.90625, 3597.5625, 168.90625, 3665.2266, 211.25, 3436.0469, 210.38281, 3436.0469, 152.38281, 3383.9688, 158.25781, 3383.9688, 100.25781, 3372.0078, 182.82031, 3333.9688, 158.25781, 3545.4766, 709.14844, 3545.4766, 761, 3501.1875, 751.7422, 3501.1875, 693.7422, 3715.2266, 211.25, 3763.2813, 205.27344, 3795.289, 109.02344, 3795.289, 167.02344, 3726.25, 160.25781, 3726.25, 102.25781, 4360.828, 265.14844, 4389.133, 207.14844, 4339.133, 207.14844, 4334.4297, 142.90625, 4320.6094, 139.84375, 4334.4297, 84.90625, 3450.9922, 379.02344, 3450.9922, 321.02344, 4214.6016, 353.21875, 4214.6016, 411.21875, 3690.9922, 483.25, 4109.508, 125.40625, 4109.508, 67.40625, 4254.7813, 122.9375, 4254.7813, 180.9375, 4468.3125, 119.35156, 4539.2813, 118.203125, 3948.4922, 195.00781, 4270.6094, 180.9375, 4161.367, 203.09375, 4059.5078, 125.40625, 3948.4922, 137.00781, 3813.2813, 205.27344, 4310.7734, 412.84375, 4310.7734, 404.65625, 4283.633, 404.65625, 4233.633, 353.21875, 3334.5313, 301.1875, 3334.5313, 319.10938, 3317.0234, 319.10938, 3317.0234, 304.64844, 3267.0234, 362.64844, 3303.461, 362.64844, 3303.461, 377.10938, 3277.1484, 649.09375, 3393.2266, 646.5469, 3353.461, 377.10938, 3353.461, 359.1875, 3443.2266, 646.5469, 4260.7734, 411.21875, 4260.7734, 462.65625, 4273.703, 462.65625, 3690.9922, 503.5, 3660.8594, 503.5, 3724.5703, 612.7422, 3710.8594, 561.5, 3710.8594, 541.25, 3955.9375, 761, 3955.9375, 731.8906, 3965.3828, 731.8906, 3965.3828, 730.22656, 3956.0234, 673.8906, 3915.3828, 673.8906, 3915.3828, 704.59375, 3905.9375, 704.59375, 3905.9375, 761, 3753.039, 761, 3753.039, 707.4922, 3724.5703, 670.7422, 3443.2266, 679.9219, 3393.2266, 698.52344, 3391.9297, 698.52344, 3391.9297, 691.5781, 3376.7813, 749.5781, 3376.7813, 756.52344, 3239, 761, 3426.7813, 756.52344, 3426.7813, 737.9219, 4304.7813, 139.84375, 4304.7813, 122.9375, 3898.4922, 137.00781, 3898.4922, 152.07813, 3845.289, 109.02344, 3845.289, 125.63281, 3697.3828, 102.25781, 3697.3828, 87.3125, 3659.2266, 87.3125, 3659.2266, 50.601563, 3609.2266, 50.601563, 3609.2266, 85.42969, 3574.3438, 85.42969, 3624.3438, 143.42969, 3624.3438, 108.60156, 3647.3828, 108.60156, 3647.3828, 145.3125, 3676.25, 145.3125, 3676.25, 160.25781, 3803.4063, 167.02344, 3803.4063, 183.63281, 3918.7813, 210.07813, 3918.7813, 195.00781, 4339.133, 230.85156, 3660.8594, 561.5, 4059.5078, 67.40625, 3372.0078, 240.82031, 3277.1484, 707.09375, 3333.9688, 100.25781, 3267.0234, 304.64844, 3239, 39, 3574.3438, 143.42969)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4), PackedInt32Array(5, 6, 7, 8), PackedInt32Array(0, 9, 10, 11, 12, 1), PackedInt32Array(13, 14, 15, 16), PackedInt32Array(17, 18, 19, 20, 21, 22), PackedInt32Array(23, 24, 25, 26, 27, 28, 29), PackedInt32Array(30, 10, 9), PackedInt32Array(5, 8, 20, 31), PackedInt32Array(32, 33, 34, 35, 13, 16), PackedInt32Array(35, 29, 7, 6, 36, 13), PackedInt32Array(23, 29, 35, 37), PackedInt32Array(38, 9, 0), PackedInt32Array(39, 40, 41, 42), PackedInt32Array(43, 44, 45, 46), PackedInt32Array(47, 48, 49, 50), PackedInt32Array(51, 52, 53, 54), PackedInt32Array(55, 56, 57, 58), PackedInt32Array(37, 35, 59, 60), PackedInt32Array(61, 62, 63, 64), PackedInt32Array(61, 64, 65, 66), PackedInt32Array(66, 65, 67, 68), PackedInt32Array(27, 21, 20, 8, 28), PackedInt32Array(69, 70, 71, 72), PackedInt32Array(73, 1, 12, 74, 75), PackedInt32Array(76, 77, 78, 79, 0), PackedInt32Array(78, 77, 80), PackedInt32Array(81, 82, 83, 38), PackedInt32Array(81, 38, 0, 79), PackedInt32Array(84, 77, 76, 49), PackedInt32Array(84, 49, 48, 85), PackedInt32Array(85, 48, 86, 87), PackedInt32Array(86, 48, 88, 89), PackedInt32Array(90, 91, 92, 93), PackedInt32Array(30, 9, 94, 95), PackedInt32Array(96, 97, 98, 99), PackedInt32Array(100, 25, 24, 2), PackedInt32Array(2, 24, 60, 3), PackedInt32Array(26, 25, 101, 22), PackedInt32Array(17, 22, 101, 102), PackedInt32Array(72, 18, 17), PackedInt32Array(69, 72, 17, 103), PackedInt32Array(103, 17, 104, 105), PackedInt32Array(106, 107, 0, 108, 109, 33, 110), PackedInt32Array(111, 112, 113, 114), PackedInt32Array(19, 18, 115, 116), PackedInt32Array(117, 114, 118, 75, 74, 119), PackedInt32Array(120, 111, 114, 117, 121), PackedInt32Array(11, 10, 122, 44), PackedInt32Array(59, 123, 124, 60), PackedInt32Array(124, 125, 3, 60), PackedInt32Array(4, 126, 108, 0), PackedInt32Array(127, 128, 129, 130, 89), PackedInt32Array(131, 132, 133, 134), PackedInt32Array(135, 136, 137, 53, 52, 138), PackedInt32Array(109, 139, 140, 33), PackedInt32Array(140, 141, 34, 33), PackedInt32Array(110, 142, 143, 106), PackedInt32Array(144, 145, 146, 32, 16), PackedInt32Array(6, 147, 148, 149), PackedInt32Array(149, 150, 36, 6), PackedInt32Array(14, 151, 152, 15), PackedInt32Array(152, 153, 154, 15), PackedInt32Array(15, 154, 155, 156, 157), PackedInt32Array(158, 15, 157, 63, 62), PackedInt32Array(42, 159, 138), PackedInt32Array(135, 160, 161, 162), PackedInt32Array(58, 163, 164, 165), PackedInt32Array(166, 167, 41, 40), PackedInt32Array(104, 168, 169, 105), PackedInt32Array(170, 171, 43, 46, 172), PackedInt32Array(46, 173, 172), PackedInt32Array(99, 174, 175), PackedInt32Array(175, 176, 177), PackedInt32Array(178, 179, 180), PackedInt32Array(181, 182, 183, 184), PackedInt32Array(184, 185, 186), PackedInt32Array(97, 187, 188), PackedInt32Array(11, 189, 190, 117, 119), PackedInt32Array(17, 102, 191, 73, 75), PackedInt32Array(136, 135, 162, 57, 56, 133), PackedInt32Array(144, 158, 62, 68, 192, 145), PackedInt32Array(193, 120, 121, 170, 172), PackedInt32Array(54, 194, 47, 50, 51), PackedInt32Array(5, 31, 116), PackedInt32Array(50, 0, 107, 51), PackedInt32Array(194, 54, 127, 89), PackedInt32Array(195, 55, 58, 165), PackedInt32Array(93, 39, 42, 138, 106), PackedInt32Array(188, 45, 44, 122), PackedInt32Array(106, 143, 192, 68, 67, 90, 93), PackedInt32Array(52, 106, 138), PackedInt32Array(133, 56, 134), PackedInt32Array(82, 186, 98, 97, 188, 122, 95), PackedInt32Array(89, 88, 194), PackedInt32Array(196, 89, 130, 197, 198), PackedInt32Array(105, 169, 113, 112), PackedInt32Array(70, 5, 116, 115, 71), PackedInt32Array(80, 85, 87), PackedInt32Array(94, 83, 82, 95), PackedInt32Array(199, 181, 184, 186, 82), PackedInt32Array(172, 96, 99, 175, 177, 193), PackedInt32Array(82, 78, 80, 87, 199), PackedInt32Array(5, 70, 105, 112), PackedInt32Array(44, 189, 11), PackedInt32Array(180, 199, 87), PackedInt32Array(178, 180, 87, 196, 198), PackedInt32Array(40, 92, 91, 166), PackedInt32Array(166, 91, 165, 164), PackedInt32Array(134, 195, 165, 198, 131), PackedInt32Array(197, 131, 198), PackedInt32Array(178, 198, 5, 177), PackedInt32Array(177, 5, 112, 193)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(3224, 24, 4616, 24, 4616, 776, 3224, 776)])
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"tutorial_obstacles"
+agent_radius = 15.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hjveq"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wa1rj"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tyt62"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6flf4"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yahbl"]
+size = Vector2(1280, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_flxea"]
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m4m0k"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d4ohl"]
+size = Vector2(1280, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_5yu2b"]
+polygon = PackedVector2Array(0, 0, 1280, 0, 1280, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wg1nn"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sn5dl"]
+size = Vector2(24, 960)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_pod4i"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 960, 0, 960)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cjyjf"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lp0lv"]
+size = Vector2(24, 960)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_lbguy"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 960, 0, 960)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uxx3s"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ej5r7"]
+size = Vector2(470, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ntrdq"]
+polygon = PackedVector2Array(0, 0, 470, 0, 470, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2muhv"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qhlv3"]
+size = Vector2(45, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_q87s6"]
+polygon = PackedVector2Array(0, 0, 45, 0, 45, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oghg2"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ilt54"]
+size = Vector2(541, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_aew80"]
+polygon = PackedVector2Array(0, 0, 541, 0, 541, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_l1oy8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_144g8"]
+size = Vector2(86, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_2v145"]
+polygon = PackedVector2Array(0, 0, 86, 0, 86, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wwv41"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_75t7y"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_r4ip3"]
+size = Vector2(90, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_18u7w"]
+polygon = PackedVector2Array(0, 0, 90, 0, 90, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i18t0"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nl3f3"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_83unl"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ravxe"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_127is"]
+size = Vector2(150, 50)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_mmjiw"]
+polygon = PackedVector2Array(16.5, 27.5, 133.5, 27.5, 138, 32, 138, 45.5, 133.5, 50, 16.5, 50, 12, 45.5, 12, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wa1rj"]
+size = Vector2(24, 290)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tyt62"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 290, 0, 290)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vdwj7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6flf4"]
+size = Vector2(560, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_m4m0k"]
+polygon = PackedVector2Array(0, 0, 560, 0, 560, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6s7jb"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r2vt4"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7rhxe"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i3wi1"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wg1nn"]
+size = Vector2(135, 75)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_mhrd0"]
+polygon = PackedVector2Array(17.55, 41.25, 117.450005, 41.25, 124.200005, 48, 124.200005, 68.25, 117.450005, 75, 17.55, 75, 10.8, 68.25, 10.8, 48)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nnxph"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ikixv"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_e08a6"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uxx3s"]
+size = Vector2(72, 240)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_q1fot"]
+polygon = PackedVector2Array(17.856, 132, 54.143997, 132, 66.24, 144.096, 66.24, 227.904, 54.143997, 240, 17.856, 240, 5.76, 227.904, 5.76, 144.096)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tj2us"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oghg2"]
+size = Vector2(100, 65)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_rv8hx"]
+polygon = PackedVector2Array(13.85, 35.75, 86.15, 35.75, 92, 41.6, 92, 59.15, 86.15, 65, 13.85, 65, 8, 59.15, 8, 41.6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_okslh"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ojnv2"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nfdpx"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_y1dew"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g11ga"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uvsws"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_tj2us"]
+vertices = PackedVector2Array(6441, 921, 5239, 921, 5600, 850, 6441, 719, 5420, 850, 5239, 719, 5420, 770, 5600, 770, 5239, 665, 5471, 610, 6035, 597.5, 6165, 597.5, 6441, 665, 5369, 610, 6322.5, 332.5, 6322.5, 227.5, 6441, 39, 5979, 565, 5925, 565, 6165, 502.5, 6157.5, 332.5, 6035, 502.5, 5239, 39, 6157.5, 227.5, 5979, 245, 5369, 340, 5365, 299, 5471, 340, 5925, 299, 5365, 245)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 2, 1), PackedInt32Array(4, 1, 5, 6), PackedInt32Array(6, 5, 3, 7), PackedInt32Array(3, 2, 7), PackedInt32Array(8, 9, 10, 11, 12), PackedInt32Array(13, 9, 8), PackedInt32Array(14, 15, 16, 12), PackedInt32Array(17, 10, 9, 18), PackedInt32Array(14, 12, 11, 19), PackedInt32Array(20, 14, 19, 21), PackedInt32Array(22, 16, 15, 23), PackedInt32Array(21, 10, 17, 24), PackedInt32Array(25, 13, 8, 22, 26), PackedInt32Array(18, 9, 27, 28), PackedInt32Array(26, 28, 27, 25), PackedInt32Array(29, 26, 22), PackedInt32Array(29, 22, 23, 24), PackedInt32Array(21, 24, 23, 20)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(5224, 24, 6456, 24, 6456, 936, 5224, 936)])
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"tutorial_obstacles"
+agent_radius = 15.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8g5jh"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p8801"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xnvae"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8ess0"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p4681"]
+size = Vector2(70, 90)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_07svj"]
+polygon = PackedVector2Array(13.7, 49.5, 56.300003, 49.5, 64.4, 57.6, 64.4, 81.9, 56.300003, 90, 13.7, 90, 5.6, 81.9, 5.6, 57.6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_h1i7f"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_041dv"]
+size = Vector2(112, 50)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_u2hj6"]
+polygon = PackedVector2Array(13.46, 27.5, 98.54, 27.5, 103.04, 32, 103.04, 45.5, 98.54, 50, 13.46, 50, 8.96, 45.5, 8.96, 32)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r1du8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xik0q"]
+size = Vector2(70, 90)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_pse3m"]
+polygon = PackedVector2Array(13.7, 49.5, 56.300003, 49.5, 64.4, 57.6, 64.4, 81.9, 56.300003, 90, 13.7, 90, 5.6, 81.9, 5.6, 57.6)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_deoaa"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wwv41"]
+size = Vector2(960, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_75t7y"]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sguq8"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i18t0"]
+size = Vector2(960, 24)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_nl3f3"]
+polygon = PackedVector2Array(0, 0, 960, 0, 960, 24, 0, 24)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yxur7"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_83unl"]
+size = Vector2(24, 640)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ravxe"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 640, 0, 640)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vlhb3"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mmjiw"]
+size = Vector2(24, 640)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_vdwj7"]
+polygon = PackedVector2Array(0, 0, 24, 0, 24, 640, 0, 640)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_i3003"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xopmp"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6s7jb"]
+size = Vector2(912, 230)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_r2vt4"]
+polygon = PackedVector2Array(0, 0, 912, 0, 912, 230, 0, 230)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tbmle"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7rhxe"]
+size = Vector2(370, 206)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_i3wi1"]
+polygon = PackedVector2Array(0, 0, 370, 0, 370, 206, 0, 206)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_axhtj"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mhrd0"]
+size = Vector2(371, 206)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_nnxph"]
+polygon = PackedVector2Array(0, 0, 371, 0, 371, 206, 0, 206)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_v27ux"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tod53"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ikixv"]
+size = Vector2(120, 36)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_sm556"]
+polygon = PackedVector2Array(12.84, 19.8, 107.16, 19.8, 110.4, 23.039999, 110.4, 32.76, 107.16, 36, 12.84, 36, 9.6, 32.76, 9.6, 23.039999)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gj64b"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vcvd5"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_rv8hx"]
+vertices = PackedVector2Array(7750, 601, 7609, 601, 7609, 591, 7750, 591, 8121, 269, 8121, 395, 7750, 395, 7239, 269, 7750, 525, 7609, 525, 7609, 395, 7239, 395)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7), PackedInt32Array(6, 8, 9, 10), PackedInt32Array(7, 6, 10), PackedInt32Array(7, 10, 11)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(7224, 24, 8136, 24, 8136, 616, 7224, 616)])
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"tutorial_obstacles"
+agent_radius = 15.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kbiai"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mragf"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qskah"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = null
+shader_parameter/contrast = null
+shader_parameter/gain = null
+shader_parameter/detail_radius = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eo0ox"]
+shader = ExtResource("1_i6v53")
+shader_parameter/saturation = 0.08
+shader_parameter/contrast = 0.38
+shader_parameter/gain = 0.56
+shader_parameter/detail_radius = 3.0
+
+[node name="TutorialWorld" type="Node2D" unique_id=124862446]
+texture_filter = 1
+material = SubResource("ShaderMaterial_qcvh1")
+script = ExtResource("1_vfpk0")
+floor_details = Array[Dictionary]([{
+"from": Vector2(3260, 540),
+"path": true,
+"to": Vector2(3580, 540)
+}, {
+"from": Vector2(3580, 540),
+"path": true,
+"to": Vector2(3580, 350)
+}, {
+"from": Vector2(3580, 350),
+"path": true,
+"to": Vector2(4030, 350)
+}, {
+"from": Vector2(4030, 350),
+"path": true,
+"to": Vector2(4030, 540)
+}, {
+"from": Vector2(4030, 540),
+"path": true,
+"to": Vector2(4550, 540)
+}])
+
+[node name="Bedroom" type="Node2D" parent="." unique_id=473783309]
+
+[node name="Wall01" type="StaticBody2D" parent="Bedroom" unique_id=449327021]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/Wall01" unique_id=1599072620]
+position = Vector2(480, 12)
+shape = SubResource("RectangleShape2D_0cr26")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall01" unique_id=547667151]
+occluder = SubResource("OccluderPolygon2D_qcvh1")
+
+[node name="WallArt" type="Node2D" parent="Bedroom/Wall01" unique_id=2047649292]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_02dwp")
+position = Vector2(480, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(960, 24)
+
+[node name="Wall02" type="StaticBody2D" parent="Bedroom" unique_id=986057570]
+position = Vector2(0, 616)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/Wall02" unique_id=1708812742]
+position = Vector2(480, 12)
+shape = SubResource("RectangleShape2D_02dwp")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall02" unique_id=1982749447]
+occluder = SubResource("OccluderPolygon2D_p4681")
+
+[node name="WallArt" type="Node2D" parent="Bedroom/Wall02" unique_id=2054033765]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_p4681")
+position = Vector2(480, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(960, 24)
+
+[node name="Wall03" type="StaticBody2D" parent="Bedroom" unique_id=1470133146]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/Wall03" unique_id=1067805417]
+position = Vector2(12, 320)
+shape = SubResource("RectangleShape2D_5ylgn")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall03" unique_id=41555498]
+occluder = SubResource("OccluderPolygon2D_xik0q")
+
+[node name="WallArt" type="Node2D" parent="Bedroom/Wall03" unique_id=808766918]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_5ylgn")
+position = Vector2(12, 320)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 640)
+
+[node name="Wall04" type="StaticBody2D" parent="Bedroom" unique_id=50675372]
+position = Vector2(936, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/Wall04" unique_id=1754877401]
+position = Vector2(12, 320)
+shape = SubResource("RectangleShape2D_q6423")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall04" unique_id=1088609815]
+occluder = SubResource("OccluderPolygon2D_ghvob")
+
+[node name="WallArt" type="Node2D" parent="Bedroom/Wall04" unique_id=1553765536]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_xik0q")
+position = Vector2(12, 320)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 640)
+
+[node name="bed" type="Node2D" parent="Bedroom" unique_id=362652020]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_q6423")
+position = Vector2(220, 220)
+script = ExtResource("2_041dv")
+kind = "bed"
+dimensions = Vector2(140, 220)
+
+[node name="BedCollision05" type="StaticBody2D" parent="Bedroom" unique_id=824218099]
+position = Vector2(150, 110)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/BedCollision05" unique_id=149329716]
+position = Vector2(70, 110)
+shape = SubResource("RectangleShape2D_dejkf")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/BedCollision05" unique_id=11488051]
+occluder = SubResource("OccluderPolygon2D_dejkf")
+occluder_light_mask = 2
+
+[node name="bed_rug" type="Node2D" parent="Bedroom" unique_id=139069049]
+texture_filter = 1
+material = SubResource("ShaderMaterial_3ycle")
+position = Vector2(420, 360)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(260, 180)
+
+[node name="desk" type="Node2D" parent="Bedroom" unique_id=1307105982]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_i4aai")
+position = Vector2(680, 145)
+script = ExtResource("2_041dv")
+kind = "desk"
+dimensions = Vector2(220, 85)
+
+[node name="DeskCollision06" type="StaticBody2D" parent="Bedroom" unique_id=1458794593]
+position = Vector2(570, 102.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/DeskCollision06" unique_id=83946204]
+position = Vector2(110, 42.5)
+shape = SubResource("RectangleShape2D_i4aai")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/DeskCollision06" unique_id=692249812]
+occluder = SubResource("OccluderPolygon2D_4p3xr")
+occluder_light_mask = 2
+
+[node name="wardrobe" type="Node2D" parent="Bedroom" unique_id=179839131]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ohtp7")
+position = Vector2(110, 520)
+script = ExtResource("2_041dv")
+kind = "shelf"
+dimensions = Vector2(110, 150)
+
+[node name="WardrobeCollision07" type="StaticBody2D" parent="Bedroom" unique_id=1566822092]
+position = Vector2(55, 445)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/WardrobeCollision07" unique_id=1181261697]
+position = Vector2(55, 75)
+shape = SubResource("RectangleShape2D_ohtp7")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/WardrobeCollision07" unique_id=1668682461]
+occluder = SubResource("OccluderPolygon2D_i8uy4")
+occluder_light_mask = 2
+
+[node name="phone" type="Node2D" parent="Bedroom" unique_id=1843862310]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_8eev8")
+position = Vector2(680, 150)
+script = ExtResource("2_041dv")
+kind = "phone"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "phone"
+metadata/interaction_label = "Read the message"
+
+[node name="flashlight" type="Node2D" parent="Bedroom" unique_id=1607249638]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_b860k")
+position = Vector2(620, 220)
+script = ExtResource("2_041dv")
+kind = "flashlight"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "flashlight"
+metadata/interaction_label = "Take flashlight"
+
+[node name="battery" type="Node2D" parent="Bedroom" unique_id=351228188]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_no5fy")
+position = Vector2(718, 220)
+script = ExtResource("2_041dv")
+kind = "battery"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "battery"
+metadata/interaction_label = "Take battery"
+
+[node name="bedroom_exit" type="Node2D" parent="Bedroom" unique_id=935004627]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_adby7")
+position = Vector2(904, 460)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(24, 88)
+metadata/interaction_id = "bedroom_exit"
+metadata/interaction_label = "Leave bedroom"
+
+[node name="bedroom_candle" type="Node2D" parent="Bedroom" unique_id=957649629]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_14y7t")
+position = Vector2(767, 152)
+script = ExtResource("2_041dv")
+kind = "candle"
+dimensions = Vector2(20, 20)
+
+[node name="BedroomDeskLight" type="PointLight2D" parent="Bedroom" unique_id=1015852444 groups=["tutorial_static_lights"]]
+position = Vector2(665, 210)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.5
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 2.7
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.5
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Bedroom/BedroomDeskLight" unique_id=4337179]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_r82a2")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Bedroom/BedroomDeskLight" unique_id=1287412461]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.5
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 2.7
+script = ExtResource("5_0cr26")
+
+[node name="BedroomRestLight" type="PointLight2D" parent="Bedroom" unique_id=1380179794 groups=["tutorial_static_lights"]]
+position = Vector2(340, 440)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 2.6
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.0
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Bedroom/BedroomRestLight" unique_id=1056412323]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_8ahsx")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Bedroom/BedroomRestLight" unique_id=600119505]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 2.6
+script = ExtResource("5_0cr26")
+
+[node name="room_chair" type="Node2D" parent="Bedroom" unique_id=184524665]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ge6bc")
+position = Vector2(95, 130)
+script = ExtResource("2_041dv")
+kind = "chair"
+dimensions = Vector2(75, 90)
+
+[node name="RoomChairCollision08" type="StaticBody2D" parent="Bedroom" unique_id=434389698]
+position = Vector2(57.5, 85)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/RoomChairCollision08" unique_id=1306915250]
+position = Vector2(37.5, 45)
+shape = SubResource("RectangleShape2D_vfpk0")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/RoomChairCollision08" unique_id=1183460469]
+occluder = SubResource("OccluderPolygon2D_mvf21")
+occluder_light_mask = 2
+
+[node name="room_chest" type="Node2D" parent="Bedroom" unique_id=1065202189]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2xehl")
+position = Vector2(400, 120)
+script = ExtResource("2_041dv")
+dimensions = Vector2(105, 52)
+
+[node name="RoomChestCollision09" type="StaticBody2D" parent="Bedroom" unique_id=268666698]
+position = Vector2(347.5, 94)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bedroom/RoomChestCollision09" unique_id=1338370476]
+position = Vector2(52.5, 26)
+shape = SubResource("RectangleShape2D_i6v53")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/RoomChestCollision09" unique_id=1527894226]
+occluder = SubResource("OccluderPolygon2D_6ux8l")
+occluder_light_mask = 2
+
+[node name="room_hearth_mat" type="Node2D" parent="Bedroom" unique_id=863345920]
+texture_filter = 1
+material = SubResource("ShaderMaterial_lyk7k")
+position = Vector2(620, 265)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(235, 92)
+
+[node name="Hallway" type="Node2D" parent="." unique_id=1488493555]
+
+[node name="Wall01" type="StaticBody2D" parent="Hallway" unique_id=1612720808]
+position = Vector2(1600, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall01" unique_id=1322407179]
+position = Vector2(480, 12)
+shape = SubResource("RectangleShape2D_8eev8")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall01" unique_id=314908480]
+occluder = SubResource("OccluderPolygon2D_b860k")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall01" unique_id=2089428142]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_m0jn8")
+position = Vector2(480, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(960, 24)
+
+[node name="Wall02" type="StaticBody2D" parent="Hallway" unique_id=2117862475]
+position = Vector2(1600, 616)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall02" unique_id=1296790284]
+position = Vector2(480, 12)
+shape = SubResource("RectangleShape2D_no5fy")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall02" unique_id=434455530]
+occluder = SubResource("OccluderPolygon2D_adby7")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall02" unique_id=1879951761]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_0l7rf")
+position = Vector2(480, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(960, 24)
+
+[node name="Wall03" type="StaticBody2D" parent="Hallway" unique_id=1581367061]
+position = Vector2(1600, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall03" unique_id=327025700]
+position = Vector2(12, 320)
+shape = SubResource("RectangleShape2D_14y7t")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall03" unique_id=181584559]
+occluder = SubResource("OccluderPolygon2D_r82a2")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall03" unique_id=1474733751]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_y1ufk")
+position = Vector2(12, 320)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 640)
+
+[node name="Wall04" type="StaticBody2D" parent="Hallway" unique_id=2103418935]
+position = Vector2(2536, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall04" unique_id=244823785]
+position = Vector2(12, 320)
+shape = SubResource("RectangleShape2D_8ahsx")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall04" unique_id=1924858253]
+occluder = SubResource("OccluderPolygon2D_ge6bc")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall04" unique_id=1881370654]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_w32ch")
+position = Vector2(12, 320)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 640)
+
+[node name="Wall05" type="StaticBody2D" parent="Hallway" unique_id=311163545]
+position = Vector2(1624, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall05" unique_id=2078064670]
+position = Vector2(456, 133)
+shape = SubResource("RectangleShape2D_mvf21")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall05" unique_id=154458327]
+occluder = SubResource("OccluderPolygon2D_2xehl")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall05" unique_id=2099770830]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nyxwd")
+position = Vector2(456, 133)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(912, 266)
+
+[node name="Wall06" type="StaticBody2D" parent="Hallway" unique_id=1279133857]
+position = Vector2(1624, 390)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall06" unique_id=294714128]
+position = Vector2(203, 113)
+shape = SubResource("RectangleShape2D_6ux8l")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall06" unique_id=795338160]
+occluder = SubResource("OccluderPolygon2D_lyk7k")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall06" unique_id=412122638]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_7c1dp")
+position = Vector2(203, 113)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(406, 226)
+
+[node name="Wall07" type="StaticBody2D" parent="Hallway" unique_id=180256176]
+position = Vector2(2190, 390)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall07" unique_id=1806507908]
+position = Vector2(173, 113)
+shape = SubResource("RectangleShape2D_m0jn8")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall07" unique_id=1130509219]
+occluder = SubResource("OccluderPolygon2D_0l7rf")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall07" unique_id=1047984999]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_o3sin")
+position = Vector2(173, 113)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(346, 226)
+
+[node name="Wall08" type="StaticBody2D" parent="Hallway" unique_id=493435855]
+position = Vector2(2030, 554)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/Wall08" unique_id=1445531600]
+position = Vector2(80, 31)
+shape = SubResource("RectangleShape2D_y1ufk")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall08" unique_id=218413391]
+occluder = SubResource("OccluderPolygon2D_w32ch")
+
+[node name="WallArt" type="Node2D" parent="Hallway/Wall08" unique_id=1939943958]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2epig")
+position = Vector2(80, 31)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(160, 62)
+
+[node name="hall_runner" type="Node2D" parent="Hallway" unique_id=112854679]
+texture_filter = 1
+material = SubResource("ShaderMaterial_y2rbs")
+position = Vector2(2080, 340)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(800, 70)
+
+[node name="parent_door_a" type="Node2D" parent="Hallway" unique_id=30634097]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_oowyn")
+position = Vector2(1930, 287)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(74, 14)
+metadata/occupied_door = true
+
+[node name="parent_door_b" type="Node2D" parent="Hallway" unique_id=503395691]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_f2d16")
+position = Vector2(2310, 287)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(74, 14)
+metadata/occupied_door = true
+
+[node name="hall_coats" type="Node2D" parent="Hallway" unique_id=431422137]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_kdoqd")
+position = Vector2(2110, 526)
+script = ExtResource("2_041dv")
+kind = "coats"
+dimensions = Vector2(120, 24)
+
+[node name="HallCoatsCollision09" type="StaticBody2D" parent="Hallway" unique_id=1565791394]
+position = Vector2(2050, 514)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/HallCoatsCollision09" unique_id=230594413]
+position = Vector2(60, 12)
+shape = SubResource("RectangleShape2D_nyxwd")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/HallCoatsCollision09" unique_id=1939590274]
+occluder = SubResource("OccluderPolygon2D_ad72g")
+occluder_light_mask = 2
+
+[node name="hall_back" type="Node2D" parent="Hallway" unique_id=1318726865]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_6aryl")
+position = Vector2(1662, 340)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(18, 72)
+metadata/interaction_id = "hall_back"
+metadata/interaction_label = "Return to bedroom"
+
+[node name="hall_exit" type="Node2D" parent="Hallway" unique_id=186076008]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_0aduh")
+position = Vector2(2500, 340)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(18, 72)
+metadata/interaction_id = "hall_exit"
+metadata/interaction_label = "Step outside"
+
+[node name="HallEntryLight" type="PointLight2D" parent="Hallway" unique_id=89661835 groups=["tutorial_static_lights"]]
+position = Vector2(1715, 340)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.4
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.05
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.4
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Hallway/HallEntryLight" unique_id=195999339]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_f6ebn")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Hallway/HallEntryLight" unique_id=531646680]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.4
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.05
+script = ExtResource("5_0cr26")
+
+[node name="HallRecoveryLight" type="PointLight2D" parent="Hallway" unique_id=462175129 groups=["tutorial_static_lights"]]
+position = Vector2(2110, 482)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.6
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.5
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.6
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Hallway/HallRecoveryLight" unique_id=1748813005]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_f8dq7")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Hallway/HallRecoveryLight" unique_id=418719167]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.6
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.5
+script = ExtResource("5_0cr26")
+
+[node name="HallExitLight" type="PointLight2D" parent="Hallway" unique_id=1822021787 groups=["tutorial_static_lights"]]
+position = Vector2(2490, 340)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.4
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.05
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.4
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Hallway/HallExitLight" unique_id=2023023477]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nbn0f")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Hallway/HallExitLight" unique_id=735915682]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.4
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.05
+script = ExtResource("5_0cr26")
+
+[node name="ParentDoorFillA" type="PointLight2D" parent="Hallway" unique_id=163375642 groups=["tutorial_static_lights"]]
+position = Vector2(1930, 309)
+color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+energy = 0.2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 0.6
+metadata/lighting_role = "danger"
+metadata/rest_energy = 0.2
+metadata/rest_color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Hallway/ParentDoorFillA" unique_id=836043433]
+process_priority = 1
+color = Color(0.44313726, 0.53333336, 0.60784316, 1)
+energy = 0.2
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 0.6
+script = ExtResource("5_0cr26")
+
+[node name="ParentDoorFillB" type="PointLight2D" parent="Hallway" unique_id=1335653518 groups=["tutorial_static_lights"]]
+position = Vector2(2310, 309)
+color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+energy = 0.2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 0.6
+metadata/lighting_role = "danger"
+metadata/rest_energy = 0.2
+metadata/rest_color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Hallway/ParentDoorFillB" unique_id=2079712633]
+process_priority = 1
+color = Color(0.44313726, 0.53333336, 0.60784316, 1)
+energy = 0.2
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 0.6
+script = ExtResource("5_0cr26")
+
+[node name="hall_refuge_mat" type="Node2D" parent="Hallway" unique_id=386549946]
+texture_filter = 1
+material = SubResource("ShaderMaterial_dd5ag")
+position = Vector2(2110, 461)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(126, 128)
+
+[node name="hall_refuge_chest" type="Node2D" parent="Hallway" unique_id=69940005]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_y46m7")
+position = Vector2(2058, 535)
+script = ExtResource("2_041dv")
+dimensions = Vector2(40, 35)
+
+[node name="HallRefugeChestCollision10" type="StaticBody2D" parent="Hallway" unique_id=1778214015]
+position = Vector2(2038, 517.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hallway/HallRefugeChestCollision10" unique_id=411824641]
+position = Vector2(20, 17.5)
+shape = SubResource("RectangleShape2D_qcvh1")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/HallRefugeChestCollision10" unique_id=1176903956]
+occluder = SubResource("OccluderPolygon2D_pq606")
+occluder_light_mask = 2
+
+[node name="Forest" type="Node2D" parent="." unique_id=1102563027]
+
+[node name="Wall01" type="StaticBody2D" parent="Forest" unique_id=1149556551]
+position = Vector2(3200, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/Wall01" unique_id=1662446391]
+position = Vector2(720, 12)
+shape = SubResource("RectangleShape2D_o3sin")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall01" unique_id=184239732]
+occluder = SubResource("OccluderPolygon2D_2epig")
+
+[node name="WallArt" type="Node2D" parent="Forest/Wall01" unique_id=1617002289]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ldj3y")
+position = Vector2(720, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(1440, 24)
+
+[node name="Wall02" type="StaticBody2D" parent="Forest" unique_id=1310143334]
+position = Vector2(3200, 776)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/Wall02" unique_id=1217677951]
+position = Vector2(720, 12)
+shape = SubResource("RectangleShape2D_y2rbs")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall02" unique_id=1573753566]
+occluder = SubResource("OccluderPolygon2D_oowyn")
+
+[node name="WallArt" type="Node2D" parent="Forest/Wall02" unique_id=371247634]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_xtfg8")
+position = Vector2(720, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(1440, 24)
+
+[node name="Wall03" type="StaticBody2D" parent="Forest" unique_id=748030075]
+position = Vector2(3200, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/Wall03" unique_id=262425920]
+position = Vector2(12, 400)
+shape = SubResource("RectangleShape2D_f2d16")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall03" unique_id=780006348]
+occluder = SubResource("OccluderPolygon2D_kdoqd")
+
+[node name="WallArt" type="Node2D" parent="Forest/Wall03" unique_id=1924184509]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_dgc4c")
+position = Vector2(12, 400)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 800)
+
+[node name="Wall04" type="StaticBody2D" parent="Forest" unique_id=1238215107]
+position = Vector2(4616, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/Wall04" unique_id=1304021059]
+position = Vector2(12, 400)
+shape = SubResource("RectangleShape2D_ad72g")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall04" unique_id=1646797358]
+occluder = SubResource("OccluderPolygon2D_6aryl")
+
+[node name="WallArt" type="Node2D" parent="Forest/Wall04" unique_id=899940086]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_jffjb")
+position = Vector2(12, 400)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 800)
+
+[node name="tree_0" type="Node2D" parent="Forest" unique_id=1928253358]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2ux4c")
+position = Vector2(3650.9707, 693.15906)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk05" type="StaticBody2D" parent="Forest" unique_id=581188501]
+position = Vector2(3640.9707, 688.15906)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk05" unique_id=905461426]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_0aduh")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk05" unique_id=585999342]
+occluder = SubResource("OccluderPolygon2D_rdk1f")
+occluder_light_mask = 2
+
+[node name="tree_3" type="Node2D" parent="Forest" unique_id=932003907]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_igttx")
+position = Vector2(3749.5718, 632.7391)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk06" type="StaticBody2D" parent="Forest" unique_id=1270559244]
+position = Vector2(3739.5718, 627.7391)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk06" unique_id=1390210180]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_f8dq7")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk06" unique_id=1051823251]
+occluder = SubResource("OccluderPolygon2D_g04m7")
+occluder_light_mask = 2
+
+[node name="tree_4" type="Node2D" parent="Forest" unique_id=922836014]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_st8xn")
+position = Vector2(4084.5076, 87.41465)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk07" type="StaticBody2D" parent="Forest" unique_id=579022310]
+position = Vector2(4074.5076, 82.41465)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk07" unique_id=1557173005]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_dd5ag")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk07" unique_id=212450712]
+occluder = SubResource("OccluderPolygon2D_ug5os")
+occluder_light_mask = 2
+
+[node name="tree_5" type="Node2D" parent="Forest" unique_id=1038587808]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_k72vk")
+position = Vector2(3923.49, 157.00688)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk08" type="StaticBody2D" parent="Forest" unique_id=564854812]
+position = Vector2(3913.49, 152.00688)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk08" unique_id=500861971]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_pq606")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk08" unique_id=2030787049]
+occluder = SubResource("OccluderPolygon2D_xdrr2")
+occluder_light_mask = 2
+
+[node name="tree_7" type="Node2D" parent="Forest" unique_id=1023191705]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_iw65x")
+position = Vector2(4364.132, 227.14615)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk09" type="StaticBody2D" parent="Forest" unique_id=1272150028]
+position = Vector2(4354.132, 222.14615)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk09" unique_id=768889599]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_xtfg8")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk09" unique_id=29181194]
+occluder = SubResource("OccluderPolygon2D_iik6m")
+occluder_light_mask = 2
+
+[node name="tree_9" type="Node2D" parent="Forest" unique_id=888293152]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_n72d1")
+position = Vector2(4298.697, 432.83792)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk10" type="StaticBody2D" parent="Forest" unique_id=1493181610]
+position = Vector2(4288.697, 427.83792)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk10" unique_id=726076299]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_jffjb")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk10" unique_id=336892536]
+occluder = SubResource("OccluderPolygon2D_ht30j")
+occluder_light_mask = 2
+
+[node name="tree_10" type="Node2D" parent="Forest" unique_id=321772020]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ct6o6")
+position = Vector2(3788.2803, 225.27403)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk11" type="StaticBody2D" parent="Forest" unique_id=738097627]
+position = Vector2(3778.2803, 220.27403)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk11" unique_id=2136632658]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_rdk1f")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk11" unique_id=648471980]
+occluder = SubResource("OccluderPolygon2D_t1w7s")
+occluder_light_mask = 2
+
+[node name="tree_12" type="Node2D" parent="Forest" unique_id=1881873307]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_d8l8b")
+position = Vector2(3401.7776, 718.52)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk12" type="StaticBody2D" parent="Forest" unique_id=1591886708]
+position = Vector2(3391.7776, 713.52)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk12" unique_id=966847762]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_g04m7")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk12" unique_id=86561062]
+occluder = SubResource("OccluderPolygon2D_7v40c")
+occluder_light_mask = 2
+
+[node name="tree_13" type="Node2D" parent="Forest" unique_id=827819662]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ndbtg")
+position = Vector2(3728.0388, 727.4888)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk13" type="StaticBody2D" parent="Forest" unique_id=1336731499]
+position = Vector2(3718.0388, 722.4888)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk13" unique_id=1870138671]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ug5os")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk13" unique_id=1588511943]
+occluder = SubResource("OccluderPolygon2D_2i8wi")
+occluder_light_mask = 2
+
+[node name="tree_14" type="Node2D" parent="Forest" unique_id=1632866279]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_a3dfl")
+position = Vector2(3453.1326, 252.85492)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk14" type="StaticBody2D" parent="Forest" unique_id=587594254]
+position = Vector2(3443.1326, 247.85492)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk14" unique_id=1381298694]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_xdrr2")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk14" unique_id=562916629]
+occluder = SubResource("OccluderPolygon2D_3swje")
+occluder_light_mask = 2
+
+[node name="tree_16" type="Node2D" parent="Forest" unique_id=602519445]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ipkla")
+position = Vector2(3418.2334, 666.5572)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk15" type="StaticBody2D" parent="Forest" unique_id=702506473]
+position = Vector2(3408.2334, 661.5572)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk15" unique_id=835587783]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_iik6m")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk15" unique_id=1395102783]
+occluder = SubResource("OccluderPolygon2D_uvif3")
+occluder_light_mask = 2
+
+[node name="tree_17" type="Node2D" parent="Forest" unique_id=139425019]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_pp4qp")
+position = Vector2(3461.0496, 172.38438)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk16" type="StaticBody2D" parent="Forest" unique_id=2082601173]
+position = Vector2(3451.0496, 167.38438)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk16" unique_id=3978458]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ht30j")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk16" unique_id=68958134]
+occluder = SubResource("OccluderPolygon2D_wy556")
+occluder_light_mask = 2
+
+[node name="tree_21" type="Node2D" parent="Forest" unique_id=1847615055]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_6s6fg")
+position = Vector2(3328.4575, 339.1068)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk17" type="StaticBody2D" parent="Forest" unique_id=469249809]
+position = Vector2(3318.4575, 334.1068)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk17" unique_id=865548278]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_t1w7s")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk17" unique_id=8265345]
+occluder = SubResource("OccluderPolygon2D_vpce3")
+occluder_light_mask = 2
+
+[node name="tree_22" type="Node2D" parent="Forest" unique_id=1583956918]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nwspj")
+position = Vector2(4258.631, 368.2324)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk18" type="StaticBody2D" parent="Forest" unique_id=1026574775]
+position = Vector2(4248.631, 363.2324)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk18" unique_id=419426899]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_7v40c")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk18" unique_id=1929050838]
+occluder = SubResource("OccluderPolygon2D_ek37e")
+occluder_light_mask = 2
+
+[node name="tree_24" type="Node2D" parent="Forest" unique_id=1201000859]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_aorbt")
+position = Vector2(3828.4028, 145.62943)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk19" type="StaticBody2D" parent="Forest" unique_id=330333954]
+position = Vector2(3818.4028, 140.62943)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk19" unique_id=1560356673]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_2i8wi")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk19" unique_id=1086539069]
+occluder = SubResource("OccluderPolygon2D_aie8e")
+occluder_light_mask = 2
+
+[node name="tree_25" type="Node2D" parent="Forest" unique_id=1098053151]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vs0gn")
+position = Vector2(4443.392, 225.44255)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk20" type="StaticBody2D" parent="Forest" unique_id=755196475]
+position = Vector2(4433.392, 220.44255)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk20" unique_id=453739525]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_3swje")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk20" unique_id=1492777077]
+occluder = SubResource("OccluderPolygon2D_k2oi0")
+occluder_light_mask = 2
+
+[node name="tree_26" type="Node2D" parent="Forest" unique_id=1332599241]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_sjb05")
+position = Vector2(4359.4326, 104.903824)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk21" type="StaticBody2D" parent="Forest" unique_id=1447038198]
+position = Vector2(4349.4326, 99.903824)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk21" unique_id=1947074469]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_uvif3")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk21" unique_id=309924742]
+occluder = SubResource("OccluderPolygon2D_b8mxl")
+occluder_light_mask = 2
+
+[node name="tree_27" type="Node2D" parent="Forest" unique_id=1344127963]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nwvin")
+position = Vector2(3820.2856, 129.01218)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk22" type="StaticBody2D" parent="Forest" unique_id=1878551343]
+position = Vector2(3810.2856, 124.01218)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk22" unique_id=2029542170]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_wy556")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk22" unique_id=1925470118]
+occluder = SubResource("OccluderPolygon2D_yfv48")
+occluder_light_mask = 2
+
+[node name="tree_28" type="Node2D" parent="Forest" unique_id=1247857352]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_4pjhj")
+position = Vector2(3420.8855, 699.92535)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk23" type="StaticBody2D" parent="Forest" unique_id=2023501129]
+position = Vector2(3410.8855, 694.92535)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk23" unique_id=1829772145]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_vpce3")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk23" unique_id=1071008476]
+occluder = SubResource("OccluderPolygon2D_7ujk8")
+occluder_light_mask = 2
+
+[node name="tree_29" type="Node2D" parent="Forest" unique_id=10371143]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vhfrv")
+position = Vector2(4574.291, 390.8069)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk24" type="StaticBody2D" parent="Forest" unique_id=382910622]
+position = Vector2(4564.291, 385.8069)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk24" unique_id=1782987874]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ek37e")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk24" unique_id=1479460207]
+occluder = SubResource("OccluderPolygon2D_ot687")
+occluder_light_mask = 2
+
+[node name="tree_30" type="Node2D" parent="Forest" unique_id=191981774]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_wcfk2")
+position = Vector2(3570.4727, 729.152)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk25" type="StaticBody2D" parent="Forest" unique_id=1560256771]
+position = Vector2(3560.4727, 724.152)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk25" unique_id=1047744023]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_aie8e")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk25" unique_id=894556607]
+occluder = SubResource("OccluderPolygon2D_6ps4t")
+occluder_light_mask = 2
+
+[node name="tree_31" type="Node2D" parent="Forest" unique_id=2107453297]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_mxn3d")
+position = Vector2(3425.9917, 341.02103)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk26" type="StaticBody2D" parent="Forest" unique_id=1304879565]
+position = Vector2(3415.9917, 336.02103)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk26" unique_id=2079851873]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_k2oi0")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk26" unique_id=312876461]
+occluder = SubResource("OccluderPolygon2D_o725y")
+occluder_light_mask = 2
+
+[node name="tree_36" type="Node2D" parent="Forest" unique_id=195416311]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vyv3i")
+position = Vector2(4295.6055, 159.83456)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk27" type="StaticBody2D" parent="Forest" unique_id=163807609]
+position = Vector2(4285.6055, 154.83456)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk27" unique_id=1199340988]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_b8mxl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk27" unique_id=215664262]
+occluder = SubResource("OccluderPolygon2D_ne8ds")
+occluder_light_mask = 2
+
+[node name="tree_37" type="Node2D" parent="Forest" unique_id=1448021550]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_pvvad")
+position = Vector2(4239.603, 373.21957)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk28" type="StaticBody2D" parent="Forest" unique_id=756996266]
+position = Vector2(4229.603, 368.21957)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk28" unique_id=720759999]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_yfv48")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk28" unique_id=1435678561]
+occluder = SubResource("OccluderPolygon2D_ad0sl")
+occluder_light_mask = 2
+
+[node name="tree_39" type="Node2D" parent="Forest" unique_id=172623249]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_c8w73")
+position = Vector2(3366.9297, 711.5748)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk29" type="StaticBody2D" parent="Forest" unique_id=1421861594]
+position = Vector2(3356.9297, 706.5748)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk29" unique_id=965474992]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_7ujk8")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk29" unique_id=210775698]
+occluder = SubResource("OccluderPolygon2D_3c1d3")
+occluder_light_mask = 2
+
+[node name="tree_40" type="Node2D" parent="Forest" unique_id=1943601203]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_qdk7y")
+position = Vector2(4350.134, 378.0438)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk30" type="StaticBody2D" parent="Forest" unique_id=437400464]
+position = Vector2(4340.134, 373.0438)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk30" unique_id=1645639808]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ot687")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk30" unique_id=49280996]
+occluder = SubResource("OccluderPolygon2D_xg05r")
+occluder_light_mask = 2
+
+[node name="tree_41" type="Node2D" parent="Forest" unique_id=1491087759]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_u3c0f")
+position = Vector2(3634.233, 70.60524)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk31" type="StaticBody2D" parent="Forest" unique_id=86198207]
+position = Vector2(3624.233, 65.60524)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk31" unique_id=806430442]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_6ps4t")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk31" unique_id=1913091350]
+occluder = SubResource("OccluderPolygon2D_ir86m")
+occluder_light_mask = 2
+
+[node name="tree_42" type="Node2D" parent="Forest" unique_id=1453370222]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_07ss5")
+position = Vector2(4335.825, 250.84966)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk32" type="StaticBody2D" parent="Forest" unique_id=41101865]
+position = Vector2(4325.825, 245.84966)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk32" unique_id=1340548494]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_o725y")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk32" unique_id=1487198708]
+occluder = SubResource("OccluderPolygon2D_xs1eq")
+occluder_light_mask = 2
+
+[node name="tree_44" type="Node2D" parent="Forest" unique_id=361673682]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_1io7n")
+position = Vector2(3599.3333, 105.43002)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk33" type="StaticBody2D" parent="Forest" unique_id=1673598177]
+position = Vector2(3589.3333, 100.43002)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk33" unique_id=31584317]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ne8ds")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk33" unique_id=2094174210]
+occluder = SubResource("OccluderPolygon2D_1b666")
+occluder_light_mask = 2
+
+[node name="tree_46" type="Node2D" parent="Forest" unique_id=1885643131]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_h1ptp")
+position = Vector2(3893.7822, 172.08043)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk34" type="StaticBody2D" parent="Forest" unique_id=1888820193]
+position = Vector2(3883.7822, 167.08043)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk34" unique_id=1808955986]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ad0sl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk34" unique_id=183284620]
+occluder = SubResource("OccluderPolygon2D_gqjo8")
+occluder_light_mask = 2
+
+[node name="tree_50" type="Node2D" parent="Forest" unique_id=825210015]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_rqytg")
+position = Vector2(3358.969, 120.25721)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk35" type="StaticBody2D" parent="Forest" unique_id=1119858384]
+position = Vector2(3348.969, 115.25721)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk35" unique_id=1491353211]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_3c1d3")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk35" unique_id=472565984]
+occluder = SubResource("OccluderPolygon2D_v2lb4")
+occluder_light_mask = 2
+
+[node name="tree_52" type="Node2D" parent="Forest" unique_id=619823994]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2gbjb")
+position = Vector2(3359.5283, 321.18814)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk36" type="StaticBody2D" parent="Forest" unique_id=1542141556]
+position = Vector2(3349.5283, 316.18814)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk36" unique_id=1056861150]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_xg05r")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk36" unique_id=1992719883]
+occluder = SubResource("OccluderPolygon2D_r2msu")
+occluder_light_mask = 2
+
+[node name="tree_53" type="Node2D" parent="Forest" unique_id=888188318]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nhvf1")
+position = Vector2(4279.7847, 142.93477)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk37" type="StaticBody2D" parent="Forest" unique_id=1525296]
+position = Vector2(4269.7847, 137.93477)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk37" unique_id=1751040558]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ir86m")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk37" unique_id=1159677517]
+occluder = SubResource("OccluderPolygon2D_0sky3")
+occluder_light_mask = 2
+
+[node name="tree_54" type="Node2D" parent="Forest" unique_id=1255271518]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_s6nri")
+position = Vector2(4285.77, 424.6612)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk38" type="StaticBody2D" parent="Forest" unique_id=1104919299]
+position = Vector2(4275.77, 419.6612)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk38" unique_id=539050377]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_xs1eq")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk38" unique_id=849060661]
+occluder = SubResource("OccluderPolygon2D_ookwg")
+occluder_light_mask = 2
+
+[node name="tree_55" type="Node2D" parent="Forest" unique_id=664576566]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_krbu8")
+position = Vector2(3940.3848, 693.888)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk39" type="StaticBody2D" parent="Forest" unique_id=1947466609]
+position = Vector2(3930.3848, 688.888)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk39" unique_id=603425407]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_1b666")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk39" unique_id=802632129]
+occluder = SubResource("OccluderPolygon2D_kuwtf")
+occluder_light_mask = 2
+
+[node name="tree_56" type="Node2D" parent="Forest" unique_id=1768852594]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_iiv2w")
+position = Vector2(3292.015, 324.64938)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk40" type="StaticBody2D" parent="Forest" unique_id=476401572]
+position = Vector2(3282.015, 319.64938)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk40" unique_id=1019829495]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_gqjo8")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk40" unique_id=1394069620]
+occluder = SubResource("OccluderPolygon2D_2e6p7")
+occluder_light_mask = 2
+
+[node name="tree_58" type="Node2D" parent="Forest" unique_id=1703893050]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_qf1ye")
+position = Vector2(3690.2354, 231.24753)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk41" type="StaticBody2D" parent="Forest" unique_id=617158114]
+position = Vector2(3680.2354, 226.24753)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk41" unique_id=257750809]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_v2lb4")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk41" unique_id=449672950]
+occluder = SubResource("OccluderPolygon2D_fxl8y")
+occluder_light_mask = 2
+
+[node name="tree_59" type="Node2D" parent="Forest" unique_id=80270384]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_p2xvr")
+position = Vector2(3397.006, 202.81772)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk42" type="StaticBody2D" parent="Forest" unique_id=512648102]
+position = Vector2(3387.006, 197.81772)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk42" unique_id=449366500]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_r2msu")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk42" unique_id=469485434]
+occluder = SubResource("OccluderPolygon2D_rgxvx")
+occluder_light_mask = 2
+
+[node name="tree_60" type="Node2D" parent="Forest" unique_id=1702146470]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_duplf")
+position = Vector2(3476.1885, 713.746)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk43" type="StaticBody2D" parent="Forest" unique_id=59748012]
+position = Vector2(3466.1885, 708.746)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk43" unique_id=2104334416]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_0sky3")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk43" unique_id=238047755]
+occluder = SubResource("OccluderPolygon2D_5shjy")
+occluder_light_mask = 2
+
+[node name="tree_61" type="Node2D" parent="Forest" unique_id=958322341]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_rwl7n")
+position = Vector2(3701.2493, 122.257935)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk44" type="StaticBody2D" parent="Forest" unique_id=1356124061]
+position = Vector2(3691.2493, 117.257935)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk44" unique_id=399807659]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_ookwg")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk44" unique_id=1879287226]
+occluder = SubResource("OccluderPolygon2D_wt3up")
+occluder_light_mask = 2
+
+[node name="tree_62" type="Node2D" parent="Forest" unique_id=431943736]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ukkg7")
+position = Vector2(3572.5596, 188.91736)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk45" type="StaticBody2D" parent="Forest" unique_id=562056971]
+position = Vector2(3562.5596, 183.91736)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk45" unique_id=1756238574]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_kuwtf")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk45" unique_id=1646221977]
+occluder = SubResource("OccluderPolygon2D_uh5pd")
+occluder_light_mask = 2
+
+[node name="tree_63" type="Node2D" parent="Forest" unique_id=1489757959]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_f4q66")
+position = Vector2(3930.9404, 724.5842)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk46" type="StaticBody2D" parent="Forest" unique_id=1351354418]
+position = Vector2(3920.9404, 719.5842)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk46" unique_id=2094188627]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_2e6p7")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk46" unique_id=305147755]
+occluder = SubResource("OccluderPolygon2D_u24tl")
+occluder_light_mask = 2
+
+[node name="tree_66" type="Node2D" parent="Forest" unique_id=1732000400]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_tl73c")
+position = Vector2(4186.3706, 223.09706)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk47" type="StaticBody2D" parent="Forest" unique_id=1407361524]
+position = Vector2(4176.3706, 218.09706)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk47" unique_id=1490559125]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_fxl8y")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk47" unique_id=703881752]
+occluder = SubResource("OccluderPolygon2D_5utcg")
+occluder_light_mask = 2
+
+[node name="tree_68" type="Node2D" parent="Forest" unique_id=1839914924]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_esupq")
+position = Vector2(3715.9915, 503.24792)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk48" type="StaticBody2D" parent="Forest" unique_id=1901521985]
+position = Vector2(3705.9915, 498.24792)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk48" unique_id=797570529]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_rgxvx")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk48" unique_id=1595067062]
+occluder = SubResource("OccluderPolygon2D_1t3q4")
+occluder_light_mask = 2
+
+[node name="tree_69" type="Node2D" parent="Forest" unique_id=1781985827]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_1ui7d")
+position = Vector2(3685.86, 523.5034)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk49" type="StaticBody2D" parent="Forest" unique_id=1013874315]
+position = Vector2(3675.86, 518.5034)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk49" unique_id=973913314]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_5shjy")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk49" unique_id=1079047558]
+occluder = SubResource("OccluderPolygon2D_yahbl")
+occluder_light_mask = 2
+
+[node name="tree_70" type="Node2D" parent="Forest" unique_id=833245613]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_flxea")
+position = Vector2(3672.3745, 107.31172)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk50" type="StaticBody2D" parent="Forest" unique_id=1661025165]
+position = Vector2(3662.3745, 102.31172)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk50" unique_id=2145768671]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_wt3up")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk50" unique_id=971856204]
+occluder = SubResource("OccluderPolygon2D_d4ohl")
+occluder_light_mask = 2
+
+[node name="tree_71" type="Node2D" parent="Forest" unique_id=812013829]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_5yu2b")
+position = Vector2(4443.3125, 139.35501)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk51" type="StaticBody2D" parent="Forest" unique_id=1789012420]
+position = Vector2(4433.3125, 134.35501)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk51" unique_id=555207222]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_uh5pd")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk51" unique_id=1420586274]
+occluder = SubResource("OccluderPolygon2D_sn5dl")
+occluder_light_mask = 2
+
+[node name="tree_72" type="Node2D" parent="Forest" unique_id=514218870]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_pod4i")
+position = Vector2(3981.022, 692.22955)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk52" type="StaticBody2D" parent="Forest" unique_id=956439684]
+position = Vector2(3971.022, 687.22955)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk52" unique_id=1240265697]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_u24tl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk52" unique_id=244658461]
+occluder = SubResource("OccluderPolygon2D_lp0lv")
+occluder_light_mask = 2
+
+[node name="tree_74" type="Node2D" parent="Forest" unique_id=1643772262]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_lbguy")
+position = Vector2(3302.1465, 669.092)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk53" type="StaticBody2D" parent="Forest" unique_id=1923431551]
+position = Vector2(3292.1465, 664.092)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk53" unique_id=1522183564]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_5utcg")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk53" unique_id=524805334]
+occluder = SubResource("OccluderPolygon2D_ej5r7")
+occluder_light_mask = 2
+
+[node name="tree_76" type="Node2D" parent="Forest" unique_id=1374223859]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ntrdq")
+position = Vector2(4564.281, 138.199)
+script = ExtResource("2_041dv")
+kind = "tree"
+dimensions = Vector2(85, 120)
+
+[node name="TreeTrunk54" type="StaticBody2D" parent="Forest" unique_id=590597028]
+position = Vector2(4554.281, 133.199)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Forest/TreeTrunk54" unique_id=1251208509]
+position = Vector2(10, 14)
+shape = SubResource("RectangleShape2D_1t3q4")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk54" unique_id=536382499]
+occluder = SubResource("OccluderPolygon2D_qhlv3")
+occluder_light_mask = 2
+
+[node name="mark_(270_0, 580_0)" type="Node2D" parent="Forest" unique_id=720658737]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_q87s6")
+position = Vector2(3470, 580)
+script = ExtResource("2_041dv")
+kind = "marker"
+
+[node name="mark_(420_0, 400_0)" type="Node2D" parent="Forest" unique_id=117383071]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ilt54")
+position = Vector2(3620, 400)
+script = ExtResource("2_041dv")
+kind = "marker"
+
+[node name="mark_(760_0, 395_0)" type="Node2D" parent="Forest" unique_id=1709346843]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_aew80")
+position = Vector2(3960, 395)
+script = ExtResource("2_041dv")
+kind = "marker"
+
+[node name="mark_(1080_0, 580_0)" type="Node2D" parent="Forest" unique_id=1971074517]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_144g8")
+position = Vector2(4280, 580)
+script = ExtResource("2_041dv")
+kind = "marker"
+
+[node name="forest_rocks" type="Node2D" parent="Forest" unique_id=246002812]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2v145")
+position = Vector2(3860, 400)
+script = ExtResource("2_041dv")
+kind = "rocks"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "forest_rocks"
+metadata/interaction_label = "Collect three rocks"
+
+[node name="forest_battery" type="Node2D" parent="Forest" unique_id=1424443482]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_r4ip3")
+position = Vector2(3850, 460)
+script = ExtResource("2_041dv")
+kind = "battery"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "forest_battery"
+metadata/interaction_label = "Take spare battery"
+
+[node name="forest_exit" type="Node2D" parent="Forest" unique_id=25377023]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_18u7w")
+position = Vector2(4520, 540)
+script = ExtResource("2_041dv")
+kind = "marker"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "forest_exit"
+metadata/interaction_label = "Follow the path to the house"
+
+[node name="forest_back" type="Node2D" parent="Forest" unique_id=363762116]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_127is")
+position = Vector2(3270, 540)
+script = ExtResource("2_041dv")
+kind = "marker"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "forest_back"
+metadata/interaction_label = "Return home"
+
+[node name="ForestNavigation" type="NavigationRegion2D" parent="Forest" unique_id=968818862]
+navigation_polygon = SubResource("NavigationPolygon_q1fot")
+
+[node name="ForestEntryLight" type="PointLight2D" parent="Forest" unique_id=1077876404 groups=["tutorial_static_lights"]]
+position = Vector2(3350, 540)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.3
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.8
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.3
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Forest/ForestEntryLight" unique_id=691718478]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_hjveq")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Forest/ForestEntryLight" unique_id=1469177470]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.3
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.8
+script = ExtResource("5_0cr26")
+
+[node name="ForestClearingLight" type="PointLight2D" parent="Forest" unique_id=1904460429 groups=["tutorial_static_lights"]]
+position = Vector2(3850, 490)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.5
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.8
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.5
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Forest/ForestClearingLight" unique_id=877021975]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_wa1rj")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Forest/ForestClearingLight" unique_id=31007943]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.5
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.8
+script = ExtResource("5_0cr26")
+
+[node name="ForestRestLight" type="PointLight2D" parent="Forest" unique_id=81891312 groups=["tutorial_static_lights"]]
+position = Vector2(4220, 540)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.25
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.6
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.25
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Forest/ForestRestLight" unique_id=2087999694]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_tyt62")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Forest/ForestRestLight" unique_id=773492983]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.25
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.6
+script = ExtResource("5_0cr26")
+
+[node name="ForestExitLight" type="PointLight2D" parent="Forest" unique_id=772959810 groups=["tutorial_static_lights"]]
+position = Vector2(4520, 540)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.3
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.7
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.3
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Forest/ForestExitLight" unique_id=457972356]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_6flf4")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Forest/ForestExitLight" unique_id=962512366]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.3
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.7
+script = ExtResource("5_0cr26")
+
+[node name="ForestCrossingFillA" type="PointLight2D" parent="Forest" unique_id=464618497 groups=["tutorial_static_lights"]]
+position = Vector2(3580, 350)
+color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+energy = 0.18
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+metadata/lighting_role = "danger"
+metadata/rest_energy = 0.18
+metadata/rest_color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Forest/ForestCrossingFillA" unique_id=2135265122]
+process_priority = 1
+color = Color(0.44313726, 0.53333336, 0.60784316, 1)
+energy = 0.18
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+script = ExtResource("5_0cr26")
+
+[node name="ForestCrossingFillB" type="PointLight2D" parent="Forest" unique_id=1549126127 groups=["tutorial_static_lights"]]
+position = Vector2(4020, 350)
+color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+energy = 0.18
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+metadata/lighting_role = "danger"
+metadata/rest_energy = 0.18
+metadata/rest_color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Forest/ForestCrossingFillB" unique_id=949677083]
+process_priority = 1
+color = Color(0.44313726, 0.53333336, 0.60784316, 1)
+energy = 0.18
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+script = ExtResource("5_0cr26")
+
+[node name="House" type="Node2D" parent="." unique_id=1330124124]
+
+[node name="Wall01" type="StaticBody2D" parent="House" unique_id=1370006427]
+position = Vector2(5200, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall01" unique_id=2029683770]
+position = Vector2(640, 12)
+shape = SubResource("RectangleShape2D_yahbl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall01" unique_id=467107566]
+occluder = SubResource("OccluderPolygon2D_flxea")
+
+[node name="WallArt" type="Node2D" parent="House/Wall01" unique_id=1415899327]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_m4m0k")
+position = Vector2(640, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(1280, 24)
+
+[node name="Wall02" type="StaticBody2D" parent="House" unique_id=79631451]
+position = Vector2(5200, 936)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall02" unique_id=1650426955]
+position = Vector2(640, 12)
+shape = SubResource("RectangleShape2D_d4ohl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall02" unique_id=388982778]
+occluder = SubResource("OccluderPolygon2D_5yu2b")
+
+[node name="WallArt" type="Node2D" parent="House/Wall02" unique_id=1534095111]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_wg1nn")
+position = Vector2(640, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(1280, 24)
+
+[node name="Wall03" type="StaticBody2D" parent="House" unique_id=2061207139]
+position = Vector2(5200, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall03" unique_id=760253737]
+position = Vector2(12, 480)
+shape = SubResource("RectangleShape2D_sn5dl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall03" unique_id=406987978]
+occluder = SubResource("OccluderPolygon2D_pod4i")
+
+[node name="WallArt" type="Node2D" parent="House/Wall03" unique_id=1462427301]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_cjyjf")
+position = Vector2(12, 480)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 960)
+
+[node name="Wall04" type="StaticBody2D" parent="House" unique_id=1035494746]
+position = Vector2(6456, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall04" unique_id=217679818]
+position = Vector2(12, 480)
+shape = SubResource("RectangleShape2D_lp0lv")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall04" unique_id=1251763050]
+occluder = SubResource("OccluderPolygon2D_lbguy")
+
+[node name="WallArt" type="Node2D" parent="House/Wall04" unique_id=1916245356]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_uxx3s")
+position = Vector2(12, 480)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 960)
+
+[node name="Wall05" type="StaticBody2D" parent="House" unique_id=334522021]
+position = Vector2(5224, 680)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall05" unique_id=2034116820]
+position = Vector2(235, 12)
+shape = SubResource("RectangleShape2D_ej5r7")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall05" unique_id=479297223]
+occluder = SubResource("OccluderPolygon2D_ntrdq")
+
+[node name="WallArt" type="Node2D" parent="House/Wall05" unique_id=777966908]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2muhv")
+position = Vector2(235, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(470, 24)
+
+[node name="Wall06" type="StaticBody2D" parent="House" unique_id=758339779]
+position = Vector2(5780, 680)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall06" unique_id=1261944068]
+position = Vector2(22.5, 12)
+shape = SubResource("RectangleShape2D_qhlv3")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall06" unique_id=307539332]
+occluder = SubResource("OccluderPolygon2D_q87s6")
+
+[node name="WallArt" type="Node2D" parent="House/Wall06" unique_id=551747833]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_oghg2")
+position = Vector2(22.5, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(45, 24)
+
+[node name="Wall07" type="StaticBody2D" parent="House" unique_id=201282039]
+position = Vector2(5915, 680)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall07" unique_id=1696012718]
+position = Vector2(270.5, 12)
+shape = SubResource("RectangleShape2D_ilt54")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall07" unique_id=215456640]
+occluder = SubResource("OccluderPolygon2D_aew80")
+
+[node name="WallArt" type="Node2D" parent="House/Wall07" unique_id=816558443]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_l1oy8")
+position = Vector2(270.5, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(541, 24)
+
+[node name="EntryCollision" type="StaticBody2D" parent="House" unique_id=752763153]
+position = Vector2(5694, 680)
+
+[node name="@CollisionShape2D@249" type="CollisionShape2D" parent="House/EntryCollision" unique_id=562087209]
+position = Vector2(43, 12)
+shape = SubResource("RectangleShape2D_144g8")
+
+[node name="@LightOccluder2D@250" type="LightOccluder2D" parent="House/EntryCollision" unique_id=1997907076]
+occluder = SubResource("OccluderPolygon2D_2v145")
+
+[node name="front_door" type="Node2D" parent="House" unique_id=2106467217]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_wwv41")
+position = Vector2(5737, 692)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(84, 20)
+metadata/interaction_id = "front_door"
+metadata/interaction_label = "Try the front door"
+
+[node name="window" type="Node2D" parent="House" unique_id=921921027]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_75t7y")
+position = Vector2(5870, 692)
+script = ExtResource("2_041dv")
+kind = "window"
+dimensions = Vector2(90, 22)
+metadata/interaction_id = "window"
+metadata/interaction_label = "Inspect the sidelight"
+
+[node name="WindowCollision" type="StaticBody2D" parent="House" unique_id=738346152]
+position = Vector2(5825, 680)
+
+[node name="@CollisionShape2D@252" type="CollisionShape2D" parent="House/WindowCollision" unique_id=62152566]
+position = Vector2(45, 12)
+shape = SubResource("RectangleShape2D_r4ip3")
+
+[node name="@LightOccluder2D@253" type="LightOccluder2D" parent="House/WindowCollision" unique_id=1892939570]
+occluder = SubResource("OccluderPolygon2D_18u7w")
+
+[node name="porch_rocks" type="Node2D" parent="House" unique_id=148474410]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_i18t0")
+position = Vector2(5990, 820)
+script = ExtResource("2_041dv")
+kind = "rocks"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "porch_rocks"
+metadata/interaction_label = "Collect three rocks"
+
+[node name="porch_battery" type="Node2D" parent="House" unique_id=540691303]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nl3f3")
+position = Vector2(6090, 820)
+script = ExtResource("2_041dv")
+kind = "battery"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "porch_battery"
+metadata/interaction_label = "Take spare battery"
+
+[node name="house_back" type="Node2D" parent="House" unique_id=2136256890]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_83unl")
+position = Vector2(6350, 846)
+script = ExtResource("2_041dv")
+kind = "marker"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "house_back"
+metadata/interaction_label = "Return to the forest"
+
+[node name="porch_bench" type="Node2D" parent="House" unique_id=197999956]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ravxe")
+position = Vector2(5510, 810)
+script = ExtResource("2_041dv")
+kind = "desk"
+dimensions = Vector2(150, 50)
+
+[node name="PorchBenchCollision08" type="StaticBody2D" parent="House" unique_id=741371596]
+position = Vector2(5435, 785)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/PorchBenchCollision08" unique_id=143211741]
+position = Vector2(75, 25)
+shape = SubResource("RectangleShape2D_127is")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/PorchBenchCollision08" unique_id=1517536839]
+occluder = SubResource("OccluderPolygon2D_mmjiw")
+occluder_light_mask = 2
+
+[node name="Wall09" type="StaticBody2D" parent="House" unique_id=2027649326]
+position = Vector2(5940, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall09" unique_id=342133217]
+position = Vector2(12, 145)
+shape = SubResource("RectangleShape2D_wa1rj")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall09" unique_id=1246138850]
+occluder = SubResource("OccluderPolygon2D_tyt62")
+
+[node name="WallArt" type="Node2D" parent="House/Wall09" unique_id=2118842727]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vdwj7")
+position = Vector2(12, 145)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 290)
+
+[node name="Wall10" type="StaticBody2D" parent="House" unique_id=1372937802]
+position = Vector2(5380, 260)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/Wall10" unique_id=688376427]
+position = Vector2(280, 12)
+shape = SubResource("RectangleShape2D_6flf4")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall10" unique_id=1068054726]
+occluder = SubResource("OccluderPolygon2D_m4m0k")
+
+[node name="WallArt" type="Node2D" parent="House/Wall10" unique_id=1162470306]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_6s7jb")
+position = Vector2(280, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(560, 24)
+
+[node name="vestibule_rug" type="Node2D" parent="House" unique_id=1605680920]
+texture_filter = 1
+material = SubResource("ShaderMaterial_r2vt4")
+position = Vector2(5730, 552)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(220, 160)
+
+[node name="altar_rug" type="Node2D" parent="House" unique_id=620737602]
+texture_filter = 1
+material = SubResource("ShaderMaterial_7rhxe")
+position = Vector2(6195, 390)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(290, 240)
+
+[node name="altar" type="Node2D" parent="House" unique_id=492808887]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_i3wi1")
+position = Vector2(6240, 280)
+script = ExtResource("2_041dv")
+kind = "altar"
+dimensions = Vector2(135, 75)
+
+[node name="AltarCollision11" type="StaticBody2D" parent="House" unique_id=964899872]
+position = Vector2(6172.5, 242.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/AltarCollision11" unique_id=1377677135]
+position = Vector2(67.5, 37.5)
+shape = SubResource("RectangleShape2D_wg1nn")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/AltarCollision11" unique_id=1697183362]
+occluder = SubResource("OccluderPolygon2D_mhrd0")
+occluder_light_mask = 2
+
+[node name="friend" type="Node2D" parent="House" unique_id=381974816]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nnxph")
+position = Vector2(6240, 365)
+script = ExtResource("2_041dv")
+kind = "friend"
+metadata/interaction_id = "friend"
+metadata/interaction_label = "Speak to your friend"
+metadata/interaction_offset = Vector2(0, 35)
+
+[node name="altar_pray" type="Node2D" parent="House" unique_id=1210019315]
+visible = false
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ikixv")
+position = Vector2(6240, 280)
+script = ExtResource("2_041dv")
+kind = "altar"
+dimensions = Vector2(1, 1)
+metadata/interaction_id = "altar_pray"
+metadata/interaction_label = "Pray at the altar"
+
+[node name="house_shelf" type="Node2D" parent="House" unique_id=700654942]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_e08a6")
+position = Vector2(5420, 475)
+script = ExtResource("2_041dv")
+kind = "shelf"
+dimensions = Vector2(72, 240)
+
+[node name="HouseShelfCollision12" type="StaticBody2D" parent="House" unique_id=533230648]
+position = Vector2(5384, 355)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/HouseShelfCollision12" unique_id=1633459110]
+position = Vector2(36, 120)
+shape = SubResource("RectangleShape2D_uxx3s")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseShelfCollision12" unique_id=873512596]
+occluder = SubResource("OccluderPolygon2D_q1fot")
+occluder_light_mask = 2
+
+[node name="house_table" type="Node2D" parent="House" unique_id=373071088]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_tj2us")
+position = Vector2(6100, 550)
+script = ExtResource("2_041dv")
+kind = "desk"
+dimensions = Vector2(100, 65)
+
+[node name="HouseTableCollision13" type="StaticBody2D" parent="House" unique_id=2075141628]
+position = Vector2(6050, 517.5)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/HouseTableCollision13" unique_id=673026044]
+position = Vector2(50, 32.5)
+shape = SubResource("RectangleShape2D_oghg2")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseTableCollision13" unique_id=790321288]
+occluder = SubResource("OccluderPolygon2D_rv8hx")
+occluder_light_mask = 2
+
+[node name="house_battery" type="Node2D" parent="House" unique_id=58027359]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_okslh")
+position = Vector2(6152, 578)
+script = ExtResource("2_041dv")
+kind = "battery"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "house_battery"
+metadata/interaction_label = "Take spare battery"
+
+[node name="candle_(985_0, 280_0)" type="Node2D" parent="House" unique_id=307764383]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ojnv2")
+position = Vector2(6185, 280)
+script = ExtResource("2_041dv")
+kind = "candle"
+dimensions = Vector2(20, 20)
+
+[node name="candle_(1090_0, 280_0)" type="Node2D" parent="House" unique_id=1640209704]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_nfdpx")
+position = Vector2(6290, 280)
+script = ExtResource("2_041dv")
+kind = "candle"
+dimensions = Vector2(20, 20)
+
+[node name="candle_(510_0, 618_0)" type="Node2D" parent="House" unique_id=1908269036]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_y1dew")
+position = Vector2(5710, 618)
+script = ExtResource("2_041dv")
+kind = "candle"
+dimensions = Vector2(20, 20)
+
+[node name="candle_(300_0, 360_0)" type="Node2D" parent="House" unique_id=897570341]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_g11ga")
+position = Vector2(5500, 360)
+script = ExtResource("2_041dv")
+kind = "candle"
+dimensions = Vector2(20, 20)
+
+[node name="reveal" type="Node2D" parent="House" unique_id=1964401661]
+visible = false
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_uvsws")
+position = Vector2(5870, 640)
+script = ExtResource("2_041dv")
+kind = "entity"
+
+[node name="HouseNavigation" type="NavigationRegion2D" parent="House" unique_id=1761566220]
+navigation_polygon = SubResource("NavigationPolygon_tj2us")
+
+[node name="PorchBenchLight" type="PointLight2D" parent="House" unique_id=973634169 groups=["tutorial_static_lights"]]
+position = Vector2(5600, 850)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.35
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.9
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.35
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="House/PorchBenchLight" unique_id=530043194]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_8g5jh")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="House/PorchBenchLight" unique_id=1434301421]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.35
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.9
+script = ExtResource("5_0cr26")
+
+[node name="PorchSupplyLight" type="PointLight2D" parent="House" unique_id=1362350838 groups=["tutorial_static_lights"]]
+position = Vector2(6300, 850)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.3
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.6
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.3
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="House/PorchSupplyLight" unique_id=893114742]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_p8801")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="House/PorchSupplyLight" unique_id=1261761624]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.3
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.6
+script = ExtResource("5_0cr26")
+
+[node name="HouseRecoveryLight" type="PointLight2D" parent="House" unique_id=1980043043 groups=["tutorial_static_lights"]]
+position = Vector2(5500, 360)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.4
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.8
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.4
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="House/HouseRecoveryLight" unique_id=161470931]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_xnvae")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="House/HouseRecoveryLight" unique_id=2127518656]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.4
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.8
+script = ExtResource("5_0cr26")
+
+[node name="VestibuleLight" type="PointLight2D" parent="House" unique_id=548475034 groups=["tutorial_static_lights"]]
+position = Vector2(5710, 618)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.6
+metadata/lighting_role = "story"
+metadata/rest_energy = 1.2
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="PropLight" type="PointLight2D" parent="House/VestibuleLight" unique_id=835657313]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.2
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.6
+script = ExtResource("5_0cr26")
+
+[node name="AltarLeftLight" type="PointLight2D" parent="House" unique_id=518976320 groups=["tutorial_static_lights"]]
+position = Vector2(6185, 280)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.05
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.4
+metadata/lighting_role = "story"
+metadata/rest_energy = 1.05
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="PropLight" type="PointLight2D" parent="House/AltarLeftLight" unique_id=929081327]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.05
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.4
+script = ExtResource("5_0cr26")
+
+[node name="AltarRightLight" type="PointLight2D" parent="House" unique_id=1544532239 groups=["tutorial_static_lights"]]
+position = Vector2(6290, 280)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.05
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.4
+metadata/lighting_role = "story"
+metadata/rest_energy = 1.05
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="PropLight" type="PointLight2D" parent="House/AltarRightLight" unique_id=2147374102]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.05
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.4
+script = ExtResource("5_0cr26")
+
+[node name="house_chair" type="Node2D" parent="House" unique_id=848597906]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_8ess0")
+position = Vector2(5490, 395)
+script = ExtResource("2_041dv")
+kind = "chair"
+dimensions = Vector2(70, 90)
+
+[node name="HouseChairCollision14" type="StaticBody2D" parent="House" unique_id=686472577]
+position = Vector2(5455, 350)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/HouseChairCollision14" unique_id=1482116457]
+position = Vector2(35, 45)
+shape = SubResource("RectangleShape2D_p4681")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseChairCollision14" unique_id=1170672004]
+occluder = SubResource("OccluderPolygon2D_07svj")
+occluder_light_mask = 2
+
+[node name="house_chest" type="Node2D" parent="House" unique_id=1604224806]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_h1i7f")
+position = Vector2(5590, 320)
+script = ExtResource("2_041dv")
+dimensions = Vector2(112, 50)
+
+[node name="HouseChestCollision15" type="StaticBody2D" parent="House" unique_id=929820379 groups=["tutorial_obstacles"]]
+position = Vector2(5534, 295)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/HouseChestCollision15" unique_id=769508117]
+position = Vector2(56, 25)
+shape = SubResource("RectangleShape2D_041dv")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseChestCollision15" unique_id=1179480483]
+occluder = SubResource("OccluderPolygon2D_u2hj6")
+occluder_light_mask = 2
+
+[node name="altar_chair" type="Node2D" parent="House" unique_id=774572911]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_r1du8")
+position = Vector2(6380, 480)
+script = ExtResource("2_041dv")
+kind = "chair"
+dimensions = Vector2(70, 90)
+
+[node name="AltarChairCollision16" type="StaticBody2D" parent="House" unique_id=178737011 groups=["tutorial_obstacles"]]
+position = Vector2(6345, 435)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="House/AltarChairCollision16" unique_id=1574097448]
+position = Vector2(35, 45)
+shape = SubResource("RectangleShape2D_xik0q")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="House/AltarChairCollision16" unique_id=1626382384]
+occluder = SubResource("OccluderPolygon2D_pse3m")
+occluder_light_mask = 2
+
+[node name="porch_coats" type="Node2D" parent="House" unique_id=503689888]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_deoaa")
+position = Vector2(6240, 715)
+script = ExtResource("2_041dv")
+kind = "coats"
+dimensions = Vector2(120, 24)
+
+[node name="Loop" type="Node2D" parent="." unique_id=302935918]
+
+[node name="Wall01" type="StaticBody2D" parent="Loop" unique_id=2093739460]
+position = Vector2(7200, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall01" unique_id=1766812820]
+position = Vector2(480, 12)
+shape = SubResource("RectangleShape2D_wwv41")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall01" unique_id=1130490153]
+occluder = SubResource("OccluderPolygon2D_75t7y")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall01" unique_id=40866707]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_sguq8")
+position = Vector2(480, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(960, 24)
+
+[node name="Wall02" type="StaticBody2D" parent="Loop" unique_id=8544004]
+position = Vector2(7200, 616)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall02" unique_id=1754496807]
+position = Vector2(480, 12)
+shape = SubResource("RectangleShape2D_i18t0")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall02" unique_id=1952209306]
+occluder = SubResource("OccluderPolygon2D_nl3f3")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall02" unique_id=1768949380]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_yxur7")
+position = Vector2(480, 12)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(960, 24)
+
+[node name="Wall03" type="StaticBody2D" parent="Loop" unique_id=1119077169]
+position = Vector2(7200, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall03" unique_id=652835737]
+position = Vector2(12, 320)
+shape = SubResource("RectangleShape2D_83unl")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall03" unique_id=110069814]
+occluder = SubResource("OccluderPolygon2D_ravxe")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall03" unique_id=1535924738]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vlhb3")
+position = Vector2(12, 320)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 640)
+
+[node name="Wall04" type="StaticBody2D" parent="Loop" unique_id=460346178]
+position = Vector2(8136, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall04" unique_id=397387357]
+position = Vector2(12, 320)
+shape = SubResource("RectangleShape2D_mmjiw")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall04" unique_id=1065751513]
+occluder = SubResource("OccluderPolygon2D_vdwj7")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall04" unique_id=1128680370]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_i3003")
+position = Vector2(12, 320)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(24, 640)
+
+[node name="loop_rug" type="Node2D" parent="Loop" unique_id=1140766705]
+texture_filter = 1
+material = SubResource("ShaderMaterial_xopmp")
+position = Vector2(7670, 330)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(650, 110)
+
+[node name="Wall05" type="StaticBody2D" parent="Loop" unique_id=2064881577]
+position = Vector2(7224, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall05" unique_id=1268145184]
+position = Vector2(456, 115)
+shape = SubResource("RectangleShape2D_6s7jb")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall05" unique_id=1050469137]
+occluder = SubResource("OccluderPolygon2D_r2vt4")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall05" unique_id=1550713204]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_tbmle")
+position = Vector2(456, 115)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(912, 230)
+
+[node name="Wall06" type="StaticBody2D" parent="Loop" unique_id=472872642]
+position = Vector2(7224, 410)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall06" unique_id=773411005]
+position = Vector2(185, 103)
+shape = SubResource("RectangleShape2D_7rhxe")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall06" unique_id=655463709]
+occluder = SubResource("OccluderPolygon2D_i3wi1")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall06" unique_id=1502096824]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_axhtj")
+position = Vector2(185, 103)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(370, 206)
+
+[node name="Wall07" type="StaticBody2D" parent="Loop" unique_id=53980139]
+position = Vector2(7765, 410)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/Wall07" unique_id=678171809]
+position = Vector2(185.5, 103)
+shape = SubResource("RectangleShape2D_mhrd0")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall07" unique_id=21716113]
+occluder = SubResource("OccluderPolygon2D_nnxph")
+
+[node name="WallArt" type="Node2D" parent="Loop/Wall07" unique_id=1655035490]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_v27ux")
+position = Vector2(185.5, 103)
+script = ExtResource("2_041dv")
+kind = "wall"
+dimensions = Vector2(371, 206)
+
+[node name="loop_coats" type="Node2D" parent="Loop" unique_id=165900592]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_tod53")
+position = Vector2(7677, 558)
+script = ExtResource("2_041dv")
+kind = "coats"
+dimensions = Vector2(120, 36)
+
+[node name="LoopCoatsCollision08" type="StaticBody2D" parent="Loop" unique_id=779608186]
+position = Vector2(7617, 540)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Loop/LoopCoatsCollision08" unique_id=941190142]
+position = Vector2(60, 18)
+shape = SubResource("RectangleShape2D_ikixv")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/LoopCoatsCollision08" unique_id=1058552993]
+occluder = SubResource("OccluderPolygon2D_sm556")
+occluder_light_mask = 2
+
+[node name="loop_back" type="Node2D" parent="Loop" unique_id=1059649796]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_gj64b")
+position = Vector2(7270, 330)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(20, 90)
+metadata/interaction_id = "loop_back"
+metadata/interaction_label = "The door will not open"
+
+[node name="loop_end" type="Node2D" parent="Loop" unique_id=416948008]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vcvd5")
+position = Vector2(8076, 330)
+script = ExtResource("2_041dv")
+kind = "door"
+dimensions = Vector2(20, 90)
+metadata/interaction_id = "loop_end"
+metadata/interaction_label = "Enter the next room"
+
+[node name="LoopNavigation" type="NavigationRegion2D" parent="Loop" unique_id=1348250187]
+navigation_polygon = SubResource("NavigationPolygon_rv8hx")
+
+[node name="LoopEntryLight" type="PointLight2D" parent="Loop" unique_id=1251162384 groups=["tutorial_static_lights"]]
+position = Vector2(7340, 335)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.4
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.4
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Loop/LoopEntryLight" unique_id=1976034462]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_kbiai")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Loop/LoopEntryLight" unique_id=83498411]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.4
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+script = ExtResource("5_0cr26")
+
+[node name="LoopRecoveryLight" type="PointLight2D" parent="Loop" unique_id=1962863330 groups=["tutorial_static_lights"]]
+position = Vector2(7675, 490)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.6
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.5
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.6
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Loop/LoopRecoveryLight" unique_id=1747591383]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_mragf")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Loop/LoopRecoveryLight" unique_id=236856452]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.6
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.5
+script = ExtResource("5_0cr26")
+
+[node name="LoopExitLight" type="PointLight2D" parent="Loop" unique_id=1245415698 groups=["tutorial_static_lights"]]
+position = Vector2(8046, 340)
+color = Color(0.9372549, 0.8156863, 0.627451, 1)
+energy = 1.4
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+metadata/lighting_role = "recovery"
+metadata/rest_energy = 1.4
+metadata/rest_color = Color(0.9372549, 0.8156863, 0.627451, 1)
+
+[node name="Lantern" type="Node2D" parent="Loop/LoopExitLight" unique_id=1066442655]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_qskah")
+script = ExtResource("2_041dv")
+kind = "lantern"
+tint = Color(0.8901961, 0.8352941, 0.7254902, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Loop/LoopExitLight" unique_id=1530405139]
+process_priority = 1
+color = Color(0.8901961, 0.8352941, 0.7254902, 1)
+energy = 1.4
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+script = ExtResource("5_0cr26")
+
+[node name="LoopCrossingFill" type="PointLight2D" parent="Loop" unique_id=1645284740 groups=["tutorial_static_lights"]]
+position = Vector2(7675, 282)
+color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+energy = 0.15
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+metadata/lighting_role = "danger"
+metadata/rest_energy = 0.15
+metadata/rest_color = Color(0.52156866, 0.6039216, 0.70980394, 1)
+
+[node name="PropLight" type="PointLight2D" parent="Loop/LoopCrossingFill" unique_id=835306976]
+process_priority = 1
+color = Color(0.44313726, 0.53333336, 0.60784316, 1)
+energy = 0.15
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("3_i6v53")
+texture_scale = 1.1
+script = ExtResource("5_0cr26")
+
+[node name="loop_refuge_mat" type="Node2D" parent="Loop" unique_id=546687655]
+texture_filter = 1
+material = SubResource("ShaderMaterial_eo0ox")
+position = Vector2(7677, 492)
+script = ExtResource("2_041dv")
+kind = "rug"
+dimensions = Vector2(130, 170)

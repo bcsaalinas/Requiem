@@ -1,0 +1,48 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tutorial/entity.gd" id="1_w5oec"]
+[ext_resource type="Shader" path="res://tutorial/scenery.gdshader" id="2_vb6m3"]
+[ext_resource type="Script" path="res://tutorial/art.gd" id="3_swdi0"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xdf4s"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ltmbm"]
+size = Vector2(26, 26)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_yd4r5"]
+resource_local_to_scene = true
+radius = 24.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ho2g8"]
+shader = ExtResource("2_vb6m3")
+
+[node name="Entity" type="CharacterBody2D" unique_id=1685648159]
+visible = false
+script = ExtResource("1_w5oec")
+log_state_changes = false
+color_by_state = false
+
+[node name="DebugSprite" type="Sprite2D" parent="." unique_id=2130364162]
+visible = false
+modulate = Color(0.45, 0.2, 0.2, 1)
+texture = SubResource("PlaceholderTexture2D_xdf4s")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1764309161]
+shape = SubResource("RectangleShape2D_ltmbm")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1781915690]
+path_desired_distance = 4.0
+target_desired_distance = 16.0
+
+[node name="CatchArea" type="Area2D" parent="." unique_id=264240270]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CatchArea" unique_id=1104745571]
+shape = SubResource("CircleShape2D_yd4r5")
+
+[node name="Appearance" type="Node2D" parent="." unique_id=416861562]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ho2g8")
+script = ExtResource("3_swdi0")
+kind = "entity"

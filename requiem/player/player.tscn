@@ -1,10 +1,16 @@
 [gd_scene format=3 uid="uid://qvmplrwk2j6o"]
 
-[ext_resource type="Script" uid="uid://o5a4tc70y5s1" path="res://player/player.gd" id="1_player"]
-[ext_resource type="Script" uid="uid://cdbfenw3olwtf" path="res://player/footstep_noise.gd" id="2_footstep"]
-[ext_resource type="Script" uid="uid://d03iu060ho22s" path="res://player/hold_breath.gd" id="3_breath"]
+[ext_resource type="Script" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://player/footstep_noise.gd" id="2_footstep"]
+[ext_resource type="Script" path="res://player/hold_breath.gd" id="3_breath"]
+[ext_resource type="Script" path="res://tutorial/throw.gd" id="4_hg6s5"]
+[ext_resource type="Shader" path="res://tutorial/scenery.gdshader" id="5_8t03j"]
+[ext_resource type="Script" path="res://tutorial/art.gd" id="6_2ieo8"]
+[ext_resource type="Texture2D" path="res://assets/Textures/light_texture.png" id="7_ebec5"]
+[ext_resource type="Texture2D" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
+[ext_resource type="Script" path="res://player/flashlight.gd" id="9_kb6p2"]
+
 [ext_resource type="AudioStream" uid="uid://bx24sjvxib835" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
-[ext_resource type="Script" uid="uid://cit8p1add57ro" path="res://player/throw.gd" id="6_g6k8r"]
 [ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
 
@@ -14,10 +20,14 @@ size = Vector2(32, 32)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(24, 24)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wodsf"]
+shader = ExtResource("5_8t03j")
+
 [node name="Player" type="CharacterBody2D" unique_id=473472220]
 script = ExtResource("1_player")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1411517954]
+visible = false
 modulate = Color(0.4, 0.7, 1, 1)
 texture = SubResource("PlaceholderTexture2D_player")
 
@@ -25,6 +35,11 @@ texture = SubResource("PlaceholderTexture2D_player")
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=473842570]
+zoom = Vector2(1.65, 1.65)
+limit_left = 0
+limit_top = 0
+limit_right = 960
+limit_bottom = 640
 position_smoothing_enabled = true
 
 [node name="FootstepNoise" type="Node" parent="." unique_id=627701284]
@@ -36,5 +51,33 @@ script = ExtResource("3_breath")
 hold_clips = Array[AudioStream]([ExtResource("7_hold")])
 exertion_clips = Array[AudioStream]([ExtResource("8_exertion")])
 
-[node name="Throw" type="Node" parent="." unique_id=397190245]
-script = ExtResource("6_g6k8r")
+[node name="Throw" type="Node" parent="." unique_id=130069321]
+script = ExtResource("4_hg6s5")
+
+[node name="Appearance" type="Node2D" parent="." unique_id=1642923067]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_wodsf")
+script = ExtResource("6_2ieo8")
+kind = "actor"
+
+[node name="LocalLight" type="PointLight2D" parent="." unique_id=341006500]
+color = Color(0.7254902, 0.77254903, 0.7254902, 1)
+energy = 0.35
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("7_ebec5")
+texture_scale = 1.35
+
+[node name="flashlight" type="PointLight2D" parent="." unique_id=303225094]
+enabled = false
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+shadow_item_cull_mask = 3
+texture = ExtResource("8_yllr7")
+offset = Vector2(207.99998, 0)
+texture_scale = 2.1554403
+script = ExtResource("9_kb6p2")

@@ -101,31 +101,11 @@ var _recent_noises: Array[float] = []
 func _ready() -> void:
 	_spawn_position = global_position
 
-	_sprite = Sprite2D.new()
-	var greybox_texture = PlaceholderTexture2D.new()
-	greybox_texture.size = Vector2(32, 32)
-	_sprite.texture = greybox_texture
-	add_child(_sprite)
-
-	var collision = CollisionShape2D.new()
-	var shape = RectangleShape2D.new()
-	shape.size = Vector2(26, 26)
-	collision.shape = shape
-	add_child(collision)
-
-	nav_agent = NavigationAgent2D.new()
-	nav_agent.path_desired_distance = 4.0
+	_sprite = $DebugSprite
+	nav_agent = $NavigationAgent2D
 	nav_agent.target_desired_distance = arrival_threshold_u * PX_PER_UNIT
-	add_child(nav_agent)
-
-	var catch_area = Area2D.new()
-	var catch_shape = CollisionShape2D.new()
-	var circle = CircleShape2D.new()
-	circle.radius = catch_radius_u * PX_PER_UNIT
-	catch_shape.shape = circle
-	catch_area.add_child(catch_shape)
-	add_child(catch_area)
-	catch_area.body_entered.connect(_on_catch_area_body_entered)
+	$CatchArea/CollisionShape2D.shape.radius = catch_radius_u * PX_PER_UNIT
+	$CatchArea.body_entered.connect(_on_catch_area_body_entered)
 
 	NoiseManager.noise_emitted.connect(_on_noise_emitted)
 	_refresh_color()
