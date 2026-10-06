@@ -29,7 +29,7 @@ extends CharacterBody2D
 #
 # UNIDADES: 1 u = 32 px, misma convencion que player.gd. TODO radio, distancia
 # y velocidad se exporta en unidades. Ya no queda un solo pixel crudo aqui.
-const PX_PER_UNIT: float = 32.0
+const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 enum State { PATROL, INVESTIGATE, SEARCH, HUNT }
 

@@ -20,7 +20,7 @@ extends Node
 # movimiento + ruido fuerte de 7 u y el mismo clip (exertion_clips).
 #
 # UNIDADES: 1 u = 32 px. Los radios se exportan en unidades.
-const PX_PER_UNIT: float = 32.0
+const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 @export_group("Pulmon")
 @export var drain_rate_percent: float = 20.0

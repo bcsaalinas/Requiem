@@ -20,7 +20,7 @@ extends PointLight2D
 # UNIDADES: 1 u = 32 px. El alcance del haz se exporta en
 # unidades y se traduce a texture_scale con el ancho real de la textura, asi
 # que cambiar la textura no rompe la escala.
-const PX_PER_UNIT: float = 32.0
+const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 @export_group("Haz")
 ## Largo del cono en unidades (1 u = el ancho del jugador).

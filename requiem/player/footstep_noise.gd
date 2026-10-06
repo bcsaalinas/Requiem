@@ -17,7 +17,7 @@ extends Node
 # unidades; la conversion a px pasa aqui adentro.
 # Estos radios NO estan fijados por la spec, se pueden tunear libremente.
 
-const PX_PER_UNIT: float = 32.0
+const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 @export_group("Deteccion de movimiento (u/s)")
 ## Debajo de esto se considera quieto.

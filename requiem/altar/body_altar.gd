@@ -19,7 +19,7 @@ extends StaticBody2D
 # exportan en unidades; antes este script era el unico que usaba pixeles
 # crudos y por eso tenia el radio mal (340 px se escribio creyendo 1 u = 64 px,
 # o sea 5.3 u; con la convencion real eran 10.6 u, casi el doble de la spec).
-const PX_PER_UNIT: float = 32.0
+const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 @export_group("Ritual")
 ## Cuanto hay que aguantar sin soltar, en segundos (spec: 12 s).

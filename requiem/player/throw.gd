@@ -24,7 +24,7 @@ extends Node
 # a una entidad que ya viene en caceria, tal como pide la spec.
 #
 # UNIDADES: 1 u = 32 px. Distancias y radios se exportan en unidades.
-const PX_PER_UNIT: float = 32.0
+const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 enum Throwable { PIEDRA, DESPERTADOR }
 
