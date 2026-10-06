@@ -54,6 +54,7 @@ core_dump_*
 # Addon/plugin generated files (when using gd-plug, asset library, etc.)
 .gd-plug/
 addons/*/plugin.cfg
+!requiem/addons/phantom_camera/plugin.cfg
 
 # Local/sensitive files
 .env
