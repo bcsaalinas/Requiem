@@ -1,0 +1,12 @@
+[gd_resource type="TileSet" format=3]
+
+[ext_resource type="PackedScene" path="res://altar/altar.tscn" id="1_2bwg2"]
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_41u73"]
+resource_name = "Escenas"
+scenes/0/scene = ExtResource("1_2bwg2")
+
+[resource]
+resource_name = "Props"
+tile_size = Vector2i(32, 32)
+sources/0 = SubResource("TileSetScenesCollectionSource_41u73")

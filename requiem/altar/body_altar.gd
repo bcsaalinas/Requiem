@@ -159,13 +159,22 @@ func _cancelar_rezo() -> void:
 
 func _interaccion_completada():
 	print("[Altar] Rezo completado (%.1f s)" % pray_duration)
-	# OJO: hay que soltar la bandera ANTES del queue_free, si no el jugador se
-	# queda enraizado para siempre porque ya no existe quien la baje.
+	# OJO: hay que soltar la bandera ANTES de borrar el altar, si no el jugador
+	# se queda enraizado para siempre porque ya no existe quien la baje.
 	GameState.is_praying = false
 	_estaba_rezando = false
 	if _audio_player.playing:
 		_audio_player.stop()
-	queue_free()
+
+	# Si el altar esta pintado en un TileMapLayer (la capa Props), hay que
+	# borrar su CELDA: con queue_free() a secas la celda sigue pintada y la capa
+	# vuelve a instanciar el altar en cuanto se refresca. Al borrar la celda la
+	# propia capa libera la escena.
+	var layer := owner.get_parent() as TileMapLayer if owner != null else null
+	if layer != null:
+		layer.erase_cell(layer.local_to_map(layer.to_local(owner.global_position)))
+	else:
+		queue_free()
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
