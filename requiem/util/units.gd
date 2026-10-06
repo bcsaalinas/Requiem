@@ -19,6 +19,15 @@ extends RefCounted
 ## Pixeles por unidad de juego.
 const PX_PER_UNIT: float = 32.0
 
+# --- Cuadricula del nivel -----------------------------------------------------
+# Las capas de tiles (muros "Map" y props "Props") usan celdas de 32 px, asi
+# que 1 tile = 1 u: un pasillo de 3 tiles mide 3 u, igual que los radios de
+# ruido. Es una constante aparte de PX_PER_UNIT a proposito: es el tamano del
+# arte de los tiles, y no debe cambiar solo porque cambie la escala.
+
+## Lado de una celda de las capas de tiles, en pixeles.
+const TILE_PX: int = 32
+
 
 static func to_px(units: float) -> float:
 	return units * PX_PER_UNIT
