@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://tutorial/tutorial.gd" id="1"]
 [ext_resource type="PackedScene" path="res://tutorial/world.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://player/player.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://entities/entity.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://tutorial/tutorial_entity.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://tutorial/hud.tscn" id="5"]
 [ext_resource type="Shader" path="res://tutorial/atmosphere.gdshader" id="6"]
 

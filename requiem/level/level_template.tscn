@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://level/level.gd" id="1_3nqco"]
+[ext_resource type="TileSet" path="res://level/walls_tileset.tres" id="2_2b74v"]
+[ext_resource type="TileSet" path="res://level/props_tileset.tres" id="3_grku6"]
+[ext_resource type="Script" path="res://level/nav_setup.gd" id="4_5mv6l"]
+[ext_resource type="PackedScene" path="res://player/player.tscn" id="5_0ann4"]
+[ext_resource type="PackedScene" path="res://entities/entity.tscn" id="6_o5a00"]
+
+[node name="Level" type="Node2D" unique_id=740019952]
+script = ExtResource("1_3nqco")
+
+[node name="Floor" type="ColorRect" parent="." unique_id=960981775]
+mouse_filter = 2
+color = Color(0.62, 0.6, 0.56, 1)
+
+[node name="Map" type="TileMapLayer" parent="." unique_id=353808097]
+tile_set = ExtResource("2_2b74v")
+
+[node name="Props" type="TileMapLayer" parent="." unique_id=1453129423]
+tile_set = ExtResource("3_grku6")
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=956617267]
+script = ExtResource("4_5mv6l")
+
+[node name="Player" parent="." unique_id=473472220 instance=ExtResource("5_0ann4")]
+
+[node name="Entity" parent="." unique_id=1685648159 instance=ExtResource("6_o5a00")]
+position = Vector2(256, 0)
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=856782285]
+color = Color(0.16, 0.18, 0.21, 1)
