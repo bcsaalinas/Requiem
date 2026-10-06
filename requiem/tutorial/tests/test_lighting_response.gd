@@ -15,7 +15,8 @@ func frame() -> Image:
 
 func sprite_luminance(picture: Image, sprite: Sprite2D) -> float:
 	var atlas := sprite.texture.get_image()
-	var transform := sprite.get_global_transform_with_canvas()
+	# The window may be resized by the desktop; samples must use rendered pixels.
+	var transform := get_viewport().get_final_transform()*sprite.get_global_transform_with_canvas()
 	var bounds: Vector4 = sprite.material.get_shader_parameter("atlas_bounds")
 	var total := 0.0
 	var count := 0
@@ -99,7 +100,7 @@ func _ready() -> void:
 	wall_shadow.hide()
 	var unblocked := await frame()
 	for receiver in probes:
-		var pixel := Vector2i(game.get_canvas_transform()*(receiver.position+Vector2(6,6)))
+		var pixel := Vector2i(get_viewport().get_final_transform()*receiver.get_global_transform_with_canvas()*Vector2(6,6))
 		var shadow_value := blocked.get_pixelv(pixel).get_luminance()
 		var clear_value := unblocked.get_pixelv(pixel).get_luminance()
 		print("[Wall occlusion] layer ",receiver.light_mask," blocked ",shadow_value," open ",clear_value)

@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-NoiseManager="*uid://j0vrigg22l2b"
-GameState="*uid://c5u30ghxcndxe"
-GameOverUi="*uid://dwll4vh22kma6"
+NoiseManager="*res://autoloads/noise_manager.gd"
+GameState="*res://autoloads/game_state.gd"
+GameOverUi="*res://autoloads/game_over_ui.gd"
 NoiseDebug="*res://autoloads/noise_debug.gd"
 
 [display]

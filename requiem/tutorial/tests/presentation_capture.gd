@@ -43,6 +43,8 @@ func _ready() -> void:
 		var lines: Array[String] = ["ELI: I'm at my aunt's old house. Follow the yellow trail marks. Bring a light."]
 		game.show_dialogue(lines)
 		for i in range(3): await get_tree().process_frame
+		# Desktop resize events may arrive while the preceding frame is captured.
+		viewport = get_viewport().get_visible_rect()
 		check(viewport.encloses(game.hud.subtitle.get_global_rect()),"Dialogue fits viewport")
 		check(not game.hud.subtitle.get_global_rect().intersects(game.hud.prompt.get_global_rect()),"Continue prompt does not overlap dialogue")
 		await RenderingServer.frame_post_draw
