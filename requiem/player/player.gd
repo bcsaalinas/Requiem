@@ -38,6 +38,7 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 var is_sprinting: bool = false
 
 @onready var hold_breath: Node = get_node_or_null("HoldBreath")
+@onready var action_state: Node = get_node_or_null("ActionState")
 
 
 func _ready() -> void:
@@ -46,21 +47,11 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if GameState.is_dead:
-		is_sprinting = false
-		_brake()
-		return
-
-	# Bloqueo por gasp forzado (pulmon a 0 o agotamiento a 100): la spec pide
-	# 2s sin poder moverse. Es independiente de los niveles de velocidad.
-	if hold_breath != null and hold_breath.is_locked:
-		is_sprinting = false
-		_brake()
-		return
-
-	# Enraizado por rezo: la spec pide que el ritual sea sin input de movimiento.
-	# body_altar.gd levanta la bandera mientras dura el rezo.
-	if GameState.is_praying:
+	# ActionState shares the same movement locks with aiming and actions.
+	# Keep the fallback for lightweight scenes that only use this component.
+	var locked: bool = not action_state.can_move() if action_state != null else \
+		GameState.is_dead or GameState.is_praying or (hold_breath != null and hold_breath.is_locked)
+	if locked:
 		is_sprinting = false
 		_brake()
 		return
@@ -69,7 +60,8 @@ func _physics_process(_delta: float) -> void:
 	# sueltas: asi el jugador puede reasignar controles y funciona igual con mando.
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
-	var holding_breath := Input.is_action_pressed("hold_breath")
+	var holding_breath: bool = action_state.is_hold_requested() if action_state != null \
+		else Input.is_action_pressed("hold_breath")
 
 	# is_sprinting se calcula DESPUES de input_dir a proposito: necesita saber
 	# si de verdad te estas moviendo. Aguantar la respiracion lo cancela.

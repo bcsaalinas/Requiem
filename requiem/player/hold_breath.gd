@@ -61,6 +61,7 @@ var _lock_timer: float = 0.0
 var _audio_player: AudioStreamPlayer2D
 
 @onready var player: Node2D = get_parent()
+@onready var action_state: Node = player.get_node_or_null("ActionState")
 
 # --- Barras visuales: pulmon arriba, agotamiento justo debajo ---
 var _bar_layer: CanvasLayer
@@ -97,6 +98,11 @@ func _make_bar(pos: Vector2) -> ProgressBar:
 
 
 func _physics_process(delta: float) -> void:
+	if GameState.is_dead:
+		cancel_holding()
+		_update_bars()
+		return
+
 	if is_locked:
 		_lock_timer -= delta
 		if _lock_timer <= 0.0:
@@ -104,7 +110,14 @@ func _physics_process(delta: float) -> void:
 		_update_bars()
 		return
 
-	var wants_to_hold := Input.is_action_pressed("hold_breath")
+	# Dialogue interrupts a held breath without a new exhale event.
+	if action_state != null and not action_state.can_hold_breath():
+		cancel_holding()
+		_update_bars()
+		return
+
+	var wants_to_hold: bool = action_state.is_hold_requested() if action_state != null \
+		else Input.is_action_pressed("hold_breath")
 
 	# --- Pulmon ---
 	if wants_to_hold and lung_percent > 0.0:
@@ -180,13 +193,20 @@ func _release_breath() -> void:
 		_emit_breath(gasp_radius_u, gasp_clips)
 
 
+## An interrupted action is not an intentional release and emits no new noise.
+func cancel_holding() -> void:
+	is_holding = false
+	if _audio_player != null:
+		_audio_player.stop()
+
+
 ## Castigo compartido: lo llaman TANTO el pulmon al llegar a 0 COMO el
 ## agotamiento al llegar a 100. Bloquea el movimiento forced_lock_duration
 ## segundos, suelta un ruido fuerte de 7 u, y deja el agotamiento en 0 para
 ## no encadenar bloqueos infinitos. `clips` es el sonido del medidor que lo
 ## disparo, para poder distinguir de oido cual de los dos te delato.
 func _forced_gasp(clips: Array[AudioStream]) -> void:
-	if is_locked:
+	if is_locked or GameState.is_dead:
 		return
 	is_holding = false
 	is_locked = true
@@ -197,6 +217,8 @@ func _forced_gasp(clips: Array[AudioStream]) -> void:
 
 
 func _emit_breath(radius_u: float, clips: Array[AudioStream]) -> void:
+	if GameState.is_dead:
+		return
 	NoiseManager.emit_noise(player.global_position, radius_u * PX_PER_UNIT, NoiseManager.SourceType.BREATH)
 	_play_random_clip(clips)
 

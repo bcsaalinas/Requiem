@@ -1741,6 +1741,7 @@ shape = SubResource("RectangleShape2D_0cr26")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall01" unique_id=547667151]
 occluder = SubResource("OccluderPolygon2D_qcvh1")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Bedroom/Wall01" unique_id=2047649292]
 z_index = 1
@@ -1760,6 +1761,7 @@ shape = SubResource("RectangleShape2D_02dwp")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall02" unique_id=1982749447]
 occluder = SubResource("OccluderPolygon2D_p4681")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Bedroom/Wall02" unique_id=2054033765]
 z_index = 1
@@ -1778,6 +1780,7 @@ shape = SubResource("RectangleShape2D_5ylgn")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall03" unique_id=41555498]
 occluder = SubResource("OccluderPolygon2D_xik0q")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Bedroom/Wall03" unique_id=808766918]
 z_index = 1
@@ -1797,6 +1800,7 @@ shape = SubResource("RectangleShape2D_q6423")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/Wall04" unique_id=1088609815]
 occluder = SubResource("OccluderPolygon2D_ghvob")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Bedroom/Wall04" unique_id=1553765536]
 z_index = 1
@@ -1826,7 +1830,7 @@ shape = SubResource("RectangleShape2D_dejkf")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/BedCollision05" unique_id=11488051]
 occluder = SubResource("OccluderPolygon2D_dejkf")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="bed_rug" type="Node2D" parent="Bedroom" unique_id=139069049]
 texture_filter = 1
@@ -1855,7 +1859,7 @@ shape = SubResource("RectangleShape2D_i4aai")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/DeskCollision06" unique_id=692249812]
 occluder = SubResource("OccluderPolygon2D_4p3xr")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="wardrobe" type="Node2D" parent="Bedroom" unique_id=179839131]
 light_mask = 2
@@ -1876,7 +1880,7 @@ shape = SubResource("RectangleShape2D_ohtp7")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/WardrobeCollision07" unique_id=1668682461]
 occluder = SubResource("OccluderPolygon2D_i8uy4")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="phone" type="Node2D" parent="Bedroom" unique_id=1843862310]
 light_mask = 2
@@ -2023,7 +2027,7 @@ shape = SubResource("RectangleShape2D_vfpk0")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/RoomChairCollision08" unique_id=1183460469]
 occluder = SubResource("OccluderPolygon2D_mvf21")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="room_chest" type="Node2D" parent="Bedroom" unique_id=1065202189]
 light_mask = 2
@@ -2043,7 +2047,7 @@ shape = SubResource("RectangleShape2D_i6v53")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Bedroom/RoomChestCollision09" unique_id=1527894226]
 occluder = SubResource("OccluderPolygon2D_6ux8l")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="room_hearth_mat" type="Node2D" parent="Bedroom" unique_id=863345920]
 texture_filter = 1
@@ -2064,6 +2068,7 @@ shape = SubResource("RectangleShape2D_8eev8")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall01" unique_id=314908480]
 occluder = SubResource("OccluderPolygon2D_b860k")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall01" unique_id=2089428142]
 z_index = 1
@@ -2083,6 +2088,7 @@ shape = SubResource("RectangleShape2D_no5fy")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall02" unique_id=434455530]
 occluder = SubResource("OccluderPolygon2D_adby7")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall02" unique_id=1879951761]
 z_index = 1
@@ -2102,6 +2108,7 @@ shape = SubResource("RectangleShape2D_14y7t")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall03" unique_id=181584559]
 occluder = SubResource("OccluderPolygon2D_r82a2")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall03" unique_id=1474733751]
 z_index = 1
@@ -2121,6 +2128,7 @@ shape = SubResource("RectangleShape2D_8ahsx")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall04" unique_id=1924858253]
 occluder = SubResource("OccluderPolygon2D_ge6bc")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall04" unique_id=1881370654]
 z_index = 1
@@ -2140,6 +2148,7 @@ shape = SubResource("RectangleShape2D_mvf21")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall05" unique_id=154458327]
 occluder = SubResource("OccluderPolygon2D_2xehl")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall05" unique_id=2099770830]
 z_index = 1
@@ -2159,6 +2168,7 @@ shape = SubResource("RectangleShape2D_6ux8l")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall06" unique_id=795338160]
 occluder = SubResource("OccluderPolygon2D_lyk7k")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall06" unique_id=412122638]
 z_index = 1
@@ -2178,6 +2188,7 @@ shape = SubResource("RectangleShape2D_m0jn8")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall07" unique_id=1130509219]
 occluder = SubResource("OccluderPolygon2D_0l7rf")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall07" unique_id=1047984999]
 z_index = 1
@@ -2197,6 +2208,7 @@ shape = SubResource("RectangleShape2D_y1ufk")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/Wall08" unique_id=218413391]
 occluder = SubResource("OccluderPolygon2D_w32ch")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Hallway/Wall08" unique_id=1939943958]
 z_index = 1
@@ -2256,7 +2268,7 @@ shape = SubResource("RectangleShape2D_nyxwd")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/HallCoatsCollision09" unique_id=1939590274]
 occluder = SubResource("OccluderPolygon2D_ad72g")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="hall_back" type="Node2D" parent="Hallway" unique_id=1318726865]
 light_mask = 2
@@ -2465,7 +2477,7 @@ shape = SubResource("RectangleShape2D_qcvh1")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Hallway/HallRefugeChestCollision10" unique_id=1176903956]
 occluder = SubResource("OccluderPolygon2D_pq606")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="Forest" type="Node2D" parent="." unique_id=1102563027]
 
@@ -2478,6 +2490,7 @@ shape = SubResource("RectangleShape2D_o3sin")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall01" unique_id=184239732]
 occluder = SubResource("OccluderPolygon2D_2epig")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Forest/Wall01" unique_id=1617002289]
 z_index = 1
@@ -2497,6 +2510,7 @@ shape = SubResource("RectangleShape2D_y2rbs")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall02" unique_id=1573753566]
 occluder = SubResource("OccluderPolygon2D_oowyn")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Forest/Wall02" unique_id=371247634]
 z_index = 1
@@ -2516,6 +2530,7 @@ shape = SubResource("RectangleShape2D_f2d16")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall03" unique_id=780006348]
 occluder = SubResource("OccluderPolygon2D_kdoqd")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Forest/Wall03" unique_id=1924184509]
 z_index = 1
@@ -2535,6 +2550,7 @@ shape = SubResource("RectangleShape2D_ad72g")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/Wall04" unique_id=1646797358]
 occluder = SubResource("OccluderPolygon2D_6aryl")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Forest/Wall04" unique_id=899940086]
 z_index = 1
@@ -2564,7 +2580,7 @@ shape = SubResource("RectangleShape2D_0aduh")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk05" unique_id=585999342]
 occluder = SubResource("OccluderPolygon2D_rdk1f")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_3" type="Node2D" parent="Forest" unique_id=932003907]
 light_mask = 2
@@ -2585,7 +2601,7 @@ shape = SubResource("RectangleShape2D_f8dq7")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk06" unique_id=1051823251]
 occluder = SubResource("OccluderPolygon2D_g04m7")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_4" type="Node2D" parent="Forest" unique_id=922836014]
 light_mask = 2
@@ -2606,7 +2622,7 @@ shape = SubResource("RectangleShape2D_dd5ag")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk07" unique_id=212450712]
 occluder = SubResource("OccluderPolygon2D_ug5os")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_5" type="Node2D" parent="Forest" unique_id=1038587808]
 light_mask = 2
@@ -2627,7 +2643,7 @@ shape = SubResource("RectangleShape2D_pq606")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk08" unique_id=2030787049]
 occluder = SubResource("OccluderPolygon2D_xdrr2")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_7" type="Node2D" parent="Forest" unique_id=1023191705]
 light_mask = 2
@@ -2648,7 +2664,7 @@ shape = SubResource("RectangleShape2D_xtfg8")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk09" unique_id=29181194]
 occluder = SubResource("OccluderPolygon2D_iik6m")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_9" type="Node2D" parent="Forest" unique_id=888293152]
 light_mask = 2
@@ -2669,7 +2685,7 @@ shape = SubResource("RectangleShape2D_jffjb")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk10" unique_id=336892536]
 occluder = SubResource("OccluderPolygon2D_ht30j")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_10" type="Node2D" parent="Forest" unique_id=321772020]
 light_mask = 2
@@ -2690,7 +2706,7 @@ shape = SubResource("RectangleShape2D_rdk1f")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk11" unique_id=648471980]
 occluder = SubResource("OccluderPolygon2D_t1w7s")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_12" type="Node2D" parent="Forest" unique_id=1881873307]
 light_mask = 2
@@ -2711,7 +2727,7 @@ shape = SubResource("RectangleShape2D_g04m7")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk12" unique_id=86561062]
 occluder = SubResource("OccluderPolygon2D_7v40c")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_13" type="Node2D" parent="Forest" unique_id=827819662]
 light_mask = 2
@@ -2732,7 +2748,7 @@ shape = SubResource("RectangleShape2D_ug5os")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk13" unique_id=1588511943]
 occluder = SubResource("OccluderPolygon2D_2i8wi")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_14" type="Node2D" parent="Forest" unique_id=1632866279]
 light_mask = 2
@@ -2753,7 +2769,7 @@ shape = SubResource("RectangleShape2D_xdrr2")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk14" unique_id=562916629]
 occluder = SubResource("OccluderPolygon2D_3swje")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_16" type="Node2D" parent="Forest" unique_id=602519445]
 light_mask = 2
@@ -2774,7 +2790,7 @@ shape = SubResource("RectangleShape2D_iik6m")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk15" unique_id=1395102783]
 occluder = SubResource("OccluderPolygon2D_uvif3")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_17" type="Node2D" parent="Forest" unique_id=139425019]
 light_mask = 2
@@ -2795,7 +2811,7 @@ shape = SubResource("RectangleShape2D_ht30j")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk16" unique_id=68958134]
 occluder = SubResource("OccluderPolygon2D_wy556")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_21" type="Node2D" parent="Forest" unique_id=1847615055]
 light_mask = 2
@@ -2816,7 +2832,7 @@ shape = SubResource("RectangleShape2D_t1w7s")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk17" unique_id=8265345]
 occluder = SubResource("OccluderPolygon2D_vpce3")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_22" type="Node2D" parent="Forest" unique_id=1583956918]
 light_mask = 2
@@ -2837,7 +2853,7 @@ shape = SubResource("RectangleShape2D_7v40c")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk18" unique_id=1929050838]
 occluder = SubResource("OccluderPolygon2D_ek37e")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_24" type="Node2D" parent="Forest" unique_id=1201000859]
 light_mask = 2
@@ -2858,7 +2874,7 @@ shape = SubResource("RectangleShape2D_2i8wi")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk19" unique_id=1086539069]
 occluder = SubResource("OccluderPolygon2D_aie8e")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_25" type="Node2D" parent="Forest" unique_id=1098053151]
 light_mask = 2
@@ -2879,7 +2895,7 @@ shape = SubResource("RectangleShape2D_3swje")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk20" unique_id=1492777077]
 occluder = SubResource("OccluderPolygon2D_k2oi0")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_26" type="Node2D" parent="Forest" unique_id=1332599241]
 light_mask = 2
@@ -2900,7 +2916,7 @@ shape = SubResource("RectangleShape2D_uvif3")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk21" unique_id=309924742]
 occluder = SubResource("OccluderPolygon2D_b8mxl")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_27" type="Node2D" parent="Forest" unique_id=1344127963]
 light_mask = 2
@@ -2921,7 +2937,7 @@ shape = SubResource("RectangleShape2D_wy556")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk22" unique_id=1925470118]
 occluder = SubResource("OccluderPolygon2D_yfv48")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_28" type="Node2D" parent="Forest" unique_id=1247857352]
 light_mask = 2
@@ -2942,7 +2958,7 @@ shape = SubResource("RectangleShape2D_vpce3")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk23" unique_id=1071008476]
 occluder = SubResource("OccluderPolygon2D_7ujk8")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_29" type="Node2D" parent="Forest" unique_id=10371143]
 light_mask = 2
@@ -2963,7 +2979,7 @@ shape = SubResource("RectangleShape2D_ek37e")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk24" unique_id=1479460207]
 occluder = SubResource("OccluderPolygon2D_ot687")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_30" type="Node2D" parent="Forest" unique_id=191981774]
 light_mask = 2
@@ -2984,7 +3000,7 @@ shape = SubResource("RectangleShape2D_aie8e")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk25" unique_id=894556607]
 occluder = SubResource("OccluderPolygon2D_6ps4t")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_31" type="Node2D" parent="Forest" unique_id=2107453297]
 light_mask = 2
@@ -3005,7 +3021,7 @@ shape = SubResource("RectangleShape2D_k2oi0")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk26" unique_id=312876461]
 occluder = SubResource("OccluderPolygon2D_o725y")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_36" type="Node2D" parent="Forest" unique_id=195416311]
 light_mask = 2
@@ -3026,7 +3042,7 @@ shape = SubResource("RectangleShape2D_b8mxl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk27" unique_id=215664262]
 occluder = SubResource("OccluderPolygon2D_ne8ds")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_37" type="Node2D" parent="Forest" unique_id=1448021550]
 light_mask = 2
@@ -3047,7 +3063,7 @@ shape = SubResource("RectangleShape2D_yfv48")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk28" unique_id=1435678561]
 occluder = SubResource("OccluderPolygon2D_ad0sl")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_39" type="Node2D" parent="Forest" unique_id=172623249]
 light_mask = 2
@@ -3068,7 +3084,7 @@ shape = SubResource("RectangleShape2D_7ujk8")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk29" unique_id=210775698]
 occluder = SubResource("OccluderPolygon2D_3c1d3")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_40" type="Node2D" parent="Forest" unique_id=1943601203]
 light_mask = 2
@@ -3089,7 +3105,7 @@ shape = SubResource("RectangleShape2D_ot687")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk30" unique_id=49280996]
 occluder = SubResource("OccluderPolygon2D_xg05r")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_41" type="Node2D" parent="Forest" unique_id=1491087759]
 light_mask = 2
@@ -3110,7 +3126,7 @@ shape = SubResource("RectangleShape2D_6ps4t")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk31" unique_id=1913091350]
 occluder = SubResource("OccluderPolygon2D_ir86m")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_42" type="Node2D" parent="Forest" unique_id=1453370222]
 light_mask = 2
@@ -3131,7 +3147,7 @@ shape = SubResource("RectangleShape2D_o725y")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk32" unique_id=1487198708]
 occluder = SubResource("OccluderPolygon2D_xs1eq")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_44" type="Node2D" parent="Forest" unique_id=361673682]
 light_mask = 2
@@ -3152,7 +3168,7 @@ shape = SubResource("RectangleShape2D_ne8ds")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk33" unique_id=2094174210]
 occluder = SubResource("OccluderPolygon2D_1b666")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_46" type="Node2D" parent="Forest" unique_id=1885643131]
 light_mask = 2
@@ -3173,7 +3189,7 @@ shape = SubResource("RectangleShape2D_ad0sl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk34" unique_id=183284620]
 occluder = SubResource("OccluderPolygon2D_gqjo8")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_50" type="Node2D" parent="Forest" unique_id=825210015]
 light_mask = 2
@@ -3194,7 +3210,7 @@ shape = SubResource("RectangleShape2D_3c1d3")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk35" unique_id=472565984]
 occluder = SubResource("OccluderPolygon2D_v2lb4")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_52" type="Node2D" parent="Forest" unique_id=619823994]
 light_mask = 2
@@ -3215,7 +3231,7 @@ shape = SubResource("RectangleShape2D_xg05r")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk36" unique_id=1992719883]
 occluder = SubResource("OccluderPolygon2D_r2msu")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_53" type="Node2D" parent="Forest" unique_id=888188318]
 light_mask = 2
@@ -3236,7 +3252,7 @@ shape = SubResource("RectangleShape2D_ir86m")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk37" unique_id=1159677517]
 occluder = SubResource("OccluderPolygon2D_0sky3")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_54" type="Node2D" parent="Forest" unique_id=1255271518]
 light_mask = 2
@@ -3257,7 +3273,7 @@ shape = SubResource("RectangleShape2D_xs1eq")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk38" unique_id=849060661]
 occluder = SubResource("OccluderPolygon2D_ookwg")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_55" type="Node2D" parent="Forest" unique_id=664576566]
 light_mask = 2
@@ -3278,7 +3294,7 @@ shape = SubResource("RectangleShape2D_1b666")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk39" unique_id=802632129]
 occluder = SubResource("OccluderPolygon2D_kuwtf")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_56" type="Node2D" parent="Forest" unique_id=1768852594]
 light_mask = 2
@@ -3299,7 +3315,7 @@ shape = SubResource("RectangleShape2D_gqjo8")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk40" unique_id=1394069620]
 occluder = SubResource("OccluderPolygon2D_2e6p7")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_58" type="Node2D" parent="Forest" unique_id=1703893050]
 light_mask = 2
@@ -3320,7 +3336,7 @@ shape = SubResource("RectangleShape2D_v2lb4")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk41" unique_id=449672950]
 occluder = SubResource("OccluderPolygon2D_fxl8y")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_59" type="Node2D" parent="Forest" unique_id=80270384]
 light_mask = 2
@@ -3341,7 +3357,7 @@ shape = SubResource("RectangleShape2D_r2msu")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk42" unique_id=469485434]
 occluder = SubResource("OccluderPolygon2D_rgxvx")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_60" type="Node2D" parent="Forest" unique_id=1702146470]
 light_mask = 2
@@ -3362,7 +3378,7 @@ shape = SubResource("RectangleShape2D_0sky3")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk43" unique_id=238047755]
 occluder = SubResource("OccluderPolygon2D_5shjy")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_61" type="Node2D" parent="Forest" unique_id=958322341]
 light_mask = 2
@@ -3383,7 +3399,7 @@ shape = SubResource("RectangleShape2D_ookwg")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk44" unique_id=1879287226]
 occluder = SubResource("OccluderPolygon2D_wt3up")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_62" type="Node2D" parent="Forest" unique_id=431943736]
 light_mask = 2
@@ -3404,7 +3420,7 @@ shape = SubResource("RectangleShape2D_kuwtf")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk45" unique_id=1646221977]
 occluder = SubResource("OccluderPolygon2D_uh5pd")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_63" type="Node2D" parent="Forest" unique_id=1489757959]
 light_mask = 2
@@ -3425,7 +3441,7 @@ shape = SubResource("RectangleShape2D_2e6p7")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk46" unique_id=305147755]
 occluder = SubResource("OccluderPolygon2D_u24tl")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_66" type="Node2D" parent="Forest" unique_id=1732000400]
 light_mask = 2
@@ -3446,7 +3462,7 @@ shape = SubResource("RectangleShape2D_fxl8y")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk47" unique_id=703881752]
 occluder = SubResource("OccluderPolygon2D_5utcg")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_68" type="Node2D" parent="Forest" unique_id=1839914924]
 light_mask = 2
@@ -3467,7 +3483,7 @@ shape = SubResource("RectangleShape2D_rgxvx")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk48" unique_id=1595067062]
 occluder = SubResource("OccluderPolygon2D_1t3q4")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_69" type="Node2D" parent="Forest" unique_id=1781985827]
 light_mask = 2
@@ -3488,7 +3504,7 @@ shape = SubResource("RectangleShape2D_5shjy")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk49" unique_id=1079047558]
 occluder = SubResource("OccluderPolygon2D_yahbl")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_70" type="Node2D" parent="Forest" unique_id=833245613]
 light_mask = 2
@@ -3509,7 +3525,7 @@ shape = SubResource("RectangleShape2D_wt3up")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk50" unique_id=971856204]
 occluder = SubResource("OccluderPolygon2D_d4ohl")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_71" type="Node2D" parent="Forest" unique_id=812013829]
 light_mask = 2
@@ -3530,7 +3546,7 @@ shape = SubResource("RectangleShape2D_uh5pd")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk51" unique_id=1420586274]
 occluder = SubResource("OccluderPolygon2D_sn5dl")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_72" type="Node2D" parent="Forest" unique_id=514218870]
 light_mask = 2
@@ -3551,7 +3567,7 @@ shape = SubResource("RectangleShape2D_u24tl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk52" unique_id=244658461]
 occluder = SubResource("OccluderPolygon2D_lp0lv")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_74" type="Node2D" parent="Forest" unique_id=1643772262]
 light_mask = 2
@@ -3572,7 +3588,7 @@ shape = SubResource("RectangleShape2D_5utcg")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk53" unique_id=524805334]
 occluder = SubResource("OccluderPolygon2D_ej5r7")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="tree_76" type="Node2D" parent="Forest" unique_id=1374223859]
 light_mask = 2
@@ -3593,7 +3609,7 @@ shape = SubResource("RectangleShape2D_1t3q4")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Forest/TreeTrunk54" unique_id=536382499]
 occluder = SubResource("OccluderPolygon2D_qhlv3")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="mark_(270_0, 580_0)" type="Node2D" parent="Forest" unique_id=720658737]
 light_mask = 2
@@ -3885,6 +3901,7 @@ shape = SubResource("RectangleShape2D_yahbl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall01" unique_id=467107566]
 occluder = SubResource("OccluderPolygon2D_flxea")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall01" unique_id=1415899327]
 z_index = 1
@@ -3904,6 +3921,7 @@ shape = SubResource("RectangleShape2D_d4ohl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall02" unique_id=388982778]
 occluder = SubResource("OccluderPolygon2D_5yu2b")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall02" unique_id=1534095111]
 z_index = 1
@@ -3923,6 +3941,7 @@ shape = SubResource("RectangleShape2D_sn5dl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall03" unique_id=406987978]
 occluder = SubResource("OccluderPolygon2D_pod4i")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall03" unique_id=1462427301]
 z_index = 1
@@ -3942,6 +3961,7 @@ shape = SubResource("RectangleShape2D_lp0lv")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall04" unique_id=1251763050]
 occluder = SubResource("OccluderPolygon2D_lbguy")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall04" unique_id=1916245356]
 z_index = 1
@@ -3961,6 +3981,7 @@ shape = SubResource("RectangleShape2D_ej5r7")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall05" unique_id=479297223]
 occluder = SubResource("OccluderPolygon2D_ntrdq")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall05" unique_id=777966908]
 z_index = 1
@@ -3980,6 +4001,7 @@ shape = SubResource("RectangleShape2D_qhlv3")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall06" unique_id=307539332]
 occluder = SubResource("OccluderPolygon2D_q87s6")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall06" unique_id=551747833]
 z_index = 1
@@ -3999,6 +4021,7 @@ shape = SubResource("RectangleShape2D_ilt54")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall07" unique_id=215456640]
 occluder = SubResource("OccluderPolygon2D_aew80")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall07" unique_id=816558443]
 z_index = 1
@@ -4018,6 +4041,7 @@ shape = SubResource("RectangleShape2D_144g8")
 
 [node name="@LightOccluder2D@250" type="LightOccluder2D" parent="House/EntryCollision" unique_id=1997907076]
 occluder = SubResource("OccluderPolygon2D_2v145")
+occluder_light_mask = 3
 
 [node name="front_door" type="Node2D" parent="House" unique_id=2106467217]
 light_mask = 2
@@ -4052,6 +4076,7 @@ shape = SubResource("RectangleShape2D_r4ip3")
 
 [node name="@LightOccluder2D@253" type="LightOccluder2D" parent="House/WindowCollision" unique_id=1892939570]
 occluder = SubResource("OccluderPolygon2D_18u7w")
+occluder_light_mask = 3
 
 [node name="porch_rocks" type="Node2D" parent="House" unique_id=148474410]
 light_mask = 2
@@ -4108,7 +4133,7 @@ shape = SubResource("RectangleShape2D_127is")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/PorchBenchCollision08" unique_id=1517536839]
 occluder = SubResource("OccluderPolygon2D_mmjiw")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="Wall09" type="StaticBody2D" parent="House" unique_id=2027649326]
 position = Vector2(5940, 260)
@@ -4119,6 +4144,7 @@ shape = SubResource("RectangleShape2D_wa1rj")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall09" unique_id=1246138850]
 occluder = SubResource("OccluderPolygon2D_tyt62")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall09" unique_id=2118842727]
 z_index = 1
@@ -4138,6 +4164,7 @@ shape = SubResource("RectangleShape2D_6flf4")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/Wall10" unique_id=1068054726]
 occluder = SubResource("OccluderPolygon2D_m4m0k")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="House/Wall10" unique_id=1162470306]
 z_index = 1
@@ -4183,7 +4210,7 @@ shape = SubResource("RectangleShape2D_wg1nn")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/AltarCollision11" unique_id=1697183362]
 occluder = SubResource("OccluderPolygon2D_mhrd0")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="friend" type="Node2D" parent="House" unique_id=381974816]
 z_index = 1
@@ -4228,7 +4255,7 @@ shape = SubResource("RectangleShape2D_uxx3s")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseShelfCollision12" unique_id=873512596]
 occluder = SubResource("OccluderPolygon2D_q1fot")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="house_table" type="Node2D" parent="House" unique_id=373071088]
 light_mask = 2
@@ -4249,7 +4276,7 @@ shape = SubResource("RectangleShape2D_oghg2")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseTableCollision13" unique_id=790321288]
 occluder = SubResource("OccluderPolygon2D_rv8hx")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="house_battery" type="Node2D" parent="House" unique_id=58027359]
 light_mask = 2
@@ -4515,7 +4542,7 @@ shape = SubResource("RectangleShape2D_p4681")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseChairCollision14" unique_id=1170672004]
 occluder = SubResource("OccluderPolygon2D_07svj")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="house_chest" type="Node2D" parent="House" unique_id=1604224806]
 light_mask = 2
@@ -4535,7 +4562,7 @@ shape = SubResource("RectangleShape2D_041dv")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/HouseChestCollision15" unique_id=1179480483]
 occluder = SubResource("OccluderPolygon2D_u2hj6")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="altar_chair" type="Node2D" parent="House" unique_id=774572911]
 light_mask = 2
@@ -4556,7 +4583,7 @@ shape = SubResource("RectangleShape2D_xik0q")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="House/AltarChairCollision16" unique_id=1626382384]
 occluder = SubResource("OccluderPolygon2D_pse3m")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="porch_coats" type="Node2D" parent="House" unique_id=503689888]
 light_mask = 2
@@ -4579,6 +4606,7 @@ shape = SubResource("RectangleShape2D_wwv41")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall01" unique_id=1130490153]
 occluder = SubResource("OccluderPolygon2D_75t7y")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall01" unique_id=40866707]
 z_index = 1
@@ -4598,6 +4626,7 @@ shape = SubResource("RectangleShape2D_i18t0")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall02" unique_id=1952209306]
 occluder = SubResource("OccluderPolygon2D_nl3f3")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall02" unique_id=1768949380]
 z_index = 1
@@ -4617,6 +4646,7 @@ shape = SubResource("RectangleShape2D_83unl")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall03" unique_id=110069814]
 occluder = SubResource("OccluderPolygon2D_ravxe")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall03" unique_id=1535924738]
 z_index = 1
@@ -4636,6 +4666,7 @@ shape = SubResource("RectangleShape2D_mmjiw")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall04" unique_id=1065751513]
 occluder = SubResource("OccluderPolygon2D_vdwj7")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall04" unique_id=1128680370]
 z_index = 1
@@ -4663,6 +4694,7 @@ shape = SubResource("RectangleShape2D_6s7jb")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall05" unique_id=1050469137]
 occluder = SubResource("OccluderPolygon2D_r2vt4")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall05" unique_id=1550713204]
 z_index = 1
@@ -4682,6 +4714,7 @@ shape = SubResource("RectangleShape2D_7rhxe")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall06" unique_id=655463709]
 occluder = SubResource("OccluderPolygon2D_i3wi1")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall06" unique_id=1502096824]
 z_index = 1
@@ -4701,6 +4734,7 @@ shape = SubResource("RectangleShape2D_mhrd0")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/Wall07" unique_id=21716113]
 occluder = SubResource("OccluderPolygon2D_nnxph")
+occluder_light_mask = 3
 
 [node name="WallArt" type="Node2D" parent="Loop/Wall07" unique_id=1655035490]
 z_index = 1
@@ -4730,7 +4764,7 @@ shape = SubResource("RectangleShape2D_ikixv")
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Loop/LoopCoatsCollision08" unique_id=1058552993]
 occluder = SubResource("OccluderPolygon2D_sm556")
-occluder_light_mask = 2
+occluder_light_mask = 1
 
 [node name="loop_back" type="Node2D" parent="Loop" unique_id=1059649796]
 light_mask = 2

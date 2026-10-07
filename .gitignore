@@ -76,3 +76,9 @@ venv/
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Machine-local agent settings and generated exports
+.codex/
+requiem/*.app/
+requiem/*.command
+tools/character_rig/previews/

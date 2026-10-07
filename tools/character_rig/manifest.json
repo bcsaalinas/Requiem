@@ -1,0 +1,2564 @@
+{
+  "source_type": "One AI-generated modular RGBA parts sheet, deterministic articulated texture compositing thereafter",
+  "source_generator": "image_gen",
+  "source_image": "tools/character_rig/source_parts.png",
+  "source_sha256": "281072703372ea992e80b5961d1301f7b5101bd49eaf022d221d5ce88d2f9cf3",
+  "perspective": "Strict overhead orthographic constructed rig; all facings rotate this overhead rig, not the rejected oblique south sprite.",
+  "directions": [
+    "s",
+    "sw",
+    "w",
+    "nw",
+    "n",
+    "ne",
+    "e",
+    "se"
+  ],
+  "frame_size": [
+    256,
+    256
+  ],
+  "pivot": [
+    128,
+    128
+  ],
+  "world_scale": 0.5,
+  "pose_counts": {
+    "idle": 1,
+    "walk": 8,
+    "sprint": 8
+  },
+  "loop_seconds": 0.9,
+  "head_size": [
+    44,
+    57
+  ],
+  "torso_size": [
+    79,
+    52
+  ],
+  "head_torso_scale_invariant": true,
+  "nominal_world_speeds": {
+    "walk": 102.4,
+    "sprint": 172.8
+  },
+  "stance_fraction": {
+    "walk": 0.625,
+    "sprint": 0.375
+  },
+  "maximum_hip_to_ankle_reach_source_px": 60,
+  "flashlight_hand": "anatomical right",
+  "notes": [
+    "No generated video or frame interpolation. Every pose uses the same original part textures.",
+    "The torso is compressed and rotated 180 degrees beneath the crown so its seams suggest an overhead back.",
+    "Head/crown and torso dimensions are fixed. Sprint changes head/shoulder position and arm articulation, not body scale.",
+    "The sparse stance key poses cancel nominal ground motion. Frame holds and acceleration/deceleration prevent a claim of continuous perfect foot locking.",
+    "No baked flashlight emission or ground shadow. Dynamic game lighting remains authoritative."
+  ],
+  "crop_rectangles": {
+    "torso": [
+      70,
+      5,
+      425,
+      380
+    ],
+    "head": [
+      520,
+      35,
+      770,
+      365
+    ],
+    "upper_l": [
+      910,
+      10,
+      1105,
+      380
+    ],
+    "fore_l": [
+      175,
+      390,
+      325,
+      750
+    ],
+    "upper_r": [
+      525,
+      388,
+      725,
+      752
+    ],
+    "fore_r": [
+      950,
+      390,
+      1105,
+      753
+    ],
+    "leg_l": [
+      160,
+      750,
+      330,
+      1220
+    ],
+    "leg_r": [
+      550,
+      750,
+      720,
+      1220
+    ],
+    "flashlight": [
+      980,
+      895,
+      1095,
+      1175
+    ]
+  },
+  "frames": [
+    {
+      "state": "idle",
+      "direction": "s",
+      "frame": 0,
+      "index": 0,
+      "region": [
+        0,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        99,
+        173,
+        176
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "sw",
+      "frame": 0,
+      "index": 1,
+      "region": [
+        256,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        68,
+        92,
+        163,
+        180
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "w",
+      "frame": 0,
+      "index": 2,
+      "region": [
+        512,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        84,
+        157,
+        173
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "nw",
+      "frame": 0,
+      "index": 3,
+      "region": [
+        768,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        76,
+        68,
+        164,
+        163
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "n",
+      "frame": 0,
+      "index": 4,
+      "region": [
+        1024,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        80,
+        172,
+        157
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "ne",
+      "frame": 0,
+      "index": 5,
+      "region": [
+        1280,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        93,
+        76,
+        188,
+        164
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "e",
+      "frame": 0,
+      "index": 6,
+      "region": [
+        1536,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        99,
+        83,
+        176,
+        172
+      ]
+    },
+    {
+      "state": "idle",
+      "direction": "se",
+      "frame": 0,
+      "index": 7,
+      "region": [
+        1792,
+        0,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        93,
+        180,
+        188
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 0,
+      "index": 8,
+      "region": [
+        0,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        89,
+        172,
+        205
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 1,
+      "index": 9,
+      "region": [
+        256,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        66,
+        173,
+        182
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 2,
+      "index": 10,
+      "region": [
+        512,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        85,
+        95,
+        174,
+        176
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 3,
+      "index": 11,
+      "region": [
+        768,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        99,
+        173,
+        176
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 4,
+      "index": 12,
+      "region": [
+        1024,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        89,
+        173,
+        206
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 5,
+      "index": 13,
+      "region": [
+        1280,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        66,
+        172,
+        183
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 6,
+      "index": 14,
+      "region": [
+        1536,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        95,
+        172,
+        176
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "s",
+      "frame": 7,
+      "index": 15,
+      "region": [
+        1792,
+        256,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        99,
+        172,
+        180
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 0,
+      "index": 16,
+      "region": [
+        0,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        64,
+        86,
+        163,
+        196
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 1,
+      "index": 17,
+      "region": [
+        256,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        66,
+        70,
+        164,
+        180
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 2,
+      "index": 18,
+      "region": [
+        512,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        69,
+        89,
+        164,
+        181
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 3,
+      "index": 19,
+      "region": [
+        768,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        71,
+        92,
+        164,
+        185
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 4,
+      "index": 20,
+      "region": [
+        1024,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        59,
+        92,
+        170,
+        187
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 5,
+      "index": 21,
+      "region": [
+        1280,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        71,
+        92,
+        187,
+        184
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 6,
+      "index": 22,
+      "region": [
+        1536,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        67,
+        91,
+        167,
+        180
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "sw",
+      "frame": 7,
+      "index": 23,
+      "region": [
+        1792,
+        512,
+        256,
+        256
+      ],
+      "bounds": [
+        65,
+        92,
+        163,
+        176
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 0,
+      "index": 24,
+      "region": [
+        0,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        51,
+        83,
+        167,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 1,
+      "index": 25,
+      "region": [
+        256,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        74,
+        84,
+        190,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 2,
+      "index": 26,
+      "region": [
+        512,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        85,
+        160,
+        174
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 3,
+      "index": 27,
+      "region": [
+        768,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        84,
+        157,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 4,
+      "index": 28,
+      "region": [
+        1024,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        50,
+        84,
+        167,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 5,
+      "index": 29,
+      "region": [
+        1280,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        73,
+        83,
+        190,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 6,
+      "index": 30,
+      "region": [
+        1536,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        83,
+        161,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "w",
+      "frame": 7,
+      "index": 31,
+      "region": [
+        1792,
+        768,
+        256,
+        256
+      ],
+      "bounds": [
+        76,
+        83,
+        157,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 0,
+      "index": 32,
+      "region": [
+        0,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        60,
+        64,
+        170,
+        163
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 1,
+      "index": 33,
+      "region": [
+        256,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        76,
+        66,
+        186,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 2,
+      "index": 34,
+      "region": [
+        512,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        75,
+        69,
+        167,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 3,
+      "index": 35,
+      "region": [
+        768,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        71,
+        71,
+        164,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 4,
+      "index": 36,
+      "region": [
+        1024,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        69,
+        59,
+        164,
+        170
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 5,
+      "index": 37,
+      "region": [
+        1280,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        72,
+        71,
+        164,
+        187
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 6,
+      "index": 38,
+      "region": [
+        1536,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        77,
+        67,
+        165,
+        167
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "nw",
+      "frame": 7,
+      "index": 39,
+      "region": [
+        1792,
+        1024,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        65,
+        164,
+        163
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 0,
+      "index": 40,
+      "region": [
+        0,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        51,
+        173,
+        167
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 1,
+      "index": 41,
+      "region": [
+        256,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        74,
+        172,
+        190
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 2,
+      "index": 42,
+      "region": [
+        512,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        82,
+        80,
+        171,
+        161
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 3,
+      "index": 43,
+      "region": [
+        768,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        80,
+        172,
+        157
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 4,
+      "index": 44,
+      "region": [
+        1024,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        50,
+        172,
+        167
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 5,
+      "index": 45,
+      "region": [
+        1280,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        73,
+        173,
+        190
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 6,
+      "index": 46,
+      "region": [
+        1536,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        80,
+        173,
+        161
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "n",
+      "frame": 7,
+      "index": 47,
+      "region": [
+        1792,
+        1280,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        76,
+        173,
+        157
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 0,
+      "index": 48,
+      "region": [
+        0,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        93,
+        60,
+        192,
+        170
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 1,
+      "index": 49,
+      "region": [
+        256,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        76,
+        190,
+        186
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 2,
+      "index": 50,
+      "region": [
+        512,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        75,
+        187,
+        167
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 3,
+      "index": 51,
+      "region": [
+        768,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        71,
+        185,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 4,
+      "index": 52,
+      "region": [
+        1024,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        86,
+        69,
+        197,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 5,
+      "index": 53,
+      "region": [
+        1280,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        69,
+        72,
+        185,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 6,
+      "index": 54,
+      "region": [
+        1536,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        89,
+        76,
+        189,
+        165
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "ne",
+      "frame": 7,
+      "index": 55,
+      "region": [
+        1792,
+        1536,
+        256,
+        256
+      ],
+      "bounds": [
+        93,
+        80,
+        191,
+        164
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 0,
+      "index": 56,
+      "region": [
+        0,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        89,
+        84,
+        205,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 1,
+      "index": 57,
+      "region": [
+        256,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        66,
+        83,
+        182,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 2,
+      "index": 58,
+      "region": [
+        512,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        96,
+        82,
+        176,
+        171
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 3,
+      "index": 59,
+      "region": [
+        768,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        99,
+        83,
+        176,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 4,
+      "index": 60,
+      "region": [
+        1024,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        89,
+        83,
+        206,
+        172
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 5,
+      "index": 61,
+      "region": [
+        1280,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        66,
+        84,
+        183,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 6,
+      "index": 62,
+      "region": [
+        1536,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        95,
+        84,
+        176,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "e",
+      "frame": 7,
+      "index": 63,
+      "region": [
+        1792,
+        1792,
+        256,
+        256
+      ],
+      "bounds": [
+        99,
+        84,
+        180,
+        173
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 0,
+      "index": 64,
+      "region": [
+        0,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        86,
+        93,
+        196,
+        192
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 1,
+      "index": 65,
+      "region": [
+        256,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        70,
+        92,
+        180,
+        190
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 2,
+      "index": 66,
+      "region": [
+        512,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        89,
+        92,
+        181,
+        187
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 3,
+      "index": 67,
+      "region": [
+        768,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        92,
+        185,
+        185
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 4,
+      "index": 68,
+      "region": [
+        1024,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        86,
+        187,
+        197
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 5,
+      "index": 69,
+      "region": [
+        1280,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        69,
+        184,
+        185
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 6,
+      "index": 70,
+      "region": [
+        1536,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        91,
+        89,
+        179,
+        189
+      ]
+    },
+    {
+      "state": "walk",
+      "direction": "se",
+      "frame": 7,
+      "index": 71,
+      "region": [
+        1792,
+        2048,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        93,
+        176,
+        191
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 0,
+      "index": 72,
+      "region": [
+        0,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        81,
+        77,
+        171,
+        206
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 1,
+      "index": 73,
+      "region": [
+        256,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        82,
+        106,
+        172,
+        192
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 2,
+      "index": 74,
+      "region": [
+        512,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        82,
+        104,
+        176,
+        183
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 3,
+      "index": 75,
+      "region": [
+        768,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        83,
+        65,
+        176,
+        194
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 4,
+      "index": 76,
+      "region": [
+        1024,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        77,
+        175,
+        206
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 5,
+      "index": 77,
+      "region": [
+        1280,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        82,
+        106,
+        175,
+        184
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 6,
+      "index": 78,
+      "region": [
+        1536,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        81,
+        104,
+        174,
+        183
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "s",
+      "frame": 7,
+      "index": 79,
+      "region": [
+        1792,
+        2304,
+        256,
+        256
+      ],
+      "bounds": [
+        81,
+        65,
+        171,
+        194
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 0,
+      "index": 80,
+      "region": [
+        0,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        56,
+        76,
+        158,
+        196
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 1,
+      "index": 81,
+      "region": [
+        256,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        59,
+        96,
+        159,
+        177
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 2,
+      "index": 82,
+      "region": [
+        512,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        65,
+        98,
+        160,
+        188
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 3,
+      "index": 83,
+      "region": [
+        768,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        66,
+        92,
+        187,
+        197
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 4,
+      "index": 84,
+      "region": [
+        1024,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        59,
+        97,
+        180,
+        200
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 5,
+      "index": 85,
+      "region": [
+        1280,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        70,
+        97,
+        160,
+        196
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 6,
+      "index": 86,
+      "region": [
+        1536,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        64,
+        96,
+        158,
+        186
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "sw",
+      "frame": 7,
+      "index": 87,
+      "region": [
+        1792,
+        2560,
+        256,
+        256
+      ],
+      "bounds": [
+        58,
+        69,
+        164,
+        189
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 0,
+      "index": 88,
+      "region": [
+        0,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        50,
+        81,
+        179,
+        171
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 1,
+      "index": 89,
+      "region": [
+        256,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        64,
+        82,
+        150,
+        172
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 2,
+      "index": 90,
+      "region": [
+        512,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        73,
+        82,
+        152,
+        176
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 3,
+      "index": 91,
+      "region": [
+        768,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        62,
+        83,
+        191,
+        176
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 4,
+      "index": 92,
+      "region": [
+        1024,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        50,
+        84,
+        179,
+        175
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 5,
+      "index": 93,
+      "region": [
+        1280,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        72,
+        82,
+        150,
+        175
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 6,
+      "index": 94,
+      "region": [
+        1536,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        73,
+        81,
+        152,
+        174
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "w",
+      "frame": 7,
+      "index": 95,
+      "region": [
+        1792,
+        2816,
+        256,
+        256
+      ],
+      "bounds": [
+        62,
+        81,
+        191,
+        171
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 0,
+      "index": 96,
+      "region": [
+        0,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        60,
+        56,
+        180,
+        158
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 1,
+      "index": 97,
+      "region": [
+        256,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        79,
+        59,
+        160,
+        159
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 2,
+      "index": 98,
+      "region": [
+        512,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        68,
+        65,
+        158,
+        160
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 3,
+      "index": 99,
+      "region": [
+        768,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        59,
+        66,
+        164,
+        187
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 4,
+      "index": 100,
+      "region": [
+        1024,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        56,
+        59,
+        159,
+        180
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 5,
+      "index": 101,
+      "region": [
+        1280,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        60,
+        70,
+        159,
+        160
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 6,
+      "index": 102,
+      "region": [
+        1536,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        70,
+        64,
+        160,
+        158
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "nw",
+      "frame": 7,
+      "index": 103,
+      "region": [
+        1792,
+        3072,
+        256,
+        256
+      ],
+      "bounds": [
+        67,
+        58,
+        187,
+        164
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 0,
+      "index": 104,
+      "region": [
+        0,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        85,
+        50,
+        175,
+        179
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 1,
+      "index": 105,
+      "region": [
+        256,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        84,
+        64,
+        174,
+        150
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 2,
+      "index": 106,
+      "region": [
+        512,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        73,
+        174,
+        152
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 3,
+      "index": 107,
+      "region": [
+        768,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        80,
+        62,
+        173,
+        191
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 4,
+      "index": 108,
+      "region": [
+        1024,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        81,
+        50,
+        172,
+        179
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 5,
+      "index": 109,
+      "region": [
+        1280,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        81,
+        72,
+        174,
+        150
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 6,
+      "index": 110,
+      "region": [
+        1536,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        82,
+        73,
+        175,
+        152
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "n",
+      "frame": 7,
+      "index": 111,
+      "region": [
+        1792,
+        3328,
+        256,
+        256
+      ],
+      "bounds": [
+        85,
+        62,
+        175,
+        191
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 0,
+      "index": 112,
+      "region": [
+        0,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        98,
+        60,
+        200,
+        180
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 1,
+      "index": 113,
+      "region": [
+        256,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        97,
+        79,
+        197,
+        160
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 2,
+      "index": 114,
+      "region": [
+        512,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        96,
+        68,
+        191,
+        158
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 3,
+      "index": 115,
+      "region": [
+        768,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        69,
+        59,
+        190,
+        164
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 4,
+      "index": 116,
+      "region": [
+        1024,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        76,
+        56,
+        197,
+        159
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 5,
+      "index": 117,
+      "region": [
+        1280,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        96,
+        60,
+        186,
+        159
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 6,
+      "index": 118,
+      "region": [
+        1536,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        98,
+        70,
+        192,
+        160
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "ne",
+      "frame": 7,
+      "index": 119,
+      "region": [
+        1792,
+        3584,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        67,
+        198,
+        187
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 0,
+      "index": 120,
+      "region": [
+        0,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        77,
+        85,
+        206,
+        175
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 1,
+      "index": 121,
+      "region": [
+        256,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        106,
+        84,
+        192,
+        174
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 2,
+      "index": 122,
+      "region": [
+        512,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        104,
+        80,
+        183,
+        174
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 3,
+      "index": 123,
+      "region": [
+        768,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        65,
+        80,
+        194,
+        173
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 4,
+      "index": 124,
+      "region": [
+        1024,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        77,
+        81,
+        206,
+        172
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 5,
+      "index": 125,
+      "region": [
+        1280,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        106,
+        81,
+        184,
+        174
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 6,
+      "index": 126,
+      "region": [
+        1536,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        104,
+        82,
+        183,
+        175
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "e",
+      "frame": 7,
+      "index": 127,
+      "region": [
+        1792,
+        3840,
+        256,
+        256
+      ],
+      "bounds": [
+        65,
+        85,
+        194,
+        175
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 0,
+      "index": 128,
+      "region": [
+        0,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        76,
+        98,
+        196,
+        200
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 1,
+      "index": 129,
+      "region": [
+        256,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        96,
+        97,
+        177,
+        197
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 2,
+      "index": 130,
+      "region": [
+        512,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        98,
+        96,
+        188,
+        191
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 3,
+      "index": 131,
+      "region": [
+        768,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        92,
+        69,
+        197,
+        190
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 4,
+      "index": 132,
+      "region": [
+        1024,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        97,
+        76,
+        200,
+        197
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 5,
+      "index": 133,
+      "region": [
+        1280,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        97,
+        96,
+        196,
+        186
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 6,
+      "index": 134,
+      "region": [
+        1536,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        96,
+        98,
+        186,
+        192
+      ]
+    },
+    {
+      "state": "sprint",
+      "direction": "se",
+      "frame": 7,
+      "index": 135,
+      "region": [
+        1792,
+        4096,
+        256,
+        256
+      ],
+      "bounds": [
+        69,
+        92,
+        189,
+        198
+      ]
+    }
+  ]
+}

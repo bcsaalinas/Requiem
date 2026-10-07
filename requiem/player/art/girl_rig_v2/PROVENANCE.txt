@@ -1,0 +1,24 @@
+Requiem girl rig v2
+
+Art direction reconstruction of the generation brief (not a verbatim API transcript):
+Create one modular 3x3 texture-parts sheet of a single practical young woman survivor in a muted weathered olive-charcoal jacket, ivory shirt, dark trousers, boots, brown crown and ponytail, with separate unlit flashlight. Steep overhead game perspective, realistic grounded proportions, textured surfaces, consistent soft neutral shading, no scene shadow or emitted light. Cells: torso; crown/ponytail; left upper arm; left forearm/hand; right upper arm; right forearm/hand; left trouser/boot; right trouser/boot; flashlight.
+
+Original generated source: tools/character_rig/source_parts.png
+SHA256: 281072703372ea992e80b5961d1301f7b5101bd49eaf022d221d5ce88d2f9cf3
+
+Bake: bake_rig.py composes only source pixels with fixed component transforms.
+No third-party model or purchased asset was used.
+See tools/character_rig/manifest.json for complete pivot, timing, stance and frame information.
+
+Equipped action layers: export_action_layers.py composes the same source parts.
+grip_rig.py crops the relaxed right hand out of the equipped sleeve and constructs
+a compact hand/flashlight attachment. Its wrist, palm and torch rotate together;
+neutral forearm art is unchanged. No new generated artwork is used.
+gait_rig.py bounds lateral reach, retains anatomical left/right foot lanes, and
+exports independent leg sheets with contact, joint and rigid boot landmarks.
+Four staged poses per 45-degree idle turn transfer support between the feet.
+The original girl_atlas.png / girl_frames.tres remain available unchanged.
+See tools/character_rig/action_layers_manifest.json and generated action_layer_anchors.gd for the
+registered upper, lower, turn and grip coordinates used by the live renderer.
+
+Authoring scripts and source sheet: tools/character_rig/ (outside the Godot project).

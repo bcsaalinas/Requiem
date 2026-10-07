@@ -19,7 +19,11 @@ var flashlight: PointLight2D
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 var zone := "bedroom"
 var stage := "ki"
-var has_flashlight := false
+var has_flashlight: bool:
+	get:
+		return is_instance_valid(player) and player.get_node("ActionState").has_flashlight
+	set(value):
+		if is_instance_valid(player): player.get_node("ActionState").has_flashlight = value
 var batteries := 0
 var window_broken := false
 var door_unlocked := false
@@ -47,8 +51,6 @@ var loop_cued := false
 var ambient_reply_cooldown := 0.0
 var parent_failures := 0
 var loop_hold_seen := false
-var _old_debug := true
-var _old_debug_legend := true
 var _paused := false
 var _paused_modes: Dictionary = {}
 var _sounds: Dictionary = {}
@@ -65,11 +67,6 @@ func _ready() -> void:
 		get_window().mode = Window.MODE_FULLSCREEN
 	get_viewport().size_changed.connect(_frame_camera)
 	RenderingServer.set_default_clear_color(Color("0e161b"))
-	_old_debug=NoiseDebug.enabled
-	_old_debug_legend=NoiseDebug._legend_layer.visible
-	NoiseDebug.enabled=false
-	NoiseDebug._legend_layer.hide()
-	NoiseDebug._redraw()
 	thrower=player.get_node("Throw")
 	breath=player.get_node("HoldBreath")
 	player.get_node("Sprite2D").hide()
@@ -78,6 +75,7 @@ func _ready() -> void:
 	thrower.rock_landed.connect(_on_rock_landed)
 	preload("res://tutorial/prop_light.gd").attach(player.get_node("LocalLight"))
 	flashlight=player.get_node("flashlight")
+	has_flashlight=false
 	flashlight.battery_percent=0.0
 	flashlight._update_bar()
 	preload("res://tutorial/prop_light.gd").attach(flashlight)
@@ -109,10 +107,6 @@ func _ready() -> void:
 		play_sound("phone",player.position)
 
 func _exit_tree() -> void:
-	if is_instance_valid(NoiseDebug):
-		NoiseDebug.enabled=_old_debug
-		NoiseDebug._legend_layer.visible=_old_debug_legend
-		NoiseDebug._redraw()
 	get_tree().paused=false
 	for audio in get_tree().get_nodes_in_group("tutorial_audio"):
 		audio.stop()
@@ -143,6 +137,8 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true) -> void:
 	var starts:={"bedroom":Vector2(340,440),"hallway":Vector2(110,340),"forest":Vector2(150,540),"house":Vector2(530,850),"loop":Vector2(130,330)}
 	player.position=origin+starts[zone] if spawn==Vector2.INF else spawn
 	player.velocity=Vector2.ZERO
+	player.get_node("PlayerMotion").reset_pose()
+	player.get_node("PlayerAim").reset_pose()
 	_frame_camera()
 	player.get_node("Camera2D").reset_smoothing()
 	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
@@ -369,6 +365,8 @@ func interact(id: String) -> void:
 			else:
 				player.position=Vector2(5737,620) if player.position.y>680 else Vector2(5737,755)
 				player.velocity=Vector2.ZERO
+				player.get_node("PlayerMotion").reset_pose()
+				player.get_node("PlayerAim").reset_pose()
 				if player.position.y<680: save_checkpoint()
 		"friend":
 			friend_met=true

@@ -11,8 +11,11 @@ func _switch_throwable() -> void:
 	pass # Only collected rocks are introduced in this segment.
 
 func _start_throw() -> void:
-	rocks -= 1
+	if not can_throw():
+		return
 	super._start_throw()
+	if is_throwing:
+		rocks -= 1
 
 func _impact(landing: Vector2, kind: int) -> void:
 	super._impact(landing, kind)
@@ -26,6 +29,5 @@ func clear_pending() -> void:
 		if is_instance_valid(flight["node"]): flight["node"].queue_free()
 	_in_flight.clear()
 	_ringing.clear()
-	is_throwing = false
-	_windup_timer = 0.0
+	cancel_windup()
 	_cooldown_timer = 0.0

@@ -20,7 +20,6 @@ config/icon="res://icon.svg"
 NoiseManager="*res://autoloads/noise_manager.gd"
 GameState="*res://autoloads/game_state.gd"
 GameOverUi="*res://autoloads/game_over_ui.gd"
-NoiseDebug="*res://autoloads/noise_debug.gd"
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
 
 [display]

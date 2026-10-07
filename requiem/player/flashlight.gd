@@ -3,7 +3,7 @@ extends PointLight2D
 # Flashlight (linterna de mano del jugador)
 #
 # Es un PointLight2D con textura de cono (prop_radius_0.png): la punta del cono
-# esta en el borde IZQUIERDO de la imagen y es la zona mas brillante; hacia el
+# esta cerca del borde IZQUIERDO de la imagen y es la zona mas brillante; hacia el
 # extremo opuesto la luz se apaga sola. Por eso el haz "decae con la distancia"
 # de forma natural: es la propia textura, no hace falta shader.
 #
@@ -25,6 +25,8 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 @export_group("Haz")
 ## Largo del cono en unidades (1 u = el ancho del jugador).
 @export var beam_length_u: float = 13.0
+## The cone's painted tip is inset in prop_radius_0.png, not at its left edge.
+@export var beam_tip_pixels := Vector2(24.0, 78.5)
 ## Brillo del haz con la bateria llena.
 @export var beam_energy: float = 1.0
 ## Si es false el cono se queda quieto en su rotacion actual (para depurar).
@@ -63,6 +65,8 @@ var is_on: bool = false
 
 var _audio_player: AudioStreamPlayer2D
 var _flicker: float = 1.0
+@onready var actions: Node = get_parent().get_node_or_null("ActionState")
+@onready var aim_controller: Node = get_parent().get_node_or_null("PlayerAim")
 ## Ancho "100%" del cono: el scale.y con el que arranca el nodo (Inspector o 1).
 var _full_cone_width: float = 1.0
 
@@ -100,7 +104,7 @@ func _process(delta: float) -> void:
 	if GameState.is_dead:
 		return
 
-	if follow_mouse and is_on:
+	if follow_mouse and is_on and aim_controller == null:
 		_aim_at_mouse()
 
 	_tick_cone_width(delta)
@@ -118,6 +122,8 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Enciende / apaga. No hace nada si intentas encender sin bateria.
 func toggle() -> void:
 	if GameState.is_dead:
+		return
+	if actions != null and (not actions.has_flashlight or not actions.can_aim()):
 		return
 	if not is_on and battery_percent <= 0.0:
 		return
@@ -137,12 +143,10 @@ func _aim_at_mouse() -> void:
 ## normal al soltar, con easing (no salta). Solo cambia scale.y; scale.x queda
 ## intacto para que se lea como "haz mas fino", no como "linterna mas chica".
 ##
-## Lee el input directo (no el nodo HoldBreath) para mantener la linterna
-## desacoplada. Efecto lateral menor: si el jugador mantiene la tecla durante
-## el bloqueo por gasp forzado, el cono sigue fino esos ~2s aunque ya no este
-## "aguantando" de verdad. Aceptable.
+## Read the shared actual breath state, including forced release during gasp.
 func _tick_cone_width(delta: float) -> void:
-	var held := Input.is_action_pressed("hold_breath")
+	var breath := get_parent().get_node_or_null("HoldBreath")
+	var held: bool = actions.is_holding_breath() if actions != null else (breath != null and breath.is_holding)
 	var target_y := _full_cone_width * (held_cone_width_ratio if held else 1.0)
 	var eased_y := lerpf(scale.y, target_y, clampf(cone_ease_speed * delta, 0.0, 1.0))
 	scale = Vector2(scale.x, eased_y)
@@ -176,8 +180,8 @@ func _tick_flicker(delta: float) -> void:
 
 ## Vuelca el estado actual (encendida + bateria + parpadeo) sobre la luz real.
 func _refresh_light() -> void:
-	enabled = is_on
-	if not is_on:
+	enabled = is_on and battery_percent > 0.0 and (actions == null or actions.has_flashlight)
+	if not enabled:
 		return
 
 	var level := 1.0
@@ -188,13 +192,12 @@ func _refresh_light() -> void:
 	energy = beam_energy * level * _flicker
 
 
-## texture_scale a partir del largo deseado en unidades, y `offset` para que la
-## punta del cono (borde izquierdo de la textura) quede sobre el origen del nodo.
+## Preserve texture scale/range, but register its painted tip at the hand socket.
 func _apply_beam_length() -> void:
 	if texture == null:
 		return
 	texture_scale = beam_length_u * PX_PER_UNIT / float(texture.get_width())
-	offset = Vector2(texture.get_width() * 0.5 * texture_scale, 0.0)
+	offset = (texture.get_size() * 0.5 - beam_tip_pixels) * texture_scale
 
 
 func _play_click() -> void:

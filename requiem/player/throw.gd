@@ -79,6 +79,7 @@ var _in_flight: Array = []
 var _ringing: Array = []
 
 @onready var player: Node2D = get_parent()
+@onready var action_state: Node = player.get_node_or_null("ActionState")
 
 # --- Etiqueta de municion en pantalla ---
 var _bar_layer: CanvasLayer
@@ -106,8 +107,11 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if GameState.is_dead:
+		cancel_windup()
 		return
 
+	if not _actions_allowed():
+		cancel_windup()
 	_tick_timers(delta)
 	_tick_flight(delta)
 	_tick_ringing(delta)
@@ -140,11 +144,7 @@ func _switch_throwable() -> void:
 ## True si puedes lanzar ahorita: sin animacion en curso, sin enfriamiento,
 ## sin bloqueo por gasp forzado, y con municion del objeto seleccionado.
 func can_throw() -> bool:
-	if is_throwing or _cooldown_timer > 0.0:
-		return false
-
-	var hold_breath: Node = player.get_node_or_null("HoldBreath")
-	if hold_breath != null and hold_breath.is_locked:
+	if not _actions_allowed() or is_throwing or _cooldown_timer > 0.0:
 		return false
 
 	if selected == Throwable.DESPERTADOR and alarms_left <= 0:
@@ -153,9 +153,27 @@ func can_throw() -> bool:
 	return true
 
 
+func _actions_allowed() -> bool:
+	if action_state != null:
+		return action_state.can_throw()
+	var hold_breath: Node = player.get_node_or_null("HoldBreath")
+	return not GameState.is_dead and player.can_process() and not GameState.is_praying \
+		and (hold_breath == null or not hold_breath.is_locked)
+
+
+## A cancelled windup has already spent its inventory. Preserve that cost and
+## leave released projectiles and any existing cooldown untouched.
+func cancel_windup() -> void:
+	is_throwing = false
+	_windup_timer = 0.0
+	_pending_landing = Vector2.ZERO
+
+
 ## El punto de caida se calcula AL EMPEZAR la animacion, no al soltarla: asi
 ## el jugador apunta y se compromete, en vez de corregir a media animacion.
 func _start_throw() -> void:
+	if not can_throw():
+		return
 	is_throwing = true
 	_windup_timer = windup_time
 	_pending_kind = selected
@@ -193,6 +211,9 @@ func _compute_landing() -> Vector2:
 ## El sprite se agrega al NIVEL, no al Player: si fuera hijo del Player se
 ## moveria con el y el punto de caida no se quedaria quieto.
 func _release_object() -> void:
+	if not _actions_allowed():
+		cancel_windup()
+		return
 	is_throwing = false
 	_cooldown_timer = cooldown_time
 

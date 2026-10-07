@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://qvmplrwk2j6o"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://player/player_motion.gd" id="10_motion"]
+[ext_resource type="Script" path="res://player/action_state.gd" id="12_actions"]
+[ext_resource type="Script" path="res://player/aim.gd" id="13_aim"]
+[ext_resource type="SpriteFrames" path="res://player/art/girl_rig_v2/girl_frames.tres" id="11_girl"]
 [ext_resource type="Script" path="res://player/footstep_noise.gd" id="2_footstep"]
 [ext_resource type="Script" path="res://player/hold_breath.gd" id="3_breath"]
 [ext_resource type="Script" path="res://tutorial/throw.gd" id="4_hg6s5"]
@@ -46,6 +50,9 @@ position_smoothing_enabled = true
 script = ExtResource("2_footstep")
 walk_clips = Array[AudioStream]([ExtResource("4_walk")])
 
+[node name="ActionState" type="Node" parent="."]
+script = ExtResource("12_actions")
+
 [node name="HoldBreath" type="Node" parent="." unique_id=2008094638]
 script = ExtResource("3_breath")
 hold_clips = Array[AudioStream]([ExtResource("7_hold")])
@@ -60,6 +67,20 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_wodsf")
 script = ExtResource("6_2ieo8")
 kind = "actor"
+actor_frames = ExtResource("11_girl")
+actor_rig_enabled = true
+actor_frame_scale = 0.5
+actor_frame_pivot = Vector2(128, 128)
+actor_ground_offset = Vector2(0, 0)
+actor_shadow_offset = Vector2(0, 0)
+actor_shadow_radius = Vector2(12, 7)
+actor_value_floor = 0.05
+actor_value_range = 0.75
+actor_rim_strength = 0.15
+
+[node name="PlayerMotion" type="Node" parent="."]
+process_mode = 1
+script = ExtResource("10_motion")
 
 [node name="LocalLight" type="PointLight2D" parent="." unique_id=341006500]
 color = Color(0.7254902, 0.77254903, 0.7254902, 1)
@@ -81,3 +102,6 @@ texture = ExtResource("8_yllr7")
 offset = Vector2(207.99998, 0)
 texture_scale = 2.1554403
 script = ExtResource("9_kb6p2")
+
+[node name="PlayerAim" type="Node" parent="."]
+script = ExtResource("13_aim")

@@ -11,6 +11,8 @@ extends Node2D
 
 ## Margen del suelo y de la camara alrededor del mapa, en unidades.
 @export var floor_margin_u: float = 4.0
+## Night templates start equipped; the tutorial teaches a separate pickup.
+@export var starts_with_flashlight := true
 
 @onready var _walls: TileMapLayer = get_node_or_null("Map")
 @onready var _props: TileMapLayer = get_node_or_null("Props")
@@ -19,6 +21,8 @@ extends Node2D
 
 
 func _ready() -> void:
+	var actions := get_node_or_null("Player/ActionState")
+	if actions != null: actions.has_flashlight = starts_with_flashlight
 	if _walls == null or _walls.tile_set == null:
 		push_warning("[Level] Falta la capa de muros \"Map\"")
 		return
