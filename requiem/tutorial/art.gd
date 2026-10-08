@@ -19,6 +19,7 @@ extends Node2D
 @export_range(0.0, 1.0) var actor_rim_strength := 0.45
 const CharacterAnimation := preload("res://player/character_animation.gd")
 const RigLayers := preload("res://player/character_rig_layers.gd")
+const ThrowableVisual := preload("res://player/throwable_visual.gd")
 const Materials := preload("res://tutorial/materials.gd")
 const DETAILS := preload("res://tutorial/assets/art/details_atlas.png")
 const DETAIL_REGIONS := {
@@ -67,6 +68,16 @@ var _right_leg_rim: Sprite2D
 var _lower_pose: Dictionary = {}
 var _torch_sprite: Sprite2D
 var _torch_rim: Sprite2D
+var _breath_track: StringName = &"idle"
+var _breath_phase := 0.0
+var _throw_track: StringName = &"idle"
+var _throw_phase := 0.0
+var _throw_kind := -1
+var _throw_prop: Node2D
+var _prayer_track: StringName = &"idle"
+var _prayer_phase := 0.0
+var _prayer_lower_track: StringName = &"idle"
+var _prayer_lower_phase := 0.0
 
 func _ready() -> void:
 	reset_actor_gait()
@@ -114,6 +125,10 @@ func _ready() -> void:
 			move_child(_right_leg_rim,3)
 			_torch_sprite = _new_rig_layer("Equipment",false)
 			_torch_rim = _new_rig_layer("EquipmentContour",true)
+			_throw_prop = ThrowableVisual.new()
+			_throw_prop.name = "HeldThrowable"
+			_throw_prop.visible = false
+			add_child(_throw_prop, false, Node.INTERNAL_MODE_BACK)
 
 func _process(delta: float) -> void:
 	clock += delta
@@ -235,6 +250,43 @@ func set_actor_pose(body_angle: float, wrist_angle: float, relative_direction: S
 	var aim_step := clampi(roundi(angle_difference(body_angle,wrist_angle)/(PI/8.0)),-2,2) if arm_step == 99 else clampi(arm_step,-2,2)
 	var state := String(actor_animation).get_slice("_",0)
 	_rig_pose = _rig_layers.get_pose(state,actor_frame,relative_direction,aim_step,equipped)
+	if _breath_track != &"idle":
+		_rig_pose = _rig_layers.get_breath_pose(String(_breath_track), _breath_phase, aim_step, equipped)
+	if _throw_track != &"idle":
+		_rig_pose = _rig_layers.get_throw_pose(String(_throw_track), _throw_phase, aim_step, equipped)
+	if _prayer_track != &"idle":
+		_rig_pose = _rig_layers.get_prayer_pose(String(_prayer_track), _prayer_phase, aim_step, equipped)
+	queue_redraw()
+
+
+func set_breath_pose(track: StringName, phase: float) -> void:
+	_breath_track = track
+	_breath_phase = clampf(phase, 0.0, 1.0)
+	# PlayerAim applies this with the current body/arm heading later this tick.
+	queue_redraw()
+
+
+func set_throw_pose(track: StringName, phase: float, kind_id := -1) -> void:
+	_throw_track = track
+	_throw_phase = clampf(phase, 0.0, 1.0)
+	_throw_kind = kind_id
+	queue_redraw()
+
+
+func get_actor_throw_hand_position() -> Vector2:
+	if not _rig_pose.has("throw_hand"): return actor_ground_offset
+	return actor_ground_offset + ((_rig_pose.throw_hand - actor_frame_pivot) * actor_frame_scale).rotated(_rig_rotation)
+
+
+func set_prayer_pose(track: StringName, phase: float) -> void:
+	_prayer_track = track
+	_prayer_phase = clampf(phase, 0.0, 1.0)
+	queue_redraw()
+
+
+func set_prayer_lower_pose(track: StringName, phase: float) -> void:
+	_prayer_lower_track = track
+	_prayer_lower_phase = clampf(phase, 0.0, 1.0)
 	queue_redraw()
 
 
@@ -261,13 +313,27 @@ func set_actor_lower_pose(pose: Dictionary) -> void:
 
 
 func get_actor_lower_pose() -> Dictionary:
+	if _prayer_lower_track != &"idle" and _rig_layers != null:
+		var prayer: Dictionary = _rig_layers.get_prayer_lower_pose(String(_prayer_lower_track), _prayer_lower_phase)
+		var weight: float = prayer.metadata.kneel_weight
+		# At standing endpoints the original support contacts remain authoritative.
+		if weight > 0.0:
+			var rotations := {}
+			var offsets := {}
+			for side in ["left", "right"]:
+				var from_heading: float = _lower_pose.get("rotations", {}).get(side, _lower_pose.get("heading", _rig_rotation + PI / 2.0))
+				rotations[side] = lerp_angle(from_heading, _rig_rotation + PI / 2.0, weight)
+				offsets[side] = Vector2(_lower_pose.get("offsets", {}).get(side, Vector2.ZERO)) * (1.0 - weight)
+			return {"pose": prayer, "heading": _rig_rotation + PI / 2.0,
+				"offsets": offsets, "rotations": rotations, "kneeling": true}
 	return _lower_pose
 
 
 func get_actor_leg_transform(side: String) -> Transform2D:
-	var heading: float = _lower_pose.get("heading", _rig_rotation + PI / 2.0)
-	var offsets: Dictionary = _lower_pose.get("offsets", {})
-	var rotations: Dictionary = _lower_pose.get("rotations", {})
+	var lower := get_actor_lower_pose()
+	var heading: float = lower.get("heading", _rig_rotation + PI / 2.0)
+	var offsets: Dictionary = lower.get("offsets", {})
+	var rotations: Dictionary = lower.get("rotations", {})
 	heading = float(rotations.get(side, heading))
 	var pose := Transform2D(heading - PI / 2.0, Vector2.ZERO).scaled(Vector2.ONE * actor_frame_scale)
 	pose.origin = actor_ground_offset + Vector2(offsets.get(side, Vector2.ZERO)) - pose.basis_xform(actor_frame_pivot)
@@ -275,8 +341,9 @@ func get_actor_leg_transform(side: String) -> Transform2D:
 
 
 func get_actor_boot_position(side: String) -> Vector2:
-	if _lower_pose.is_empty(): return actor_ground_offset
-	return get_actor_leg_transform(side) * Vector2(_lower_pose.pose.metadata[side].boot)
+	var lower := get_actor_lower_pose()
+	if lower.is_empty(): return actor_ground_offset
+	return get_actor_leg_transform(side) * Vector2(lower.pose.metadata[side].boot)
 
 
 func _new_rig_layer(layer_name: String, contour: bool) -> Sprite2D:
@@ -298,7 +365,7 @@ func _draw_rig_actor() -> void:
 	paint_ellipse(actor_shadow_offset,actor_shadow_radius,Color(0,0,0,.08))
 	paint_ellipse(actor_shadow_offset,actor_shadow_radius*Vector2(.794,.625),Color(0,0,0,.14))
 	var offset := actor_ground_offset + (-actor_frame_pivot*actor_frame_scale).rotated(_rig_rotation)
-	var lower: Dictionary = _lower_pose.get("pose", _rig_layers.get_lower_pose("idle", 0, "s"))
+	var lower: Dictionary = get_actor_lower_pose().get("pose", _rig_layers.get_lower_pose("idle", 0, "s"))
 	for side in ["left", "right"]:
 		var transform_at_leg := get_actor_leg_transform(side)
 		var sprite := _lower_sprite if side == "left" else _right_leg_sprite
@@ -311,6 +378,12 @@ func _draw_rig_actor() -> void:
 		var transform_at_hand := get_actor_grip_transform()
 		var texture: Texture2D = _rig_pose.flashlight_texture
 		_pose_layer(_torch_sprite,_torch_rim,texture,Rect2(Vector2.ZERO,texture.get_size()),transform_at_hand.origin,transform_at_hand.get_rotation(),texture.get_size()*actor_frame_scale)
+	_throw_prop.visible = _throw_track == &"windup" and _throw_kind >= 0
+	if _throw_prop.visible:
+		_throw_prop.kind = _throw_kind
+		_throw_prop.color = Color(1.0, .85, .35) if _throw_kind == 1 else Color(.85, .85, .8)
+		_throw_prop.position = get_actor_throw_hand_position()
+		_throw_prop.rotation = _rig_rotation
 
 
 func _pose_layer(sprite: Sprite2D, contour: Sprite2D, texture: Texture2D, region: Rect2,

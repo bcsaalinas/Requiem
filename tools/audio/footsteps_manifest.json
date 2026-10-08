@@ -1,0 +1,73 @@
+{
+  "source": "requiem/assets/audio/freesound_community-concrete-footsteps-1-6265.mp3",
+  "source_sha256": "a671321c8c2b22e29d8eedfdc0d73f8ef9cfdfc058c63d99a7a97b2cf316e99a",
+  "source_reference": "https://pixabay.com/sound-effects/concrete-footsteps-1-6265/",
+  "format": "24000 Hz mono 16-bit PCM; no loops",
+  "processing": "85 Hz high-pass; 6.5 kHz low-pass; trimmed attack; bounded gain; 0.75 ms fade-in, 55 ms tail fade",
+  "clips": [
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_01.wav",
+      "source_start": 0.299625,
+      "duration": 0.250375,
+      "gain_db": 4.351,
+      "peak_db": -4.519,
+      "sha256": "2f3eda215e4a8d91950ba9b2e8fa0e03b271420c84da26dbeffb6f31d97ab097"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_02.wav",
+      "source_start": 1.642542,
+      "duration": 0.26,
+      "gain_db": 13.65,
+      "peak_db": -3.0,
+      "sha256": "bf74a17a3cbcded64bcc60a5655269888906b3d9d54320d5c83212585331d399"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_03.wav",
+      "source_start": 2.617417,
+      "duration": 0.26,
+      "gain_db": 16.509,
+      "peak_db": -3.0,
+      "sha256": "b2553e813cdd9bff265bf44fcf38521841c504be5dff61cbb6b2bf1c7ade8f24"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_04.wav",
+      "source_start": 3.19225,
+      "duration": 0.26,
+      "gain_db": 2.323,
+      "peak_db": -3.618,
+      "sha256": "2f83729eced9141c7dd3691d714e994838fffc11944a9ceaa3aee8b6e4685f65"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_05.wav",
+      "source_start": 3.6845,
+      "duration": 0.26,
+      "gain_db": 15.549,
+      "peak_db": -4.2,
+      "sha256": "0eb1f0efe4232c8c4588b45cfb41e15f498cf94edc5e1e64b4171c002fbf676b"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_06.wav",
+      "source_start": 4.140708,
+      "duration": 0.26,
+      "gain_db": 5.807,
+      "peak_db": -3.0,
+      "sha256": "99d94f9dadae71f378ee06a8f1c9f8f52b6349b686262ce8ca4504a67d1d13a6"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_07.wav",
+      "source_start": 4.570792,
+      "duration": 0.26,
+      "gain_db": 11.41,
+      "peak_db": -6.264,
+      "sha256": "6ff2578feff99653378b9c0842204ced2822639bf500a0f751d20a17ec431bef"
+    },
+    {
+      "file": "requiem/assets/audio/footsteps/concrete_step_08.wav",
+      "source_start": 6.089125,
+      "duration": 0.26,
+      "gain_db": 3.51,
+      "peak_db": -5.154,
+      "sha256": "8cae2633d002a9f15dfc5b887af4d315c2e7b8d0fab34f0bd1f12df3aecc1c82"
+    }
+  ]
+}

@@ -61,7 +61,7 @@ func _physics_process(_delta: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
 	var holding_breath: bool = action_state.is_hold_requested() if action_state != null \
-		else Input.is_action_pressed("hold_breath")
+		else Input.is_action_pressed("hold_breath") and (hold_breath == null or not hold_breath.needs_release)
 
 	# is_sprinting se calcula DESPUES de input_dir a proposito: necesita saber
 	# si de verdad te estas moviendo. Aguantar la respiracion lo cancela.

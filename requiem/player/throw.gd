@@ -1,5 +1,13 @@
 extends Node
 
+signal throw_started
+signal throw_releasing
+signal object_released
+signal throw_cancelled
+signal presentation_reset
+
+const ThrowableVisual := preload("res://player/throwable_visual.gd")
+
 # Throw (verbo secundario de la spec de Requiem)
 #
 # Se pone como hijo del Player, en un nodo llamado EXACTAMENTE "Throw".
@@ -71,6 +79,10 @@ var _windup_timer: float = 0.0
 var _cooldown_timer: float = 0.0
 var _pending_landing: Vector2 = Vector2.ZERO
 var _pending_kind: int = Throwable.PIEDRA
+var _committed_angle := 0.0
+var _windup_duration := 0.0
+var _release_cooldown := 0.0
+var _previous_position := Vector2.ZERO
 var _audio_player: AudioStreamPlayer2D
 
 ## Objetos en el aire: { "node", "from", "to", "t", "kind" }
@@ -88,6 +100,7 @@ var _ammo_label: Label
 
 func _ready() -> void:
 	alarms_left = alarm_charges
+	_previous_position = player.global_position
 
 	_audio_player = AudioStreamPlayer2D.new()
 	add_child(_audio_player)
@@ -106,6 +119,11 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	var teleported := player.global_position.distance_to(_previous_position) > Units.to_px(3.0)
+	_previous_position = player.global_position
+	if teleported:
+		cancel_windup()
+		presentation_reset.emit()
 	if GameState.is_dead:
 		cancel_windup()
 		return
@@ -126,8 +144,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _tick_timers(delta: float) -> void:
-	if _windup_timer > 0.0:
-		_windup_timer -= delta
+	if is_throwing:
+		_windup_timer = maxf(0.0, _windup_timer - delta)
 		if _windup_timer <= 0.0:
 			_release_object()
 	elif _cooldown_timer > 0.0:
@@ -164,9 +182,44 @@ func _actions_allowed() -> bool:
 ## A cancelled windup has already spent its inventory. Preserve that cost and
 ## leave released projectiles and any existing cooldown untouched.
 func cancel_windup() -> void:
+	var was_throwing := is_throwing
 	is_throwing = false
 	_windup_timer = 0.0
 	_pending_landing = Vector2.ZERO
+	if was_throwing:
+		throw_cancelled.emit()
+
+
+func get_windup_phase() -> float:
+	return clampf(1.0 - _windup_timer / maxf(_windup_duration, 0.001), 0.0, 1.0)
+
+
+func get_committed_angle() -> float:
+	return _committed_angle
+
+
+func get_pending_kind() -> int:
+	return _pending_kind
+
+
+func get_release_cooldown() -> float:
+	return _release_cooldown
+
+
+func get_cooldown_elapsed() -> float:
+	return maxf(0.0, _release_cooldown - _cooldown_timer)
+
+
+## Explicit retry/scene reset clears released objects as well as presentation.
+func clear_pending() -> void:
+	for flight in _in_flight:
+		if is_instance_valid(flight["node"]): flight["node"].queue_free()
+	_in_flight.clear()
+	_ringing.clear()
+	cancel_windup()
+	_cooldown_timer = 0.0
+	_release_cooldown = 0.0
+	presentation_reset.emit()
 
 
 ## El punto de caida se calcula AL EMPEZAR la animacion, no al soltarla: asi
@@ -175,23 +228,29 @@ func _start_throw() -> void:
 	if not can_throw():
 		return
 	is_throwing = true
-	_windup_timer = windup_time
+	_previous_position = player.global_position
+	_windup_duration = maxf(0.0, windup_time)
+	_windup_timer = _windup_duration
 	_pending_kind = selected
 	_pending_landing = _compute_landing()
 
 	if _pending_kind == Throwable.DESPERTADOR:
 		alarms_left -= 1
+	throw_started.emit()
 
 
 ## Hacia el cursor, a throw_distance_u como maximo. Si hay pared en medio,
 ## cae justo antes de ella en vez de atravesarla.
 func _compute_landing() -> Vector2:
 	var origin: Vector2 = player.global_position
-	var direction: Vector2 = player.get_global_mouse_position() - origin
+	var aim: Node = player.get_node_or_null("PlayerAim")
+	var target_position: Vector2 = aim.get_target_position() if aim != null else player.get_global_mouse_position()
+	var direction: Vector2 = target_position - origin
 
 	if direction.length_squared() < 1.0:
 		direction = Vector2.RIGHT
 	direction = direction.normalized()
+	_committed_angle = direction.angle()
 
 	var target: Vector2 = origin + direction * throw_distance_u * PX_PER_UNIT
 
@@ -211,28 +270,50 @@ func _compute_landing() -> Vector2:
 ## El sprite se agrega al NIVEL, no al Player: si fuera hijo del Player se
 ## moveria con el y el punto de caida no se quedaria quieto.
 func _release_object() -> void:
+	if not is_throwing:
+		return
 	if not _actions_allowed():
 		cancel_windup()
 		return
+	throw_releasing.emit()
 	is_throwing = false
-	_cooldown_timer = cooldown_time
-
-	var texture := PlaceholderTexture2D.new()
-	texture.size = Vector2(projectile_size, projectile_size)
-
-	var sprite := Sprite2D.new()
-	sprite.texture = texture
-	sprite.modulate = _color_for(_pending_kind)
-	sprite.global_position = player.global_position
+	_release_cooldown = maxf(0.0, cooldown_time)
+	_cooldown_timer = _release_cooldown
+	var origin := _get_release_origin()
+	var sprite := ThrowableVisual.new()
+	sprite.kind = _pending_kind
+	sprite.size = projectile_size
+	sprite.color = _color_for(_pending_kind)
+	sprite.z_index = 2
 	player.get_parent().add_child(sprite)
+	sprite.global_position = origin
 
 	_in_flight.append({
 		"node": sprite,
-		"from": player.global_position,
+		"from": origin,
 		"to": _pending_landing,
 		"t": 0.0,
 		"kind": _pending_kind,
 	})
+	object_released.emit()
+
+
+func _get_release_origin() -> Vector2:
+	var appearance: Node2D = player.get_node_or_null("Appearance")
+	if appearance == null or not appearance.has_method("get_actor_throw_hand_position"):
+		return player.global_position
+	var origin: Vector2 = appearance.to_global(appearance.get_actor_throw_hand_position())
+	var space := player.get_world_2d().direct_space_state
+	var query := PhysicsRayQueryParameters2D.create(player.global_position, origin, wall_mask, [player.get_rid()])
+	var hit := space.intersect_ray(query)
+	if not hit.is_empty():
+		origin = hit.position + (player.global_position - origin).normalized() * 1.5
+	# The small sideways socket offset must not send a previously valid throw
+	# through a corner. Keep its committed landing and original center path.
+	query = PhysicsRayQueryParameters2D.create(origin, _pending_landing, wall_mask, [player.get_rid()])
+	if not space.intersect_ray(query).is_empty():
+		return player.global_position
+	return origin
 
 
 func _tick_flight(delta: float) -> void:
@@ -240,7 +321,7 @@ func _tick_flight(delta: float) -> void:
 		var flying: Dictionary = _in_flight[i]
 		flying["t"] += delta / max(flight_time, 0.001)
 
-		var sprite: Sprite2D = flying["node"]
+		var sprite: Node2D = flying["node"]
 
 		if flying["t"] < 1.0:
 			sprite.global_position = flying["from"].lerp(flying["to"], flying["t"])

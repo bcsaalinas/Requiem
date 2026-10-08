@@ -18,6 +18,9 @@ const WRIST_REACH := deg_to_rad(15.0)
 @onready var actions: Node = player.get_node("ActionState")
 @onready var appearance: Node2D = player.get_node("Appearance")
 @onready var flashlight: PointLight2D = player.get_node("flashlight")
+@onready var thrower: Node = player.get_node("Throw")
+@onready var throw_feedback: Node = player.get_node_or_null("ThrowFeedback")
+@onready var prayer_feedback: Node = player.get_node_or_null("PrayerFeedback")
 
 var body_angle := PI / 2.0
 var pose_body_angle := PI / 2.0
@@ -31,6 +34,7 @@ var _turning := false
 var _arm_angle := PI / 2.0
 var _arm_step := 0
 var _wrist_correction := 0.0
+var _unarmed_action_facing := false
 var _legs := LegPose.new()
 var _leg_layers := RigLayers.new()
 
@@ -50,6 +54,10 @@ func clear_target() -> void:
 	_target = Vector2.INF
 
 
+func get_target_position() -> Vector2:
+	return _target if _target.is_finite() else player.get_global_mouse_position()
+
+
 func reset_pose() -> void:
 	_previous_position = player.global_position
 	var index := DIRECTIONS.find(String(appearance.actor_facing))
@@ -61,6 +69,7 @@ func reset_pose() -> void:
 	_wrist_correction = 0.0
 	_travel_angle = body_angle
 	_turning = false
+	_unarmed_action_facing = false
 	has_valid_target = false
 	clear_target()
 	_legs.reset(body_angle)
@@ -76,7 +85,31 @@ func _physics_process(delta: float) -> void:
 		return
 	if appearance.actor_is_moving and not displacement.is_zero_approx():
 		_travel_angle = displacement.angle()
-	if not actions.has_flashlight:
+	if actions.has_flashlight:
+		_unarmed_action_facing = false
+	var prayer_target: Vector2 = prayer_feedback.get_facing_target() if prayer_feedback != null else Vector2.INF
+	if prayer_target.is_finite() and prayer_target.distance_to(player.global_position) > 1.0:
+		_unarmed_action_facing = not actions.has_flashlight
+		_update_aim((prayer_target - player.global_position).angle(), prayer_target, delta)
+	elif thrower.is_throwing and actions.can_throw():
+		# Face the accepted direction, including before flashlight pickup. A new
+		# cursor target cannot redirect this throw. Use the existing turn/feet
+		# response, with enough turn time to reach even a rearward release.
+		var desired: float = thrower.get_committed_angle()
+		_unarmed_action_facing = not actions.has_flashlight
+		var turn_window: float = maxf(thrower._windup_timer - 0.12, delta)
+		var turn_rate := maxf(deg_to_rad(body_turn_speed_degrees), absf(angle_difference(body_angle, desired)) / turn_window)
+		_update_aim(desired, player.global_position + Vector2.from_angle(desired) * 2048.0, delta, turn_rate)
+	elif not actions.has_flashlight and _unarmed_action_facing:
+		# Retain the new heading at rest; gather back toward travel smoothly
+		# when walking resumes instead of snapping to an old idle view.
+		var following: bool = (throw_feedback != null and throw_feedback.phase == &"follow_through") \
+			or (prayer_feedback != null and prayer_feedback.phase == &"exit")
+		if not following and appearance.actor_is_moving and actions.can_move():
+			_update_aim(_travel_angle, player.global_position + Vector2.from_angle(_travel_angle) * 2048.0, delta)
+			if absf(angle_difference(body_angle, _travel_angle)) < deg_to_rad(2.0):
+				_unarmed_action_facing = false
+	elif not actions.has_flashlight:
 		var index := DIRECTIONS.find(String(appearance.actor_facing))
 		body_angle = float(maxi(index, 0)) * POSE_STEP
 		pose_body_angle = body_angle
@@ -87,7 +120,7 @@ func _physics_process(delta: float) -> void:
 		_turning = false
 		has_valid_target = false
 	elif actions.can_aim() and (flashlight.follow_mouse or _target.is_finite()):
-		var target := _target if _target.is_finite() else player.get_global_mouse_position()
+		var target := get_target_position()
 		var to_target := target - player.global_position
 		has_valid_target = to_target.length() >= Units.to_px(cursor_deadzone_u)
 		if has_valid_target:
@@ -96,12 +129,12 @@ func _physics_process(delta: float) -> void:
 	_apply_pose()
 
 
-func _update_aim(desired: float, target: Vector2, delta: float) -> void:
+func _update_aim(desired: float, target: Vector2, delta: float, turn_rate := -1.0) -> void:
 	var difference := angle_difference(body_angle, desired)
 	if absf(difference) > deg_to_rad(turn_threshold_degrees):
 		_turning = true
 	if _turning:
-		body_angle = rotate_toward(body_angle, desired, deg_to_rad(body_turn_speed_degrees) * delta)
+		body_angle = rotate_toward(body_angle, desired, (turn_rate if turn_rate >= 0.0 else deg_to_rad(body_turn_speed_degrees)) * delta)
 		if absf(angle_difference(body_angle, desired)) < deg_to_rad(2.0):
 			_turning = false
 	# Hysteresis prevents a cursor on a sector boundary from chattering the feet.

@@ -22,6 +22,13 @@ extends Node
 # UNIDADES: 1 u = 32 px. Los radios se exportan en unidades.
 const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
+# Presentation follows completed mechanic transitions; these signals never own
+# resource costs, hearing events or the movement recovery timer.
+signal hold_started()
+signal breath_released(is_quiet: bool, lung_percent_at_release: float)
+signal forced_gasp_started(reason: StringName, duration: float)
+signal hold_cancelled()
+
 @export_group("Pulmon")
 @export var drain_rate_percent: float = 20.0
 @export var refill_rate_percent: float = 10.0
@@ -57,6 +64,9 @@ var lung_percent: float = 100.0
 var exertion_percent: float = 0.0
 var is_holding: bool = false
 var is_locked: bool = false
+## A forced gasp must be acknowledged by releasing the input after recovery.
+## Keeping Space down cannot spend each tiny refill and repeatedly force a gasp.
+var needs_release: bool = false
 var _lock_timer: float = 0.0
 var _audio_player: AudioStreamPlayer2D
 
@@ -116,8 +126,13 @@ func _physics_process(delta: float) -> void:
 		_update_bars()
 		return
 
+	# Read raw input for rearming: ActionState intentionally suppresses a latched
+	# request so that walking/sprinting do not receive a false held-breath pose.
+	if needs_release and not Input.is_action_pressed("hold_breath"):
+		needs_release = false
 	var wants_to_hold: bool = action_state.is_hold_requested() if action_state != null \
 		else Input.is_action_pressed("hold_breath")
+	wants_to_hold = wants_to_hold and not needs_release
 
 	# --- Pulmon ---
 	if wants_to_hold and lung_percent > 0.0:
@@ -145,12 +160,14 @@ func _continue_holding(delta: float) -> void:
 	if not is_holding:
 		is_holding = true
 		_play_random_clip(hold_clips)
+		hold_started.emit()
 
 	lung_percent -= drain_rate_percent * delta
 
 	if lung_percent <= 0.0:
 		lung_percent = 0.0
-		_forced_gasp(exertion_clips)
+		var clips := forced_gasp_clips if not forced_gasp_clips.is_empty() else exertion_clips
+		_forced_gasp(clips, &"lung")
 
 
 func _refill_lung(delta: float) -> void:
@@ -167,7 +184,7 @@ func _tick_exertion(delta: float) -> void:
 	if exerting:
 		exertion_percent = min(100.0, exertion_percent + exertion_rise_rate_percent * delta)
 		if exertion_percent >= 100.0:
-			_forced_gasp(exertion_clips)
+			_forced_gasp(exertion_clips, &"exertion")
 		return
 
 	# Solo descansas si estas PARADO. Caminar deja el medidor donde esta.
@@ -184,20 +201,28 @@ func _tick_exertion(delta: float) -> void:
 
 
 func _release_breath() -> void:
+	if not is_holding:
+		return
 	is_holding = false
 	_audio_player.stop()
+	var released_lung := lung_percent
+	var is_quiet := released_lung > quiet_exhale_lung_threshold
 
-	if lung_percent > quiet_exhale_lung_threshold:
+	if is_quiet:
 		_emit_breath(quiet_exhale_radius_u, exhale_clips)
 	else:
 		_emit_breath(gasp_radius_u, gasp_clips)
+	breath_released.emit(is_quiet, released_lung)
 
 
 ## An interrupted action is not an intentional release and emits no new noise.
 func cancel_holding() -> void:
+	var was_holding := is_holding
 	is_holding = false
 	if _audio_player != null:
 		_audio_player.stop()
+	if was_holding:
+		hold_cancelled.emit()
 
 
 ## Castigo compartido: lo llaman TANTO el pulmon al llegar a 0 COMO el
@@ -205,15 +230,17 @@ func cancel_holding() -> void:
 ## segundos, suelta un ruido fuerte de 7 u, y deja el agotamiento en 0 para
 ## no encadenar bloqueos infinitos. `clips` es el sonido del medidor que lo
 ## disparo, para poder distinguir de oido cual de los dos te delato.
-func _forced_gasp(clips: Array[AudioStream]) -> void:
+func _forced_gasp(clips: Array[AudioStream], reason: StringName = &"exertion") -> void:
 	if is_locked or GameState.is_dead:
 		return
 	is_holding = false
 	is_locked = true
+	needs_release = true
 	_lock_timer = forced_lock_duration
 	exertion_percent = 0.0
 	_audio_player.stop()
 	_emit_breath(forced_gasp_radius_u, clips)
+	forced_gasp_started.emit(reason, forced_lock_duration)
 
 
 func _emit_breath(radius_u: float, clips: Array[AudioStream]) -> void:
@@ -247,3 +274,12 @@ func get_lung_percent() -> float:
 
 func get_exertion_percent() -> float:
 	return exertion_percent
+
+
+func get_recovery_remaining() -> float:
+	return maxf(0.0, _lock_timer) if is_locked else 0.0
+
+
+## An explicit level/restart reset can rearm input alongside resource reset.
+func reset_input_latch() -> void:
+	needs_release = false

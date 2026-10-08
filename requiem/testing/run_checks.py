@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 PROJECT = Path(__file__).resolve().parents[1]
-SUITES = ("test_tutorial", "test_player_actions", "test_player_motion",
+SUITES = ("test_tutorial", "test_breath_events", "test_breath_feedback", "test_throw_feedback", "test_prayer_feedback", "test_sprint_feedback", "test_footstep_audio", "test_player_actions", "test_player_motion",
           "test_player_pose", "test_phantom_camera", "test_level_template", "test_test_lab")
 
 

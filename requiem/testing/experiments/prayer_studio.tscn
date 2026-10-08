@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://tutorial/tutorial.tscn" id="1_tutorial"]
+[ext_resource type="Script" path="res://testing/experiments/prayer_studio.gd" id="2_studio"]
+
+[node name="PrayerStudio" instance=ExtResource("1_tutorial")]
+script = ExtResource("2_studio")
+test_mode = true
+start_zone = "bedroom"
