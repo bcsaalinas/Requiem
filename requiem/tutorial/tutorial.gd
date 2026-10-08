@@ -85,6 +85,7 @@ func _ready() -> void:
 	entity.caught.connect(_caught)
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
+	PauseMenu.resume_pressed.connect(_toggle_pause)
 	ambience.finished.connect(func(): ambience.play())
 	prayer_audio.stream=sound("prayer")
 	prayer_audio.finished.connect(func():
@@ -575,7 +576,7 @@ func _toggle_fullscreen() -> void:
 
 func _toggle_pause() -> void:
 	_paused = not _paused
-	hud.help_panel.visible = _paused
+	PauseMenu.set_open(_paused)
 	process_mode = Node.PROCESS_MODE_ALWAYS if _paused else Node.PROCESS_MODE_INHERIT
 	for child in get_children():
 		if _paused:

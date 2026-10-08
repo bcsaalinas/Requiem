@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Requiem"
-run/main_scene="res://tutorial/tutorial.tscn"
+run/main_scene="uid://blmf8iih1x53k"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -21,6 +21,8 @@ NoiseManager="*res://autoloads/noise_manager.gd"
 GameState="*res://autoloads/game_state.gd"
 GameOverUi="*res://autoloads/game_over_ui.gd"
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
+PauseMenu="*uid://d3hikkl4vgxqj"
+LoadingScreen="*uid://betiukhs683o4"
 
 [display]
 
