@@ -1,7 +1,7 @@
 @tool
 extends RefCounted
 ## Pelvis selection and per-foot contacts for sparse authored leg sheets.
-## Gameplay owns movement and cadence; only the idle pivot has a visual timer.
+## PlayerMotion supplies the gait; this solver preserves each support contact.
 
 const STEP := PI / 4.0
 const DIRECTIONS := ["e", "se", "s", "sw", "w", "nw", "n", "ne"]
@@ -67,6 +67,7 @@ func advance(delta: float, state: String, frame: int, moving: bool,
 	if new_frame:
 		if state != _last_state:
 			_pose_durations.clear()
+			_pose_duration = rig_layers.get_cycle_seconds(state) / 8.0
 		if _last_frame >= 0 and moving and _was_moving and state == _last_state and _frame_elapsed > 0.0:
 			_pose_durations.append(clampf(_frame_elapsed, 0.04, 0.25))
 			if _pose_durations.size() > 8:
@@ -99,7 +100,7 @@ func advance(delta: float, state: String, frame: int, moving: bool,
 		var leg: Dictionary = metadata[side]
 		var landing_bias := _landing_bias(side, state, frame, velocity, scale, delta, rig_layers) if moving else Vector2.ZERO
 		_advance_foot(side, leg, pivot, world_origin, ground_offset,
-			scale, landing_bias, delta)
+			scale, landing_bias, delta, moving and _was_moving and state != _last_state)
 	_clear_boot_overlap()
 	for side in ["left", "right"]:
 		var result: Dictionary = _feet[side]
@@ -174,7 +175,7 @@ func _idle_pose(delta: float, body_angle: float, rig_layers: RefCounted) -> Dict
 
 func _advance_foot(side: String, leg: Dictionary, pivot: Vector2,
 		world_origin: Vector2, ground_offset: Vector2, scale: float,
-		landing_bias: Vector2, delta: float) -> Dictionary:
+		landing_bias: Vector2, delta: float, rebase_swing := false) -> Dictionary:
 	if not _feet.has(side):
 		_feet[side] = {
 			"valid": false, "contact": false, "released": false,
@@ -208,7 +209,9 @@ func _advance_foot(side: String, leg: Dictionary, pivot: Vector2,
 			_replants += 1
 			offset = offset.limit_length(MAX_OFFSET)
 	elif not authored_contact:
-		if foot["contact"] or foot["released"] or not foot["valid"]:
+		if foot["contact"] or foot["released"] or not foot["valid"] or rebase_swing:
+			# A new gait uses different nominal geometry. Carry the visible free
+			# foot into that swing instead of snapping to its new authored boot.
 			var carried := Vector2(foot["world"]) - nominal if foot["valid"] else Vector2.ZERO
 			foot["swing_from"] = carried.limit_length(MAX_OFFSET)
 			foot["swing_start"] = progress

@@ -12,6 +12,7 @@ var facing: StringName = &"s"
 var phase := 0.25
 var _direction_index := 2
 var _was_moving := false
+var _was_sprinting := false
 var _clock_offset := 0.0
 var _settle_elapsed := 0.0
 var _settling := false
@@ -21,6 +22,7 @@ var _settle_phase := 0.0
 
 func reset(frames: SpriteFrames) -> void:
 	_was_moving = false
+	_was_sprinting = false
 	_settling = false
 	phase = 0.25
 	frame = 0
@@ -33,8 +35,9 @@ func advance(frames: SpriteFrames, delta: float, moving: bool,
 		return
 	if moving:
 		_update_facing(direction)
-		if not _was_moving:
-			# Restart from the settled pose, even when the footstep clock reset.
+		if not _was_moving or sprint != _was_sprinting:
+			# Preserve phase when changing between the footstep clock and the
+			# distance-driven run, as well as when restarting from a settled pose.
 			_clock_offset = phase - clock_phase
 		phase = fposmod(clock_phase + _clock_offset, 1.0)
 		animation = _select(frames, "sprint" if sprint else "walk")
@@ -59,6 +62,7 @@ func advance(frames: SpriteFrames, delta: float, moving: bool,
 			frame = 0
 			# Retain the gathered-foot phase through idle for a connected restart.
 	_was_moving = moving
+	_was_sprinting = sprint
 
 
 func _update_facing(direction: Vector2) -> void:

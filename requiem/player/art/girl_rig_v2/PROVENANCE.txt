@@ -18,7 +18,65 @@ gait_rig.py bounds lateral reach, retains anatomical left/right foot lanes, and
 exports independent leg sheets with contact, joint and rigid boot landmarks.
 Four staged poses per 45-degree idle turn transfer support between the feet.
 The original girl_atlas.png / girl_frames.tres remain available unchanged.
+The original base locomotion exports use a 0.90-second walk/sprint cycle;
+the live renderer selects the separate distance-driven sprint below.
 See tools/character_rig/action_layers_manifest.json and generated action_layer_anchors.gd for the
 registered upper, lower, turn and grip coordinates used by the live renderer.
 
 Authoring scripts and source sheet: tools/character_rig/ (outside the Godot project).
+
+Hold Your Breath upper-body track: tools/character_rig/breath_rig.py constructs
+seven tracks (inhale, hold, strain, release, gasp, recovery, loud release) in
+neutral and five equipped aim modes from the same original cutouts. The 222
+frames interpolate the individual cutout transforms. Shoulder/chest/head and free
+arm gestures carry the breath animation. The equipped arm keeps its gentle
+12-degree elbow and rigid hand/torch attachment. No new generated art is used.
+The original locomotion exports and planted-foot geometry are unchanged.
+See tools/character_rig/breath_layers_manifest.json and breath_layer_anchors.gd.
+
+Throw 03 upper-body track: tools/character_rig/throw_rig.py uses the same original
+cutouts to bake 12 windup and 10 follow-through poses in six equipment/aim modes.
+The anatomical left arm gathers, draws back, releases and settles. Its palm socket
+is registered to the transformed forearm's source pixels. The equipped right arm,
+single hand/torch attachment and original leg assets retain their existing geometry.
+All six modes have exact neutral endpoints and identical release/follow-through
+seams. See throw_layers_manifest.json and throw_layer_anchors.gd.
+
+Prayer 04 upper-body track: tools/character_rig/prayer_rig.py composes the same
+original cutouts into 8 entry, 8 sustained-loop and 8 exit poses per mode, six
+modes / 144 frames. A readable kneeling bow and free-palm gathering preserve the
+existing equipped elbow and single hand/torch attachment. Two new 24-frame
+leg sheets fold original trouser and boot cutouts behind the back; the original
+locomotion sheets and support solver remain unchanged.
+Entry and exit reverse exactly; neutral endpoints and held seams match.
+See prayer_layers_manifest.json and prayer_layer_anchors.gd.
+
+Dedicated sprint: tools/character_rig/sprint_rig.py deterministically composes
+only the same original source cutouts. Six equipment/aim modes contain eight
+upper poses each (48 frames, sprint_upper_layers.png, 2048 x 1536). Each
+independent sprint_left_leg_layers.png / sprint_right_leg_layers.png sheet
+contains eight relative directions x eight poses (64 frames, 2048 x 2048).
+All cells retain the 256 x 256 canvas, (128,128) pivot and 0.5 world scale.
+
+The nominal cycle is 0.60 seconds at the unchanged 172.8 world pixels/second,
+covering 103.68 pixels per full stride. PlayerMotion advances sprint sprite
+phase from actual displacement / stride distance; CharacterAnimation preserves
+phase through walk/sprint changes. Walking and held-breath poses follow the existing
+footstep clock; gameplay hearing cadence is unchanged. FootstepAudio now
+plays short one-shots on the resolved contacts (tools/audio/README.md).
+
+A stronger lean, tucked alternating arm drive and restrained head/shoulder
+rhythm distinguish sprint. Free upper/forearm bones keep 18-pixel projected
+lengths; equipped bones remain 16 pixels with the same 12-degree elbow and
+single rigid hand/torch attachment. Boots stay rigid at 18 x 24 source pixels,
+in anatomical left/right lanes with at most seven pixels of lateral excursion
+and unchanged three-degree toe splay. Bounded projected knees fold on recovery.
+Contact, swing progress and passing frames 2/6 feed the existing support solver.
+Original source pixels and all previous animation exports are preserved.
+
+From tools/character_rig, bake with:
+python sprint_rig.py --review-dir ../../requiem/testing/captures/sprint_review
+Validate geometry without rewriting exports with:
+python sprint_rig.py --validate-only
+See sprint_layers_manifest.json and sprint_layer_anchors.gd for source hash,
+joint/boot geometry, runtime sockets, cycle duration and stride distance.

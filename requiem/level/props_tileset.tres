@@ -1,6 +1,6 @@
-[gd_resource type="TileSet" format=3]
+[gd_resource type="TileSet" format=3 uid="uid://b10auhybalwcu"]
 
-[ext_resource type="PackedScene" path="res://altar/altar.tscn" id="1_2bwg2"]
+[ext_resource type="PackedScene" uid="uid://cci6ad6gs3jxu" path="res://altar/altar.tscn" id="1_2bwg2"]
 
 [sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_41u73"]
 resource_name = "Escenas"

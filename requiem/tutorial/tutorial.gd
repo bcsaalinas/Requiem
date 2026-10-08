@@ -178,6 +178,7 @@ func _process(delta: float) -> void:
 		if banner_time<=0: hud.banner.text=""
 	hud.breath.value=breath.lung_percent
 	hud.effort.value=breath.exertion_percent
+	hud.update_breath_feedback(player.get_node("BreathFeedback"))
 	hud.battery.value=flashlight.battery_percent
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
@@ -537,8 +538,10 @@ func restore_checkpoint(bedroom := false) -> void:
 	breath._lock_timer=0
 	breath.lung_percent=100
 	breath.exertion_percent=0
+	breath.reset_input_latch()
+	player.get_node("BreathFeedback").reset_feedback()
 	player.get_node("FootstepNoise").footstep_timer=0
-	player.get_node("FootstepNoise")._audio_player.stop()
+	player.get_node("FootstepAudio").reset_audio()
 	player.velocity=Vector2.ZERO
 	GameState.reset()
 	flashlight.battery_percent=maxf(flashlight.battery_percent,float(checkpoint.get("battery",100)))

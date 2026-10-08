@@ -82,3 +82,7 @@ venv/
 requiem/*.app/
 requiem/*.command
 tools/character_rig/previews/
+requiem/testing/captures/throw_review/
+
+requiem/testing/captures/prayer_review/
+requiem/testing/captures/sprint_review/

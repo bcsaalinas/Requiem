@@ -23,11 +23,3 @@ func _impact(landing: Vector2, kind: int) -> void:
 
 func _update_label() -> void:
 	if _ammo_label != null: _ammo_label.hide()
-
-func clear_pending() -> void:
-	for flight in _in_flight:
-		if is_instance_valid(flight["node"]): flight["node"].queue_free()
-	_in_flight.clear()
-	_ringing.clear()
-	cancel_windup()
-	_cooldown_timer = 0.0

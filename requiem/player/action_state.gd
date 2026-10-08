@@ -67,7 +67,8 @@ func can_hold_breath() -> bool:
 
 
 func is_hold_requested() -> bool:
-	return can_hold_breath() and Input.is_action_pressed("hold_breath")
+	return can_hold_breath() and (breath == null or not breath.needs_release) \
+		and Input.is_action_pressed("hold_breath")
 
 
 func is_holding_breath() -> bool:

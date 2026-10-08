@@ -80,14 +80,14 @@ func _ready() -> void:
 	game.player.position=Vector2(5870,800)
 	game.player.get_node("Camera2D").reset_smoothing()
 	await frames(30)
-	# Native mouse coordinates are unavailable in headless mode. Supply a physics-verified
-	# aim fixture, then exercise the actual inherited windup, flight, impact and inventory.
+	# Supply the same explicit aim target used by the playable throw presentation,
+	# then exercise inherited windup, flight, impact and finite inventory.
 	var query:=PhysicsRayQueryParameters2D.create(game.player.position,Vector2(5870,608),1)
 	query.exclude=[game.player.get_rid()]
 	var hit: Dictionary=game.player.get_world_2d().direct_space_state.intersect_ray(query)
 	check(not hit.is_empty() and hit.collider==game.world.window_body,"Window collider intercepts a rock thrown from the porch")
+	game.player.get_node("PlayerAim").set_target(Vector2(5870,608))
 	game.thrower._start_throw()
-	game.thrower._pending_landing=hit.position+Vector2(0,4)
 	check(game.thrower.rocks==2,"Beginning a real throw consumes one collected rock")
 	await frames(70)
 	check(game.window_broken,"Rock flight and impact break the sidelight")

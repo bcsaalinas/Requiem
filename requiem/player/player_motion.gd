@@ -1,6 +1,8 @@
 extends Node
-## Presentation only: the existing FootstepNoise clock owns cadence, not exact
-## sprite contact timing. Authored views retain a passing-pose phase at rest.
+## Walk/held poses follow FootstepNoise. Sprint follows actual distance with a
+## shorter authored stride; gameplay hearing/audio keep their existing clock.
+
+const SprintAnchors := preload("res://player/art/girl_rig_v2/sprint_layer_anchors.gd")
 
 @export var enabled := true
 @export_group("Body feedback (u)")
@@ -26,6 +28,7 @@ var _previous_position := Vector2.ZERO
 var _previous_timer := 0.0
 var _foot_side := 1.0
 var _pose := Vector2.ZERO
+var _sprint_clock := 0.0
 
 
 func _ready() -> void:
@@ -46,6 +49,7 @@ func reset_pose() -> void:
 	_foot_side = 1.0
 	gait_phase = 0.0
 	_pose = Vector2.ZERO
+	_sprint_clock = 0.0
 	mode = "Idle"
 	appearance.reset_actor_gait()
 	_apply_pose(false, Vector2.ZERO, 0.0)
@@ -96,6 +100,10 @@ func _apply_pose(moving: bool, direction: Vector2, delta: float) -> void:
 	appearance.actor_motion_offset = _pose
 	appearance.actor_is_moving = enabled and moving
 	var half_cycle := 0.0 if _foot_side > 0.0 else 1.0
-	appearance.set_actor_gait((half_cycle + gait_phase) * 0.5, enabled and moving,
+	var cycle := (half_cycle + gait_phase) * 0.5
+	if enabled and moving and mode == "Sprint":
+		_sprint_clock = fposmod(_sprint_clock + direction.length() / SprintAnchors.STRIDE_DISTANCE, 1.0)
+		cycle = _sprint_clock
+	appearance.set_actor_gait(cycle, enabled and moving,
 		direction, mode == "Sprint", delta)
 	appearance.queue_redraw()

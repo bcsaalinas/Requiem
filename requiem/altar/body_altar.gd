@@ -57,20 +57,38 @@ var _pulse_disparado: bool = false
 var _pulse_restante: float = 0.0
 var _audio_player: AudioStreamPlayer2D
 var _color_base: Color
+var _previous_player_position := Vector2.ZERO
+var _teleport_physics_frame := -1
 
 
 func _ready() -> void:
 	_audio_player = AudioStreamPlayer2D.new()
 	add_child(_audio_player)
 	_color_base = sprite.modulate
+	barra_progreso.hide()
 
 
 func _process(delta):
-	# Si el jugador murio a medio rezo hay que soltar la bandera, si no se
-	# queda enraizado para siempre al reiniciar.
-	if GameState.is_dead:
-		if _estaba_rezando:
-			_cancelar_rezo()
+	if is_instance_valid(jugador_ref):
+		var teleported := jugador_ref.global_position.distance_to(_previous_player_position) > Units.to_px(3.0)
+		_previous_player_position = jugador_ref.global_position
+		if teleported:
+			jugador_cerca = false
+			_teleport_physics_frame = Engine.get_physics_frames()
+			cancel_prayer(true)
+			return
+		if _teleport_physics_frame >= 0:
+			# Area overlap results describe the last physics step, not a newly
+			# teleported position. Wait for a fresh result before accepting E.
+			if Engine.get_physics_frames() <= _teleport_physics_frame:
+				return
+			_teleport_physics_frame = -1
+			jugador_cerca = $Area2D.overlaps_body(jugador_ref)
+	if not _player_can_pray():
+		cancel_prayer(true)
+		return
+	if _estaba_rezando and (not GameState.is_praying or GameState.prayer_source != self):
+		cancel_prayer(true)
 		return
 
 	if jugador_cerca and Input.is_action_pressed("pray"):
@@ -78,11 +96,13 @@ func _process(delta):
 		barra_progreso.show()
 
 		if not _estaba_rezando:
-			_estaba_rezando = true
 			_timer_ruido = 0.0
 			_pulse_disparado = false
 			_pulse_restante = 0.0
-			GameState.is_praying = true
+			if not GameState.begin_prayer(self):
+				barra_progreso.hide()
+				return
+			_estaba_rezando = true
 			_reproducir_sonido_rezo()
 			_avisar_ruido()
 		elif not _audio_player.playing:
@@ -103,15 +123,20 @@ func _process(delta):
 			_interaccion_completada()
 
 	else:
-		if _estaba_rezando:
-			_cancelar_rezo()
+		cancel_prayer(false)
 
-		tiempo_interaccion = 0.0
-		barra_progreso.value = 0
-		barra_progreso.hide()
 
-		if jugador_cerca:
-			label_texto.show()
+func _player_can_pray() -> bool:
+	return not GameState.is_dead and is_instance_valid(jugador_ref) \
+		and jugador_ref.is_inside_tree() and jugador_ref.can_process()
+
+
+func get_prayer_elapsed() -> float:
+	return tiempo_interaccion
+
+
+func get_prayer_target() -> Vector2:
+	return global_position
 
 
 ## Dispara el pulso una sola vez al cruzar pulse_at_time y lo mantiene vivo
@@ -136,7 +161,7 @@ func _radio_actual_u() -> float:
 ## El altar se pone incandescente mientras dura el pulso. Es la unica lectura
 ## visual que tiene el jugador de "esto acaba de sonar el doble de fuerte".
 func _refrescar_color() -> void:
-	if sprite == null:
+	if not is_instance_valid(sprite):
 		return
 	if _pulse_restante > 0.0:
 		var t: float = _pulse_restante / max(pulse_duration, 0.001)
@@ -145,26 +170,39 @@ func _refrescar_color() -> void:
 		sprite.modulate = _color_base
 
 
-## Suelta el ritual sin completarlo: limpia el enraizado, el pulso y el audio.
-func _cancelar_rezo() -> void:
+## Every interruption clears the same ritual state. A normal release permits
+## its short visual exit; reset, death and disabled input clear it immediately.
+func cancel_prayer(immediate := true) -> void:
 	_estaba_rezando = false
+	tiempo_interaccion = 0.0
+	_timer_ruido = 0.0
 	_pulse_disparado = false
 	_pulse_restante = 0.0
-	GameState.is_praying = false
 	_refrescar_color()
-
-	if _audio_player.playing:
+	if is_instance_valid(barra_progreso):
+		barra_progreso.value = 0.0
+		barra_progreso.hide()
+	if is_instance_valid(label_texto):
+		label_texto.visible = jugador_cerca and _player_can_pray()
+	if is_instance_valid(_audio_player) and _audio_player.playing:
 		_audio_player.stop()
+	GameState.end_prayer(self, immediate)
+
+
+func _cancelar_rezo() -> void:
+	cancel_prayer(false)
+
+
+func _exit_tree() -> void:
+	if _estaba_rezando or GameState.prayer_source == self:
+		cancel_prayer(true)
 
 
 func _interaccion_completada():
 	print("[Altar] Rezo completado (%.1f s)" % pray_duration)
 	# OJO: hay que soltar la bandera ANTES de borrar el altar, si no el jugador
 	# se queda enraizado para siempre porque ya no existe quien la baje.
-	GameState.is_praying = false
-	_estaba_rezando = false
-	if _audio_player.playing:
-		_audio_player.stop()
+	cancel_prayer(false)
 
 	# Si el altar esta pintado en un TileMapLayer (la capa Props), hay que
 	# borrar su CELDA: con queue_free() a secas la celda sigue pintada y la capa
@@ -178,21 +216,22 @@ func _interaccion_completada():
 
 
 func _on_area_2d_body_entered(body: Node2D) -> void:
-		if body is CharacterBody2D:
-			jugador_cerca = true
-			jugador_ref = body
-			label_texto.show()
+	if body is CharacterBody2D and body.is_in_group("player"):
+		jugador_cerca = true
+		jugador_ref = body
+		_previous_player_position = body.global_position
+		_teleport_physics_frame = -1
+		label_texto.visible = _player_can_pray()
 
 
 func _on_area_2d_body_exited(body: Node2D) -> void:
-	if body is CharacterBody2D:
-		if _estaba_rezando:
-			_cancelar_rezo()
+	if body == jugador_ref and body.is_in_group("player"):
+		var teleported := body.global_position.distance_to(_previous_player_position) > Units.to_px(3.0)
 		jugador_cerca = false
+		cancel_prayer(teleported)
 		jugador_ref = null
+		_teleport_physics_frame = -1
 		label_texto.hide()
-		barra_progreso.hide()
-		tiempo_interaccion = 0.0
 
 
 func _reproducir_sonido_rezo() -> void:
