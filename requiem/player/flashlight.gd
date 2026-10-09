@@ -59,11 +59,19 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 @export_group("Audio")
 @export var click_clips: Array[AudioStream] = []
 @export var volume_db: float = -8.0
+## Algunos clips de "click" descargados duran varios segundos (el audio
+## original trae el click de encender Y apagar juntos en una sola grabacion).
+## Como aca solo queremos el golpe seco del click, se corta el audio a esta
+## duracion en vez de dejarlo sonar entero.
+@export var click_duration: float = 0.35
 
 var battery_percent: float = 100.0
 var is_on: bool = false
 
 var _audio_player: AudioStreamPlayer2D
+## Se compara contra el token vigente antes de cortar: si hubo un click mas
+## nuevo mientras esperaba, no corta el que esta sonando ahora.
+var _click_token: int = 0
 var _flicker: float = 1.0
 @onready var actions: Node = get_parent().get_node_or_null("ActionState")
 @onready var aim_controller: Node = get_parent().get_node_or_null("PlayerAim")
@@ -206,6 +214,12 @@ func _play_click() -> void:
 	_audio_player.volume_db = volume_db
 	_audio_player.stream = click_clips[randi() % click_clips.size()]
 	_audio_player.play()
+
+	_click_token += 1
+	var token := _click_token
+	get_tree().create_timer(click_duration).timeout.connect(func():
+		if token == _click_token and _audio_player.playing:
+			_audio_player.stop())
 
 
 func _update_bar() -> void:

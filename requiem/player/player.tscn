@@ -19,16 +19,11 @@
 [ext_resource type="Texture2D" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
 [ext_resource type="Script" path="res://player/flashlight.gd" id="9_kb6p2"]
 
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_04.wav" id="step_4"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_05.wav" id="step_5"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
+[ext_resource type="AudioStream" uid="uid://bx24sjvxib835" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
 [ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
+[ext_resource type="AudioStream" uid="uid://ydi3tbv8mgoc" path="res://assets/audio/629008__realgtro__flashlight-click.wav" id="11_click"]
+[ext_resource type="AudioStream" uid="uid://dsryvde7rdg5t" path="res://assets/audio/78562__joedeshon__alarm_clock_ringing_01.wav" id="12_alarm"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -60,7 +55,8 @@ position_smoothing_enabled = true
 
 [node name="FootstepNoise" type="Node" parent="." unique_id=627701284]
 script = ExtResource("2_footstep")
-walk_clips = Array[AudioStream]([ExtResource("step_1"), ExtResource("step_2"), ExtResource("step_3"), ExtResource("step_4"), ExtResource("step_5"), ExtResource("step_6"), ExtResource("step_7"), ExtResource("step_8")])
+walk_clips = Array[AudioStream]([ExtResource("4_walk")])
+sprint_clips = Array[AudioStream]([ExtResource("4_walk")])
 
 [node name="ActionState" type="Node" parent="."]
 script = ExtResource("12_actions")
@@ -69,9 +65,12 @@ script = ExtResource("12_actions")
 script = ExtResource("3_breath")
 hold_clips = Array[AudioStream]([ExtResource("7_hold")])
 exertion_clips = Array[AudioStream]([ExtResource("8_exertion")])
+gasp_clips = Array[AudioStream]([ExtResource("8_exertion")])
+forced_gasp_clips = Array[AudioStream]([ExtResource("7_hold")])
 
 [node name="Throw" type="Node" parent="." unique_id=130069321]
 script = ExtResource("4_hg6s5")
+despertador_clips = Array[AudioStream]([ExtResource("12_alarm")])
 
 [node name="Appearance" type="Node2D" parent="." unique_id=1642923067]
 z_index = 1
@@ -114,6 +113,7 @@ texture = ExtResource("8_yllr7")
 offset = Vector2(207.99998, 0)
 texture_scale = 2.1554403
 script = ExtResource("9_kb6p2")
+click_clips = Array[AudioStream]([ExtResource("11_click")])
 
 [node name="PlayerAim" type="Node" parent="."]
 script = ExtResource("13_aim")
