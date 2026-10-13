@@ -36,14 +36,15 @@ func _tick_patrol(delta: float) -> void:
 		_patrol_wait = patrol_pause
 
 func _on_catch_area_body_entered(body: Node2D) -> void:
-	if active and body.is_in_group("player"): caught.emit()
+	if active and body.is_in_group("player"):
+		_play_stinger(catch_clips)
+		caught.emit()
 
 func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	global_position = at
 	route = points
 	route_index = 0
 	velocity = Vector2.ZERO
-	_recent_noises.clear()
 	_search_queue.clear()
 	_hunt_timer = 0.0
 	_state_timer = 0.0

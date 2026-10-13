@@ -2,30 +2,32 @@ extends CharacterBody2D
 
 # EntityAI (la entidad que te caza)
 #
-# Maquina de CUATRO estados. Cada uno tiene su propia velocidad y su propia
-# forma de oir:
+# Maquina de CUATRO estados. INVESTIGATE y SEARCH siguen existiendo en el
+# codigo (por si se quiere volver a un oido mas gradual) pero HOY son
+# inalcanzables: cualquier ruido que se oiga manda derecho a HUNT, ver nota
+# en _on_noise_emitted.
 #
 #   PATROL      - Ronda el nivel por puntos al azar de la malla navegable.
 #                 Lenta. Es el estado "no sabe que existes". Antes esto era
 #                 IDLE y la entidad se quedaba parada para siempre.
-#   INVESTIGATE - Oyo algo. Camina al punto exacto donde sono.
-#   SEARCH      - Llego y no habia nadie. Revisa varios puntos alrededor antes
-#                 de rendirse. Antes se rendia en el instante de llegar.
-#   HUNT        - Sabe que estas ahi. Es MAS RAPIDA QUE TU CAMINANDO (3.9 vs
-#                 3.2 u/s), asi que no puedes zafarte andando: o esprintas y
-#                 pagas agotamiento, o le cortas el rastro de ruido.
+#   INVESTIGATE - (inalcanzable hoy) Caminaba al punto exacto donde sono un
+#                 ruido suelto antes de comprometerse a cazar.
+#   SEARCH      - A donde cae HUNT cuando se le acaba hunt_persistence sin
+#                 oir nada nuevo: revisa varios puntos alrededor del ultimo
+#                 ruido antes de rendirse y volver a PATROL.
+#   HUNT        - Sabe que estas ahi y te sigue de verdad. Es MAS RAPIDA QUE
+#                 TU CAMINANDO (3.9 vs 3.2 u/s), asi que no puedes zafarte
+#                 andando: o esprintas y pagas agotamiento, o le cortas el
+#                 rastro de ruido el tiempo suficiente (hunt_persistence).
 #
-# OIDO: la regla base es la de la spec, sin falloff: te oye si
-# distance <= radius del ruido. Encima de eso hay dos capas:
-#
-#   - hearing_range_u: tope duro de seguridad, MUY por encima del radio mas
-#     grande del juego (8 u). En la practica nunca corta nada; existe para que
-#     un radio absurdo por bug no se oiga desde el otro extremo del mapa.
-#
-#   - alert_hearing_multiplier: mientras CAZA o BUSCA, oye los mismos ruidos
-#     como si fueran mas grandes. Estar en su radar te vuelve mas ruidoso: es
-#     la espiral que tienes que romper quedandote quieto o aguantando la
-#     respiracion.
+# OIDO: sin falloff, te oye si distance <= radius del ruido (mas grande
+# mientras CAZA o BUSCA, ver alert_hearing_multiplier: estar en su radar te
+# vuelve mas ruidoso, la espiral que tienes que romper quedandote quieto o
+# aguantando la respiracion). CUALQUIER ruido que pase ese filtro la manda
+# derecho a HUNT -- no hace falta que sea fuerte ni que se repita, y no hace
+# falta acercarse mas de lo que ya hizo que se oyera la primera vez.
+# hearing_range_u es solo un tope duro de seguridad MUY por encima del radio
+# mas grande del juego; en la practica nunca corta nada real.
 #
 # UNIDADES: 1 u = 32 px, misma convencion que player.gd. TODO radio, distancia
 # y velocidad se exporta en unidades. Ya no queda un solo pixel crudo aqui.
@@ -36,18 +38,8 @@ enum State { PATROL, INVESTIGATE, SEARCH, HUNT }
 @export_group("Oido (u)")
 ## Tope de seguridad, no una mecanica: esta por encima de todo radio real.
 @export var hearing_range_u: float = 40.0
-## Un ruido con radio >= esto la manda directo a HUNT, sin pasar por investigar.
-@export var hunt_trigger_radius_u: float = 6.0
-## Rezar a menos de esto = te ubico seguro (spec: 4 u).
-@export var pray_hunt_radius_u: float = 4.0
 ## Mientras CAZA o BUSCA, multiplica el radio de todo ruido que le llega.
 @export var alert_hearing_multiplier: float = 1.6
-
-@export_group("Memoria")
-## Varios ruidos dentro de esta ventana escalan INVESTIGATE -> HUNT.
-@export var escalation_window: float = 6.0
-## Cuantos ruidos hacen falta dentro de la ventana para escalar.
-@export var escalation_noise_count: int = 3
 
 @export_group("Velocidad (u/s)")
 ## Rondando: lenta, para que se lea distinto de cuando ya te oyo.
@@ -82,11 +74,28 @@ enum State { PATROL, INVESTIGATE, SEARCH, HUNT }
 ## Colorea el greybox segun el estado. Se lee de un vistazo que esta haciendo.
 @export var color_by_state: bool = true
 
+@export_group("Audio")
+## Respiracion en bucle mientras ronda/investiga/busca: grave y constante, de fondo.
+@export var breath_calm_clips: Array[AudioStream] = []
+## Respiracion en bucle mientras caza: mas fuerte y rapida. Es lo que delata,
+## de oido, que ya sabe donde estas antes de que la veas.
+@export var breath_hunt_clips: Array[AudioStream] = []
+## Un solo golpe de sonido al ENTRAR en HUNT (el "te encontre").
+@export var hunt_stinger_clips: Array[AudioStream] = []
+## Un solo golpe de sonido al atraparte.
+@export var catch_clips: Array[AudioStream] = []
+@export var breath_volume_db: float = -10.0
+## Cuanto sube el volumen de la respiracion (encima de breath_volume_db) en HUNT.
+@export var hunt_breath_volume_boost_db: float = 6.0
+@export var stinger_volume_db: float = -2.0
+
 var current_state: int = State.PATROL
 var last_heard_position: Vector2 = Vector2.ZERO
 var nav_agent: NavigationAgent2D
 
 var _sprite: Sprite2D
+var _breath_player: AudioStreamPlayer2D
+var _stinger_player: AudioStreamPlayer2D
 var _spawn_position: Vector2
 var _state_timer: float = 0.0
 var _hunt_timer: float = 0.0
@@ -94,8 +103,6 @@ var _patrol_target: Vector2 = Vector2.ZERO
 var _has_patrol_target: bool = false
 var _patrol_wait: float = 0.0
 var _search_queue: Array[Vector2] = []
-## Marcas de tiempo (s) de los ruidos recientes, para la escalada por memoria.
-var _recent_noises: Array[float] = []
 
 
 func _ready() -> void:
@@ -110,13 +117,24 @@ func _ready() -> void:
 	NoiseManager.noise_emitted.connect(_on_noise_emitted)
 	_refresh_color()
 
+	# Hijos directos del CharacterBody2D: heredan su transform solos, no hace
+	# falta actualizar global_position a mano como en los componentes del Player.
+	_breath_player = AudioStreamPlayer2D.new()
+	add_child(_breath_player)
+	_breath_player.finished.connect(_on_breath_finished)
+
+	_stinger_player = AudioStreamPlayer2D.new()
+	add_child(_stinger_player)
+
+	_play_breath_clip()
+
 
 func _physics_process(delta: float) -> void:
 	if GameState.is_dead:
 		_halt()
+		if _breath_player.playing:
+			_breath_player.stop()
 		return
-
-	_forget_old_noises()
 
 	match current_state:
 		State.PATROL:
@@ -209,7 +227,7 @@ func _begin_search() -> void:
 
 # ------------------------------------------------------------------ oido ---
 
-func _on_noise_emitted(noise_position: Vector2, radius: float, source_type: int, _duration: float) -> void:
+func _on_noise_emitted(noise_position: Vector2, radius: float, _source_type: int, _duration: float) -> void:
 	if GameState.is_dead:
 		return
 
@@ -228,40 +246,15 @@ func _on_noise_emitted(noise_position: Vector2, radius: float, source_type: int,
 	if distance > effective_radius:
 		return
 
+	# Cualquier ruido que de verdad se oiga (ya paso el filtro de arriba) la
+	# manda derecho a HUNT: una vez te oye, te sigue. Antes un paso suelto
+	# solo la mandaba a INVESTIGATE (caminar a ese punto nada mas y
+	# resignarse si no habia nadie), asi que alejarte justo despues de un
+	# solo paso la despistaba sola. _start_hunt() ya renueva el temporizador
+	# aunque ya este cazando, asi que cubre tambien el caso "ya te viene
+	# cazando, esto solo confirma".
 	last_heard_position = noise_position
-	_recent_noises.append(_now())
-
-	# Rezar cerca = te ubico seguro, pase lo que pase (spec: 4 u).
-	if source_type == NoiseManager.SourceType.PRAY and distance <= pray_hunt_radius_u * PX_PER_UNIT:
-		_start_hunt()
-		return
-
-	# Un solo ruido fuerte basta.
-	if radius >= hunt_trigger_radius_u * PX_PER_UNIT:
-		_start_hunt()
-		return
-
-	# Varios ruidos chicos seguidos tambien: te triangulo.
-	if _recent_noises.size() >= escalation_noise_count:
-		_start_hunt()
-		return
-
-	# Ya te viene cazando: el ruido solo le renueva la certeza.
-	if current_state == State.HUNT:
-		_hunt_timer = 0.0
-		return
-
-	_change_state(State.INVESTIGATE)
-
-
-func _forget_old_noises() -> void:
-	var cutoff := _now() - escalation_window
-	while not _recent_noises.is_empty() and _recent_noises[0] < cutoff:
-		_recent_noises.remove_at(0)
-
-
-func _now() -> float:
-	return Time.get_ticks_msec() / 1000.0
+	_start_hunt()
 
 
 # ------------------------------------------------------------- movimiento ---
@@ -304,6 +297,7 @@ func _random_map_point() -> Vector2:
 
 func _on_catch_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player"):
+		_play_stinger(catch_clips)
 		GameState.kill_player()
 
 
@@ -316,14 +310,23 @@ func _change_state(new_state: int) -> void:
 	if current_state == new_state:
 		return
 
+	var was_hunting := current_state == State.HUNT
 	current_state = new_state
 	_state_timer = 0.0
 
 	if new_state == State.PATROL:
 		_has_patrol_target = false
-		_recent_noises.clear()
 
 	_refresh_color()
+
+	# La respiracion solo se REINICIA de golpe al cruzar la frontera
+	# calma <-> caza: es el latido dramatico de "te encontre" / "te perdi".
+	# Dentro de PATROL/INVESTIGATE/SEARCH sigue su propio bucle sin cortes.
+	if new_state == State.HUNT and not was_hunting:
+		_play_stinger(hunt_stinger_clips)
+		_play_breath_clip()
+	elif was_hunting and new_state != State.HUNT:
+		_play_breath_clip()
 
 	if log_state_changes:
 		print("[EntityAI] Estado -> ", State.keys()[new_state])
@@ -348,3 +351,38 @@ func _refresh_color() -> void:
 
 func get_state_name() -> String:
 	return State.keys()[current_state]
+
+
+# ------------------------------------------------------------------ audio ---
+
+## Respiracion en bucle: cada vez que un clip termina, encadena el siguiente
+## (con la lista de calma o de caza segun el estado ACTUAL, leido en ese
+## instante). Asi un cambio de estado a mitad de clip se refleja solo en el
+## proximo ciclo, salvo en la frontera calma<->caza que se fuerza al toque.
+func _play_breath_clip() -> void:
+	if GameState.is_dead:
+		return
+
+	var hunting := current_state == State.HUNT
+	# Si todavia no hay un clip DEDICADO de caza, reusa el de calma: igual
+	# suena distinto porque el volumen y el pitch ya suben mas abajo.
+	var clips := breath_hunt_clips if (hunting and not breath_hunt_clips.is_empty()) else breath_calm_clips
+	if clips.is_empty():
+		return
+
+	_breath_player.volume_db = breath_volume_db + (hunt_breath_volume_boost_db if hunting else 0.0)
+	_breath_player.pitch_scale = 1.15 if hunting else 1.0
+	_breath_player.stream = clips[randi() % clips.size()]
+	_breath_player.play()
+
+
+func _on_breath_finished() -> void:
+	_play_breath_clip()
+
+
+func _play_stinger(clips: Array[AudioStream]) -> void:
+	if clips.is_empty():
+		return
+	_stinger_player.volume_db = stinger_volume_db
+	_stinger_player.stream = clips[randi() % clips.size()]
+	_stinger_player.play()

@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://entities/entity_ai.gd" id="1_w5oec"]
+[ext_resource type="AudioStream" uid="uid://cdfkincpxkbh4" path="res://assets/audio/366137__dcsfx__monster-breathing.wav" id="2_breath"]
+[ext_resource type="AudioStream" uid="uid://dnd8ksvrq5xq7" path="res://assets/audio/534218__thesoundfxguy_yt__piano-jump-scare-stinger.wav" id="3_stinger"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xdf4s"]
 size = Vector2(32, 32)
@@ -14,6 +16,8 @@ radius = 24.0
 
 [node name="Entity" type="CharacterBody2D" unique_id=1685648159]
 script = ExtResource("1_w5oec")
+breath_calm_clips = Array[AudioStream]([ExtResource("2_breath")])
+hunt_stinger_clips = Array[AudioStream]([ExtResource("3_stinger")])
 
 [node name="DebugSprite" type="Sprite2D" parent="." unique_id=2130364162]
 modulate = Color(0.45, 0.2, 0.2, 1)

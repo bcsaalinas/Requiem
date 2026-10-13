@@ -4,6 +4,37 @@ signal stage_changed(stage: String)
 signal tutorial_completed
 const World := preload("res://tutorial/world.gd")
 const Art := preload("res://tutorial/art.gd")
+## Pista de ambiente real por zona (reemplaza el placeholder corto
+## room.wav/forest.wav de tutorial/assets/audio). bedroom es la unica que se
+## queda tranquila; hallway usa viento (corriente de aire, inquieta antes de
+## salir); house y loop comparten el sotano porque las dos son la etapa
+## "ketsu" (climax) de stage_for_zone en enter_zone().
+const ZONE_AMBIENCE_PATHS := {
+	"bedroom": "res://assets/audio/407553__juane170058__room-tone-ambiance-in-empty-warehouse.wav",
+	"hallway": "res://assets/audio/341839__ianstargem__spook-wind-ambience.wav",
+	"forest": "res://assets/audio/320145__owlstorm__night-crickets-ambience-on-rural-property.wav",
+	"house": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+	"loop": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+}
+## Compensacion de volumen POR PISTA (no por zona: house/loop comparten
+## archivo y compensacion). Cada archivo real trae un nivel de grabacion muy
+## distinto -- el de bedroom es literalmente "room tone" de post-produccion
+## (pensado para ser casi inaudible) y mide -68.5dB de mean_volume, contra
+## -25/-28dB de los de viento y grillos. Sin esto, ambience.volume_db fijo en
+## -18 (ver AmbientAudio en tutorial.tscn) deja a bedroom en silencio total.
+## Los numeros compensan hasta emparejar el nivel percibido que ya tenia el
+## room.wav/forest.wav viejo (-18dB de nodo + -30dB de archivo ~= -48dB), mas
+## un +8dB parejo a las 4 para que el ambiente se note mas fuerte en general.
+## +8dB es el limite comodo: bedroom es el mas ajustado de pico (-29.8dBFS de
+## maximo en el archivo + 28dB de aca = -1.8dBFS), los otros tres sobran de
+## margen.
+const ZONE_AMBIENCE_VOLUME_DB := {
+	"bedroom": 28.0,
+	"hallway": -15.0,
+	"forest": -11.5,
+	"house": 3.5,
+	"loop": 3.5,
+}
 @export_category("Entry")
 @export_enum("bedroom", "hallway", "forest", "house", "loop") var start_zone: String = "bedroom"
 @export_group("Validation")
@@ -90,7 +121,7 @@ func _ready() -> void:
 	prayer_audio.stream=sound("prayer")
 	prayer_audio.finished.connect(func():
 		if zone=="house" and not attack_finished: prayer_audio.play())
-	flashlight.click_clips.assign([sound("switch")])
+	flashlight.click_clips.assign([load("res://assets/audio/629008__realgtro__flashlight-click.wav")])
 	thrower.piedra_clips.assign([sound("rock")])
 	if test_mode:
 		player.get_node("FootstepNoise").walk_clips.clear()
@@ -145,7 +176,8 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true) -> void:
 	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
 	stage=stage_for_zone[zone]
 	stage_changed.emit(stage)
-	ambience.stream=sound("forest" if zone=="forest" else "room")
+	ambience.stream=load(ZONE_AMBIENCE_PATHS[zone])
+	ambience.volume_db=ZONE_AMBIENCE_VOLUME_DB[zone]
 	if not test_mode: ambience.play()
 	prayer_audio.stop()
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
@@ -499,7 +531,9 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 			return
 
 func _caught() -> void:
-	if not resetting and dialogue.is_empty() and sequence=="": request_reset("")
+	if not resetting and dialogue.is_empty() and sequence=="":
+		GameOverUi.play_death_stinger()
+		request_reset("")
 
 func save_checkpoint() -> void:
 	checkpoint={"zone":zone,"position":player.position,"battery":flashlight.battery_percent,"batteries":batteries,"rocks":thrower.rocks}
