@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Requiem"
-run/main_scene="uid://blmf8iih1x53k"
+run/main_scene="uid://dl7u8a0ny2bb6"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
