@@ -49,6 +49,8 @@ var _panel: PanelContainer
 var _pages: Dictionary = {}
 var _duck_bus: int = -1
 var _duck_base_db: float = 0.0
+var _visibility_tween: Tween
+var _volume_sliders: Dictionary = {}
 
 
 func _ready() -> void:
@@ -191,6 +193,7 @@ func _volume_row(bus_name: String, index: int) -> Control:
 	slider.step = 0.01
 	slider.custom_minimum_size = Vector2(0, 18)
 	slider.value = db_to_linear(AudioServer.get_bus_volume_db(index))
+	_volume_sliders[index] = slider
 	slider.value_changed.connect(func(v: float):
 		# Silence is a real setting here, so the bottom of the slider mutes
 		# rather than sitting at a very quiet -40 dB.
@@ -198,6 +201,8 @@ func _volume_row(bus_name: String, index: int) -> Control:
 		AudioServer.set_bus_volume_db(index, linear_to_db(maxf(v, 0.0001)))
 		if bus_name == duck_bus_name:
 			_duck_base_db = linear_to_db(maxf(v, 0.0001))
+			if is_open:
+				AudioServer.set_bus_volume_db(index, _duck_base_db + duck_db)
 	)
 	row.add_child(slider)
 	return row
@@ -228,15 +233,21 @@ func set_open(open: bool) -> void:
 	is_open = open
 
 	if open:
+		if _duck_bus >= 0:
+			_duck_base_db = AudioServer.get_bus_volume_db(_duck_bus)
+		for index in _volume_sliders:
+			_volume_sliders[index].set_value_no_signal(0.0 if AudioServer.is_bus_mute(index) else db_to_linear(AudioServer.get_bus_volume_db(index)))
 		_show_page("main")
 		_root.visible = true
 		_root.modulate.a = 0.0
 
-	var tween := create_tween()
-	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-	tween.tween_property(_root, "modulate:a", 1.0 if open else 0.0, fade_time)
+	if _visibility_tween:
+		_visibility_tween.kill()
+	_visibility_tween = create_tween()
+	_visibility_tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_visibility_tween.tween_property(_root, "modulate:a", 1.0 if open else 0.0, fade_time)
 	if not open:
-		tween.tween_callback(func(): _root.visible = false)
+		_visibility_tween.tween_callback(func(): _root.visible = false)
 
 	if _duck_bus >= 0:
 		AudioServer.set_bus_volume_db(

@@ -176,6 +176,8 @@ func _ready() -> void:
 	game.queue_free()
 	await get_tree().process_frame
 	print("[Player motion tests] %d/%d passed" % [checks - failures.size(), checks])
+	# Let the audio mixer release stopped playbacks after scene teardown.
+	await get_tree().create_timer(0.25).timeout
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 

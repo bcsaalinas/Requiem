@@ -129,6 +129,13 @@ func _ready() -> void:
 	_play_breath_clip()
 
 
+func _exit_tree() -> void:
+	for audio in [_breath_player, _stinger_player]:
+		if is_instance_valid(audio):
+			audio.stop()
+			audio.stream = null
+
+
 func _physics_process(delta: float) -> void:
 	if GameState.is_dead:
 		_halt()

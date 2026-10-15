@@ -1,6 +1,6 @@
 # Test Lab
 
-Open `res://testing/test_lab.tscn` and run the current scene (F6). F5 always starts the normal tutorial.
+Open `res://testing/test_lab.tscn` and run the current scene (F6). F5 opens the main menu; Play loads the normal tutorial.
 
 ## Manual stations
 
@@ -30,7 +30,7 @@ python3 requiem/testing/run_checks.py --suite test_player_pose
 
 Python uses only the standard library. Set `--godot` or the `GODOT` environment variable for a custom executable. Each suite starts a separate Godot process. Nonzero exit, script errors, missing success summary and timeout fail the run. Logs default to ignored `requiem/.local-development/test-results/`; `--output` changes that location. On Linux the runner isolates Godot user data under that output directory.
 
-The core run covers tutorial progression, player actions, motion, dense pose sweeps, camera, level authoring and lab lifecycle. Lighting requires a rendered viewport; headless checks cannot validate its pixels. The launcher is for manual checks; automated suites remain separate processes because their scripts intentionally quit when complete.
+The core run covers the main menu, threaded loading, pause/resume and audio settings, tutorial progression, player actions, motion, dense pose sweeps, camera, level authoring and lab lifecycle. Lighting requires a rendered viewport; headless checks cannot validate its pixels. The launcher is for manual checks; automated suites remain separate processes because their scripts intentionally quit when complete.
 
 Breath coverage includes accepted action events, noise/resource parity, rearming after a forced gasp, authored upper-body playback, pause/dialogue/death interruptions and frame-matched hand/beam alignment. The 1,106 sampled breath poses cover all headings with equipment absent, off and on. Screen effects add no gameplay noise. The original lower-body sheets and footstep timing remain unchanged.
 

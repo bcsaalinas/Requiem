@@ -144,7 +144,9 @@ func _update_aim(desired: float, target: Vector2, delta: float, turn_rate := -1.
 	# Feeding a moving socket back into pose selection can oscillate forever at
 	# a sector boundary even when the mouse is completely stationary.
 	var desired_arm := pose_body_angle + clampf(angle_difference(pose_body_angle,desired),-PI/4.0,PI/4.0)
-	_arm_angle = rotate_toward(_arm_angle,desired_arm,deg_to_rad(aim_turn_speed_degrees)*delta)
+	var turn_step := deg_to_rad(aim_turn_speed_degrees) * delta
+	var previous_arm := _arm_angle
+	_arm_angle = rotate_toward(_arm_angle, desired_arm, turn_step)
 	var relative_arm := angle_difference(pose_body_angle,_arm_angle)
 	if absf(relative_arm - _arm_step*PI/8.0) > PI/16.0 + deg_to_rad(3.0):
 		_arm_step = clampi(roundi(relative_arm/(PI/8.0)),-2,2)
@@ -155,7 +157,9 @@ func _update_aim(desired: float, target: Vector2, delta: float, turn_rate := -1.
 	# a reversal. Only a small parallax correction belongs to the wrist: a near
 	# cursor must not fold the hand sideways to aim behind its own grip.
 	var correction := clampf(angle_difference(desired, hand_target_angle), -WRIST_REACH, WRIST_REACH)
-	_wrist_correction = move_toward(_wrist_correction, correction, deg_to_rad(aim_turn_speed_degrees) * delta)
+	# Arm travel and parallax share the torch's angular budget.
+	var wrist_step := maxf(0.0, turn_step - absf(angle_difference(previous_arm, _arm_angle)))
+	_wrist_correction = move_toward(_wrist_correction, correction, wrist_step)
 	var forearm_heading := pose_body_angle + _arm_step * PI / 8.0
 	aim_angle = forearm_heading + clampf(angle_difference(forearm_heading,
 		_arm_angle + _wrist_correction), -WRIST_REACH, WRIST_REACH)

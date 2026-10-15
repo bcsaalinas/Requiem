@@ -108,7 +108,7 @@ func _ready() -> void:
 	help_key.physical_keycode=KEY_H
 	help_key.pressed=true
 	game._input(help_key)
-	check(get_tree().paused and game.hud.help_panel.visible,"Help pauses the tutorial")
+	check(get_tree().paused and PauseMenu.is_open and PauseMenu._root.visible,"Help pauses the tutorial")
 	game._input(help_key)
 	check(not get_tree().paused and game.player.process_mode==Node.PROCESS_MODE_DISABLED,"Closing help preserves the dialogue input lock")
 	while not game.dialogue.is_empty(): game.advance_dialogue()
@@ -131,4 +131,6 @@ func _ready() -> void:
 	game.queue_free()
 	await frames(3)
 	print("[Tutorial tests] ",checks-failures.size(),"/",checks," passed")
+	# Let the audio mixer release stopped playbacks after scene teardown.
+	await get_tree().create_timer(0.25).timeout
 	get_tree().quit(0 if failures.is_empty() else 1)

@@ -52,6 +52,8 @@ func _ready() -> void:
 	level.queue_free()
 	await frames(3)
 	print("[Level tests] ", checks - failures.size(), "/", checks, " passed")
+	# Let the audio mixer release stopped playbacks after scene teardown.
+	await get_tree().create_timer(0.25).timeout
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 

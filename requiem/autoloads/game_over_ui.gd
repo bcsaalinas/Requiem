@@ -30,11 +30,22 @@ func _ready() -> void:
 	add_child(_audio_player)
 
 	GameState.player_died.connect(_on_player_died)
+	GameState.state_reset.connect(_reset)
 
 
 func _on_player_died() -> void:
 	label.text = "MORISTE\nLa entidad te atrapo\n\nPresiona R para reintentar"
 	play_death_stinger()
+
+
+func _exit_tree() -> void:
+	_reset()
+
+
+func _reset() -> void:
+	label.text = ""
+	_audio_player.stop()
+	_audio_player.stream = null
 
 
 ## Publico a proposito: el tutorial NUNCA llama GameState.kill_player() (su

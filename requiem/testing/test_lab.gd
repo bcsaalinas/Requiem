@@ -44,7 +44,7 @@ func _ready() -> void:
 	title.add_theme_font_size_override("font_size", 30)
 	choices.add_child(title)
 	var description := Label.new()
-	description.text = "One workspace for feature checks. F5 still runs the playable tutorial.\nF1 returns here · F3 toggles emitted-noise visualization during a test."
+	description.text = "One workspace for feature checks. F5 opens the production main menu.\nF1 returns here · F3 toggles emitted-noise visualization during a test."
 	choices.add_child(description)
 	add_button(choices, "Play tutorial · full story and pickup flow", func(): launch(TUTORIAL))
 	add_button(choices, "Character and camera · C / V comparisons, 1–5 areas", func(): launch(COMPARISON))

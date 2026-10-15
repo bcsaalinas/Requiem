@@ -75,6 +75,8 @@ func _ready() -> void:
 	# Godot may resume a caller after a runtime error aborts an awaited coroutine.
 	check(completed_scenarios == 4, "Every integration scenario reached its final assertions")
 	print("[Player action tests] %d/%d passed" % [checks - failures.size(), checks])
+	# Let the audio mixer release stopped playbacks after scene teardown.
+	await get_tree().create_timer(0.25).timeout
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 
@@ -137,7 +139,7 @@ func check_equipped_aim() -> void:
 		"A cursor reversal cannot turn the torso faster than its physical response limit")
 	check(absf(angle_difference(beam_before_turn, aim.aim_angle))
 		<= deg_to_rad(aim.aim_turn_speed_degrees) * physics_delta + 0.002,
-		"A cursor reversal cannot snap the torch through an unrestricted half turn")
+		"A cursor reversal cannot snap the torch through an unrestricted half turn (actual %.3f degrees)" % rad_to_deg(absf(angle_difference(beam_before_turn, aim.aim_angle))))
 	await frames(90)
 	check(angle_near(aim.aim_angle, PI)
 		and angle_near(aim.body_angle, PI, aim.turn_threshold_degrees + 1.0),

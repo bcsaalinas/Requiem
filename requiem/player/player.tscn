@@ -19,7 +19,14 @@
 [ext_resource type="Texture2D" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
 [ext_resource type="Script" path="res://player/flashlight.gd" id="9_kb6p2"]
 
-[ext_resource type="AudioStream" uid="uid://bx24sjvxib835" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_04.wav" id="step_4"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_05.wav" id="step_5"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
 [ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
 [ext_resource type="AudioStream" uid="uid://ydi3tbv8mgoc" path="res://assets/audio/629008__realgtro__flashlight-click.wav" id="11_click"]
@@ -55,8 +62,7 @@ position_smoothing_enabled = true
 
 [node name="FootstepNoise" type="Node" parent="." unique_id=627701284]
 script = ExtResource("2_footstep")
-walk_clips = Array[AudioStream]([ExtResource("4_walk")])
-sprint_clips = Array[AudioStream]([ExtResource("4_walk")])
+walk_clips = Array[AudioStream]([ExtResource("step_1"), ExtResource("step_2"), ExtResource("step_3"), ExtResource("step_4"), ExtResource("step_5"), ExtResource("step_6"), ExtResource("step_7"), ExtResource("step_8")])
 
 [node name="ActionState" type="Node" parent="."]
 script = ExtResource("12_actions")

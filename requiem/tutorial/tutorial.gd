@@ -139,6 +139,7 @@ func _ready() -> void:
 		play_sound("phone",player.position)
 
 func _exit_tree() -> void:
+	PauseMenu.set_open(false)
 	get_tree().paused=false
 	for audio in get_tree().get_nodes_in_group("tutorial_audio"):
 		audio.stop()

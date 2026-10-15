@@ -18,7 +18,7 @@ func frames(count: int) -> void:
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	check(ProjectSettings.get_setting("application/run/main_scene") == "res://tutorial/tutorial.tscn", "F5 retains the playable tutorial")
+	check(ProjectSettings.get_setting("application/run/main_scene") == "res://tutorial/main_menu.tscn", "F5 starts the production main menu")
 	check(not ProjectSettings.has_setting("autoload/NoiseDebug"), "Production has no noise-debug autoload")
 	var lab = preload("res://testing/test_lab.tscn").instantiate()
 	add_child(lab)
@@ -30,7 +30,7 @@ func _ready() -> void:
 	lab.active_scene._toggle_pause()
 	check(get_tree().paused, "Tutorial can pause inside the lab")
 	await lab.show_menu()
-	check(not get_tree().paused and lab.active_scene == null and lab.menu.visible, "Returning from pause clears the scene and resumes the lab")
+	check(not get_tree().paused and not PauseMenu.is_open and lab.active_scene == null and lab.menu.visible, "Returning from pause clears the scene and global pause menu, and resumes the lab")
 	await lab.launch(lab.COMPARISON)
 	await frames(12)
 	lab.active_scene.jump_to_zone(2)
