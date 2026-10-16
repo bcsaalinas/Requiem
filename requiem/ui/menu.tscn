@@ -1,0 +1,105 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://ui/menu.gd" id="1_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btnn"]
+content_margin_left = 40.0
+content_margin_top = 14.0
+content_margin_right = 40.0
+content_margin_bottom = 14.0
+bg_color = Color(0.1, 0.14, 0.14, 0.9)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btnh"]
+content_margin_left = 40.0
+content_margin_top = 14.0
+content_margin_right = 40.0
+content_margin_bottom = 14.0
+bg_color = Color(0.18, 0.2, 0.18, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btnp"]
+content_margin_left = 40.0
+content_margin_top = 14.0
+content_margin_right = 40.0
+content_margin_bottom = 14.0
+bg_color = Color(0.06, 0.08, 0.08, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.02, 0.024, 0.022, 1)
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bg")
+color = Color(0, 0, 0, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 26
+
+[node name="Title" type="Label" parent="Center/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7254902, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 3
+theme_override_constants/shadow_offset_y = 4
+theme_override_font_sizes/font_size = 78
+text = "REQUIEM"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72156864, 0.7294118, 0.6901961, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "La entidad acecha en la oscuridad"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center/Column"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+
+[node name="Play" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_btnn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btnh")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btnp")
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7254902, 1)
+theme_override_colors/font_hover_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
+theme_override_font_sizes/font_size = 22
+text = "Jugar"
+
+[node name="Quit" type="Button" parent="Center/Column"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/normal = SubResource("StyleBoxFlat_btnn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btnh")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btnp")
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7254902, 1)
+theme_override_colors/font_hover_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
+theme_override_font_sizes/font_size = 20
+text = "Salir"
+
+[connection signal="pressed" from="Center/Column/Play" to="." method="_on_play_pressed"]
+
+[connection signal="pressed" from="Center/Column/Quit" to="." method="_on_quit_pressed"]

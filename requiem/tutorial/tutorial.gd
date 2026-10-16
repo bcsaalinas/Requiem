@@ -499,7 +499,32 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 			return
 
 func _caught() -> void:
-	if not resetting and dialogue.is_empty() and sequence=="": request_reset("")
+	if resetting or not dialogue.is_empty() or sequence != "": return
+	_begin_game_over()
+
+# La entidad atrapo al jugador: congela la escena y muestra la pantalla de
+# derrota (GameState.player_died -> GameOverUi instancia ui/game_over.tscn).
+func _begin_game_over() -> void:
+	resetting=true
+	entity.active=false
+	encounter_grace=0
+	player.process_mode=Node.PROCESS_MODE_DISABLED
+	player.velocity=Vector2.ZERO
+	dialogue.clear()
+	dialogue_done=Callable()
+	sequence=""
+	world.props["reveal"].hide()
+	var reveal_light:=world.get_node_or_null("RevealLight")
+	if reveal_light!=null: reveal_light.queue_free()
+	hud.shade.color=Color(0,0,0,.82)
+	play_sound("presence",player.position)
+	GameState.kill_player()
+
+# Lo invoca la pantalla de game over cuando el jugador pulsa "Reintentar":
+# reanuda desde el ultimo checkpoint en lugar de narrar su captura.
+func retry_from_game_over() -> void:
+	if not resetting: return
+	_restore_after_delay(false)
 
 func save_checkpoint() -> void:
 	checkpoint={"zone":zone,"position":player.position,"battery":flashlight.battery_percent,"batteries":batteries,"rocks":thrower.rocks}
