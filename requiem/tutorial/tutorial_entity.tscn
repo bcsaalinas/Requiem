@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://entities/entity.tscn" id="1_base"]
+[ext_resource type="Script" path="res://tutorial/entity.gd" id="2_w5oec"]
+[ext_resource type="Shader" path="res://tutorial/scenery.gdshader" id="3_vb6m3"]
+[ext_resource type="Script" path="res://tutorial/art.gd" id="4_swdi0"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ho2g8"]
+shader = ExtResource("3_vb6m3")
+
+[node name="Entity" instance=ExtResource("1_base")]
+visible = false
+script = ExtResource("2_w5oec")
+log_state_changes = false
+color_by_state = false
+
+[node name="DebugSprite" parent="." index="0"]
+visible = false
+
+[node name="Appearance" type="Node2D" parent="." unique_id=416861562]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ho2g8")
+script = ExtResource("4_swdi0")
+kind = "entity"

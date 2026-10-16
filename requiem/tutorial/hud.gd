@@ -15,12 +15,26 @@ signal fullscreen_requested
 @onready var inventory: HBoxContainer = $Screen/Inventory
 var _slots: Dictionary = {}
 var _counts: Dictionary = {}
+var _breath_fill: StyleBoxFlat
+var _effort_fill: StyleBoxFlat
 
 func _ready() -> void:
+	# Each HUD owns these styles; warning pulses cannot leak into other scenes.
+	_breath_fill = breath.get_theme_stylebox("fill").duplicate()
+	_effort_fill = effort.get_theme_stylebox("fill").duplicate()
+	breath.add_theme_stylebox_override("fill", _breath_fill)
+	effort.add_theme_stylebox_override("fill", _effort_fill)
 	for kind in ["flashlight", "battery", "rocks"]:
 		var slot := inventory.get_node(String(kind).capitalize())
 		_slots[kind] = slot
 		_counts[kind] = slot.get_node("Count")
+
+func update_breath_feedback(feedback: Node) -> void:
+	_breath_fill.bg_color = feedback.get_meter_color()
+	_effort_fill.bg_color = feedback.get_meter_color(true)
+	var caption: Label = $Screen/Vitals/Breath/Caption
+	caption.text = feedback.get_meter_caption()
+	caption.modulate = Color.WHITE.lerp(Color("f2c3a3"), feedback.lung_pressure * feedback.pulse * 0.35)
 
 func _on_resume_pressed() -> void:
 	resume_requested.emit()
@@ -44,4 +58,3 @@ func place_prompt(at: Vector2, in_dialogue := false) -> void:
 		prompt.position = Vector2(
 			clampf(at.x-prompt.size.x*.5,24,viewport_size.x-prompt.size.x-24),
 			clampf(at.y+34,78,viewport_size.y-215))
-

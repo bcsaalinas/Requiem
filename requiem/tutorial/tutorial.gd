@@ -4,6 +4,37 @@ signal stage_changed(stage: String)
 signal tutorial_completed
 const World := preload("res://tutorial/world.gd")
 const Art := preload("res://tutorial/art.gd")
+## Pista de ambiente real por zona (reemplaza el placeholder corto
+## room.wav/forest.wav de tutorial/assets/audio). bedroom es la unica que se
+## queda tranquila; hallway usa viento (corriente de aire, inquieta antes de
+## salir); house y loop comparten el sotano porque las dos son la etapa
+## "ketsu" (climax) de stage_for_zone en enter_zone().
+const ZONE_AMBIENCE_PATHS := {
+	"bedroom": "res://assets/audio/407553__juane170058__room-tone-ambiance-in-empty-warehouse.wav",
+	"hallway": "res://assets/audio/341839__ianstargem__spook-wind-ambience.wav",
+	"forest": "res://assets/audio/320145__owlstorm__night-crickets-ambience-on-rural-property.wav",
+	"house": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+	"loop": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+}
+## Compensacion de volumen POR PISTA (no por zona: house/loop comparten
+## archivo y compensacion). Cada archivo real trae un nivel de grabacion muy
+## distinto -- el de bedroom es literalmente "room tone" de post-produccion
+## (pensado para ser casi inaudible) y mide -68.5dB de mean_volume, contra
+## -25/-28dB de los de viento y grillos. Sin esto, ambience.volume_db fijo en
+## -18 (ver AmbientAudio en tutorial.tscn) deja a bedroom en silencio total.
+## Los numeros compensan hasta emparejar el nivel percibido que ya tenia el
+## room.wav/forest.wav viejo (-18dB de nodo + -30dB de archivo ~= -48dB), mas
+## un +8dB parejo a las 4 para que el ambiente se note mas fuerte en general.
+## +8dB es el limite comodo: bedroom es el mas ajustado de pico (-29.8dBFS de
+## maximo en el archivo + 28dB de aca = -1.8dBFS), los otros tres sobran de
+## margen.
+const ZONE_AMBIENCE_VOLUME_DB := {
+	"bedroom": 28.0,
+	"hallway": -15.0,
+	"forest": -11.5,
+	"house": 3.5,
+	"loop": 3.5,
+}
 @export_category("Entry")
 @export_enum("bedroom", "hallway", "forest", "house", "loop") var start_zone: String = "bedroom"
 @export_group("Validation")
@@ -19,7 +50,11 @@ var flashlight: PointLight2D
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 var zone := "bedroom"
 var stage := "ki"
-var has_flashlight := false
+var has_flashlight: bool:
+	get:
+		return is_instance_valid(player) and player.get_node("ActionState").has_flashlight
+	set(value):
+		if is_instance_valid(player): player.get_node("ActionState").has_flashlight = value
 var batteries := 0
 var window_broken := false
 var door_unlocked := false
@@ -47,8 +82,6 @@ var loop_cued := false
 var ambient_reply_cooldown := 0.0
 var parent_failures := 0
 var loop_hold_seen := false
-var _old_debug := true
-var _old_debug_legend := true
 var _paused := false
 var _paused_modes: Dictionary = {}
 var _sounds: Dictionary = {}
@@ -65,11 +98,6 @@ func _ready() -> void:
 		get_window().mode = Window.MODE_FULLSCREEN
 	get_viewport().size_changed.connect(_frame_camera)
 	RenderingServer.set_default_clear_color(Color("0e161b"))
-	_old_debug=NoiseDebug.enabled
-	_old_debug_legend=NoiseDebug._legend_layer.visible
-	NoiseDebug.enabled=false
-	NoiseDebug._legend_layer.hide()
-	NoiseDebug._redraw()
 	thrower=player.get_node("Throw")
 	breath=player.get_node("HoldBreath")
 	player.get_node("Sprite2D").hide()
@@ -78,6 +106,7 @@ func _ready() -> void:
 	thrower.rock_landed.connect(_on_rock_landed)
 	preload("res://tutorial/prop_light.gd").attach(player.get_node("LocalLight"))
 	flashlight=player.get_node("flashlight")
+	has_flashlight=false
 	flashlight.battery_percent=0.0
 	flashlight._update_bar()
 	preload("res://tutorial/prop_light.gd").attach(flashlight)
@@ -87,11 +116,12 @@ func _ready() -> void:
 	entity.caught.connect(_caught)
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
+	PauseMenu.resume_pressed.connect(_toggle_pause)
 	ambience.finished.connect(func(): ambience.play())
 	prayer_audio.stream=sound("prayer")
 	prayer_audio.finished.connect(func():
 		if zone=="house" and not attack_finished: prayer_audio.play())
-	flashlight.click_clips.assign([sound("switch")])
+	flashlight.click_clips.assign([load("res://assets/audio/629008__realgtro__flashlight-click.wav")])
 	thrower.piedra_clips.assign([sound("rock")])
 	if test_mode:
 		player.get_node("FootstepNoise").walk_clips.clear()
@@ -109,10 +139,7 @@ func _ready() -> void:
 		play_sound("phone",player.position)
 
 func _exit_tree() -> void:
-	if is_instance_valid(NoiseDebug):
-		NoiseDebug.enabled=_old_debug
-		NoiseDebug._legend_layer.visible=_old_debug_legend
-		NoiseDebug._redraw()
+	PauseMenu.set_open(false)
 	get_tree().paused=false
 	for audio in get_tree().get_nodes_in_group("tutorial_audio"):
 		audio.stop()
@@ -143,12 +170,15 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true) -> void:
 	var starts:={"bedroom":Vector2(340,440),"hallway":Vector2(110,340),"forest":Vector2(150,540),"house":Vector2(530,850),"loop":Vector2(130,330)}
 	player.position=origin+starts[zone] if spawn==Vector2.INF else spawn
 	player.velocity=Vector2.ZERO
+	player.get_node("PlayerMotion").reset_pose()
+	player.get_node("PlayerAim").reset_pose()
 	_frame_camera()
 	player.get_node("Camera2D").reset_smoothing()
 	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
 	stage=stage_for_zone[zone]
 	stage_changed.emit(stage)
-	ambience.stream=sound("forest" if zone=="forest" else "room")
+	ambience.stream=load(ZONE_AMBIENCE_PATHS[zone])
+	ambience.volume_db=ZONE_AMBIENCE_VOLUME_DB[zone]
 	if not test_mode: ambience.play()
 	prayer_audio.stop()
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
@@ -182,6 +212,7 @@ func _process(delta: float) -> void:
 		if banner_time<=0: hud.banner.text=""
 	hud.breath.value=breath.lung_percent
 	hud.effort.value=breath.exertion_percent
+	hud.update_breath_feedback(player.get_node("BreathFeedback"))
 	hud.battery.value=flashlight.battery_percent
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
@@ -369,6 +400,8 @@ func interact(id: String) -> void:
 			else:
 				player.position=Vector2(5737,620) if player.position.y>680 else Vector2(5737,755)
 				player.velocity=Vector2.ZERO
+				player.get_node("PlayerMotion").reset_pose()
+				player.get_node("PlayerAim").reset_pose()
 				if player.position.y<680: save_checkpoint()
 		"friend":
 			friend_met=true
@@ -564,8 +597,10 @@ func restore_checkpoint(bedroom := false) -> void:
 	breath._lock_timer=0
 	breath.lung_percent=100
 	breath.exertion_percent=0
+	breath.reset_input_latch()
+	player.get_node("BreathFeedback").reset_feedback()
 	player.get_node("FootstepNoise").footstep_timer=0
-	player.get_node("FootstepNoise")._audio_player.stop()
+	player.get_node("FootstepAudio").reset_audio()
 	player.velocity=Vector2.ZERO
 	GameState.reset()
 	flashlight.battery_percent=maxf(flashlight.battery_percent,float(checkpoint.get("battery",100)))
@@ -599,7 +634,7 @@ func _toggle_fullscreen() -> void:
 
 func _toggle_pause() -> void:
 	_paused = not _paused
-	hud.help_panel.visible = _paused
+	PauseMenu.set_open(_paused)
 	process_mode = Node.PROCESS_MODE_ALWAYS if _paused else Node.PROCESS_MODE_INHERIT
 	for child in get_children():
 		if _paused:

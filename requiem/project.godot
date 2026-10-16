@@ -11,16 +11,19 @@ config_version=5
 [application]
 
 config/name="Requiem"
-run/main_scene="res://ui/menu.tscn"
+run/main_scene="res://tutorial/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
-NoiseManager="*uid://j0vrigg22l2b"
-GameState="*uid://c5u30ghxcndxe"
-GameOverUi="*uid://dwll4vh22kma6"
-NoiseDebug="*res://autoloads/noise_debug.gd"
+NoiseManager="*res://autoloads/noise_manager.gd"
+GameState="*res://autoloads/game_state.gd"
+GameOverUi="*res://autoloads/game_over_ui.gd"
+AmbienceManager="*res://autoloads/ambience_manager.gd"
+PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
+PauseMenu="*res://tutorial/pause_menu.gd"
+LoadingScreen="*res://tutorial/loading_screen.gd"
 
 [display]
 
@@ -29,7 +32,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot-mcp/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot-mcp/plugin.cfg", "res://addons/phantom_camera/plugin.cfg")
 
 [input]
 

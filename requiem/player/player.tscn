@@ -1,6 +1,15 @@
 [gd_scene format=3 uid="uid://qvmplrwk2j6o"]
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://player/player_motion.gd" id="10_motion"]
+[ext_resource type="Script" path="res://player/action_state.gd" id="12_actions"]
+[ext_resource type="Script" path="res://player/aim.gd" id="13_aim"]
+[ext_resource type="Script" path="res://player/breath_feedback.gd" id="14_breath_feedback"]
+[ext_resource type="Script" path="res://player/throw_feedback.gd" id="15_throw_feedback"]
+[ext_resource type="Script" path="res://player/prayer_feedback.gd" id="16_prayer_feedback"]
+[ext_resource type="Script" path="res://player/sprint_dust.gd" id="17_sprint_dust"]
+[ext_resource type="Script" path="res://player/footstep_audio.gd" id="18_step_audio"]
+[ext_resource type="SpriteFrames" path="res://player/art/girl_rig_v2/girl_frames.tres" id="11_girl"]
 [ext_resource type="Script" path="res://player/footstep_noise.gd" id="2_footstep"]
 [ext_resource type="Script" path="res://player/hold_breath.gd" id="3_breath"]
 [ext_resource type="Script" path="res://tutorial/throw.gd" id="4_hg6s5"]
@@ -10,9 +19,18 @@
 [ext_resource type="Texture2D" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
 [ext_resource type="Script" path="res://player/flashlight.gd" id="9_kb6p2"]
 
-[ext_resource type="AudioStream" uid="uid://bx24sjvxib835" path="res://assets/audio/freesound_community-concrete-footsteps-1-6265.mp3" id="4_walk"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_04.wav" id="step_4"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_05.wav" id="step_5"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
+[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
 [ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
+[ext_resource type="AudioStream" uid="uid://ydi3tbv8mgoc" path="res://assets/audio/629008__realgtro__flashlight-click.wav" id="11_click"]
+[ext_resource type="AudioStream" uid="uid://dsryvde7rdg5t" path="res://assets/audio/78562__joedeshon__alarm_clock_ringing_01.wav" id="12_alarm"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -44,15 +62,21 @@ position_smoothing_enabled = true
 
 [node name="FootstepNoise" type="Node" parent="." unique_id=627701284]
 script = ExtResource("2_footstep")
-walk_clips = Array[AudioStream]([ExtResource("4_walk")])
+walk_clips = Array[AudioStream]([ExtResource("step_1"), ExtResource("step_2"), ExtResource("step_3"), ExtResource("step_4"), ExtResource("step_5"), ExtResource("step_6"), ExtResource("step_7"), ExtResource("step_8")])
+
+[node name="ActionState" type="Node" parent="."]
+script = ExtResource("12_actions")
 
 [node name="HoldBreath" type="Node" parent="." unique_id=2008094638]
 script = ExtResource("3_breath")
 hold_clips = Array[AudioStream]([ExtResource("7_hold")])
 exertion_clips = Array[AudioStream]([ExtResource("8_exertion")])
+gasp_clips = Array[AudioStream]([ExtResource("8_exertion")])
+forced_gasp_clips = Array[AudioStream]([ExtResource("7_hold")])
 
 [node name="Throw" type="Node" parent="." unique_id=130069321]
 script = ExtResource("4_hg6s5")
+despertador_clips = Array[AudioStream]([ExtResource("12_alarm")])
 
 [node name="Appearance" type="Node2D" parent="." unique_id=1642923067]
 z_index = 1
@@ -60,6 +84,20 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_wodsf")
 script = ExtResource("6_2ieo8")
 kind = "actor"
+actor_frames = ExtResource("11_girl")
+actor_rig_enabled = true
+actor_frame_scale = 0.5
+actor_frame_pivot = Vector2(128, 128)
+actor_ground_offset = Vector2(0, 0)
+actor_shadow_offset = Vector2(0, 0)
+actor_shadow_radius = Vector2(12, 7)
+actor_value_floor = 0.05
+actor_value_range = 0.75
+actor_rim_strength = 0.15
+
+[node name="PlayerMotion" type="Node" parent="."]
+process_mode = 1
+script = ExtResource("10_motion")
 
 [node name="LocalLight" type="PointLight2D" parent="." unique_id=341006500]
 color = Color(0.7254902, 0.77254903, 0.7254902, 1)
@@ -81,3 +119,22 @@ texture = ExtResource("8_yllr7")
 offset = Vector2(207.99998, 0)
 texture_scale = 2.1554403
 script = ExtResource("9_kb6p2")
+click_clips = Array[AudioStream]([ExtResource("11_click")])
+
+[node name="PlayerAim" type="Node" parent="."]
+script = ExtResource("13_aim")
+
+[node name="BreathFeedback" type="Node" parent="."]
+script = ExtResource("14_breath_feedback")
+
+[node name="ThrowFeedback" type="Node" parent="."]
+script = ExtResource("15_throw_feedback")
+
+[node name="PrayerFeedback" type="Node" parent="."]
+script = ExtResource("16_prayer_feedback")
+
+[node name="SprintDust" type="Node2D" parent="."]
+script = ExtResource("17_sprint_dust")
+
+[node name="FootstepAudio" type="Node" parent="."]
+script = ExtResource("18_step_audio")

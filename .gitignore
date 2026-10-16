@@ -54,6 +54,7 @@ core_dump_*
 # Addon/plugin generated files (when using gd-plug, asset library, etc.)
 .gd-plug/
 addons/*/plugin.cfg
+!requiem/addons/phantom_camera/plugin.cfg
 
 # Local/sensitive files
 .env
@@ -75,3 +76,13 @@ venv/
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Machine-local agent settings and generated exports
+.codex/
+requiem/*.app/
+requiem/*.command
+tools/character_rig/previews/
+requiem/testing/captures/throw_review/
+
+requiem/testing/captures/prayer_review/
+requiem/testing/captures/sprint_review/

@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://testing/regression/test_sprint_feedback.gd" id="1_test"]
+
+[node name="SprintFeedbackTests" type="Node2D"]
+process_mode = 3
+script = ExtResource("1_test")

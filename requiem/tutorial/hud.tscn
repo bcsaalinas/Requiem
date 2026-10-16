@@ -1,7 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://djod0bwigac1b"]
 
-[ext_resource type="Script" path="res://tutorial/hud.gd" id="1_xqdwv"]
-[ext_resource type="Texture2D" path="res://tutorial/assets/art/details_atlas.png" id="2_w8sm5"]
+[ext_resource type="Script" uid="uid://k7narjpvx3pe" path="res://tutorial/hud.gd" id="1_xqdwv"]
+[ext_resource type="Texture2D" uid="uid://fkll4swrubgh" path="res://tutorial/assets/art/details_atlas.png" id="2_w8sm5"]
+[ext_resource type="Script" uid="uid://bm28acd0c7jac" path="res://tutorial/vital_meters.gd" id="3_w8sm5"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hna5b"]
 atlas = ExtResource("2_w8sm5")
@@ -49,6 +50,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 
 [node name="Inventory" type="HBoxContainer" parent="Screen" unique_id=1888082614]
@@ -132,6 +135,7 @@ offset_left = 28.0
 offset_top = -54.0
 offset_bottom = -28.0
 theme_override_constants/separation = 18
+script = ExtResource("3_w8sm5")
 
 [node name="Breath" type="VBoxContainer" parent="Screen/Vitals" unique_id=1068166841]
 layout_mode = 2
@@ -288,5 +292,4 @@ layout_mode = 2
 text = "Toggle fullscreen · F11"
 
 [connection signal="pressed" from="Screen/PauseMenu/Content/Resume" to="." method="_on_resume_pressed"]
-
 [connection signal="pressed" from="Screen/PauseMenu/Content/Fullscreen" to="." method="_on_fullscreen_pressed"]

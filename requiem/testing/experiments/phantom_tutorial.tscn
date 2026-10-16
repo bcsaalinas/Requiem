@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://tutorial/tutorial.tscn" id="1_tutorial"]
+[ext_resource type="Script" path="res://testing/experiments/phantom_tutorial.gd" id="2_script"]
+[ext_resource type="PackedScene" path="res://testing/experiments/cameras/tutorial_camera_rig.tscn" id="3_rig"]
+
+[node name="OrganicTutorialCameraTest" instance=ExtResource("1_tutorial")]
+script = ExtResource("2_script")
+
+[node name="CameraRig" parent="." instance=ExtResource("3_rig")]
+
+[node name="CameraTestOverlay" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="Status" type="Label" parent="CameraTestOverlay"]
+offset_left = 20.0
+offset_top = 18.0
+theme_override_colors/font_color = Color(0.95, 0.88, 0.72, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+text = "CAMERA TEST · Phantom\nC: compare · 1–5: bedroom / hall / forest / house / loop"
+mouse_filter = 2

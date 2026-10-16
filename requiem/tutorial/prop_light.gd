@@ -15,9 +15,14 @@ static func attach(light: PointLight2D) -> void:
 
 func _ready() -> void:
 	source = get_parent() as PointLight2D
+	# This is a receiver copy, not a gameplay clock. Keep mirroring explicit
+	# source changes even when dialogue disables the source's parent actor.
+	process_mode = Node.PROCESS_MODE_PAUSABLE
 	process_priority = 1
 	range_item_cull_mask = 2
-	shadow_item_cull_mask = 1
+	# Godot also gates shadow reception with this mask. Raised receivers use 2;
+	# walls cast on 3 (both passes), while furniture casts on 1 (ground only).
+	shadow_item_cull_mask = 2
 	_sync()
 
 func _process(_delta: float) -> void:

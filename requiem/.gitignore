@@ -1,3 +1,2 @@
 .local-development/
-*.md
-*.MD
+# Team documentation is versioned; generated evidence goes to user://test-results/.
