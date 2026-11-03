@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://bil3hphv412cw"]
+
+[ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="1_ya7gp"]
+[ext_resource type="AudioStream" uid="uid://dvpf7nicn1udj" path="res://tutorial/assets/audio/door.wav" id="2_lifiy"]
+[ext_resource type="Texture2D" uid="uid://tje4dfx3l5dv" path="res://assets/level/door_frame.png" id="3_qcm76"]
+[ext_resource type="Texture2D" uid="uid://da4abb6j0xeur" path="res://assets/level/door_leaf_front.png" id="4_s5vif"]
+[ext_resource type="Texture2D" uid="uid://b6i87tq7obemc" path="res://assets/level/door_plank.png" id="5_b7ym3"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="6_glow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_l3ofr"]
+size = Vector2(64, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ya7gp"]
+closed = false
+polygon = PackedVector2Array(-34, -80, 34, -80)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ya7gp"]
+size = Vector2(56, 124)
+
+[node name="Door" type="Node2D" unique_id=1999569606]
+script = ExtResource("1_ya7gp")
+creak = ExtResource("2_lifiy")
+
+[node name="Frame" type="Node2D" parent="." unique_id=2001312283]
+
+[node name="Face" type="Sprite2D" parent="Frame" unique_id=1346966098]
+position = Vector2(-32, -64)
+scale = Vector2(0.21477, 0.14512)
+texture = ExtResource("3_qcm76")
+centered = false
+
+[node name="JambLeft" type="Polygon2D" parent="Frame" unique_id=1614390466]
+color = Color(0.16862746, 0.12941177, 0.09803922, 1)
+polygon = PackedVector2Array(-32, -96, -25, -96, -25, -64, -32, -64)
+
+[node name="JambRight" type="Polygon2D" parent="Frame" unique_id=486725423]
+color = Color(0.16862746, 0.12941177, 0.09803922, 1)
+polygon = PackedVector2Array(25, -96, 32, -96, 32, -64, 25, -64)
+
+[node name="Hinge" type="Node2D" parent="." unique_id=2114300428]
+position = Vector2(24.698, 0)
+
+[node name="Leaf" type="Sprite2D" parent="Hinge" unique_id=777429147]
+position = Vector2(-49.83, -60.08)
+scale = Vector2(0.21477, 0.14512)
+texture = ExtResource("4_s5vif")
+centered = false
+
+[node name="TopHinge" type="Node2D" parent="." unique_id=1833201383]
+position = Vector2(24.698, -80)
+
+[node name="Plank" type="Sprite2D" parent="TopHinge" unique_id=815931333]
+self_modulate = Color(1.45, 1.35, 1.2, 1)
+position = Vector2(-49.8, -5)
+scale = Vector2(0.51875, 0.714)
+texture = ExtResource("5_b7ym3")
+centered = false
+
+[node name="Glow" type="Node2D" parent="." unique_id=1730492210]
+
+[node name="Light" type="PointLight2D" parent="Glow" unique_id=1730492211]
+position = Vector2(0, 30)
+color = Color(0.9098039, 0.7529412, 0.53333336, 1)
+energy = 0.75
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.0
+texture = ExtResource("6_glow")
+texture_scale = 0.7
+
+[node name="Blocker" type="StaticBody2D" parent="." unique_id=1375632098]
+
+[node name="Shape" type="CollisionShape2D" parent="Blocker" unique_id=650766617]
+position = Vector2(0, -48)
+shape = SubResource("RectangleShape2D_l3ofr")
+
+[node name="Occluder" type="LightOccluder2D" parent="." unique_id=1595847309]
+occluder = SubResource("OccluderPolygon2D_ya7gp")
+
+[node name="Doorway" type="Area2D" parent="." unique_id=1461647427]
+monitorable = false
+
+[node name="Shape" type="CollisionShape2D" parent="Doorway" unique_id=1332874002]
+position = Vector2(0, -48)
+shape = SubResource("RectangleShape2D_ya7gp")
+
+[node name="Audio" type="AudioStreamPlayer2D" parent="." unique_id=1802552577]
+max_distance = 900.0

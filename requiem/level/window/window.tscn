@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://v4clsmmkalqe"]
+
+[ext_resource type="Script" uid="uid://eksfuysx17fu" path="res://level/window/window.gd" id="1_vgjso"]
+[ext_resource type="Texture2D" uid="uid://cmrxxbr8cc1mh" path="res://assets/level/walls_atlas.png" id="2_2n4tf"]
+[ext_resource type="Texture2D" uid="uid://bbnslsx1vq487" path="res://assets/level/window.png" id="3_t7evd"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rp3wg"]
+atlas = ExtResource("2_2n4tf")
+region = Rect2(128, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m0vy2"]
+resource_local_to_scene = true
+atlas = ExtResource("2_2n4tf")
+region = Rect2(0, 32, 64, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c1ovo"]
+size = Vector2(64, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_uxxx0"]
+polygon = PackedVector2Array(-32, -96, -26, -96, -26, -64, -32, -64)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_3ikn8"]
+polygon = PackedVector2Array(26, -96, 32, -96, 32, -64, 26, -64)
+
+[node name="Window" type="Node2D" unique_id=1167108085]
+script = ExtResource("1_vgjso")
+
+[node name="WallTop" type="Sprite2D" parent="." unique_id=1330393093]
+light_mask = 0
+position = Vector2(-32, -96)
+texture = SubResource("AtlasTexture_rp3wg")
+centered = false
+
+[node name="GlassTop" type="Polygon2D" parent="." unique_id=785130516]
+color = Color(0.27450982, 0.32156864, 0.30980393, 1)
+polygon = PackedVector2Array(-26, -82, 26, -82, 26, -78, -26, -78)
+
+[node name="WallFace" type="Sprite2D" parent="." unique_id=1196772855]
+position = Vector2(-32, -64)
+texture = SubResource("AtlasTexture_m0vy2")
+centered = false
+
+[node name="Glass" type="Sprite2D" parent="." unique_id=1787021834]
+position = Vector2(-26, -58)
+scale = Vector2(0.1962, 0.1534)
+texture = ExtResource("3_t7evd")
+centered = false
+
+[node name="Shards" type="Node2D" parent="." unique_id=1837504714]
+visible = false
+
+[node name="ShardA" type="Polygon2D" parent="Shards" unique_id=1738994530]
+color = Color(0.49019608, 0.54901963, 0.53333336, 1)
+polygon = PackedVector2Array(-14, 6, -8, 3, -10, 9)
+
+[node name="ShardB" type="Polygon2D" parent="Shards" unique_id=2096659755]
+color = Color(0.41960785, 0.4745098, 0.4627451, 1)
+polygon = PackedVector2Array(2, 10, 9, 7, 6, 13)
+
+[node name="ShardC" type="Polygon2D" parent="Shards" unique_id=442513584]
+color = Color(0.5568628, 0.6117647, 0.5921569, 1)
+polygon = PackedVector2Array(12, 4, 17, 5, 13, 8)
+
+[node name="ShardD" type="Polygon2D" parent="Shards" unique_id=702878378]
+color = Color(0.37254903, 0.42352942, 0.4117647, 1)
+polygon = PackedVector2Array(-4, 15, 1, 13, 0, 18)
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=1220033028]
+
+[node name="Shape" type="CollisionShape2D" parent="Body" unique_id=1836257]
+position = Vector2(0, -48)
+shape = SubResource("RectangleShape2D_c1ovo")
+
+[node name="PostLeft" type="LightOccluder2D" parent="." unique_id=544796991]
+occluder = SubResource("OccluderPolygon2D_uxxx0")
+
+[node name="PostRight" type="LightOccluder2D" parent="." unique_id=1846086390]
+occluder = SubResource("OccluderPolygon2D_3ikn8")

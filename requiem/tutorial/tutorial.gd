@@ -35,6 +35,17 @@ const ZONE_AMBIENCE_VOLUME_DB := {
 	"house": 3.5,
 	"loop": 3.5,
 }
+## Sounds the player makes; the parents and the forest only react to these.
+const PLAYER_SOUNDS := [NoiseManager.SourceType.FOOTSTEP, NoiseManager.SourceType.SPRINT,
+	NoiseManager.SourceType.CROUCH, NoiseManager.SourceType.BREATH, NoiseManager.SourceType.THROW,
+	NoiseManager.SourceType.DOOR]
+## Seconds a warned parent keeps listening before settling again.
+const PARENT_LISTEN_TIME := 3.5
+## A parent door starts to stir when her next step falls short of it by less than this fraction of
+## the step's reach (walking 3 u: 72 px; held 1 u: 24 px), so holding the breath visibly settles it.
+const HALL_STIR_MARGIN := 0.75
+## Doors that lead to another zone when the player walks through the open doorway.
+const ZONE_DOORS := ["bedroom_exit", "hall_back", "hall_exit", "forest_back", "front_door"]
 @export_category("Entry")
 @export_enum("bedroom", "hallway", "forest", "house", "loop") var start_zone: String = "bedroom"
 @export_group("Validation")
@@ -48,6 +59,8 @@ var flashlight: PointLight2D
 @onready var entity: CharacterBody2D = $Entity
 @onready var ambience: AudioStreamPlayer = $AmbientAudio
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
+@onready var heard_flash: Node2D = $NoiseFx/HeardFlash
+@onready var film: ColorRect = $Atmosphere/Film
 var zone := "bedroom"
 var stage := "ki"
 var has_flashlight: bool:
@@ -81,7 +94,23 @@ var hall_audio_clock := 0.0
 var loop_cued := false
 var ambient_reply_cooldown := 0.0
 var parent_failures := 0
+## The first time a parent hears the player is a warning, not a failure (safe first encounter).
+var hall_warned := false
+var hall_listen_time := 0.0
+## The hold-breath lesson ends once she is past both parent doors; the key hint goes with it.
+var hall_lesson_done := false
+## Doors that already stirred audibly during this approach (index -> true).
+var hall_stirred: Dictionary = {}
+## The centred alert asks for Space; holding it clears the alert early.
+var hall_hold_alert := false
 var loop_hold_seen := false
+## The house entrance shuts behind the player once, the first time they step inside.
+var front_door_shut_behind := false
+var low_battery_hinted := false
+var dead_light_time := 0.0
+## Eased 0..1 closeness of the hunting entity (drives the Atmosphere vignette).
+var threat_pressure := 0.0
+var friend_home := Vector2.ZERO
 var _paused := false
 var _paused_modes: Dictionary = {}
 var _sounds: Dictionary = {}
@@ -97,19 +126,18 @@ func _ready() -> void:
 	if not test_mode and DisplayServer.get_name() != "headless" and not (args.has("--windowed") or args.has("--record") or args.has("--background")):
 		get_window().mode = Window.MODE_FULLSCREEN
 	get_viewport().size_changed.connect(_frame_camera)
-	RenderingServer.set_default_clear_color(Color("0e161b"))
+	# Beyond the walls is void: black, like the unlit rooms.
+	RenderingServer.set_default_clear_color(Color.BLACK)
 	thrower=player.get_node("Throw")
 	breath=player.get_node("HoldBreath")
 	player.get_node("Sprite2D").hide()
 	breath._bar_layer.hide()
 	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
-	preload("res://tutorial/prop_light.gd").attach(player.get_node("LocalLight"))
 	flashlight=player.get_node("flashlight")
 	has_flashlight=false
 	flashlight.battery_percent=0.0
 	flashlight._update_bar()
-	preload("res://tutorial/prop_light.gd").attach(flashlight)
 	flashlight._bar_layer.hide()
 	flashlight.set_process(false)
 	flashlight.set_process_unhandled_input(false)
@@ -130,6 +158,13 @@ func _ready() -> void:
 		thrower.piedra_clips.clear()
 		flashlight.click_clips.clear()
 	NoiseManager.noise_emitted.connect(_on_noise)
+	for id in ZONE_DOORS:
+		var door := world.interactables[id]["node"] as Door
+		door.get_node("Doorway").body_entered.connect(_on_zone_doorway.bind(id))
+		# Opening a door the player already stands in also counts as walking through.
+		door.opened.connect(func(): _on_zone_doorway(player,id))
+	friend_home=world.props["friend"].global_position
+	prayer_audio.global_position=friend_home
 	enter_zone(start_zone)
 	if not test_mode:
 		show_dialogue([
@@ -162,14 +197,24 @@ func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
 	audio.finished.connect(audio.queue_free)
 	audio.play()
 
-func enter_zone(next_zone: String, spawn := Vector2.INF, save := true) -> void:
+## Moves the player into a zone. `arrival_door` (an interaction id) starts open behind the
+## player and swings shut once they step away from it.
+func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_door := "") -> void:
 	zone=next_zone
 	ambient_reply_cooldown=0
 	world.set_house_danger(attack_finished)
-	var origin: Vector2=World.REGIONS[zone].position
-	var starts:={"bedroom":Vector2(340,440),"hallway":Vector2(110,340),"forest":Vector2(150,540),"house":Vector2(530,850),"loop":Vector2(130,330)}
-	player.position=origin+starts[zone] if spawn==Vector2.INF else spawn
+	var start_markers:={"bedroom":"SpawnStart","hallway":"SpawnFromBedroom","forest":"SpawnFromHome","house":"SpawnFromForest","loop":"SpawnFromHouse"}
+	if spawn==Vector2.INF:
+		spawn=world.marker(zone,start_markers[zone])
+	player.position=spawn
 	player.velocity=Vector2.ZERO
+	player.get_node("FootstepNoise").reset_steps()
+	heard_flash.clear()
+	var rooms: RoomVisibility = world.rooms(zone)
+	if rooms != null:
+		rooms.sync_to(player.position)
+	if arrival_door != "":
+		_close_behind(world.interactables[arrival_door]["node"])
 	player.get_node("PlayerMotion").reset_pose()
 	player.get_node("PlayerAim").reset_pose()
 	_frame_camera()
@@ -183,8 +228,10 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true) -> void:
 	prayer_audio.stop()
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
 	_configure_entity()
+	hud.set_breath_hint(false)
 	if zone == "hallway":
 		hall_door_cues.clear()
+		hall_stirred.clear()
 		hall_refuge_cued=false
 		hall_audio_clock=0
 	if save: save_checkpoint()
@@ -196,8 +243,10 @@ func _configure_entity() -> void:
 	# The opening forest and impossible room suggest a presence through spatial sound.
 	# No invisible active monster: the physical threat exists only after the altar attack.
 	if zone == "house" and attack_finished:
-		var points: Array[Vector2] = [Vector2(6030,330),Vector2(6080,360),Vector2(6080,500)]
-		entity.reset_encounter(Vector2(6030,330),points)
+		var points: Array[Vector2] = []
+		for index in range(1,7):
+			points.append(world.marker("house","Patrol%d" % index))
+		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
 		entity.show()
 		encounter_grace=5.0
 
@@ -228,31 +277,91 @@ func _process(delta: float) -> void:
 		play_sound("branch",Vector2(3630,215),-4)
 	if zone=="loop" and not loop_cued and player.position.x>7460:
 		loop_cued=true
-		play_sound("behind_wall",Vector2(7675,210),-5)
+		play_sound("behind_wall",_wall_listeners()[0]+Vector2(0,-60),-5)
 		say("[Slow dragging on the other side of the wall.]",5)
 	if zone=="loop" and breath.is_holding: loop_hold_seen=true
 	if zone=="house" and door_unlocked and not attack_finished and player.position.y<660 and checkpoint.get("position",Vector2.ZERO).y>704:
 		save_checkpoint()
+	if zone=="house": _shut_front_door_behind()
+	_update_threat_presentation()
+	_tick_battery(delta)
 	_find_interaction()
 
 func _tick_hallway(delta: float) -> void:
 	hall_audio_clock -= delta
-	var x := player.position.x
-	for index in range(2):
-		var door_x := 1930.0 if index == 0 else 2310.0
-		if absf(x-door_x)<190 and not hall_door_cues.has(index):
+	hall_listen_time = maxf(0.0, hall_listen_time - delta)
+	var listeners := _parent_listeners()
+	var nearest_door: ParentListener = null
+	for index in range(listeners.size()):
+		var door: ParentListener = listeners[index]
+		var gap := absf(player.position.x - door.global_position.x)
+		if nearest_door == null or gap < absf(player.position.x - nearest_door.global_position.x):
+			nearest_door = door
+		if gap < 190 and not hall_door_cues.has(index):
 			hall_door_cues[index]=true
 			hall_cued=true
-			say("[Chair scrapes behind the door]\nSPACE · Hold breath" if index==0 else "[Movement behind the door]",6)
-			play_sound("chair_scrape",Vector2(door_x,276),-3)
+			if index==0 and not hall_lesson_done:
+				say("[A chair scrapes behind the door]\nThey're still up. Hold my breath past their doors.",5)
+			else:
+				say("[A chair scrapes behind the door]" if index==0 else "[Movement behind the door]",4)
+			play_sound("chair_scrape",door.global_position+Vector2(0,-40),-3)
 			hall_audio_clock=4.0
-	if hall_audio_clock<=0:
-		var door_x := 1930.0 if x<2110 else 2310.0
-		play_sound("parent_rustle",Vector2(door_x,276),-7)
+	if hall_audio_clock<=0 and nearest_door != null:
+		play_sound("parent_rustle",nearest_door.global_position+Vector2(0,-40),-7)
 		hall_audio_clock=6.5
-	if Rect2(2038,418,144,128).has_point(player.position) and not hall_refuge_cued:
+	# Teach before the danger: a door stirs once her next step could reach it and settles while she
+	# holds her breath. The key stays next to the breath meter until both doors are behind her.
+	var in_light := _safe_light_at(player.position) != null
+	var step_radius := _next_step_radius()
+	var urgency := 0.0
+	for index in range(listeners.size()):
+		var door: ParentListener = listeners[index]
+		var reach := door.distance_to_edge(player.position)-step_radius
+		door.danger = 0.0 if in_light else 1.0-smoothstep(0.0,HALL_STIR_MARGIN*step_radius,reach)
+		urgency = maxf(urgency,door.danger)
+		if door.danger >= 0.6 and not hall_stirred.has(index):
+			hall_stirred[index]=true
+			play_sound("parent_rustle",door.global_position+Vector2(0,-40),-4)
+			hall_audio_clock=maxf(hall_audio_clock,4.0)
+		elif door.danger < 0.2:
+			hall_stirred.erase(index)
+	if not hall_lesson_done and not listeners.is_empty() and player.position.x > listeners.back().global_position.x+90:
+		hall_lesson_done=true
+	hud.set_breath_hint(not hall_lesson_done,breath.is_holding,urgency,delta)
+	if hall_hold_alert and breath.is_holding:
+		hall_hold_alert=false
+		hud.dismiss_alert()
+	# Only explain the refuge when it matters: arriving out of breath or still holding it.
+	if in_light and not hall_refuge_cued and (breath.is_holding or breath.lung_percent < 80.0):
 		hall_refuge_cued=true
-		say("Release your breath. Rest here.",6)
+		say("Safe in the light. Let your breath go. Rest here.",5)
+	elif not in_light and not breath.is_holding:
+		hall_refuge_cued=false
+
+## Reach of the step she would take now, in px: held, walking or running.
+func _next_step_radius() -> float:
+	var steps := player.get_node("FootstepNoise")
+	if breath.is_holding: return steps.held_noise_radius_u*Units.PX_PER_UNIT
+	if player.velocity.length() >= steps.sprint_threshold_u*Units.PX_PER_UNIT: return steps.sprint_noise_radius_u*Units.PX_PER_UNIT
+	return steps.walk_noise_radius_u*Units.PX_PER_UNIT
+
+func _parent_listeners() -> Array[ParentListener]:
+	var listeners: Array[ParentListener] = []
+	for node in world.nodes_in("hallway","Listeners"):
+		if node is ParentListener: listeners.append(node)
+	return listeners
+
+## Where the impossible room answers back: the cold-lit doors of the loop corridor.
+func _wall_listeners() -> Array:
+	var points := []
+	for node in world.nodes_in("loop","Listeners"):
+		if node is ParentListener: points.append(node.global_position+Vector2(0,-40))
+	return points
+
+func _safe_light_at(point: Vector2) -> SafeLight:
+	for node in world.nodes_in(zone,"SafeLights"):
+		if node is SafeLight and node.contains(point): return node
+	return null
 
 func _input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo: return
@@ -270,7 +379,12 @@ func _input(event: InputEvent) -> void:
 		request_reset("Back to the last safe place.")
 		get_viewport().set_input_as_handled()
 		return
-	if key==KEY_B and dialogue.is_empty() and not resetting:
+	if event.is_action("swap_battery") and dialogue.is_empty() and not resetting:
+		insert_battery()
+		get_viewport().set_input_as_handled()
+	# The light key on a dead flashlight swaps in a spare: what players try first.
+	if event.is_action("candle_toggle") and has_flashlight and flashlight.battery_percent<=0 and batteries>0 \
+			and dialogue.is_empty() and not resetting:
 		insert_battery()
 		get_viewport().set_input_as_handled()
 	if key==KEY_E:
@@ -335,6 +449,9 @@ func interaction_available(id: String) -> bool:
 func interaction_label(id: String) -> String:
 	if id=="window" and window_broken: return "Release latch"
 	if id=="front_door" and door_unlocked: return "Open door"
+	var node: Node = world.interactables[id]["node"]
+	if node is Door and node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go through"
+	if node is Door and (node.is_open or node.locked): return node.interaction_label()
 	return world.interactables[id]["label"]
 
 func interact(id: String) -> void:
@@ -357,52 +474,60 @@ func interact(id: String) -> void:
 			if has_flashlight and flashlight.battery_percent<=0: insert_battery()
 			else: say("Battery +1")
 		"bedroom_exit":
-			if not has_flashlight or (flashlight.battery_percent<=0 and batteries==0):
+			var exit_door: Door = world.interactables[id]["node"]
+			if exit_door.is_open:
+				_go_through(id)
+				return
+			# Gate on what was collected, not on the charge left: an empty battery must never
+			# lock the player in the bedroom (bug: dead battery prevents leaving).
+			if not has_flashlight:
 				say("I need a light before I go.")
 				return
-			if flashlight.battery_percent<=0: insert_battery()
-			enter_zone("hallway")
-			play_sound("door",player.position)
-		"hall_back": enter_zone("bedroom",Vector2(820,460))
-		"hall_exit":
-			enter_zone("forest")
-			say("The yellow marks. Eli went this way.",5)
-		"forest_back": enter_zone("hallway",Vector2(2450,340))
+			if not collected.has("battery"):
+				say("The flashlight needs its battery.")
+				return
+			if flashlight.battery_percent<=0 and batteries>0: insert_battery()
+			_use_door(exit_door)
+		"hall_back","hall_exit":
+			var door: Door = world.interactables[id]["node"]
+			if door.is_open: _go_through(id)
+			else: _use_door(door)
+		"forest_back":
+			var home_door: Door = world.interactables[id]["node"]
+			if home_door.is_open: _go_through(id)
+			else: _use_door(home_door)
 		"forest_rocks","porch_rocks":
 			if thrower.rocks>=3:
 				say("Rocks full")
 			else:
 				thrower.rocks+=3
 				play_sound("pickup",player.position)
+				_animate_rocks(world.interactables[id]["node"].global_position)
 				say("Rocks +3",5)
 		"forest_exit": enter_zone("house")
 		"house_back":
 			if attack_finished: say("The path has disappeared into the dark.")
-			else: enter_zone("forest",Vector2(4460,540))
+			else: enter_zone("forest",world.marker("forest","SpawnFromHouse"))
 		"window":
 			if window_broken:
+				# Reaching through the broken glass releases the latch; the door stays a real door.
 				door_unlocked=true
-				world.props["entry_collision"].queue_free()
-				world.props["front_door"].hide()
-				play_sound("door",player.position)
-				say("[Latch clicks]",5)
-				# Re-bake the house after the door collision leaves the tree.
-				_rebake_house.call_deferred()
+				var front_door: Door = world.interactables["front_door"]["node"]
+				front_door.locked=false
+				front_door.open()
+				say("[Latch clicks. The door swings in.]",5)
 			else: say("The latch is behind the glass.\nQ · Throw rock",6)
 		"front_door":
+			var front_door: Door = world.interactables[id]["node"]
 			if not door_unlocked:
 				say("Locked. The latch is beside the window.",5)
 				play_sound("door",player.position)
-			elif attack_finished:
-				enter_zone("loop")
-				play_sound("impossible",player.position)
-				say("This should be outside.",6)
+			elif attack_finished and front_door.is_open:
+				_go_through(id)
 			else:
-				player.position=Vector2(5737,620) if player.position.y>680 else Vector2(5737,755)
-				player.velocity=Vector2.ZERO
-				player.get_node("PlayerMotion").reset_pose()
-				player.get_node("PlayerAim").reset_pose()
-				if player.position.y<680: save_checkpoint()
+				_use_door(front_door)
+		"kitchen_door","altar_door":
+			_use_door(world.interactables[id]["node"])
 		"friend":
 			friend_met=true
 			show_dialogue([
@@ -416,13 +541,43 @@ func interact(id: String) -> void:
 				entity.active=false
 				encounter_grace=0
 				tutorial_completed.emit()
+				# The last door opens onto more darkness.
+				(world.interactables[id]["node"] as Door).open(breath.is_holding)
 				say("There has to be another way out.",9)
 				play_sound("impossible",player.position,-14)
 
 func collect(id: String) -> void:
 	collected[id]=true
-	world.interactables[id]["node"].hide()
+	var item: Node2D = world.interactables[id]["node"]
 	play_sound("pickup",player.position)
+	# The item flies into her hands and the inventory slot pops; her animation is untouched.
+	var tween := item.create_tween()
+	tween.tween_property(item,"global_position",player.global_position+Vector2(0,-12),0.25) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(item,"scale",Vector2(0.4,0.4),0.25)
+	tween.tween_callback(item.hide)
+	hud.pulse_slot("flashlight" if id=="flashlight" else "battery")
+
+## Three pebbles hop from the pile one after another and land in her hands. She stands right
+## next to the pile, so the hop (not the distance) is what makes the pickup read.
+func _animate_rocks(pile: Vector2) -> void:
+	var hands := player.global_position+Vector2(0,-12)
+	for index in range(3):
+		var pebble := Polygon2D.new()
+		pebble.polygon = PackedVector2Array([Vector2(-4,-2),Vector2(-1,-5),Vector2(4,-3),Vector2(5,2),Vector2(0,4),Vector2(-4,2)])
+		pebble.color = Color(0.62,0.6,0.55)
+		pebble.z_index = 5
+		world.add_child(pebble)
+		var start := pile+Vector2(randf_range(-10,10),randf_range(-6,4))
+		pebble.global_position = start
+		var tween := pebble.create_tween()
+		tween.tween_interval(index*0.08)
+		tween.tween_property(pebble,"global_position",start.lerp(hands,0.5)+Vector2(0,-22),0.14) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(pebble,"global_position",hands,0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.parallel().tween_property(pebble,"scale",Vector2(0.5,0.5),0.14)
+		tween.tween_callback(pebble.queue_free)
+	hud.pulse_slot("rocks")
 
 func insert_battery() -> void:
 	if not has_flashlight:
@@ -439,30 +594,70 @@ func insert_battery() -> void:
 	flashlight.is_on=true
 	flashlight._refresh_light()
 	play_sound("switch",player.position)
+	hud.pulse_slot("battery")
 	say("Battery replaced")
+	low_battery_hinted=false
 
-func _rebake_house() -> void:
-	await get_tree().process_frame
-	world.navigation_regions[1].bake_navigation_polygon(false)
+## Bug fix (battery changing was not intuitive): a hint appears only when the light fades and a
+## spare exists, and a dead light is swapped automatically after a beat if the player has a spare.
+func _tick_battery(delta: float) -> void:
+	if not has_flashlight or resetting or not dialogue.is_empty(): return
+	var charge: float = flashlight.battery_percent
+	if charge>0.0 and charge<=flashlight.low_battery_threshold and batteries>0 and not low_battery_hinted:
+		low_battery_hinted=true
+		say("The light is fading.\nB · Swap battery",5)
+	if charge<=0.0 and batteries>0:
+		dead_light_time+=delta
+		if dead_light_time>=1.2:
+			insert_battery()
+			say("Her hands find a spare battery in the dark.",4)
+	else:
+		dead_light_time=0.0
 
 func _on_rock_landed(at: Vector2) -> void:
 	if zone!="house" or window_broken: return
-	if at.distance_to(Vector2(5870,692))>59: return
+	var side_light: WallWindow = world.interactables["window"]["node"]
+	if at.distance_to(side_light.global_position+Vector2(0,-48))>59: return
 	window_broken=true
-	world.props["window"].broken=true
-	world.window_body.get_child(1).visible=false
-	world.props["window"].queue_redraw()
-	world.prop("shards","glass",Vector2(5870,720))
+	side_light.broken=true
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
-	world.props["reveal"].position=Vector2(5878,640)
-	world.props["reveal"].modulate=Color(.65,.65,.65,.65)
-	world.props["reveal"].show()
-	play_sound("presence",Vector2(5870,640))
+	# The figure stands just behind the glass; it draws above the room cover for this one beat.
+	var reveal: Node2D = world.props["reveal"]
+	reveal.modulate=Color(.65,.65,.65,.65)
+	reveal.z_index=45
+	reveal.show()
+	play_sound("presence",reveal.global_position)
 	sequence="reveal"
 	sequence_time=0
-	world.lamp(Vector2(5870,642),Color("a9b9a7"),.8,.45).name="RevealLight"
+	world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45).name="RevealLight"
 	say("[Glass shatters]",4)
+
+## The screen closes in as the hunting entity comes near.
+func _update_threat_presentation() -> void:
+	var hunting_house: bool = zone=="house" and entity.active and entity.visible
+	var pressure := 0.0
+	if hunting_house:
+		var distance := entity.global_position.distance_to(player.global_position)
+		pressure = 1.0-smoothstep(2.0*Units.PX_PER_UNIT,10.0*Units.PX_PER_UNIT,distance)
+	threat_pressure = lerpf(threat_pressure,pressure,0.08)
+	(film.material as ShaderMaterial).set_shader_parameter("pressure",threat_pressure)
+
+## Shown on the capture screen: the sound that gave the player away.
+func game_over_cause() -> String:
+	if entity.last_heard_source < 0: return "It found you in the dark."
+	return "It heard your %s." % _noise_name(entity.last_heard_source).replace(" right by the door","")
+
+## Bug fix: the entrance stays a visible door and swings shut once the player is inside.
+func _shut_front_door_behind() -> void:
+	if front_door_shut_behind or not door_unlocked or attack_finished: return
+	var front_door: Door = world.interactables["front_door"]["node"]
+	var rooms: RoomVisibility = world.rooms("house")
+	if front_door.is_open and rooms.current != null and rooms.current.name == "Vestibule" \
+			and player.position.y < front_door.global_position.y-130 and not front_door.is_doorway_occupied():
+		front_door_shut_behind=true
+		front_door.close(true)
+		save_checkpoint()
 
 func _begin_attack() -> void:
 	sequence="attack"
@@ -471,7 +666,7 @@ func _begin_attack() -> void:
 	player.process_mode=Node.PROCESS_MODE_DISABLED
 	player.velocity=Vector2.ZERO
 	thrower.available=false
-	play_sound("presence",Vector2(6230,170))
+	play_sound("presence",friend_home+Vector2(-10,-150))
 	say("[Scraping behind the wall]",3)
 
 func _tick_sequence(delta: float) -> void:
@@ -487,15 +682,15 @@ func _tick_sequence(delta: float) -> void:
 	if sequence!="attack": return
 	if sequence_time>=2.3 and sequence_step==0:
 		sequence_step=1
-		play_sound("thud",Vector2(6240,365),-2)
-		NoiseManager.emit_noise(Vector2(6240,365),256,NoiseManager.SourceType.ENVIRONMENT)
+		play_sound("thud",friend_home,-2)
+		NoiseManager.emit_noise(friend_home,256,NoiseManager.SourceType.ENVIRONMENT)
 		hud.shade.color=Color(0,0,0,.96)
 		world.props["friend"].hide()
 		say("[A gasp. A heavy impact.]",3)
 	if sequence_time>=3.6 and sequence_step==1:
 		sequence_step=2
 		world.props["friend"].fallen=true
-		world.props["friend"].position=Vector2(6240,392)
+		world.props["friend"].global_position=friend_home+Vector2(0,27)
 		world.props["friend"].show()
 		hud.shade.color=Color(0,0,0,0)
 		prayer_audio.stop()
@@ -515,7 +710,7 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 	# This preserves a readable relationship between breath, footfalls and environmental response.
 	if zone in ["forest","loop"] and not resetting and ambient_reply_cooldown<=0:
 		if source in [NoiseManager.SourceType.FOOTSTEP,NoiseManager.SourceType.SPRINT,NoiseManager.SourceType.BREATH,NoiseManager.SourceType.THROW]:
-			var listeners := [Vector2(3630,285),Vector2(4010,285)] if zone=="forest" else [Vector2(7640,278),Vector2(7850,278)]
+			var listeners: Array = [world.marker("forest","ListenerA"),world.marker("forest","ListenerB")] if zone=="forest" else _wall_listeners()
 			for listener in listeners:
 				if at.distance_to(listener)<=radius:
 					play_sound("branch" if zone=="forest" else "behind_wall",listener,-4)
@@ -523,13 +718,90 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 					ambient_reply_cooldown=6.0
 					break
 	if zone!="hallway" or resetting or not dialogue.is_empty(): return
-	# Parent listens to player actions only; ambience never becomes a failure signal.
-	if source not in [NoiseManager.SourceType.FOOTSTEP,NoiseManager.SourceType.SPRINT,NoiseManager.SourceType.CROUCH,NoiseManager.SourceType.BREATH,NoiseManager.SourceType.THROW]: return
-	for ear in [Vector2(1930,276),Vector2(2310,276)]:
-		if at.distance_to(ear)<=radius:
-			parent_failures+=1
-			request_reset("PARENT: Back to your room. Now.",true)
+	# Parents listen to player actions only; ambience never becomes a failure signal.
+	if source not in PLAYER_SOUNDS: return
+	# Light means safety: nothing made inside a lit refuge reaches the doors.
+	if _safe_light_at(at) != null: return
+	for listener in _parent_listeners():
+		if listener.hears(at,radius):
+			_parent_heard(listener,at,source)
 			return
+
+## A parent heard the player: the door edge flashes red so the cause is visible.
+## The first time is a warning that teaches Hold Breath; after that the player is sent back.
+func _parent_heard(listener: ParentListener, at: Vector2, source: int) -> void:
+	print("[Tutorial] parent heard ",NoiseManager.SourceType.keys()[source]," at ",at.round()," (warned before: ",hall_warned,")")
+	heard_flash.flash(listener.to_global(Vector2(-listener.half_width,0)),listener.to_global(Vector2(listener.half_width,0)))
+	listener.listen()
+	if not hall_warned:
+		hall_warned=true
+		hall_listen_time=PARENT_LISTEN_TIME
+		play_sound("parent_rustle",listener.global_position+Vector2(0,-40),-2)
+		say("DAD: ...Hm? Someone up?",PARENT_LISTEN_TIME+2.5)
+		# Held steps right by the door are the one sound Space cannot fix: ask for distance instead.
+		hall_hold_alert = source != NoiseManager.SourceType.CROUCH
+		if hall_hold_alert: hud.flash_alert("HOLD  SPACE","Hold your breath and your steps go quiet.",PARENT_LISTEN_TIME)
+		else: hud.flash_alert("TOO CLOSE","Even held steps carry right by their door.",PARENT_LISTEN_TIME)
+		# She freezes for a beat so the warning and the prompt land before another step can count.
+		# Only movement stops: breath input stays live, so Space pressed now works at once.
+		player.velocity=Vector2.ZERO
+		player.get_node("FootstepNoise").reset_steps()
+		player.set_physics_process(false)
+		get_tree().create_timer(1.1).timeout.connect(func(): player.set_physics_process(true))
+		return
+	parent_failures+=1
+	request_reset("DAD: Back to bed. Now.\nHe heard your %s through the door." % _noise_name(source),true)
+
+func _noise_name(source: int) -> String:
+	match source:
+		NoiseManager.SourceType.SPRINT: return "running"
+		NoiseManager.SourceType.CROUCH: return "careful steps right by the door"
+		NoiseManager.SourceType.BREATH: return "breath"
+		NoiseManager.SourceType.THROW: return "throw"
+		NoiseManager.SourceType.DOOR: return "door"
+	return "footsteps"
+
+## Opens or shuts a door; holding your breath eases it quietly.
+func _use_door(door: Door) -> void:
+	if door.locked:
+		say(door.locked_label,3)
+		return
+	if door.is_open: door.close(breath.is_holding)
+	else: door.open(breath.is_holding)
+
+func _on_zone_doorway(body: Node2D, id: String) -> void:
+	var door := world.interactables[id]["node"] as Door
+	if body==player and not resetting and dialogue.is_empty() and door.is_open and _zone_door_active(id) \
+			and (door.get_node("Doorway") as Area2D).overlaps_body(player):
+		_go_through.call_deferred(id)
+
+## The house entrance only leads elsewhere after the attack (into the impossible room).
+func _zone_door_active(id: String) -> bool:
+	return id!="front_door" or attack_finished
+
+func _go_through(id: String) -> void:
+	var door := world.interactables[id]["node"] as Door
+	if resetting or not door.is_open or not _zone_door_active(id): return
+	match id:
+		"front_door":
+			enter_zone("loop",Vector2.INF,true,"loop_back")
+			play_sound("impossible",player.position)
+			say("This should be outside.",6)
+		"bedroom_exit": enter_zone("hallway",Vector2.INF,true,"hall_back")
+		"hall_back": enter_zone("bedroom",world.marker("bedroom","SpawnFromHallway"),true,"bedroom_exit")
+		"hall_exit":
+			enter_zone("forest",Vector2.INF,true,"forest_back")
+			say("The yellow marks. Eli went this way.",5)
+		"forest_back": enter_zone("hallway",world.marker("hallway","SpawnFromForest"),true,"hall_exit")
+	door.snap(false)
+
+## Arriving through a door: it is open behind the player and swings shut once they step away.
+func _close_behind(door: Door) -> void:
+	door.snap(true)
+	await get_tree().create_timer(0.6).timeout
+	while is_instance_valid(door) and door.is_open and (door.is_doorway_occupied() or player.position.distance_to(door.get_noise_origin())<72.0):
+		await get_tree().create_timer(0.2).timeout
+	if is_instance_valid(door) and door.is_open: door.close(true)
 
 func _caught() -> void:
 	if resetting or not dialogue.is_empty() or sequence != "": return
@@ -612,9 +884,10 @@ func restore_checkpoint(bedroom := false) -> void:
 	player.process_mode=Node.PROCESS_MODE_INHERIT
 	resetting=false
 	hud.shade.color=Color(0,0,0,0)
-	if bedroom: enter_zone("bedroom",Vector2(760,425),false)
+	# A parent catch restarts at the hallway entrance, close to the lesson, with gear kept.
+	if bedroom: enter_zone("hallway",world.marker("hallway","SpawnFromBedroom"),false)
 	else: enter_zone(checkpoint.get("zone","bedroom"),checkpoint.get("position",Vector2(340,440)),false)
-	if bedroom: say("",6)
+	if bedroom: say("Hold SPACE before the doors. Breathe out in the light.",5)
 
 func _frame_camera() -> void:
 	if not is_instance_valid(player): return

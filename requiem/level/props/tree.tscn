@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://jc1e2w437hfj"]
+
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_ueoq5"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_jex4c"]
+[ext_resource type="Texture2D" uid="uid://bvs2jhyghggx6" path="res://level/props/textures/tree.tres" id="3_qqvjw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vhvmi"]
+size = Vector2(22, 14)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_k2mls"]
+polygon = PackedVector2Array(-9, -8, -5, -15, 5, -15, 9, -8, 5, -1, -5, -1)
+
+[node name="Tree" type="Node2D" unique_id=1837041621]
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=217443211]
+z_index = -1
+position = Vector2(0, -4)
+scale = Vector2(0.55, 0.45)
+texture = ExtResource("1_ueoq5")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=840736265]
+self_modulate = Color(0.78039217, 0.8, 0.78039217, 1)
+material = ExtResource("2_jex4c")
+position = Vector2(-85, -160)
+scale = Vector2(0.531, 0.531)
+texture = ExtResource("3_qqvjw")
+centered = false
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=1542087512]
+
+[node name="Shape" type="CollisionShape2D" parent="Body" unique_id=1794775409]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_vhvmi")
+
+[node name="Occluder" type="LightOccluder2D" parent="." unique_id=1174436959]
+occluder = SubResource("OccluderPolygon2D_k2mls")

@@ -38,6 +38,11 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 ## paso medido y no a caminata normal en bajito.
 @export var held_footstep_interval: float = 0.7
 
+## Stopping plants the moving foot: if the player moved at least this long since the last
+## footfall, the stop itself is a footfall. The time keeps adding up across short stops, so
+## tapping the movement keys cannot slip past a listener without a sound (tester bug: tap-walking).
+@export var settle_step_min_time: float = 0.08
+
 @export_group("Audio bank (played by FootstepAudio)")
 @export var walk_clips: Array[AudioStream] = []
 @export var sprint_clips: Array[AudioStream] = []
@@ -45,6 +50,12 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 @export_range(0.0, 0.3) var pitch_variation: float = 0.035
 
 var footstep_timer: float = 0.0
+## Movement time not yet covered by a footfall noise. Unlike footstep_timer (which drives the gait
+## animation and restarts at every stop) it survives stops until a footfall is emitted.
+var unvoiced_time: float = 0.0
+## Breath state her current steps belong to (see _physics_process).
+var _moving_held := false
+var _last_speed_u := 0.0
 
 @onready var player: CharacterBody2D = get_parent()
 ## Nodo hermano. Puede no existir (por eso el get_node_or_null): el componente
@@ -63,24 +74,44 @@ func _physics_process(delta: float) -> void:
 	var is_moving := speed_u > moving_threshold_u
 
 	if not is_moving:
+		if unvoiced_time >= settle_step_min_time:
+			_emit_step(_last_speed_u, _moving_held)
 		footstep_timer = 0.0
 		return
 
-	var interval := held_footstep_interval if _is_holding_breath() else footstep_interval
+	# Holding counts at once; letting go counts only while she keeps walking. Releasing the breath
+	# as she slows to a stop must not turn the held stretch into a full footfall.
+	var holding := _is_holding_breath()
+	if holding or speed_u >= _last_speed_u - 0.01:
+		_moving_held = holding
+	_last_speed_u = speed_u
+	var interval := held_footstep_interval if _moving_held else footstep_interval
 
 	footstep_timer += delta
+	unvoiced_time += delta
 	if footstep_timer < interval:
 		return
 
 	footstep_timer = 0.0
-	_do_footstep(speed_u)
+	_emit_step(speed_u, _moving_held)
+
+
+## Forgets pending steps (teleports, checkpoint restores).
+func reset_steps() -> void:
+	footstep_timer = 0.0
+	unvoiced_time = 0.0
+
+
+func _do_footstep(speed_u: float) -> void:
+	_emit_step(speed_u, _is_holding_breath())
 
 
 ## Prioridad identica a la de player.gd: aguantar > esprintar > caminar.
 ## Aguantar gana siempre, y como hold_breath_speed_u (2.5) esta por debajo de
 ## sprint_threshold_u (4.0), nunca se puede esprintar en silencio.
-func _do_footstep(speed_u: float) -> void:
-	if _is_holding_breath():
+func _emit_step(speed_u: float, held: bool) -> void:
+	unvoiced_time = 0.0
+	if held:
 		NoiseManager.emit_noise(player.global_position, held_noise_radius_u * PX_PER_UNIT, NoiseManager.SourceType.CROUCH)
 		return
 

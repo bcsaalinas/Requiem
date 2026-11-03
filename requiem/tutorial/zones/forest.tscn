@@ -1,0 +1,431 @@
+[gd_scene format=4 uid="uid://c1pwkuf6yc2ct"]
+
+[ext_resource type="Texture2D" uid="uid://dx07vv27wlbqk" path="res://assets/level/forest_ground.png" id="1_6yavs"]
+[ext_resource type="Texture2D" uid="uid://c65juga5r72g0" path="res://assets/level/trail_dirt.png" id="2_qtkg0"]
+[ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="3_bt208"]
+[ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="4_ivpxr"]
+[ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="5_ber70"]
+[ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="6_gscj6"]
+[ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="7_drsj5"]
+[ext_resource type="PackedScene" uid="uid://jc1e2w437hfj" path="res://level/props/tree.tscn" id="8_ocbwq"]
+[ext_resource type="PackedScene" uid="uid://divkq7aknh84x" path="res://level/props/spruce.tscn" id="9_326u6"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="10_hvswp"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rq8ch"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5rfjf"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gf1bk"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n0waw"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7b6hl"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ytm85"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rbatt"]
+shader = ExtResource("5_ber70")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1p50a"]
+size = Vector2(1440, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_osacg"]
+size = Vector2(1440, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5l26p"]
+size = Vector2(32, 800)
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_84x7g"]
+vertices = PackedVector2Array(278.10156, 292.89844, 1110.7969, 290.79688, 1160.7969, 290.79688, 1084.6016, 364.20313, 1032.6016, 364.20313, 1124.7031, 472.79688, 1312, 487, 1268, 487, 722, 485, 1072.7031, 472.79688, 515.2031, 271.20313, 614.2969, 265.29688, 960.39844, 263.10156, 1012.39844, 263.10156, 1121.6016, 199.79688, 1268.2969, 179.39844, 1338.2969, 178.20313, 1390.2969, 178.20313, 1268.3984, 221.39844, 1218.3984, 221.39844, 542, 543.2031, 978, 535, 1022, 535, 806, 688.2031, 575.60156, 628.7031, 1390.2969, 134.20313, 1393, 31, 1393, 386.79688, 1175.1016, 418, 1175.1016, 374, 1190.1016, 267.10156, 1218.3984, 265.39844, 1268.3984, 265.39844, 1348.2969, 386.79688, 1348.2969, 430.79688, 1268, 525, 1312, 525, 806, 732.2031, 223, 242.79688, 398.60156, 228.89844, 465.20313, 227.20313, 278.10156, 248.89844, 228.10156, 248.89844, 1105.7969, 138.89844, 1053.7969, 138.89844, 910.5, 127.39844, 910.5, 83.39844, 1134.3984, 100.89844, 562.2969, 265.29688, 756, 688.2031, 575.60156, 672.7031, 346.60156, 228.89844, 1218.2969, 179.39844, 287, 212.39844, 346.60156, 184.89844, 235, 212.39844, 223, 198.79688, 235, 168.39844, 653.39844, 185.60156, 653.39844, 141.60156, 667.7969, 168.10156, 667.7969, 212.10156, 1393, 430.79688, 1393, 753, 1124.7031, 428.79688, 1125.1016, 418, 477, 733.2031, 477, 689.2031, 502, 723.5, 502, 753, 395.5, 753, 425, 733.2031, 395.5, 725.2031, 425, 689.2031, 755.89844, 753, 1184.3984, 144.89844, 1184.3984, 100.89844, 1218.2969, 135.39844, 1134.3984, 144.89844, 1121.6016, 155.79688, 287, 168.39844, 1125.1016, 374, 1111.7969, 420.70313, 1084.6016, 408.20313, 1110.7969, 246.79688, 1012.39844, 219.10156, 1069.6016, 199.79688, 465.20313, 271.20313, 562.2969, 221.29688, 515.2031, 227.20313, 527.2031, 162.29688, 594.2969, 125, 594.2969, 169, 527.2031, 118.296875, 1160.7969, 267.10156, 1190.1016, 223.10156, 1138.1016, 223.10156, 1022, 497, 978, 497, 722, 447, 1059.7969, 464.70313, 398.60156, 184.89844, 475.20313, 162.29688, 542, 499.20313, 678, 485, 1268.2969, 135.39844, 1338.2969, 134.20313, 252, 381, 252, 337, 1014.60156, 369.20313, 1014.60156, 413.20313, 678, 447, 749.5, 197, 1053.7969, 182.89844, 1069.6016, 182.89844, 960.39844, 219.10156, 719.7969, 212.10156, 749.5, 153, 858.5, 127.39844, 185, 160.29688, 447.39844, 147.29688, 475.20313, 147.29688, 614.2969, 221.29688, 1032.6016, 369.20313, 1064.6016, 413.20313, 1064.6016, 408.20313, 1111.7969, 428.79688, 1059.7969, 420.70313, 1072.7031, 464.70313, 490, 499.20313, 490, 519.5, 459.89844, 519.5, 523.60156, 628.7031, 511.89844, 563.5, 511.89844, 543.2031, 755.89844, 733.89844, 766.39844, 733.89844, 766.39844, 732.2031, 756, 689.89844, 714.39844, 689.89844, 714.39844, 720.60156, 705.89844, 720.60156, 705.89844, 753, 554, 753, 554, 723.5, 523.60156, 672.7031, 345.5, 725.2031, 345.5, 753, 302.20313, 753, 302.20313, 709.7031, 250.20313, 753, 227.79688, 753, 227.79688, 739.89844, 245.89844, 739.89844, 250.20313, 709.7031, 245.89844, 695.89844, 244.20313, 695.89844, 244.20313, 662.60156, 192.20313, 706.60156, 195.89844, 706.60156, 195.89844, 714.5, 191.89844, 714.5, 191.89844, 707.60156, 141.89844, 751.60156, 175.79688, 751.60156, 175.79688, 753, 79, 753, 79, 709.10156, 128.10156, 709.10156, 141.89844, 707.60156, 128.10156, 665.10156, 79, 665.10156, 79, 364.60156, 102.5, 379.10156, 102.5, 364.60156, 154.5, 379.10156, 192.20313, 662.60156, 154.5, 361.20313, 185.5, 361.20313, 200, 381, 133.5, 317.20313, 133.5, 335.10156, 118, 335.10156, 118, 320.60156, 79, 320.60156, 79, 31, 1105.7969, 155.79688, 697.5, 153, 697.5, 168.10156, 646.2969, 125, 646.2969, 141.60156, 497.39844, 118.296875, 497.39844, 103.296875, 460.20313, 103.296875, 460.20313, 66.60156, 408.20313, 66.60156, 408.20313, 101.39844, 373.29688, 101.39844, 425.29688, 145.39844, 425.29688, 110.60156, 447.39844, 110.60156, 373.29688, 145.39844, 185, 116.296875, 603.39844, 169, 603.39844, 185.60156, 719.7969, 197, 1138.1016, 246.79688, 228.10156, 292.89844, 200, 337, 185.5, 317.20313, 133, 160.29688, 858.5, 83.39844, 459.89844, 563.5, 171, 198.79688, 171, 242.79688, 133, 116.296875)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4), PackedInt32Array(5, 6, 7, 8, 9), PackedInt32Array(0, 10, 11, 12, 13, 1), PackedInt32Array(14, 15, 16, 17, 18, 19), PackedInt32Array(20, 21, 22, 23, 24), PackedInt32Array(17, 25, 26, 27), PackedInt32Array(28, 29, 30, 31, 32, 33, 34, 6), PackedInt32Array(22, 35, 36, 37, 23), PackedInt32Array(38, 39, 40, 41, 42), PackedInt32Array(43, 44, 45, 46, 47), PackedInt32Array(48, 11, 10), PackedInt32Array(23, 49, 50, 24), PackedInt32Array(51, 39, 38), PackedInt32Array(52, 15, 14), PackedInt32Array(51, 38, 53, 54), PackedInt32Array(55, 53, 38), PackedInt32Array(55, 38, 56, 57), PackedInt32Array(58, 59, 60, 61), PackedInt32Array(62, 63, 36, 6, 34), PackedInt32Array(32, 18, 17, 27, 33), PackedInt32Array(28, 6, 5, 64, 65), PackedInt32Array(66, 67, 68, 69), PackedInt32Array(66, 69, 70, 71), PackedInt32Array(71, 70, 72, 73), PackedInt32Array(36, 63, 74, 37), PackedInt32Array(75, 76, 77, 52), PackedInt32Array(78, 75, 52, 14, 79), PackedInt32Array(54, 53, 80), PackedInt32Array(81, 65, 82, 83, 3), PackedInt32Array(84, 1, 13, 85, 86), PackedInt32Array(87, 10, 0), PackedInt32Array(88, 48, 10, 89, 90), PackedInt32Array(87, 0, 41, 40), PackedInt32Array(91, 92, 90, 93), PackedInt32Array(94, 30, 29, 2), PackedInt32Array(2, 29, 81, 3), PackedInt32Array(31, 30, 95, 19), PackedInt32Array(14, 19, 95, 96), PackedInt32Array(35, 22, 97, 7), PackedInt32Array(8, 7, 97, 98), PackedInt32Array(9, 8, 99, 100), PackedInt32Array(40, 39, 101, 102), PackedInt32Array(8, 98, 21, 20, 103, 104), PackedInt32Array(16, 15, 105, 106), PackedInt32Array(107, 108, 0, 109, 110, 99, 111), PackedInt32Array(112, 113, 114, 86, 85, 115, 116), PackedInt32Array(45, 44, 113, 112, 117, 118), PackedInt32Array(57, 119, 120, 121, 102, 80), PackedInt32Array(116, 115, 12, 11, 122, 61), PackedInt32Array(4, 123, 109, 0), PackedInt32Array(124, 125, 83), PackedInt32Array(64, 126, 82, 65), PackedInt32Array(83, 82, 127, 124), PackedInt32Array(110, 124, 127, 99), PackedInt32Array(100, 128, 9), PackedInt32Array(127, 100, 99), PackedInt32Array(129, 130, 131, 107), PackedInt32Array(132, 133, 134, 20, 24), PackedInt32Array(74, 135, 136), PackedInt32Array(136, 137, 37), PackedInt32Array(49, 138, 139, 50), PackedInt32Array(139, 140, 141, 50), PackedInt32Array(50, 141, 142, 143, 144), PackedInt32Array(145, 50, 144, 68, 67), PackedInt32Array(146, 147, 148, 149), PackedInt32Array(150, 151, 152, 153), PackedInt32Array(154, 150, 153, 155), PackedInt32Array(155, 156, 157), PackedInt32Array(158, 159, 160, 161, 162), PackedInt32Array(163, 164, 165, 166), PackedInt32Array(163, 166, 167, 168), PackedInt32Array(169, 163, 168, 170), PackedInt32Array(170, 171, 172, 173), PackedInt32Array(172, 174, 173), PackedInt32Array(169, 170, 173, 175, 176, 158, 162), PackedInt32Array(175, 177, 178, 179, 157, 176), PackedInt32Array(180, 181, 182, 183), PackedInt32Array(183, 184, 185, 180), PackedInt32Array(78, 79, 186, 43, 47), PackedInt32Array(187, 188, 60, 59, 189), PackedInt32Array(59, 190, 189), PackedInt32Array(93, 191, 192), PackedInt32Array(192, 193, 194), PackedInt32Array(195, 196, 197), PackedInt32Array(198, 199, 200, 120), PackedInt32Array(198, 120, 119, 201), PackedInt32Array(201, 119, 202, 197), PackedInt32Array(92, 203, 204), PackedInt32Array(116, 205, 112), PackedInt32Array(14, 96, 206, 84, 86), PackedInt32Array(26, 25, 106), PackedInt32Array(107, 111, 104, 103, 129), PackedInt32Array(207, 0, 108, 208, 209), PackedInt32Array(209, 180, 185, 210), PackedInt32Array(211, 118, 117, 187, 189), PackedInt32Array(149, 154, 155, 157, 107), PackedInt32Array(132, 145, 67, 73, 212, 133), PackedInt32Array(119, 57, 56, 213, 210), PackedInt32Array(204, 58, 61, 122, 88), PackedInt32Array(76, 26, 106, 105, 77), PackedInt32Array(74, 136, 37), PackedInt32Array(107, 131, 212, 73, 72, 146, 149), PackedInt32Array(179, 107, 157), PackedInt32Array(208, 179, 178, 209), PackedInt32Array(38, 42, 207, 209, 214), PackedInt32Array(90, 92, 204, 88), PackedInt32Array(185, 195, 197, 202, 215), PackedInt32Array(102, 90, 89, 40), PackedInt32Array(189, 91, 93, 192, 194, 211), PackedInt32Array(26, 76, 47, 46), PackedInt32Array(185, 26, 46, 211, 194), PackedInt32Array(185, 194, 195), PackedInt32Array(185, 215, 210), PackedInt32Array(214, 209, 210), PackedInt32Array(213, 214, 210), PackedInt32Array(80, 102, 101, 54)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(64, 16, 1408, 16, 1408, 768, 64, 768)])
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"forest_nav"
+agent_radius = 15.0
+
+[node name="Forest" type="Node2D" unique_id=811175299]
+y_sort_enabled = true
+
+[node name="Ground" type="Sprite2D" parent="." unique_id=800675746]
+self_modulate = Color(0.654902, 0.67058825, 0.6117647, 1)
+z_index = -10
+texture_repeat = 2
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_6yavs")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 2880, 1600)
+
+[node name="TrailVerge" type="Line2D" parent="." unique_id=1316871054]
+z_index = -9
+points = PackedVector2Array(40, 540, 380, 540, 380, 350, 830, 350, 830, 540, 1360, 540)
+width = 108.0
+default_color = Color(0.2784314, 0.2784314, 0.16862746, 0.34901962)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="Trail" type="Line2D" parent="." unique_id=1224200717]
+z_index = -9
+texture_repeat = 2
+points = PackedVector2Array(40, 540, 380, 540, 380, 350, 830, 350, 830, 540, 1360, 540)
+width = 90.0
+default_color = Color(0.8509804, 0.81960785, 0.72156864, 1)
+texture = ExtResource("2_qtkg0")
+texture_mode = 1
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=695039559]
+z_index = 1
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAABAAAAAAABAAAAAAABAAEAAAABAAAAAAABAAIAAAABAAAAAAABAAMAAAABAAAAAAABAAQAAAABAAAAAAABAAUAAAABAAAAAAABAAYAAAABAAAAAAABAAcAAAABAAAAAAABAAgAAAABAAAAAAABAAkAAAABAAAAAAABAAoAAAABAAAAAAABAAsAAAABAAAAAAABAAwAAAABAAAAAAABAA0AAAABAAAAAAABAA4AAAABAAAAAAABAA8AAAABAAAAAAABABIAAAABAAAAAAABABMAAAABAAAAAAABABQAAAABAAAAAAABABUAAAABAAAAAAABABYAAAABAAAAAAABABcAAAABAAAAAAABABgAAAABAAAAAAA=")
+tile_set = ExtResource("3_bt208")
+
+[node name="Doors" type="Node2D" parent="." unique_id=1770780478]
+z_index = 1
+y_sort_enabled = true
+
+[node name="HomeDoor" parent="Doors" unique_id=1684880140 instance=ExtResource("4_ivpxr")]
+position = Vector2(48, 576)
+swing_side = -1
+metadata/interaction_id = "forest_back"
+metadata/interaction_label = "Return home"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="Props" type="Node2D" parent="." unique_id=1233763393 groups=["forest_nav"]]
+z_index = 1
+y_sort_enabled = true
+
+[node name="mark_a" type="Node2D" parent="Props" unique_id=1381781564]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_rq8ch")
+position = Vector2(270, 580)
+script = ExtResource("6_gscj6")
+kind = "marker"
+
+[node name="mark_b" type="Node2D" parent="Props" unique_id=2121878140]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_5rfjf")
+position = Vector2(420, 400)
+script = ExtResource("6_gscj6")
+kind = "marker"
+
+[node name="mark_c" type="Node2D" parent="Props" unique_id=115879464]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_gf1bk")
+position = Vector2(760, 395)
+script = ExtResource("6_gscj6")
+kind = "marker"
+
+[node name="mark_d" type="Node2D" parent="Props" unique_id=1977138128]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_n0waw")
+position = Vector2(1080, 580)
+script = ExtResource("6_gscj6")
+kind = "marker"
+
+[node name="forest_rocks" type="Node2D" parent="Props" unique_id=1981820686]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_7b6hl")
+position = Vector2(660, 400)
+script = ExtResource("6_gscj6")
+kind = "rocks"
+metadata/interaction_id = "forest_rocks"
+metadata/interaction_label = "Collect three rocks"
+
+[node name="forest_battery" type="Node2D" parent="Props" unique_id=1505660642]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_ytm85")
+position = Vector2(650, 460)
+script = ExtResource("6_gscj6")
+kind = "battery"
+metadata/interaction_id = "forest_battery"
+metadata/interaction_label = "Take spare battery"
+
+[node name="forest_exit" type="Node2D" parent="Props" unique_id=1861059203]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_rbatt")
+position = Vector2(1320, 540)
+script = ExtResource("6_gscj6")
+kind = "marker"
+metadata/interaction_id = "forest_exit"
+metadata/interaction_label = "Follow the path to the house"
+
+[node name="ClearingLamp" parent="Props" unique_id=476799547 instance=ExtResource("7_drsj5")]
+position = Vector2(700, 470)
+energy = 1.15
+reach = 1.5
+
+[node name="RestLamp" parent="Props" unique_id=1714719389 instance=ExtResource("7_drsj5")]
+position = Vector2(1000, 520)
+energy = 1.05
+reach = 1.35
+
+[node name="ExitLamp" parent="Props" unique_id=2131959633 instance=ExtResource("7_drsj5")]
+position = Vector2(1290, 510)
+energy = 1.15
+reach = 1.4
+
+[node name="Tree0" parent="Props" unique_id=1837041621 instance=ExtResource("8_ocbwq")]
+position = Vector2(451, 717.2)
+
+[node name="Tree3" parent="Props" unique_id=236247822 instance=ExtResource("8_ocbwq")]
+position = Vector2(549.6, 656.7)
+
+[node name="Tree4" parent="Props" unique_id=1174201996 instance=ExtResource("8_ocbwq")]
+position = Vector2(884.5, 111.4)
+
+[node name="Tree5" parent="Props" unique_id=1256163897 instance=ExtResource("8_ocbwq")]
+position = Vector2(723.5, 181)
+
+[node name="Tree7" parent="Props" unique_id=1024819864 instance=ExtResource("8_ocbwq")]
+position = Vector2(1164.1, 251.1)
+
+[node name="Tree9" parent="Props" unique_id=1189690830 instance=ExtResource("8_ocbwq")]
+position = Vector2(1098.7, 456.8)
+
+[node name="Tree10" parent="Props" unique_id=1196961683 instance=ExtResource("8_ocbwq")]
+position = Vector2(588.3, 249.3)
+
+[node name="Tree12" parent="Props" unique_id=346114663 instance=ExtResource("8_ocbwq")]
+position = Vector2(201.8, 742.5)
+
+[node name="Tree13" parent="Props" unique_id=907754041 instance=ExtResource("8_ocbwq")]
+position = Vector2(528, 751.5)
+
+[node name="Tree14S" parent="Props" unique_id=182172005 instance=ExtResource("9_326u6")]
+position = Vector2(253.1, 276.9)
+
+[node name="Tree16" parent="Props" unique_id=505990659 instance=ExtResource("8_ocbwq")]
+position = Vector2(218.2, 690.6)
+
+[node name="Tree17" parent="Props" unique_id=1667715222 instance=ExtResource("8_ocbwq")]
+position = Vector2(261, 196.4)
+
+[node name="Tree21" parent="Props" unique_id=1756861504 instance=ExtResource("8_ocbwq")]
+position = Vector2(128.5, 363.1)
+
+[node name="Tree22" parent="Props" unique_id=1640201569 instance=ExtResource("8_ocbwq")]
+position = Vector2(1058.6, 392.2)
+
+[node name="Tree24S" parent="Props" unique_id=577395358 instance=ExtResource("9_326u6")]
+position = Vector2(628.4, 169.6)
+
+[node name="Tree25S" parent="Props" unique_id=1482751060 instance=ExtResource("9_326u6")]
+position = Vector2(1243.4, 249.4)
+
+[node name="Tree26S" parent="Props" unique_id=222271465 instance=ExtResource("9_326u6")]
+position = Vector2(1159.4, 128.9)
+
+[node name="Tree27" parent="Props" unique_id=1117162915 instance=ExtResource("8_ocbwq")]
+position = Vector2(620.3, 153)
+
+[node name="Tree28S" parent="Props" unique_id=102274528 instance=ExtResource("9_326u6")]
+position = Vector2(220.9, 723.9)
+
+[node name="Tree29" parent="Props" unique_id=63215608 instance=ExtResource("8_ocbwq")]
+position = Vector2(1374.3, 414.8)
+
+[node name="Tree30S" parent="Props" unique_id=1296619758 instance=ExtResource("9_326u6")]
+position = Vector2(370.5, 753.2)
+
+[node name="Tree31" parent="Props" unique_id=585534522 instance=ExtResource("8_ocbwq")]
+position = Vector2(226, 365)
+
+[node name="Tree36" parent="Props" unique_id=1780117208 instance=ExtResource("8_ocbwq")]
+position = Vector2(1095.6, 183.8)
+
+[node name="Tree37S" parent="Props" unique_id=2124333207 instance=ExtResource("9_326u6")]
+position = Vector2(1039.6, 397.2)
+
+[node name="Tree39S" parent="Props" unique_id=570532456 instance=ExtResource("9_326u6")]
+position = Vector2(166.9, 735.6)
+
+[node name="Tree40S" parent="Props" unique_id=474041206 instance=ExtResource("9_326u6")]
+position = Vector2(1150.1, 402)
+
+[node name="Tree41" parent="Props" unique_id=1787901973 instance=ExtResource("8_ocbwq")]
+position = Vector2(434.2, 94.6)
+
+[node name="Tree42S" parent="Props" unique_id=1846224636 instance=ExtResource("9_326u6")]
+position = Vector2(1135.8, 274.8)
+
+[node name="Tree44" parent="Props" unique_id=497519393 instance=ExtResource("8_ocbwq")]
+position = Vector2(399.3, 129.4)
+
+[node name="Tree46" parent="Props" unique_id=1033944148 instance=ExtResource("8_ocbwq")]
+position = Vector2(693.8, 196.1)
+
+[node name="Tree50" parent="Props" unique_id=959481152 instance=ExtResource("8_ocbwq")]
+position = Vector2(159, 144.3)
+
+[node name="Tree52" parent="Props" unique_id=801228086 instance=ExtResource("8_ocbwq")]
+position = Vector2(159.5, 345.2)
+
+[node name="Tree53" parent="Props" unique_id=1365613400 instance=ExtResource("8_ocbwq")]
+position = Vector2(1079.8, 166.9)
+
+[node name="Tree54" parent="Props" unique_id=1789006087 instance=ExtResource("8_ocbwq")]
+position = Vector2(1085.8, 448.7)
+
+[node name="Tree55" parent="Props" unique_id=1854898232 instance=ExtResource("8_ocbwq")]
+position = Vector2(740.4, 717.9)
+
+[node name="Tree56" parent="Props" unique_id=811204509 instance=ExtResource("8_ocbwq")]
+position = Vector2(92, 348.6)
+
+[node name="Tree58S" parent="Props" unique_id=388932063 instance=ExtResource("9_326u6")]
+position = Vector2(490.2, 255.2)
+
+[node name="Tree59" parent="Props" unique_id=1415758846 instance=ExtResource("8_ocbwq")]
+position = Vector2(197, 226.8)
+
+[node name="Tree60" parent="Props" unique_id=845659168 instance=ExtResource("8_ocbwq")]
+position = Vector2(276.2, 737.7)
+
+[node name="Tree61" parent="Props" unique_id=494968190 instance=ExtResource("8_ocbwq")]
+position = Vector2(501.2, 146.3)
+
+[node name="Tree62" parent="Props" unique_id=524835166 instance=ExtResource("8_ocbwq")]
+position = Vector2(372.6, 212.9)
+
+[node name="Tree63S" parent="Props" unique_id=482363676 instance=ExtResource("9_326u6")]
+position = Vector2(730.9, 748.6)
+
+[node name="Tree66" parent="Props" unique_id=1385075142 instance=ExtResource("8_ocbwq")]
+position = Vector2(986.4, 247.1)
+
+[node name="Tree68" parent="Props" unique_id=1870363948 instance=ExtResource("8_ocbwq")]
+position = Vector2(516, 527.2)
+
+[node name="Tree69" parent="Props" unique_id=76352064 instance=ExtResource("8_ocbwq")]
+position = Vector2(485.9, 547.5)
+
+[node name="Tree70S" parent="Props" unique_id=1838356761 instance=ExtResource("9_326u6")]
+position = Vector2(472.4, 131.3)
+
+[node name="Tree71S" parent="Props" unique_id=599873325 instance=ExtResource("9_326u6")]
+position = Vector2(1243.3, 163.4)
+
+[node name="Tree72S" parent="Props" unique_id=1545300885 instance=ExtResource("9_326u6")]
+position = Vector2(781, 716.2)
+
+[node name="Tree74" parent="Props" unique_id=2064939680 instance=ExtResource("8_ocbwq")]
+position = Vector2(102.1, 693.1)
+
+[node name="Tree76" parent="Props" unique_id=1772163602 instance=ExtResource("8_ocbwq")]
+position = Vector2(1364.3, 162.2)
+
+[node name="Lights" type="Node2D" parent="." unique_id=265186936]
+
+[node name="ForestEntryLight" type="PointLight2D" parent="Lights" unique_id=2078100342]
+position = Vector2(84, 544)
+color = Color(0.8901961, 0.70980394, 0.4862745, 1)
+energy = 0.95
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("10_hvswp")
+texture_scale = 1.1
+
+[node name="CrossingFillA" type="PointLight2D" parent="Lights" unique_id=1104083568]
+position = Vector2(380, 350)
+color = Color(0.52156866, 0.5921569, 0.6901961, 1)
+energy = 0.35
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("10_hvswp")
+texture_scale = 1.7
+
+[node name="CrossingFillB" type="PointLight2D" parent="Lights" unique_id=720723075]
+position = Vector2(820, 350)
+color = Color(0.52156866, 0.5921569, 0.6901961, 1)
+energy = 0.35
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("10_hvswp")
+texture_scale = 1.7
+
+[node name="Edges" type="StaticBody2D" parent="." unique_id=137917084]
+
+[node name="North" type="CollisionShape2D" parent="Edges" unique_id=1262326033]
+position = Vector2(720, -16)
+shape = SubResource("RectangleShape2D_1p50a")
+
+[node name="South" type="CollisionShape2D" parent="Edges" unique_id=2065816627]
+position = Vector2(720, 784)
+shape = SubResource("RectangleShape2D_osacg")
+
+[node name="East" type="CollisionShape2D" parent="Edges" unique_id=1923456298]
+position = Vector2(1424, 400)
+shape = SubResource("RectangleShape2D_5l26p")
+
+[node name="Markers" type="Node2D" parent="." unique_id=1315718245]
+
+[node name="SpawnFromHome" type="Marker2D" parent="Markers" unique_id=1398115395]
+position = Vector2(150, 540)
+
+[node name="SpawnFromHouse" type="Marker2D" parent="Markers" unique_id=1181975877]
+position = Vector2(1260, 540)
+
+[node name="ListenerA" type="Marker2D" parent="Markers" unique_id=1428258918]
+position = Vector2(430, 285)
+
+[node name="ListenerB" type="Marker2D" parent="Markers" unique_id=1221774236]
+position = Vector2(810, 285)
+
+[node name="ForestNavigation" type="NavigationRegion2D" parent="." unique_id=1705343690]
+navigation_polygon = SubResource("NavigationPolygon_84x7g")

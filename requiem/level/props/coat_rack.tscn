@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://ds3510e3xtnj6"]
+
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_jyhrp"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_faqji"]
+[ext_resource type="Texture2D" uid="uid://cddxggqtimu8e" path="res://level/props/textures/coats.tres" id="3_qeoxj"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ls3nl"]
+size = Vector2(90, 24)
+
+[node name="CoatRack" type="Node2D" unique_id=697432684]
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1033547093]
+z_index = -1
+position = Vector2(0, -6)
+scale = Vector2(0.85, 0.35)
+texture = ExtResource("1_jyhrp")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1419190049]
+material = ExtResource("2_faqji")
+position = Vector2(-48, -104)
+scale = Vector2(0.41, 0.41)
+texture = ExtResource("3_qeoxj")
+centered = false
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=199094329]
+
+[node name="Shape" type="CollisionShape2D" parent="Body" unique_id=96407696]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_ls3nl")

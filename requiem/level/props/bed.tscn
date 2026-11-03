@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://cvcmvkyrrja0n"]
+
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_1tbic"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_io3et"]
+[ext_resource type="Texture2D" uid="uid://dofto63hjiolf" path="res://level/props/textures/bed.tres" id="3_607y1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ww6mw"]
+size = Vector2(84, 136)
+
+[node name="Bed" type="Node2D" unique_id=268242148]
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=1534770844]
+z_index = -1
+position = Vector2(0, -60)
+scale = Vector2(0.85, 2.3)
+texture = ExtResource("1_1tbic")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=672621466]
+material = ExtResource("2_io3et")
+position = Vector2(-48, -160)
+scale = Vector2(0.505, 0.505)
+texture = ExtResource("3_607y1")
+centered = false
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=335893935]
+
+[node name="Shape" type="CollisionShape2D" parent="Body" unique_id=1969118737]
+position = Vector2(0, -68)
+shape = SubResource("RectangleShape2D_ww6mw")

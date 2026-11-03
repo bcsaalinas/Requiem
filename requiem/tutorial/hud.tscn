@@ -41,6 +41,22 @@ content_margin_right = 30.0
 content_margin_bottom = 24.0
 bg_color = Color(0.035, 0.042, 0.039, 0.97)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_keycap"]
+content_margin_left = 8.0
+content_margin_top = 1.0
+content_margin_right = 8.0
+content_margin_bottom = 2.0
+bg_color = Color(0.95686275, 0.85882354, 0.61960787, 0.14)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.95686275, 0.85882354, 0.61960787, 0.85)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
 [node name="HUD" type="CanvasLayer" unique_id=1039700262]
 layer = 20
 script = ExtResource("1_xqdwv")
@@ -232,6 +248,76 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 28
+
+[node name="BreathHint" type="HBoxContainer" parent="Screen" unique_id=1460231775]
+visible = false
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -94.0
+offset_right = 228.0
+offset_bottom = -66.0
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Key" type="PanelContainer" parent="Screen/BreathHint" unique_id=1460231776]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_keycap")
+
+[node name="Label" type="Label" parent="Screen/BreathHint/Key" unique_id=1460231777]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 15
+text = "SPACE"
+
+[node name="Text" type="Label" parent="Screen/BreathHint" unique_id=1460231778]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9411765, 0.9137255, 0.8509804, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 18
+text = "Hold breath"
+
+[node name="Alert" type="VBoxContainer" parent="Screen" unique_id=1460231779]
+visible = false
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.1
+anchor_right = 0.5
+anchor_bottom = 0.1
+offset_left = -320.0
+offset_right = 320.0
+offset_bottom = 84.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Title" type="Label" parent="Screen/Alert" unique_id=1460231780]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 3
+theme_override_font_sizes/font_size = 42
+text = "HOLD  SPACE"
+horizontal_alignment = 1
+
+[node name="Detail" type="Label" parent="Screen/Alert" unique_id=1460231781]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9411765, 0.9137255, 0.8509804, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "Hold your breath and your steps go quiet."
+horizontal_alignment = 1
 
 [node name="StoryFade" type="ColorRect" parent="Screen" unique_id=1651583290]
 layout_mode = 0

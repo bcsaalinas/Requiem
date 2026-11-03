@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://fca7ggvxgv5d"]
+
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_sa8x8"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_0t5wu"]
+[ext_resource type="Texture2D" uid="uid://dmjp6c86pn7ot" path="res://level/props/textures/chair.tres" id="3_siq6b"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qcket"]
+size = Vector2(66, 48)
+
+[node name="Armchair" type="Node2D" unique_id=1536587967]
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=751683202]
+z_index = -1
+position = Vector2(0, -16)
+scale = Vector2(0.65, 0.7)
+texture = ExtResource("1_sa8x8")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=780663098]
+material = ExtResource("2_0t5wu")
+position = Vector2(-38, -97)
+scale = Vector2(0.367, 0.367)
+texture = ExtResource("3_siq6b")
+centered = false
+
+[node name="Body" type="StaticBody2D" parent="." unique_id=636874174]
+
+[node name="Shape" type="CollisionShape2D" parent="Body" unique_id=220583900]
+position = Vector2(0, -24)
+shape = SubResource("RectangleShape2D_qcket")

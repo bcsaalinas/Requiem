@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://coiyuap8bjkyi"]
+
+[ext_resource type="Script" uid="uid://i4vppes6t8tn" path="res://testing/regression/test_doors_rooms.gd" id="1_hcl54"]
+
+[node name="TestDoorsRooms" type="Node" unique_id=1651982647]
+script = ExtResource("1_hcl54")

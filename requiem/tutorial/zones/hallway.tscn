@@ -1,0 +1,246 @@
+[gd_scene format=4 uid="uid://dr74sv1m43cak"]
+
+[ext_resource type="Texture2D" uid="uid://c34l3yacjtcod" path="res://assets/level/floor_wood.png" id="1_ttq1y"]
+[ext_resource type="Texture2D" uid="uid://cnatnjlqotr5w" path="res://assets/level/rug_runner.png" id="2_oru21"]
+[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_fi18d"]
+[ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_2yo68"]
+[ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="5_lc55d"]
+[ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="6_dw150"]
+[ext_resource type="PackedScene" uid="uid://ds3510e3xtnj6" path="res://level/props/coat_rack.tscn" id="7_qo5fo"]
+[ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="8_leac8"]
+[ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="9_nunbk"]
+[ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="10_a7x8u"]
+[ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="11_vsnya"]
+[ext_resource type="Script" uid="uid://bw8b2k03vifxn" path="res://tutorial/hallway/parent_listener.gd" id="12_ineoj"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="13_d0uwm"]
+[ext_resource type="Script" uid="uid://cswitug7og38f" path="res://tutorial/hallway/safe_light.gd" id="14_aqal4"]
+[ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="15_q3b6f"]
+[ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="16_2x0rn"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_k744n"]
+size = Vector2(128, 152)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dm3hq"]
+size = Vector2(96, 96)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fi18d"]
+size = Vector2(96, 96)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ttq1y"]
+size = Vector2(32, 128)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oru21"]
+size = Vector2(32, 128)
+
+[node name="Hallway" type="Node2D" unique_id=1541038903]
+y_sort_enabled = true
+
+[node name="Floor" type="Sprite2D" parent="." unique_id=1520004086]
+self_modulate = Color(0.7254902, 0.7058824, 0.67058825, 1)
+z_index = -10
+texture_repeat = 2
+position = Vector2(32, 32)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_ttq1y")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1792, 1088)
+
+[node name="Rugs" type="Node2D" parent="." unique_id=1221057086]
+z_index = -9
+
+[node name="RunnerWest" type="Sprite2D" parent="Rugs" unique_id=562240918]
+position = Vector2(236, 368)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_oru21")
+
+[node name="RunnerEast" type="Sprite2D" parent="Rugs" unique_id=1819893685]
+position = Vector2(668, 368)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_oru21")
+
+[node name="RefugeMat" type="Sprite2D" parent="Rugs" unique_id=1115579449]
+position = Vector2(480, 488)
+scale = Vector2(0.23, 0.23)
+texture = ExtResource("3_fi18d")
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=753767168]
+z_index = 1
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAEAAEAAAAAAAAAAAAEAAIAAAAAAAAAAAAEAAMAAAAAAAAAAAAEAAQAAAAAAAAAAAAEAAUAAAAAAAAAAAAEAAYAAAAAAAAAAAAEAA0AAAAAAAAAAAAIAA0AAAAAAAAAAAAMAA0AAAAAAAAAAAAMAA4AAAAAAAAAAAAMAA8AAAAAAAAAAAAMABAAAAAAAAAAAAAMABEAAAAAAAAAAAAQABEAAAAAAAAAAAAUAA0AAAAAAAAAAAAYAA0AAAAAAAAAAAAcAAcAAAAAAAAAAAAcAAgAAAAAAAAAAAAcAAkAAAAAAAAAAAAcAAwAAAAAAAAAAAAcAA0AAAAAAAAAAAAIAAIAAAAAAAEAAAAQAAIAAAAAAAEAAAAQAAgAAAAAAAEAAAAYAAIAAAAAAAEAAAAYAAgAAAAAAAEAAAAIAAMAAAAAAAIAAAAQAAMAAAAAAAIAAAAQAAkAAAAAAAIAAAAYAAMAAAAAAAIAAAAYAAkAAAAAAAIAAAABAAcAAAABAAAAAAABAAgAAAABAAAAAAABAAkAAAABAAAAAAABAAwAAAABAAAAAAABAA0AAAABAAAAAAAFAA0AAAABAAAAAAAJAA0AAAABAAAAAAANABEAAAABAAAAAAARAA0AAAABAAAAAAARAA4AAAABAAAAAAARAA8AAAABAAAAAAARABAAAAABAAAAAAARABEAAAABAAAAAAAVAA0AAAABAAAAAAAZAA0AAAABAAAAAAAJAAIAAAABAAEAAAARAAIAAAABAAEAAAARAAgAAAABAAEAAAAZAAIAAAABAAEAAAAZAAgAAAABAAEAAAAJAAMAAAABAAIAAAARAAMAAAABAAIAAAARAAkAAAABAAIAAAAZAAMAAAABAAIAAAAZAAkAAAABAAIAAAACAA0AAAACAAAAAAAGAA0AAAACAAAAAAAKAA0AAAACAAAAAAAOABEAAAACAAAAAAASAA0AAAACAAAAAAAWAA0AAAACAAAAAAAaAAEAAAACAAAAAAAaAAIAAAACAAAAAAAaAAMAAAACAAAAAAAaAAQAAAACAAAAAAAaAAUAAAACAAAAAAAaAAYAAAACAAAAAAAaAA0AAAACAAAAAAACAAgAAAACAAEAAAAKAAIAAAACAAEAAAASAAIAAAACAAEAAAASAAgAAAACAAEAAAAaAAgAAAACAAEAAAACAAkAAAACAAIAAAAKAAMAAAACAAIAAAASAAMAAAACAAIAAAASAAkAAAACAAIAAAAaAAkAAAACAAIAAAADAA0AAAADAAAAAAAHAA0AAAADAAAAAAALAA0AAAADAAAAAAAPAAEAAAADAAAAAAAPAAIAAAADAAAAAAAPAAMAAAADAAAAAAAPAAQAAAADAAAAAAAPAAUAAAADAAAAAAAPAAYAAAADAAAAAAAPABEAAAADAAAAAAATAA0AAAADAAAAAAAXAA0AAAADAAAAAAAbAA0AAAADAAAAAAADAAgAAAADAAEAAAALAAIAAAADAAEAAAALAAgAAAADAAEAAAATAAIAAAADAAEAAAATAAgAAAADAAEAAAAbAAgAAAADAAEAAAADAAkAAAADAAIAAAALAAMAAAADAAIAAAALAAkAAAADAAIAAAATAAMAAAADAAIAAAATAAkAAAADAAIAAAAbAAkAAAADAAIAAAAEAAcAAAAEAAAAAAAIAAEAAAAEAAAAAAAMAAEAAAAEAAAAAAAMAAcAAAAEAAAAAAAQAAEAAAAEAAAAAAAQAAcAAAAEAAAAAAAUAAEAAAAEAAAAAAAYAAEAAAAEAAAAAAAYAAcAAAAEAAAAAAAEAAgAAAAEAAEAAAAMAAIAAAAEAAEAAAAMAAgAAAAEAAEAAAAUAAIAAAAEAAEAAAAEAAkAAAAEAAIAAAAMAAMAAAAEAAIAAAAMAAkAAAAEAAIAAAAUAAMAAAAEAAIAAAAFAAEAAAAFAAAAAAAFAAcAAAAFAAAAAAAJAAEAAAAFAAAAAAANAAEAAAAFAAAAAAANAAcAAAAFAAAAAAARAAEAAAAFAAAAAAARAAcAAAAFAAAAAAAVAAEAAAAFAAAAAAAZAAEAAAAFAAAAAAAZAAcAAAAFAAAAAAAFAAIAAAAFAAEAAAAFAAgAAAAFAAEAAAANAAIAAAAFAAEAAAANAAgAAAAFAAEAAAAVAAIAAAAFAAEAAAAFAAMAAAAFAAIAAAAFAAkAAAAFAAIAAAANAAMAAAAFAAIAAAANAAkAAAAFAAIAAAAVAAMAAAAFAAIAAAACAAcAAAAGAAAAAAAGAAEAAAAGAAAAAAAGAAcAAAAGAAAAAAAKAAEAAAAGAAAAAAAOAAEAAAAGAAAAAAAOAAcAAAAGAAAAAAASAAEAAAAGAAAAAAASAAcAAAAGAAAAAAAWAAEAAAAGAAAAAAAWAAcAAAAGAAAAAAAaAAcAAAAGAAAAAAAGAAIAAAAGAAEAAAAGAAgAAAAGAAEAAAAOAAIAAAAGAAEAAAAOAAgAAAAGAAEAAAAWAAIAAAAGAAEAAAAWAAgAAAAGAAEAAAAGAAMAAAAGAAIAAAAGAAkAAAAGAAIAAAAOAAMAAAAGAAIAAAAOAAkAAAAGAAIAAAAWAAMAAAAGAAIAAAAWAAkAAAAGAAIAAAADAAcAAAAHAAAAAAAHAAEAAAAHAAAAAAAHAAcAAAAHAAAAAAALAAEAAAAHAAAAAAALAAcAAAAHAAAAAAAPAAcAAAAHAAAAAAATAAEAAAAHAAAAAAATAAcAAAAHAAAAAAAXAAEAAAAHAAAAAAAXAAcAAAAHAAAAAAAbAAcAAAAHAAAAAAAHAAIAAAAHAAEAAAAHAAgAAAAHAAEAAAAPAAgAAAAHAAEAAAAXAAIAAAAHAAEAAAAXAAgAAAAHAAEAAAAHAAMAAAAHAAIAAAAHAAkAAAAHAAIAAAAPAAkAAAAHAAIAAAAXAAMAAAAHAAIAAAAXAAkAAAAHAAIAAAAIAAgAAAAAAAEAAAAIAAkAAAAAAAIAAAAIAAcAAAAEAAAAAAA=")
+tile_set = ExtResource("4_2yo68")
+
+[node name="Doors" type="Node2D" parent="." unique_id=299067301]
+z_index = 1
+y_sort_enabled = true
+
+[node name="BedroomDoor" parent="Doors" unique_id=1684880140 instance=ExtResource("5_lc55d")]
+position = Vector2(48, 384)
+metadata/interaction_id = "hall_back"
+metadata/interaction_label = "Return to bedroom"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="ParentDoorA" parent="Doors" unique_id=1999569606 instance=ExtResource("6_dw150")]
+position = Vector2(320, 320)
+locked = true
+locked_label = "Mum and Dad"
+
+[node name="ParentDoorB" parent="Doors" unique_id=1027334891 instance=ExtResource("6_dw150")]
+position = Vector2(672, 320)
+locked = true
+locked_label = "Grandma's old room"
+
+[node name="BackDoor" parent="Doors" unique_id=1194472358 instance=ExtResource("5_lc55d")]
+position = Vector2(912, 384)
+swing_side = -1
+metadata/interaction_id = "hall_exit"
+metadata/interaction_label = "Go outside"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="Props" type="Node2D" parent="." unique_id=392503483]
+z_index = 1
+y_sort_enabled = true
+
+[node name="CoatRack" parent="Props" unique_id=697432684 instance=ExtResource("7_qo5fo")]
+position = Vector2(150, 346)
+
+[node name="RefugeChest" parent="Props" unique_id=2095263743 instance=ExtResource("8_leac8")]
+position = Vector2(504, 544)
+
+[node name="RefugeLamp" parent="Props" unique_id=476799547 instance=ExtResource("9_nunbk")]
+position = Vector2(436, 520)
+
+[node name="ExitLamp" parent="Props" unique_id=879608761 instance=ExtResource("9_nunbk")]
+position = Vector2(884, 412)
+
+[node name="ParentWardrobeA" parent="Props" unique_id=2070999330 instance=ExtResource("10_a7x8u")]
+position = Vector2(212, 218)
+
+[node name="ParentLampA" parent="Props" unique_id=300877205 instance=ExtResource("9_nunbk")]
+position = Vector2(420, 214)
+
+[node name="ParentChairB" parent="Props" unique_id=1536587967 instance=ExtResource("11_vsnya")]
+position = Vector2(580, 218)
+
+[node name="ParentLampB" parent="Props" unique_id=1511965359 instance=ExtResource("9_nunbk")]
+position = Vector2(790, 214)
+
+[node name="EntryLamp" parent="Props" unique_id=889268598 instance=ExtResource("9_nunbk")]
+position = Vector2(76, 412)
+
+[node name="Listeners" type="Node2D" parent="." unique_id=1407489905]
+
+[node name="ParentListenerA" type="Node2D" parent="Listeners" unique_id=1885139926 node_paths=PackedStringArray("glow")]
+z_index = 1
+position = Vector2(320, 320)
+script = ExtResource("12_ineoj")
+glow = NodePath("../DoorGlowA")
+
+[node name="ParentListenerB" type="Node2D" parent="Listeners" unique_id=1706915271 node_paths=PackedStringArray("glow")]
+z_index = 1
+position = Vector2(672, 320)
+script = ExtResource("12_ineoj")
+glow = NodePath("../DoorGlowB")
+
+[node name="DoorGlowA" type="PointLight2D" parent="Listeners" unique_id=1237831859]
+position = Vector2(320, 324)
+color = Color(0.9137255, 0.7176471, 0.47843137, 1)
+energy = 1.25
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.0
+texture = ExtResource("13_d0uwm")
+texture_scale = 0.52
+
+[node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
+position = Vector2(672, 324)
+color = Color(0.9137255, 0.7176471, 0.47843137, 1)
+energy = 1.25
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.0
+texture = ExtResource("13_d0uwm")
+texture_scale = 0.52
+
+[node name="SafeLights" type="Node2D" parent="." unique_id=1596456614]
+
+[node name="Refuge" type="Area2D" parent="SafeLights" unique_id=858897657]
+position = Vector2(480, 476)
+monitorable = false
+script = ExtResource("14_aqal4")
+
+[node name="Shape" type="CollisionShape2D" parent="SafeLights/Refuge" unique_id=1633827335]
+shape = SubResource("RectangleShape2D_k744n")
+
+[node name="ExitRefuge" type="Area2D" parent="SafeLights" unique_id=895883446]
+position = Vector2(848, 368)
+monitorable = false
+script = ExtResource("14_aqal4")
+
+[node name="Shape" type="CollisionShape2D" parent="SafeLights/ExitRefuge" unique_id=686832077]
+shape = SubResource("RectangleShape2D_dm3hq")
+
+[node name="EntryRefuge" type="Area2D" parent="SafeLights" unique_id=510509647]
+position = Vector2(112, 368)
+monitorable = false
+script = ExtResource("14_aqal4")
+
+[node name="Shape" type="CollisionShape2D" parent="SafeLights/EntryRefuge" unique_id=1069156233]
+shape = SubResource("RectangleShape2D_fi18d")
+
+[node name="Markers" type="Node2D" parent="." unique_id=1798031245]
+
+[node name="SpawnFromBedroom" type="Marker2D" parent="Markers" unique_id=1374508717]
+position = Vector2(104, 368)
+
+[node name="SpawnFromForest" type="Marker2D" parent="Markers" unique_id=232329749]
+position = Vector2(852, 368)
+
+[node name="Rooms" type="Node2D" parent="." unique_id=1700688263]
+script = ExtResource("15_q3b6f")
+
+[node name="Corridor" type="Area2D" parent="Rooms" unique_id=958168517 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("16_2x0rn")
+doors = [NodePath("../../Doors/ParentDoorA"), NodePath("../../Doors/ParentDoorB"), NodePath("../../Doors/BedroomDoor"), NodePath("../../Doors/BackDoor")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/Corridor" unique_id=77695964]
+polygon = PackedVector2Array(40, 320, 920, 320, 920, 416, 544, 416, 544, 544, 416, 544, 416, 416, 40, 416)
+
+[node name="ParentRoomA" type="Area2D" parent="Rooms" unique_id=1602762061 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("16_2x0rn")
+doors = [NodePath("../../Doors/ParentDoorA")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/ParentRoomA" unique_id=213753186]
+polygon = PackedVector2Array(160, 128, 480, 128, 480, 224, 160, 224)
+
+[node name="Cover" type="Polygon2D" parent="Rooms/ParentRoomA" unique_id=1419245628]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(160, 40, 480, 40, 480, 224, 160, 224)
+
+[node name="ParentRoomB" type="Area2D" parent="Rooms" unique_id=1382177846 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("16_2x0rn")
+doors = [NodePath("../../Doors/ParentDoorB")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/ParentRoomB" unique_id=291812246]
+polygon = PackedVector2Array(512, 128, 832, 128, 832, 224, 512, 224)
+
+[node name="Cover" type="Polygon2D" parent="Rooms/ParentRoomB" unique_id=529491168]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(512, 40, 832, 40, 832, 224, 512, 224)
+
+[node name="Edges" type="StaticBody2D" parent="." unique_id=685681006]
+
+[node name="West" type="CollisionShape2D" parent="Edges" unique_id=2119136232]
+position = Vector2(16, 352)
+shape = SubResource("RectangleShape2D_ttq1y")
+
+[node name="East" type="CollisionShape2D" parent="Edges" unique_id=138373591]
+position = Vector2(944, 352)
+shape = SubResource("RectangleShape2D_oru21")

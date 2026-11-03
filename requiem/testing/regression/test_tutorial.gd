@@ -32,36 +32,79 @@ func _ready() -> void:
 	check(game.batteries==1 and not game.has_flashlight,"Battery can be collected before the flashlight")
 	at_interaction("flashlight")
 	check(game.has_flashlight and game.flashlight.battery_percent>99,"Pickups equip and power flashlight")
-	at_interaction("bedroom_exit")
-	check(game.zone=="hallway","Equipped player can enter hallway")
-	game.player.position=Vector2(1770,340)
+	# A battery that ran dry in the bedroom must never lock the player in (tester bug).
+	game.flashlight.battery_percent=0.0
+	var bedroom_door: Door = game.world.interactables["bedroom_exit"]["node"]
+	at_interaction("bedroom_exit",Vector2(-36,0))
+	check(bedroom_door.is_open,"A collected but empty battery still lets the player open the bedroom door")
+	await frames(4)
+	check(game.zone=="hallway","Walking through the open bedroom door enters the hallway")
+	game.flashlight.battery_percent=100.0
+	var door_a: ParentListener = game._parent_listeners()[0]
+	game.player.position=door_a.global_position+Vector2(-150,48)
 	game._tick_hallway(.01)
-	check(game.hud.subtitle.text.contains("SPACE · Hold breath"),"First parent cue offers a brief breath prompt at the occupied door")
-	game.player.position=Vector2(2110,485)
+	check(game.hud.subtitle.text.contains("chair scrapes"),"Approaching the first occupied door plays a listening cue")
+	check(game.hud.subtitle.text.contains("Hold my breath"),"The first door cue tells her to hold her breath past the doors")
+	check(game.hud.breath_hint.visible,"The hold-breath key stays on screen in the hallway before any danger")
+	# Teach before failing: a door stirs once a normal step could reach it and settles while she holds.
+	game.player.position=door_a.global_position+Vector2(0,48)
 	game._tick_hallway(.01)
-	check(game.hud.subtitle.text.contains("Rest here"),"Entering the refuge explains release and recovery")
-	NoiseManager.emit_noise(game.player.position,224,NoiseManager.SourceType.BREATH)
-	check(not game.resetting,"Full forced-gasp radius cannot reach either parent from the refuge center")
-	game.player.position=Vector2(1930,340)
-	NoiseManager.emit_noise(game.player.position,32,NoiseManager.SourceType.CROUCH)
-	check(not game.resetting,"Existing held footsteps pass the parent listening zone")
-	NoiseManager.emit_noise(game.player.position,96,NoiseManager.SourceType.FOOTSTEP)
-	check(game.resetting,"Ordinary footsteps alert the parent")
+	check(door_a.danger>0.9 and not game.hall_warned,"A parent door stirs when her next step could reach it, before anything is heard")
+	game.breath.is_holding=true
+	game._tick_hallway(.01)
+	check(door_a.danger<0.5,"Holding her breath settles the door")
+	game.breath.is_holding=false
+	game.player.position=game.world.marker("hallway","SpawnFromBedroom")
+	game._tick_hallway(.01)
+	check(door_a.danger==0.0,"Doors stay calm while she stands in the light")
+	var refuge: SafeLight = game.world.nodes_in("hallway","SafeLights")[0]
+	game.player.position=refuge.global_position
+	game.breath.lung_percent=40.0
+	game._tick_hallway(.01)
+	check(game.hud.subtitle.text.contains("Rest here"),"Arriving out of breath in the refuge explains release and recovery")
+	game.breath.lung_percent=100.0
+	NoiseManager.emit_noise(refuge.global_position+Vector2(0,-60),224,NoiseManager.SourceType.BREATH)
+	check(not game.resetting and not game.hall_warned,"Even a forced gasp inside the refuge light never reaches the parents")
+	# Hearing is "the ring reaches the door edge", so the far side of the corridor is no free path.
+	var far_side := door_a.global_position+Vector2(0,80)
+	NoiseManager.emit_noise(far_side,32,NoiseManager.SourceType.CROUCH)
+	check(not game.hall_warned,"Held footsteps pass the door on the far side of the corridor")
+	NoiseManager.emit_noise(far_side,96,NoiseManager.SourceType.FOOTSTEP)
+	check(game.hall_warned and not game.resetting,"The first footstep a parent hears is a warning, not a failure")
+	check(game.hud.alert.visible and game.hud.alert.get_node("Title").text.contains("SPACE"),"The warning puts HOLD SPACE in the middle of the screen")
+	check(game.heard_flash._edges.size()==1,"The door edge that heard her flashes")
+	check(game.get_node_or_null("NoiseFx/Rings")==null,"No sound circles are drawn for the player's noises")
+	check(not game.player.is_physics_processing(),"The warning freezes the player for a beat while breath input stays live")
+	await get_tree().create_timer(1.3).timeout
+	check(game.player.is_physics_processing(),"The player can move again after the warning beat")
+	NoiseManager.emit_noise(far_side,96,NoiseManager.SourceType.FOOTSTEP)
+	check(game.resetting,"Being heard again after the warning sends the player back")
 	await frames(10)
-	check(game.zone=="bedroom" and game.has_flashlight,"Parent reset returns to bedroom and retains equipment")
+	check(game.zone=="hallway" and game.has_flashlight and game.player.position.distance_to(game.world.marker("hallway","SpawnFromBedroom"))<1.0,
+		"A parent catch restarts at the hallway entrance and keeps the equipment")
 	check(game.breath.lung_percent==100 and not game.breath.is_locked,"Retry restores air and clears forced lock")
-	at_interaction("bedroom_exit")
-	# Real physics movement through a complete first exposure using unchanged inputs.
-	game.player.position=Vector2(1830,340)
+	# The restart landing is lit: a breath held there until it gives out cannot get her caught again.
+	NoiseManager.emit_noise(game.world.marker("hallway","SpawnFromBedroom"),224,NoiseManager.SourceType.BREATH)
+	check(not game.resetting,"A forced gasp at the hallway restart point stays inside its light")
+	# Real physics movement through a complete first crossing using unchanged inputs.
+	game.player.position=door_a.global_position+Vector2(-140,48)
 	Input.action_press("hold_breath")
 	Input.action_press("move_right")
-	await frames(145)
+	await frames(192)
 	Input.action_release("move_right")
 	Input.action_release("hold_breath")
-	check(game.zone=="hallway" and not game.resetting and game.player.position.x>2010,"Held movement physically traverses first parent crossing")
+	check(game.zone=="hallway" and not game.resetting and game.player.position.x>door_a.global_position.x+60,"Held movement physically traverses the first parent crossing")
+	check(game.hud.breath_hint.visible,"The key hint stays until both doors are behind her")
 	await frames(5)
-	at_interaction("hall_exit")
-	check(game.zone=="forest" and game.stage=="sho","Forest begins the development stage")
+	# Zone doors are real doors: E opens them, walking into the doorway goes through.
+	var back_door: Door = game.world.interactables["hall_exit"]["node"]
+	at_interaction("hall_exit",Vector2(-36,16))
+	check(back_door.is_open,"The back door opens before the player can leave")
+	game._tick_hallway(.01)
+	check(game.hall_lesson_done and not game.hud.breath_hint.visible,"Past both doors the lesson ends and the key hint goes")
+	await frames(4)
+	check(game.zone=="forest" and game.stage=="sho","Walking through the open back door begins the forest stage")
+	check(not back_door.is_open,"The back door is shut behind the player")
 	check(not game.entity.visible and not game.entity.active,"Forest uses indirect presence without an invisible active capture entity")
 	NoiseManager.emit_noise(Vector2(3580,350),32,NoiseManager.SourceType.CROUCH)
 	check(game.ambient_reply_cooldown==0,"Held movement does not provoke the distant forest response")
@@ -91,16 +134,23 @@ func _ready() -> void:
 	check(game.thrower.rocks==2,"Beginning a real throw consumes one collected rock")
 	await frames(70)
 	check(game.window_broken,"Rock flight and impact break the sidelight")
-	check(game.world.props.has("shards"),"Window impact creates the existing glass fragments")
+	var side_light: WallWindow = game.world.interactables["window"]["node"]
+	check(side_light.broken and side_light.get_node("Shards").visible,"Window impact breaks the glass and drops shards on the porch")
 	check(game.sequence=="reveal","Window impact starts the brief figure reveal")
-	check(not game.world.window_body.get_child(1).visible,"Broken sidelight lets light through")
 	await frames(150)
 	check(game.sequence=="","Window reveal finishes without trapping interactions")
+	var front_door: Door = game.world.interactables["front_door"]["node"]
 	at_interaction("window",Vector2(0,60))
 	await frames(3)
-	check(game.door_unlocked and not is_instance_valid(game.world.props["entry_collision"]),"Reaching through removes the front door collider")
-	at_interaction("front_door",Vector2(0,60))
-	check(game.player.position.y<680,"Unlocked front door permits entry")
+	check(game.door_unlocked and not front_door.locked and front_door.is_open,"Reaching through releases the latch and the front door swings in")
+	# Walk in through the real doorway; the entrance must stay a door and shut behind the player.
+	game.player.position=front_door.global_position+Vector2(0,26)
+	Input.action_press("move_up")
+	await frames(110)
+	Input.action_release("move_up")
+	await frames(30)
+	check(game.player.position.y<front_door.global_position.y-96,"The unlocked front door permits entry on foot")
+	check(front_door.visible and not front_door.is_open,"The entrance stays a visible door and shuts behind the player")
 	var altar_energy: float=game.world.landmarks["AltarLeftLight"].energy
 	at_interaction("friend")
 	check(not game.dialogue.is_empty(),"Friend dialogue precedes attack")
@@ -124,6 +174,7 @@ func _ready() -> void:
 	at_interaction("friend")
 	check(game.dialogue.is_empty(),"Completed dialogue cannot replay")
 	at_interaction("front_door",Vector2(0,-55))
+	await frames(4)
 	check(game.zone=="loop","Return doorway leads to the impossible room")
 	check(not game.entity.visible and not game.entity.active,"Impossible room keeps the presence indirect")
 	at_interaction("loop_end",Vector2(-45,0))

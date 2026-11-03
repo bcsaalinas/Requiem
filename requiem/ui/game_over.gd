@@ -3,6 +3,13 @@ extends Control
 ## jugador muere. Ofrece reintentar el nivel o volver al menu.
 
 
+## The level can name what gave the player away ("It heard your footsteps.").
+func _ready() -> void:
+	var scene := get_tree().current_scene
+	if scene != null and scene.has_method("game_over_cause"):
+		($Center/Panel/Column/Subtitle as Label).text = scene.game_over_cause()
+
+
 func _on_restart_pressed() -> void:
 	var scene := get_tree().current_scene
 	if scene != null and scene.has_method("retry_from_game_over"):

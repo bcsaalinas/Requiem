@@ -1,0 +1,180 @@
+[gd_scene format=4 uid="uid://dhipp84jv3cct"]
+
+[ext_resource type="Texture2D" uid="uid://c34l3yacjtcod" path="res://assets/level/floor_wood.png" id="1_dri0g"]
+[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="2_qcv8i"]
+[ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="3_a5faa"]
+[ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="4_sp84h"]
+[ext_resource type="PackedScene" uid="uid://v4clsmmkalqe" path="res://level/window/window.tscn" id="5_xgi6i"]
+[ext_resource type="PackedScene" uid="uid://cvcmvkyrrja0n" path="res://level/props/bed.tscn" id="6_eo07y"]
+[ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="7_42sbo"]
+[ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="8_bobs7"]
+[ext_resource type="PackedScene" uid="uid://cqdd5x3ovgcv1" path="res://level/props/desk.tscn" id="9_062qy"]
+[ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="10_i7gi3"]
+[ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="11_4vynj"]
+[ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="12_48vr2"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="13_fnyqe"]
+[ext_resource type="Texture2D" uid="uid://cpvkd1x0ocyb4" path="res://assets/Textures/light_texture.png" id="14_qcv8i"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qcv8i"]
+shader = ExtResource("11_4vynj")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a5faa"]
+shader = ExtResource("11_4vynj")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sp84h"]
+shader = ExtResource("11_4vynj")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3d2uc"]
+size = Vector2(32, 96)
+
+[node name="Bedroom" type="Node2D" unique_id=1793363046]
+y_sort_enabled = true
+
+[node name="Floor" type="Sprite2D" parent="." unique_id=1302281063]
+self_modulate = Color(0.7254902, 0.7058824, 0.67058825, 1)
+z_index = -10
+texture_repeat = 2
+position = Vector2(64, 64)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_dri0g")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1664, 1024)
+
+[node name="Rugs" type="Node2D" parent="." unique_id=1731969846]
+z_index = -9
+
+[node name="BedRug" type="Sprite2D" parent="Rugs" unique_id=2018847941]
+position = Vector2(470, 390)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("2_qcv8i")
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=67038285]
+z_index = 1
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAEABEAAAAAAAAAAAAIABEAAAAAAAAAAAAMABEAAAAAAAAAAAAQABEAAAAAAAAAAAAUABEAAAAAAAAAAAAYABEAAAAAAAAAAAAIAAMAAAAAAAEAAAAYAAMAAAAAAAEAAAAIAAQAAAAAAAIAAAAYAAQAAAAAAAIAAAAFABEAAAABAAAAAAAJABEAAAABAAAAAAANABEAAAABAAAAAAARABEAAAABAAAAAAAVABEAAAABAAAAAAAZABEAAAABAAAAAAAJAAMAAAABAAEAAAARAAMAAAABAAEAAAAZAAMAAAABAAEAAAAJAAQAAAABAAIAAAARAAQAAAABAAIAAAAZAAQAAAABAAIAAAACAAIAAAACAAAAAAACAAMAAAACAAAAAAACAAQAAAACAAAAAAACAAUAAAACAAAAAAACAAYAAAACAAAAAAACAAcAAAACAAAAAAACAAgAAAACAAAAAAACAAkAAAACAAAAAAACAAoAAAACAAAAAAACAAsAAAACAAAAAAACAAwAAAACAAAAAAACAA0AAAACAAAAAAACAA4AAAACAAAAAAACAA8AAAACAAAAAAACABAAAAACAAAAAAACABEAAAACAAAAAAAGABEAAAACAAAAAAAKABEAAAACAAAAAAAOABEAAAACAAAAAAASABEAAAACAAAAAAAWABEAAAACAAAAAAAaABEAAAACAAAAAAAKAAMAAAACAAEAAAASAAMAAAACAAEAAAAaAAMAAAACAAEAAAAKAAQAAAACAAIAAAASAAQAAAACAAIAAAAaAAQAAAACAAIAAAADABEAAAADAAAAAAAHABEAAAADAAAAAAALABEAAAADAAAAAAAPABEAAAADAAAAAAATABEAAAADAAAAAAAXABEAAAADAAAAAAAbAAIAAAADAAAAAAAbAAMAAAADAAAAAAAbAAQAAAADAAAAAAAbAAUAAAADAAAAAAAbAAYAAAADAAAAAAAbAAcAAAADAAAAAAAbAAgAAAADAAAAAAAbAAkAAAADAAAAAAAbAAoAAAADAAAAAAAbAAsAAAADAAAAAAAbAA4AAAADAAAAAAAbAA8AAAADAAAAAAAbABAAAAADAAAAAAAbABEAAAADAAAAAAADAAMAAAADAAEAAAALAAMAAAADAAEAAAATAAMAAAADAAEAAAADAAQAAAADAAIAAAALAAQAAAADAAIAAAATAAQAAAADAAIAAAAEAAIAAAAEAAAAAAAIAAIAAAAEAAAAAAAMAAIAAAAEAAAAAAAUAAIAAAAEAAAAAAAYAAIAAAAEAAAAAAAEAAMAAAAEAAEAAAAMAAMAAAAEAAEAAAAUAAMAAAAEAAEAAAAEAAQAAAAEAAIAAAAMAAQAAAAEAAIAAAAUAAQAAAAEAAIAAAAFAAIAAAAFAAAAAAAJAAIAAAAFAAAAAAANAAIAAAAFAAAAAAARAAIAAAAFAAAAAAAVAAIAAAAFAAAAAAAZAAIAAAAFAAAAAAAFAAMAAAAFAAEAAAANAAMAAAAFAAEAAAAVAAMAAAAFAAEAAAAFAAQAAAAFAAIAAAANAAQAAAAFAAIAAAAVAAQAAAAFAAIAAAAGAAIAAAAGAAAAAAAKAAIAAAAGAAAAAAAOAAIAAAAGAAAAAAASAAIAAAAGAAAAAAAWAAIAAAAGAAAAAAAaAAIAAAAGAAAAAAAGAAMAAAAGAAEAAAAOAAMAAAAGAAEAAAAWAAMAAAAGAAEAAAAGAAQAAAAGAAIAAAAOAAQAAAAGAAIAAAAWAAQAAAAGAAIAAAADAAIAAAAHAAAAAAAHAAIAAAAHAAAAAAALAAIAAAAHAAAAAAATAAIAAAAHAAAAAAAXAAIAAAAHAAAAAAAHAAMAAAAHAAEAAAAXAAMAAAAHAAEAAAAHAAQAAAAHAAIAAAAXAAQAAAAHAAIAAAA=")
+tile_set = ExtResource("3_a5faa")
+
+[node name="Doors" type="Node2D" parent="." unique_id=1696618800]
+z_index = 1
+y_sort_enabled = true
+
+[node name="ExitDoor" parent="Doors" unique_id=1684880140 instance=ExtResource("4_sp84h")]
+position = Vector2(880, 448)
+swing_side = -1
+metadata/interaction_id = "bedroom_exit"
+metadata/interaction_label = "Leave bedroom"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="MoonWindow" parent="Doors" unique_id=1167108085 instance=ExtResource("5_xgi6i")]
+position = Vector2(512, 160)
+
+[node name="Props" type="Node2D" parent="." unique_id=1637658891]
+z_index = 1
+y_sort_enabled = true
+
+[node name="Bed" parent="Props" unique_id=268242148 instance=ExtResource("6_eo07y")]
+position = Vector2(176, 330)
+
+[node name="Chest" parent="Props" unique_id=2095263743 instance=ExtResource("7_42sbo")]
+position = Vector2(176, 421)
+
+[node name="Wardrobe" parent="Props" unique_id=2070999330 instance=ExtResource("8_bobs7")]
+position = Vector2(336, 216)
+
+[node name="Desk" parent="Props" unique_id=533054813 instance=ExtResource("9_062qy")]
+position = Vector2(720, 262)
+
+[node name="Armchair" parent="Props" unique_id=1536587967 instance=ExtResource("10_i7gi3")]
+position = Vector2(300, 500)
+
+[node name="phone" type="Node2D" parent="Props" unique_id=72331656]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_qcv8i")
+position = Vector2(176, 422)
+script = ExtResource("12_48vr2")
+kind = "phone"
+lift = 44.0
+metadata/interaction_id = "phone"
+metadata/interaction_label = "Read the message"
+
+[node name="flashlight" type="Node2D" parent="Props" unique_id=1421340781]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_a5faa")
+position = Vector2(690, 263)
+script = ExtResource("12_48vr2")
+kind = "flashlight"
+lift = 84.0
+metadata/interaction_id = "flashlight"
+metadata/interaction_label = "Take flashlight"
+
+[node name="battery" type="Node2D" parent="Props" unique_id=1306387376]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_sp84h")
+position = Vector2(262, 300)
+script = ExtResource("12_48vr2")
+kind = "battery"
+metadata/interaction_id = "battery"
+metadata/interaction_label = "Take battery"
+
+[node name="Lights" type="Node2D" parent="." unique_id=529946740]
+
+[node name="DeskLamp" type="PointLight2D" parent="Lights" unique_id=686603668]
+position = Vector2(756, 164)
+color = Color(0.9372549, 0.7764706, 0.54901963, 1)
+energy = 1.15
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("13_fnyqe")
+texture_scale = 1.15
+metadata/lighting_role = "recovery"
+
+[node name="MoonLight" type="PointLight2D" parent="Lights" unique_id=1655640566]
+position = Vector2(410, -250)
+color = Color(0.5411765, 0.627451, 0.7058824, 1)
+energy = 1.15
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("14_qcv8i")
+texture_scale = 5.2
+
+[node name="ExitGlow" type="PointLight2D" parent="Lights" unique_id=2017624018]
+position = Vector2(858, 416)
+color = Color(0.8901961, 0.70980394, 0.4862745, 1)
+energy = 0.95
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.0
+texture = ExtResource("13_fnyqe")
+texture_scale = 0.55
+
+[node name="Edges" type="StaticBody2D" parent="." unique_id=674115061]
+
+[node name="East" type="CollisionShape2D" parent="Edges" unique_id=387868151]
+position = Vector2(912, 416)
+shape = SubResource("RectangleShape2D_3d2uc")
+
+[node name="Markers" type="Node2D" parent="." unique_id=1551926054]
+
+[node name="SpawnStart" type="Marker2D" parent="Markers" unique_id=1079268898]
+position = Vector2(480, 420)
+
+[node name="SpawnFromHallway" type="Marker2D" parent="Markers" unique_id=352856213]
+position = Vector2(832, 416)

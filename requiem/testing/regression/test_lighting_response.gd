@@ -1,4 +1,7 @@
 extends Node
+## Rendered lighting checks (needs a display: run_checks.py --rendered).
+## One light per source, one light layer: walls (tile occlusion) and closed doors stop light,
+## an open door lets it through, and story lighting changes the real lamps.
 const CaptureOutput := preload("res://testing/tools/capture_output.gd")
 var game: Node2D
 var failures := 0
@@ -33,6 +36,10 @@ func sprite_luminance(picture: Image, sprite: Sprite2D) -> float:
 	check(count>20,"Lighting measurement contains visible opaque sprite pixels")
 	return total/maxi(count,1)
 
+func probe_value(picture: Image, receiver: CanvasItem) -> float:
+	var pixel := Vector2i(get_viewport().get_final_transform()*receiver.get_global_transform_with_canvas()*Vector2(6,6))
+	return picture.get_pixelv(pixel).get_luminance()
+
 func _ready() -> void:
 	game = preload("res://tutorial/tutorial.tscn").instantiate()
 	game.test_mode = true
@@ -44,96 +51,69 @@ func _ready() -> void:
 	game.player.get_node("Camera2D").position_smoothing_enabled = false
 	for child in game.player.get_children():
 		if child is PointLight2D: child.enabled = false
-	game.enter_zone("bedroom",Vector2(620,270))
+	# Stand in the desk lamp's pool, next to the flashlight on the desk.
+	var desk_lamp: PointLight2D = game.world.landmarks["DeskLamp"]
+	game.enter_zone("bedroom",desk_lamp.global_position+Vector2(-50,30))
 	var actor: Node2D
 	for child in game.player.get_children():
 		if child.get_script()==game.Art: actor=child
 	var lit := await frame()
-	check(not game.player.get_node("LocalLight/PropLight").enabled,
-		"Disabled player still mirrors explicit LocalLight changes to its prop receiver")
 	var actor_lit := sprite_luminance(lit,actor.focal_sprite)
-	var pickup_lit := sprite_luminance(lit,game.world.props.battery.focal_sprite)
-	for child in game.world.scene_nodes:
-		if child is PointLight2D: child.enabled = false
+	var pickup_lit := sprite_luminance(lit,game.world.props.flashlight.focal_sprite)
+	for zone_node in game.world.zones.values():
+		for light in zone_node.find_children("*","PointLight2D",true,false):
+			light.enabled = false
 	var dark := await frame()
 	var actor_dark := sprite_luminance(dark,actor.focal_sprite)
-	var pickup_dark := sprite_luminance(dark,game.world.props.battery.focal_sprite)
-	print("[Light response] player lit/dark ",actor_lit/actor_dark,"; battery lit/dark ",pickup_lit/pickup_dark)
+	var pickup_dark := sprite_luminance(dark,game.world.props.flashlight.focal_sprite)
+	print("[Light response] player lit/dark ",actor_lit/actor_dark,"; flashlight pickup lit/dark ",pickup_lit/pickup_dark)
 	check(actor_lit>actor_dark*2.0,"Player body responds to actual lighting")
 	check(pickup_lit>pickup_dark*2.0,"Pickup body responds to actual lighting")
-	check(not game.world.landmarks["BedroomDeskLight"].get_node("PropLight").enabled,"Prop illumination switches off with its source")
 	lit.save_png(CaptureOutput.path("lighting-polish/light-response-on.png"))
 	dark.save_png(CaptureOutput.path("lighting-polish/light-response-off.png"))
-	# Candle story changes and flashlight transforms share the original sources.
-	game.world.set_house_danger(true)
-	await frame()
+	for zone_node in game.world.zones.values():
+		for light in zone_node.find_children("*","PointLight2D",true,false):
+			light.enabled = true
+			check(light.get_child_count()==0 or not light.get_child(0) is PointLight2D,"Every lamp is a single light with no hidden companion copy")
+	# Story lighting changes the real lamps.
 	var altar: PointLight2D = game.world.landmarks["AltarLeftLight"]
-	var face_light: PointLight2D = altar.get_node("PropLight")
-	check(is_equal_approx(face_light.energy,altar.energy) and face_light.color==altar.color,"Aftermath changes both floor and prop lighting")
-	game.flashlight.enabled=true
-	game.flashlight.rotation=.7
-	game.flashlight.scale=Vector2(1,.45)
-	await frame()
-	var beam: PointLight2D = game.flashlight.get_node("PropLight")
-	check(beam.global_transform.is_equal_approx(game.flashlight.global_transform),"Prop light preserves flashlight aim and held-breath cone width")
-	# The physical door/window blockers remain on the layer used by both lighting passes.
-	for body in [game.world.props.entry_collision,game.world.window_body]:
-		for child in body.get_children():
-			if child is LightOccluder2D:
-				check(child.occluder_light_mask==3,"Closed entrance occludes floor and prop illumination")
-	for body in [game.world.landmarks.HouseTableCollision13,game.world.landmarks.TreeTrunk37]:
-		for child in body.get_children():
-			if child is LightOccluder2D:
-				check(child.occluder_light_mask==1,"Furniture and trees cast only on ground receivers")
-	# Render receivers on the far side of an actual house partition, then remove only its shadow.
-	game.flashlight.enabled=false
-	game.enter_zone("house",Vector2(6000,510))
-	var probe_light: PointLight2D = game.world.lamp(Vector2(5890,450),Color.WHITE,3.0,1.5)
-	var probes: Array[ColorRect] = []
-	for mask in [1,2]:
-		var receiver := ColorRect.new()
-		receiver.position = Vector2(6000,430+mask*20)
-		receiver.size = Vector2(12,12)
-		receiver.light_mask = mask
-		game.world.add_child(receiver)
-		probes.append(receiver)
-	var wall_shadow: LightOccluder2D
-	for body in game.world.scene_nodes:
-		if body is StaticBody2D and body.position.is_equal_approx(Vector2(5940,260)):
-			for child in body.get_children():
-				if child is LightOccluder2D: wall_shadow = child
-	check(wall_shadow!=null,"Partition shadow fixture exists")
-	var blocked := await frame()
-	wall_shadow.hide()
-	var unblocked := await frame()
-	for receiver in probes:
-		var pixel := Vector2i(get_viewport().get_final_transform()*receiver.get_global_transform_with_canvas()*Vector2(6,6))
-		var shadow_value := blocked.get_pixelv(pixel).get_luminance()
-		var clear_value := unblocked.get_pixelv(pixel).get_luminance()
-		print("[Wall occlusion] layer ",receiver.light_mask," blocked ",shadow_value," open ",clear_value)
-		check(clear_value>shadow_value*2.0,"Partition blocks rendered light on receiver layer %d"%receiver.light_mask)
-	# With the wall shadow still hidden, use the same path to check the lower
-	# furniture mask: it shadows the floor but cannot darken raised prop faces.
-	var furniture_shadow := LightOccluder2D.new()
-	furniture_shadow.position = Vector2(5940,430)
-	furniture_shadow.occluder_light_mask = 1
-	furniture_shadow.occluder = OccluderPolygon2D.new()
-	furniture_shadow.occluder.polygon = PackedVector2Array([
-		Vector2.ZERO,Vector2(12,0),Vector2(12,60),Vector2(0,60)])
-	game.world.add_child(furniture_shadow)
-	var furniture_blocked := await frame()
-	for receiver in probes:
-		var pixel := Vector2i(get_viewport().get_final_transform()*receiver.get_global_transform_with_canvas()*Vector2(6,6))
-		var shadow_value := furniture_blocked.get_pixelv(pixel).get_luminance()
-		var clear_value := unblocked.get_pixelv(pixel).get_luminance()
-		print("[Furniture occlusion] layer ",receiver.light_mask," blocked ",shadow_value," open ",clear_value)
-		if receiver.light_mask==1:
-			check(clear_value>shadow_value*2.0,"Furniture blocks rendered light on the ground")
-		else:
-			check(absf(clear_value-shadow_value)<.03,"Furniture does not shadow raised prop faces")
-	furniture_shadow.queue_free()
-	wall_shadow.show()
+	var rest_energy := altar.energy
+	game.world.set_house_danger(true)
+	check(altar.energy<rest_energy and altar.color==Color("71889b"),"Aftermath dims the altar lamp itself")
+	game.world.set_house_danger(false)
+	# A closed door stops light; the open door lets the same light through.
+	game.flashlight.enabled = false
+	var door: Door = game.world.interactables["altar_door"]["node"]
+	game.enter_zone("house",door.global_position+Vector2(-90,-32))
+	for light in game.world.zones["house"].find_children("*","PointLight2D",true,false):
+		light.enabled = false
+	var probe_light: PointLight2D = game.world.lamp(door.global_position+Vector2(-60,-32),Color.WHITE,2.0,1.6)
+	var receiver := ColorRect.new()
+	receiver.position = door.global_position+Vector2(60,-38)
+	receiver.size = Vector2(12,12)
+	receiver.z_index = 60
+	game.world.add_child(receiver)
+	door.snap(false)
+	var shut := await frame()
+	door.snap(true)
+	var open := await frame()
+	var shut_value := probe_value(shut,receiver)
+	var open_value := probe_value(open,receiver)
+	print("[Door occlusion] shut ",shut_value," open ",open_value)
+	check(open_value>shut_value*2.0,"A closed door blocks light that the open door lets through")
+	# A wall blocks it too: the receiver beside the doorway stays dark with the door open.
+	receiver.position = door.global_position+Vector2(60,-170)
+	var walled := await frame()
+	var walls: TileMapLayer = game.world.zones["house"].get_node("Walls")
+	walls.occlusion_enabled = false
+	var unwalled := await frame()
+	walls.occlusion_enabled = true
+	print("[Wall occlusion] blocked ",probe_value(walled,receiver)," open ",probe_value(unwalled,receiver))
+	check(probe_value(unwalled,receiver)>probe_value(walled,receiver)*2.0,"The partition wall blocks rendered light")
+	open.save_png(CaptureOutput.path("lighting-polish/door-open.png"))
+	shut.save_png(CaptureOutput.path("lighting-polish/door-shut.png"))
 	probe_light.queue_free()
+	receiver.queue_free()
 	game.queue_free()
 	await get_tree().process_frame
 	print("[Light response] ",checks-failures,"/",checks," passed")

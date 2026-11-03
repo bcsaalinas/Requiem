@@ -1,8 +1,8 @@
 shader_type canvas_item;
-uniform float saturation : hint_range(0.0,1.0) = .23;
-uniform float contrast : hint_range(0.0,1.0) = .55;
-uniform float gain : hint_range(0.0,1.0) = .78;
-uniform float detail_radius = 2.0;
+uniform float saturation : hint_range(0.0,1.0) = .5;
+uniform float contrast : hint_range(0.0,1.0) = 1.0;
+uniform float gain : hint_range(0.0,1.0) = 1.0;
+uniform float detail_radius = 0.0;
 varying vec4 item_color;
 void vertex() { item_color = COLOR; }
 void fragment() {

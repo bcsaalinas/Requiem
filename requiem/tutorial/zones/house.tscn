@@ -1,0 +1,479 @@
+[gd_scene format=4 uid="uid://rxh1jsprxf5i"]
+
+[ext_resource type="Texture2D" uid="uid://c34l3yacjtcod" path="res://assets/level/floor_wood.png" id="1_seswp"]
+[ext_resource type="Texture2D" uid="uid://cnatnjlqotr5w" path="res://assets/level/rug_runner.png" id="2_jif1u"]
+[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_vgpbg"]
+[ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_2v7cn"]
+[ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="5_uqkfb"]
+[ext_resource type="PackedScene" uid="uid://v4clsmmkalqe" path="res://level/window/window.tscn" id="6_p7tau"]
+[ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="7_2vbe5"]
+[ext_resource type="PackedScene" uid="uid://ds3510e3xtnj6" path="res://level/props/coat_rack.tscn" id="8_kiov0"]
+[ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="9_3giw8"]
+[ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="10_dkkgd"]
+[ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="11_5l22i"]
+[ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="12_7kgsy"]
+[ext_resource type="PackedScene" uid="uid://cqdd5x3ovgcv1" path="res://level/props/desk.tscn" id="13_g6mak"]
+[ext_resource type="PackedScene" uid="uid://cvvblqnpihcrk" path="res://level/props/altar.tscn" id="14_gwjha"]
+[ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="15_xml7o"]
+[ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="16_uevcv"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="17_80joc"]
+[ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="18_3fn32"]
+[ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="19_xc0nm"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_seswp"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jif1u"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vgpbg"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2v7cn"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uqkfb"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p7tau"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2vbe5"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kiov0"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3giw8"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dkkgd"]
+shader = ExtResource("10_dkkgd")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wwa2h"]
+size = Vector2(32, 224)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h1ce3"]
+size = Vector2(32, 224)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7jk8c"]
+size = Vector2(1280, 32)
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_qf4s4"]
+vertices = PackedVector2Array(369, 143, 369, 463, 353, 315, 353, 217, 1085, 251, 1085, 153, 1169, 143, 1169, 497, 847, 143, 931, 153, 931, 251, 1080, 497, 847, 463, 431, 463, 431, 165, 536, 165, 536, 143, 691, 143, 691, 191, 785, 191, 785, 463, 431, 497, 1080, 575, 1169, 575, 1169, 625, 847, 625, 847, 497, 785, 497, 785, 625, 431, 625, 369, 497, 369, 625, 111, 625, 111, 211, 219, 315, 217, 145, 111, 145, 111, 143, 219, 217, 217, 211)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7), PackedInt32Array(8, 6, 5, 9), PackedInt32Array(10, 4, 7, 11, 12), PackedInt32Array(12, 8, 9, 10), PackedInt32Array(13, 14, 15), PackedInt32Array(15, 16, 17, 18), PackedInt32Array(18, 19, 20, 21), PackedInt32Array(22, 23, 24, 25), PackedInt32Array(22, 25, 26, 11), PackedInt32Array(12, 11, 26, 20), PackedInt32Array(20, 26, 27), PackedInt32Array(27, 28, 29, 21), PackedInt32Array(20, 27, 21), PackedInt32Array(15, 18, 21, 13), PackedInt32Array(1, 13, 21, 30), PackedInt32Array(30, 31, 32, 33), PackedInt32Array(1, 30, 33, 34), PackedInt32Array(35, 36, 37, 0), PackedInt32Array(35, 0, 3, 38, 39), PackedInt32Array(34, 2, 1), PackedInt32Array(34, 33, 39, 38)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(96, 96, 1184, 96, 1184, 640, 96, 640)])
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"house_nav"
+agent_radius = 15.0
+
+[node name="House" type="Node2D" unique_id=771048110]
+y_sort_enabled = true
+
+[node name="Floor" type="Sprite2D" parent="." unique_id=1915477119]
+self_modulate = Color(0.7254902, 0.7058824, 0.67058825, 1)
+z_index = -10
+texture_repeat = 2
+position = Vector2(64, 32)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_seswp")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 2304, 1280)
+
+[node name="PorchDeck" type="Sprite2D" parent="." unique_id=328833488]
+self_modulate = Color(0.5411765, 0.5686275, 0.5254902, 1)
+z_index = -10
+texture_repeat = 2
+position = Vector2(32, 672)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_seswp")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 2432, 512)
+
+[node name="Rugs" type="Node2D" parent="." unique_id=1414101452]
+z_index = -9
+
+[node name="VestibuleRunner" type="Sprite2D" parent="Rugs" unique_id=1236990777]
+position = Vector2(608, 430)
+rotation = 1.5707964
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_jif1u")
+
+[node name="AltarRug" type="Sprite2D" parent="Rugs" unique_id=663867512]
+position = Vector2(1008, 390)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_vgpbg")
+
+[node name="KitchenMat" type="Sprite2D" parent="Rugs" unique_id=15786786]
+position = Vector2(240, 430)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("3_vgpbg")
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=2055138484 groups=["house_nav"]]
+z_index = 1
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAMAAEAAAAAAAAAAAAMAAIAAAAAAAAAAAAMAAMAAAAAAAAAAAAMAAQAAAAAAAAAAAAMAAUAAAAAAAAAAAAMAAYAAAAAAAAAAAAMAAcAAAAAAAAAAAAMAAgAAAAAAAAAAAAMAAkAAAAAAAAAAAAMAAoAAAAAAAAAAAAMAAsAAAAAAAAAAAAMAAwAAAAAAAAAAAAMAA0AAAAAAAAAAAAMABAAAAAAAAAAAAAMABEAAAAAAAAAAAAMABIAAAAAAAAAAAAMABMAAAAAAAAAAAAIAAIAAAAAAAEAAAAQAAIAAAAAAAEAAAAYAAIAAAAAAAEAAAAgAAIAAAAAAAEAAAAIAAMAAAAAAAIAAAAQAAMAAAAAAAIAAAAYAAMAAAAAAAIAAAAgAAMAAAAAAAIAAAAIABUAAAAAAAMAAAAYABUAAAAAAAMAAAAgABUAAAAAAAMAAAAIABYAAAAAAAQAAAAYABYAAAAAAAQAAAAgABYAAAAAAAQAAAAZAAEAAAABAAAAAAAZAAIAAAABAAAAAAAZAAMAAAABAAAAAAAZAAQAAAABAAAAAAAZAAUAAAABAAAAAAAZAAYAAAABAAAAAAAZAAcAAAABAAAAAAAZAAgAAAABAAAAAAAZAAkAAAABAAAAAAAZAAoAAAABAAAAAAAZAAsAAAABAAAAAAAZAAwAAAABAAAAAAAZAA0AAAABAAAAAAAZABAAAAABAAAAAAAZABEAAAABAAAAAAAZABIAAAABAAAAAAAZABMAAAABAAAAAAAlAAEAAAABAAAAAAAlAAIAAAABAAAAAAAlAAMAAAABAAAAAAAlAAQAAAABAAAAAAAlAAUAAAABAAAAAAAlAAYAAAABAAAAAAAlAAcAAAABAAAAAAAlAAgAAAABAAAAAAAlAAkAAAABAAAAAAAlAAoAAAABAAAAAAAlAAsAAAABAAAAAAAlAAwAAAABAAAAAAAlAA0AAAABAAAAAAAlAA4AAAABAAAAAAAlAA8AAAABAAAAAAAlABAAAAABAAAAAAAlABEAAAABAAAAAAAlABIAAAABAAAAAAAlABMAAAABAAAAAAAJAAIAAAABAAEAAAARAAIAAAABAAEAAAAhAAIAAAABAAEAAAAJAAMAAAABAAIAAAARAAMAAAABAAIAAAAhAAMAAAABAAIAAAAJABUAAAABAAMAAAAZABUAAAABAAMAAAAhABUAAAABAAMAAAAJABYAAAABAAQAAAAZABYAAAABAAQAAAAhABYAAAABAAQAAAACAAEAAAACAAAAAAACAAIAAAACAAAAAAACAAMAAAACAAAAAAACAAQAAAACAAAAAAACAAUAAAACAAAAAAACAAYAAAACAAAAAAACAAcAAAACAAAAAAACAAgAAAACAAAAAAACAAkAAAACAAAAAAACAAoAAAACAAAAAAACAAsAAAACAAAAAAACAAwAAAACAAAAAAACAA0AAAACAAAAAAACAA4AAAACAAAAAAACAA8AAAACAAAAAAACABAAAAACAAAAAAACABEAAAACAAAAAAACABIAAAACAAAAAAACABMAAAACAAAAAAAKAAIAAAACAAEAAAASAAIAAAACAAEAAAAaAAIAAAACAAEAAAAiAAIAAAACAAEAAAAKAAMAAAACAAIAAAASAAMAAAACAAIAAAAaAAMAAAACAAIAAAAiAAMAAAACAAIAAAACABUAAAACAAMAAAAKABUAAAACAAMAAAASABUAAAACAAMAAAAaABUAAAACAAMAAAAiABUAAAACAAMAAAACABYAAAACAAQAAAAKABYAAAACAAQAAAASABYAAAACAAQAAAAaABYAAAACAAQAAAAiABYAAAACAAQAAAADAAIAAAADAAEAAAALAAIAAAADAAEAAAATAAIAAAADAAEAAAAbAAIAAAADAAEAAAAjAAIAAAADAAEAAAADAAMAAAADAAIAAAALAAMAAAADAAIAAAATAAMAAAADAAIAAAAbAAMAAAADAAIAAAAjAAMAAAADAAIAAAADABUAAAADAAMAAAALABUAAAADAAMAAAATABUAAAADAAMAAAAbABUAAAADAAMAAAAjABUAAAADAAMAAAADABYAAAADAAQAAAALABYAAAADAAQAAAATABYAAAADAAQAAAAbABYAAAADAAQAAAAjABYAAAADAAQAAAAEAAEAAAAEAAAAAAAEABQAAAAEAAAAAAAIAAEAAAAEAAAAAAAIABQAAAAEAAAAAAAMABQAAAAEAAAAAAAQAAEAAAAEAAAAAAAUAAEAAAAEAAAAAAAYAAEAAAAEAAAAAAAYABQAAAAEAAAAAAAcAAEAAAAEAAAAAAAcABQAAAAEAAAAAAAgAAEAAAAEAAAAAAAgABQAAAAEAAAAAAAkAAEAAAAEAAAAAAAkABQAAAAEAAAAAAAEAAIAAAAEAAEAAAAUAAIAAAAEAAEAAAAcAAIAAAAEAAEAAAAkAAIAAAAEAAEAAAAEAAMAAAAEAAIAAAAUAAMAAAAEAAIAAAAcAAMAAAAEAAIAAAAkAAMAAAAEAAIAAAAEABUAAAAEAAMAAAAMABUAAAAEAAMAAAAcABUAAAAEAAMAAAAkABUAAAAEAAMAAAAEABYAAAAEAAQAAAAMABYAAAAEAAQAAAAcABYAAAAEAAQAAAAkABYAAAAEAAQAAAAFAAEAAAAFAAAAAAAFABQAAAAFAAAAAAAJAAEAAAAFAAAAAAAJABQAAAAFAAAAAAANAAEAAAAFAAAAAAANABQAAAAFAAAAAAARAAEAAAAFAAAAAAAVAAEAAAAFAAAAAAAZABQAAAAFAAAAAAAdAAEAAAAFAAAAAAAdABQAAAAFAAAAAAAhAAEAAAAFAAAAAAAhABQAAAAFAAAAAAAlABQAAAAFAAAAAAAFAAIAAAAFAAEAAAANAAIAAAAFAAEAAAAVAAIAAAAFAAEAAAAdAAIAAAAFAAEAAAAFAAMAAAAFAAIAAAANAAMAAAAFAAIAAAAVAAMAAAAFAAIAAAAdAAMAAAAFAAIAAAAFABUAAAAFAAMAAAANABUAAAAFAAMAAAAdABUAAAAFAAMAAAAlABUAAAAFAAMAAAAFABYAAAAFAAQAAAANABYAAAAFAAQAAAAdABYAAAAFAAQAAAAlABYAAAAFAAQAAAACABQAAAAGAAAAAAAGAAEAAAAGAAAAAAAGABQAAAAGAAAAAAAKAAEAAAAGAAAAAAAKABQAAAAGAAAAAAAOAAEAAAAGAAAAAAAOABQAAAAGAAAAAAASAAEAAAAGAAAAAAASABQAAAAGAAAAAAAWAAEAAAAGAAAAAAAWABQAAAAGAAAAAAAaAAEAAAAGAAAAAAAaABQAAAAGAAAAAAAeAAEAAAAGAAAAAAAeABQAAAAGAAAAAAAiAAEAAAAGAAAAAAAiABQAAAAGAAAAAAAGAAIAAAAGAAEAAAAOAAIAAAAGAAEAAAAWAAIAAAAGAAEAAAAeAAIAAAAGAAEAAAAGAAMAAAAGAAIAAAAOAAMAAAAGAAIAAAAWAAMAAAAGAAIAAAAeAAMAAAAGAAIAAAAGABUAAAAGAAMAAAAOABUAAAAGAAMAAAAWABUAAAAGAAMAAAAeABUAAAAGAAMAAAAGABYAAAAGAAQAAAAOABYAAAAGAAQAAAAWABYAAAAGAAQAAAAeABYAAAAGAAQAAAADAAEAAAAHAAAAAAADABQAAAAHAAAAAAAHAAEAAAAHAAAAAAAHABQAAAAHAAAAAAALAAEAAAAHAAAAAAALABQAAAAHAAAAAAAPAAEAAAAHAAAAAAAPABQAAAAHAAAAAAATAAEAAAAHAAAAAAATABQAAAAHAAAAAAAXAAEAAAAHAAAAAAAXABQAAAAHAAAAAAAbAAEAAAAHAAAAAAAbABQAAAAHAAAAAAAfAAEAAAAHAAAAAAAfABQAAAAHAAAAAAAjAAEAAAAHAAAAAAAjABQAAAAHAAAAAAAHAAIAAAAHAAEAAAAPAAIAAAAHAAEAAAAXAAIAAAAHAAEAAAAfAAIAAAAHAAEAAAAHAAMAAAAHAAIAAAAPAAMAAAAHAAIAAAAXAAMAAAAHAAIAAAAfAAMAAAAHAAIAAAAHABUAAAAHAAMAAAAPABUAAAAHAAMAAAAXABUAAAAHAAMAAAAfABUAAAAHAAMAAAAHABYAAAAHAAQAAAAPABYAAAAHAAQAAAAXABYAAAAHAAQAAAAfABYAAAAHAAQAAAA=")
+tile_set = ExtResource("4_2v7cn")
+
+[node name="Doors" type="Node2D" parent="." unique_id=573268402]
+z_index = 1
+y_sort_enabled = true
+
+[node name="FrontDoor" parent="Doors" unique_id=1999569606 instance=ExtResource("5_uqkfb")]
+position = Vector2(544, 736)
+locked = true
+metadata/interaction_id = "front_door"
+metadata/interaction_label = "Try the front door"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="SideLight" parent="Doors" unique_id=1167108085 instance=ExtResource("6_p7tau")]
+position = Vector2(672, 736)
+exterior = true
+metadata/interaction_id = "window"
+metadata/interaction_label = "Inspect the sidelight"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="KitchenDoor" parent="Doors" unique_id=1684880140 instance=ExtResource("7_2vbe5")]
+position = Vector2(400, 512)
+swing_side = -1
+metadata/interaction_id = "kitchen_door"
+metadata/interaction_label = "Open door"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="AltarDoor" parent="Doors" unique_id=37243981 instance=ExtResource("7_2vbe5")]
+position = Vector2(816, 512)
+start_open = true
+swing = 1.0
+metadata/interaction_id = "altar_door"
+metadata/interaction_label = "Open door"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="Props" type="Node2D" parent="." unique_id=7763226 groups=["house_nav"]]
+z_index = 1
+y_sort_enabled = true
+
+[node name="CoatRack" parent="Props" unique_id=697432684 instance=ExtResource("8_kiov0")]
+position = Vector2(476, 150)
+
+[node name="VestibuleChest" parent="Props" unique_id=2095263743 instance=ExtResource("9_3giw8")]
+position = Vector2(744, 176)
+
+[node name="vestibule_candle" type="Node2D" parent="Props" unique_id=1767122190]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_seswp")
+position = Vector2(748, 177)
+script = ExtResource("11_5l22i")
+kind = "candle"
+lift = 40.0
+
+[node name="KitchenShelf" parent="Props" unique_id=2070999330 instance=ExtResource("12_7kgsy")]
+position = Vector2(152, 196)
+
+[node name="KitchenTable" parent="Props" unique_id=533054813 instance=ExtResource("13_g6mak")]
+position = Vector2(286, 300)
+
+[node name="kitchen_candle" type="Node2D" parent="Props" unique_id=1792414224]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_jif1u")
+position = Vector2(318, 301)
+script = ExtResource("11_5l22i")
+kind = "candle"
+lift = 76.0
+
+[node name="house_battery" type="Node2D" parent="Props" unique_id=1754021680]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_vgpbg")
+position = Vector2(262, 302)
+script = ExtResource("11_5l22i")
+kind = "battery"
+lift = 74.0
+metadata/interaction_id = "house_battery"
+metadata/interaction_label = "Take spare battery"
+
+[node name="Altar" parent="Props" unique_id=22824885 instance=ExtResource("14_gwjha")]
+position = Vector2(1008, 236)
+
+[node name="altar_candle_left" type="Node2D" parent="Props" unique_id=1266731173]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2v7cn")
+position = Vector2(938, 252)
+script = ExtResource("11_5l22i")
+kind = "candle"
+
+[node name="altar_candle_right" type="Node2D" parent="Props" unique_id=356002700]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_uqkfb")
+position = Vector2(1078, 252)
+script = ExtResource("11_5l22i")
+kind = "candle"
+
+[node name="friend" type="Node2D" parent="Props" unique_id=1052530478]
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_p7tau")
+position = Vector2(1008, 318)
+script = ExtResource("11_5l22i")
+kind = "friend"
+metadata/interaction_id = "friend"
+metadata/interaction_label = "Speak to your friend"
+metadata/interaction_offset = Vector2(0, 35)
+
+[node name="AltarArmchair" parent="Props" unique_id=1536587967 instance=ExtResource("15_xml7o")]
+position = Vector2(1128, 560)
+
+[node name="reveal" type="Node2D" parent="Props" unique_id=1549702739]
+visible = false
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_2vbe5")
+position = Vector2(676, 612)
+script = ExtResource("11_5l22i")
+kind = "entity"
+
+[node name="porch_rocks" type="Node2D" parent="Props" unique_id=847716000]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_kiov0")
+position = Vector2(300, 812)
+script = ExtResource("11_5l22i")
+kind = "rocks"
+metadata/interaction_id = "porch_rocks"
+metadata/interaction_label = "Collect three rocks"
+
+[node name="porch_battery" type="Node2D" parent="Props" unique_id=792728758]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_3giw8")
+position = Vector2(900, 830)
+script = ExtResource("11_5l22i")
+kind = "battery"
+metadata/interaction_id = "porch_battery"
+metadata/interaction_label = "Take spare battery"
+
+[node name="PorchCrate" parent="Props" unique_id=530448000 instance=ExtResource("9_3giw8")]
+position = Vector2(176, 800)
+
+[node name="PorchLamp" parent="Props" unique_id=476799547 instance=ExtResource("16_uevcv")]
+position = Vector2(608, 800)
+energy = 1.2
+reach = 1.8
+
+[node name="house_back" type="Node2D" parent="Props" unique_id=1344128710]
+light_mask = 2
+z_index = 1
+texture_filter = 1
+material = SubResource("ShaderMaterial_dkkgd")
+position = Vector2(1150, 846)
+script = ExtResource("11_5l22i")
+kind = "marker"
+dimensions = Vector2(32, 32)
+metadata/interaction_id = "house_back"
+metadata/interaction_label = "Return to the forest"
+
+[node name="Lights" type="Node2D" parent="." unique_id=962909668]
+
+[node name="VestibuleLight" type="PointLight2D" parent="Lights" unique_id=1300145648]
+position = Vector2(748, 146)
+color = Color(0.9372549, 0.7764706, 0.54901963, 1)
+energy = 1.1
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("17_80joc")
+texture_scale = 1.5
+metadata/rest_energy = 1.1
+metadata/rest_color = "#efc68c"
+
+[node name="AltarLeftLight" type="PointLight2D" parent="Lights" unique_id=1937256068]
+position = Vector2(938, 236)
+color = Color(0.9411765, 0.76862746, 0.5411765, 1)
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("17_80joc")
+texture_scale = 1.05
+metadata/rest_energy = 1
+metadata/rest_color = "#f0c48a"
+
+[node name="AltarRightLight" type="PointLight2D" parent="Lights" unique_id=1274836064]
+position = Vector2(1078, 236)
+color = Color(0.9411765, 0.76862746, 0.5411765, 1)
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("17_80joc")
+texture_scale = 1.05
+metadata/rest_energy = 1
+metadata/rest_color = "#f0c48a"
+
+[node name="HouseRecoveryLight" type="PointLight2D" parent="Lights" unique_id=1614545812]
+position = Vector2(318, 228)
+color = Color(0.9372549, 0.7764706, 0.54901963, 1)
+energy = 1.25
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("17_80joc")
+texture_scale = 1.6
+metadata/lighting_role = "recovery"
+
+[node name="WindowGlow" type="PointLight2D" parent="Lights" unique_id=1092692053]
+position = Vector2(672, 604)
+color = Color(0.9098039, 0.72156864, 0.47058824, 1)
+energy = 1.05
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("17_80joc")
+texture_scale = 1.5
+
+[node name="Rooms" type="Node2D" parent="." unique_id=966338201]
+script = ExtResource("18_3fn32")
+
+[node name="Porch" type="Area2D" parent="Rooms" unique_id=2041143452 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("19_xc0nm")
+doors = [NodePath("../../Doors/FrontDoor")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/Porch" unique_id=1151681365]
+polygon = PackedVector2Array(32, 736, 512, 736, 512, 690, 576, 690, 576, 736, 1248, 736, 1248, 928, 32, 928)
+
+[node name="Vestibule" type="Area2D" parent="Rooms" unique_id=2096655843 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("19_xc0nm")
+doors = [NodePath("../../Doors/FrontDoor"), NodePath("../../Doors/KitchenDoor"), NodePath("../../Doors/AltarDoor")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/Vestibule" unique_id=704490761]
+polygon = PackedVector2Array(400, 128, 816, 128, 816, 640, 576, 640, 576, 690, 512, 690, 512, 640, 400, 640)
+
+[node name="Cover" type="Polygon2D" parent="Rooms/Vestibule" unique_id=895062869]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(416, 40, 800, 40, 800, 640, 416, 640)
+
+[node name="Kitchen" type="Area2D" parent="Rooms" unique_id=405119353 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("19_xc0nm")
+doors = [NodePath("../../Doors/KitchenDoor")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/Kitchen" unique_id=1411998554]
+polygon = PackedVector2Array(96, 128, 400, 128, 400, 640, 96, 640)
+
+[node name="Cover" type="Polygon2D" parent="Rooms/Kitchen" unique_id=97571114]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(96, 40, 384, 40, 384, 640, 96, 640)
+
+[node name="AltarRoom" type="Area2D" parent="Rooms" unique_id=652616631 node_paths=PackedStringArray("doors")]
+monitorable = false
+script = ExtResource("19_xc0nm")
+doors = [NodePath("../../Doors/AltarDoor")]
+
+[node name="Shape" type="CollisionPolygon2D" parent="Rooms/AltarRoom" unique_id=1626268451]
+polygon = PackedVector2Array(816, 128, 1184, 128, 1184, 640, 816, 640)
+
+[node name="Cover" type="Polygon2D" parent="Rooms/AltarRoom" unique_id=1487280854]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(832, 40, 1184, 40, 1184, 640, 832, 640)
+
+[node name="Markers" type="Node2D" parent="." unique_id=898036449]
+
+[node name="SpawnFromForest" type="Marker2D" parent="Markers" unique_id=1449554829]
+position = Vector2(530, 850)
+
+[node name="EntitySpawn" type="Marker2D" parent="Markers" unique_id=385571603]
+position = Vector2(1110, 200)
+
+[node name="Patrol1" type="Marker2D" parent="Markers" unique_id=1481412800]
+position = Vector2(1008, 430)
+
+[node name="Patrol2" type="Marker2D" parent="Markers" unique_id=540334195]
+position = Vector2(608, 360)
+
+[node name="Patrol3" type="Marker2D" parent="Markers" unique_id=886693416]
+position = Vector2(240, 500)
+
+[node name="Patrol4" type="Marker2D" parent="Markers" unique_id=1875129654]
+position = Vector2(1110, 600)
+
+[node name="Patrol5" type="Marker2D" parent="Markers" unique_id=1438434069]
+position = Vector2(520, 560)
+
+[node name="Patrol6" type="Marker2D" parent="Markers" unique_id=624885255]
+position = Vector2(700, 230)
+
+[node name="Edges" type="StaticBody2D" parent="." unique_id=1255606825]
+
+[node name="West" type="CollisionShape2D" parent="Edges" unique_id=1578153062]
+position = Vector2(16, 832)
+shape = SubResource("RectangleShape2D_wwa2h")
+
+[node name="East" type="CollisionShape2D" parent="Edges" unique_id=1706126453]
+position = Vector2(1264, 832)
+shape = SubResource("RectangleShape2D_h1ce3")
+
+[node name="South" type="CollisionShape2D" parent="Edges" unique_id=898530661]
+position = Vector2(640, 944)
+shape = SubResource("RectangleShape2D_7jk8c")
+
+[node name="HouseNavigation" type="NavigationRegion2D" parent="." unique_id=1285337116]
+navigation_polygon = SubResource("NavigationPolygon_qf4s4")

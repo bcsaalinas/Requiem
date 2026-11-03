@@ -1,6 +1,32 @@
 [gd_scene format=3 uid="uid://dl7u8a0ny2bb6"]
 
+[ext_resource type="Theme" uid="uid://bunp5j2ev4x3o" path="res://ui/requiem_theme.tres" id="1_kdm7l"]
 [ext_resource type="Script" uid="uid://cg704gjxf86fa" path="res://tutorial/main_menu.gd" id="1_x3j81"]
+[ext_resource type="Texture2D" uid="uid://cnjaqn8uepnqx" path="res://assets/ui/menu_background.png" id="3_q8v17"]
+
+[sub_resource type="Gradient" id="Gradient_ratpk"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0, 0, 0, 0.7529412, 0, 0, 0, 0.5019608, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_julgw"]
+gradient = SubResource("Gradient_ratpk")
+width = 256
+height = 8
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_3b8i4"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="Gradient_pt1n2"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.78039217, 0.44705883, 0.5019608, 0.9490196, 0.6, 0.3019608, 0.18039216, 0.8980392, 0.49803922, 0.2509804, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vdqb1"]
+gradient = SubResource("Gradient_pt1n2")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [node name="MainMenu" type="Control" unique_id=1819483935]
 layout_mode = 3
@@ -9,4 +35,175 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_kdm7l")
 script = ExtResource("1_x3j81")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1068764742]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_q8v17")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="LeftShade" type="TextureRect" parent="." unique_id=1521654624]
+layout_mode = 0
+anchor_right = 0.6
+anchor_bottom = 1.0
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_julgw")
+expand_mode = 1
+
+[node name="CandleGlow" type="TextureRect" parent="." unique_id=1599786130]
+unique_name_in_owner = true
+material = SubResource("CanvasItemMaterial_3b8i4")
+layout_mode = 0
+offset_left = 832.0
+offset_top = 245.0
+offset_right = 1048.0
+offset_bottom = 461.0
+pivot_offset = Vector2(108, 108)
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_vdqb1")
+expand_mode = 1
+
+[node name="Column" type="VBoxContainer" parent="." unique_id=1283158873]
+layout_mode = 0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 112.0
+offset_top = -270.0
+offset_right = 552.0
+offset_bottom = 270.0
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Title" type="Label" parent="Column" unique_id=2058982902]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "REQUIEM"
+
+[node name="Rule" type="ColorRect" parent="Column" unique_id=538299064]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 1)
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_filter = 2
+color = Color(0.95686275, 0.85882354, 0.61960787, 1)
+
+[node name="Tagline" type="Label" parent="Column" unique_id=1033221760]
+layout_mode = 2
+theme_type_variation = &"CaptionLabel"
+text = "a blind thing is listening"
+
+[node name="Spacer" type="Control" parent="Column" unique_id=830643057]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Pages" type="Control" parent="Column" unique_id=1159537513]
+custom_minimum_size = Vector2(0, 330)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MainPage" type="VBoxContainer" parent="Column/Pages" unique_id=1114393701]
+unique_name_in_owner = true
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="Play" type="Button" parent="Column/Pages/MainPage" unique_id=1050558655]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Play"
+alignment = 0
+
+[node name="ControlsButton" type="Button" parent="Column/Pages/MainPage" unique_id=1819565507]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Controls"
+alignment = 0
+
+[node name="AudioButton" type="Button" parent="Column/Pages/MainPage" unique_id=549881868]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Audio"
+alignment = 0
+
+[node name="Quit" type="Button" parent="Column/Pages/MainPage" unique_id=1227719910]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Quit"
+alignment = 0
+
+[node name="ControlsPage" type="VBoxContainer" parent="Column/Pages" unique_id=740029902]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="ControlsGrid" type="GridContainer" parent="Column/Pages/ControlsPage" unique_id=746048900]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 5
+columns = 2
+
+[node name="Separator" type="HSeparator" parent="Column/Pages/ControlsPage" unique_id=1797961101]
+layout_mode = 2
+
+[node name="Note" type="Label" parent="Column/Pages/ControlsPage" unique_id=112542366]
+layout_mode = 2
+theme_type_variation = &"CaptionLabel"
+text = "Stand still to recover exertion.
+Release your breath before your air runs out."
+
+[node name="ControlsBack" type="Button" parent="Column/Pages/ControlsPage" unique_id=2098211350]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Back"
+alignment = 0
+
+[node name="AudioPage" type="VBoxContainer" parent="Column/Pages" unique_id=288470622]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="Separator" type="HSeparator" parent="Column/Pages/AudioPage" unique_id=1560914214]
+layout_mode = 2
+
+[node name="AudioBack" type="Button" parent="Column/Pages/AudioPage" unique_id=792988603]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Back"
+alignment = 0

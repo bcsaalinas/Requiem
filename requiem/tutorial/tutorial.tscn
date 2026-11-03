@@ -1,42 +1,59 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://cggy1v3yidf7n"]
 
-[ext_resource type="Script" path="res://tutorial/tutorial.gd" id="1"]
-[ext_resource type="PackedScene" path="res://tutorial/world.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://player/player.tscn" id="3"]
+[ext_resource type="Script" uid="uid://qqrxp5bxdb15" path="res://tutorial/tutorial.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://l6035e36uo4o" path="res://tutorial/world.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://qvmplrwk2j6o" path="res://player/player.tscn" id="3"]
+[ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="3_811q2"]
 [ext_resource type="PackedScene" path="res://tutorial/tutorial_entity.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://tutorial/hud.tscn" id="5"]
-[ext_resource type="Shader" path="res://tutorial/atmosphere.gdshader" id="6"]
+[ext_resource type="PackedScene" uid="uid://djod0bwigac1b" path="res://tutorial/hud.tscn" id="5"]
+[ext_resource type="Shader" uid="uid://c3hwjfm84hx2v" path="res://tutorial/atmosphere.gdshader" id="6"]
+[ext_resource type="Script" uid="uid://bv0ri88ue8g2f" path="res://tutorial/fx/heard_flash.gd" id="6_tifc7"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3npmm"]
+shader = ExtResource("3_811q2")
+shader_parameter/saturation = 0.45
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
 
 [sub_resource type="ShaderMaterial" id="AtmosphereMaterial"]
 shader = ExtResource("6")
 
-[node name="OrganicTutorial" type="Node2D"]
+[node name="OrganicTutorial" type="Node2D" unique_id=556050769]
 script = ExtResource("1")
 
-[node name="TutorialWorld" parent="." instance=ExtResource("2")]
+[node name="TutorialWorld" parent="." unique_id=1183695514 instance=ExtResource("2")]
+material = SubResource("ShaderMaterial_3npmm")
 
-[node name="TutorialAmbient" type="CanvasModulate" parent="."]
-color = Color(0.16, 0.18, 0.21, 1)
+[node name="TutorialAmbient" type="CanvasModulate" parent="." unique_id=1594022313]
+color = Color(0.019607844, 0.023529412, 0.03137255, 1)
 
-[node name="Player" parent="." instance=ExtResource("3")]
+[node name="Player" parent="." unique_id=1035738147 instance=ExtResource("3")]
 
-[node name="Entity" parent="." instance=ExtResource("4")]
+[node name="Entity" parent="." unique_id=818773027 instance=ExtResource("4")]
 
-[node name="Atmosphere" type="CanvasLayer" parent="."]
+[node name="NoiseFx" type="CanvasLayer" parent="." unique_id=1769249356]
+layer = 5
+follow_viewport_enabled = true
+
+[node name="HeardFlash" type="Node2D" parent="NoiseFx" unique_id=710613311]
+script = ExtResource("6_tifc7")
+
+[node name="Atmosphere" type="CanvasLayer" parent="." unique_id=1577529221]
 layer = 10
 
-[node name="Film" type="ColorRect" parent="Atmosphere"]
+[node name="Film" type="ColorRect" parent="Atmosphere" unique_id=571809470]
 material = SubResource("AtmosphereMaterial")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="HUD" parent="." instance=ExtResource("5")]
+[node name="HUD" parent="." unique_id=698628330 instance=ExtResource("5")]
 
-[node name="AmbientAudio" type="AudioStreamPlayer" parent="." groups=["tutorial_audio"]]
+[node name="AmbientAudio" type="AudioStreamPlayer" parent="." unique_id=306195444 groups=["tutorial_audio"]]
 volume_db = -18.0
 
-[node name="PrayerAudio" type="AudioStreamPlayer2D" parent="." groups=["tutorial_audio"]]
+[node name="PrayerAudio" type="AudioStreamPlayer2D" parent="." unique_id=323166396 groups=["tutorial_audio"]]
 position = Vector2(6240, 280)
 volume_db = -13.0

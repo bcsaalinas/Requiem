@@ -399,7 +399,8 @@ func check_sprint_studio(lab: Node) -> void:
 		"Reset returns to the current run origin and clears real resources, input, gait and dust")
 
 	studio.set_studio_area(0)
-	studio.player.global_position = Vector2(896, 440)
+	# Rebuilt bedroom: the east wall band starts at x 864; (896, 440) is now the exit doorway.
+	studio.player.global_position = Vector2(790, 500)
 	await frames(4)
 	Input.action_press("sprint")
 	Input.action_press("move_right")

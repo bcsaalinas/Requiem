@@ -25,14 +25,18 @@ func _frame_camera() -> void:
 		camera_rig.apply_region(World.REGIONS[zone])
 
 
-func enter_zone(next_zone: String, spawn := Vector2.INF, save := true) -> void:
-	super.enter_zone(next_zone, spawn, save)
+func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_door := "") -> void:
+	super.enter_zone(next_zone, spawn, save, arrival_door)
 	if is_instance_valid(camera_rig): camera_rig.enter_region(World.REGIONS[zone])
 
 
 func _tick_hallway(delta: float) -> void:
 	super._tick_hallway(delta)
-	var door_x := 1930.0 if player.position.x < 2110.0 else 2310.0
+	# The listening doors now come from the hallway scene; pick the one nearest the player.
+	var door_x := 0.0
+	for listener in _parent_listeners():
+		if door_x == 0.0 or absf(listener.global_position.x - player.position.x) < absf(door_x - player.position.x):
+			door_x = listener.global_position.x
 	# The refuge and its recovery cue retain exploration framing.
 	var near_door := absf(player.position.x - door_x) < 165.0 and player.position.y < 418.0
 	camera_rig.set_hallway_door(door_x if near_door else 0.0)

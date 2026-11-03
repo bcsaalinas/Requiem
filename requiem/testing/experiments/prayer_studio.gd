@@ -129,7 +129,7 @@ func _spawn_altar() -> void:
 	# pulse tint, collision, proximity, progress, audio and completion stay live.
 	var texture := AtlasTexture.new()
 	texture.atlas = Art.SPRITES
-	texture.region = Art.CELLS["altar"]
+	texture.region = preload("res://level/props/textures/altar.tres").region
 	var sprite: Sprite2D = altar.get_node("Sprite2D")
 	sprite.texture = texture
 	sprite.scale = Vector2(80.0 / 282.0, 72.0 / 269.0)

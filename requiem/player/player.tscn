@@ -1,36 +1,35 @@
 [gd_scene format=3 uid="uid://qvmplrwk2j6o"]
 
-[ext_resource type="Script" path="res://player/player.gd" id="1_player"]
-[ext_resource type="Script" path="res://player/player_motion.gd" id="10_motion"]
-[ext_resource type="Script" path="res://player/action_state.gd" id="12_actions"]
-[ext_resource type="Script" path="res://player/aim.gd" id="13_aim"]
-[ext_resource type="Script" path="res://player/breath_feedback.gd" id="14_breath_feedback"]
-[ext_resource type="Script" path="res://player/throw_feedback.gd" id="15_throw_feedback"]
-[ext_resource type="Script" path="res://player/prayer_feedback.gd" id="16_prayer_feedback"]
-[ext_resource type="Script" path="res://player/sprint_dust.gd" id="17_sprint_dust"]
-[ext_resource type="Script" path="res://player/footstep_audio.gd" id="18_step_audio"]
-[ext_resource type="SpriteFrames" path="res://player/art/girl_rig_v2/girl_frames.tres" id="11_girl"]
-[ext_resource type="Script" path="res://player/footstep_noise.gd" id="2_footstep"]
-[ext_resource type="Script" path="res://player/hold_breath.gd" id="3_breath"]
-[ext_resource type="Script" path="res://tutorial/throw.gd" id="4_hg6s5"]
-[ext_resource type="Shader" path="res://tutorial/scenery.gdshader" id="5_8t03j"]
-[ext_resource type="Script" path="res://tutorial/art.gd" id="6_2ieo8"]
-[ext_resource type="Texture2D" path="res://assets/Textures/light_texture.png" id="7_ebec5"]
-[ext_resource type="Texture2D" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
-[ext_resource type="Script" path="res://player/flashlight.gd" id="9_kb6p2"]
-
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_04.wav" id="step_4"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_05.wav" id="step_5"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
-[ext_resource type="AudioStream" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
+[ext_resource type="Script" uid="uid://o5a4tc70y5s1" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://cdbfenw3olwtf" path="res://player/footstep_noise.gd" id="2_footstep"]
+[ext_resource type="Script" uid="uid://d03iu060ho22s" path="res://player/hold_breath.gd" id="3_breath"]
+[ext_resource type="Script" uid="uid://boyc4w7ax6xiy" path="res://tutorial/throw.gd" id="4_hg6s5"]
+[ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="5_8t03j"]
+[ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="6_2ieo8"]
 [ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
+[ext_resource type="Texture2D" uid="uid://dgqcswjb0xvcv" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
+[ext_resource type="Script" uid="uid://b3kkiai512s0v" path="res://player/flashlight.gd" id="9_kb6p2"]
+[ext_resource type="Script" uid="uid://ciu6hs02vimpr" path="res://player/player_motion.gd" id="10_motion"]
 [ext_resource type="AudioStream" uid="uid://ydi3tbv8mgoc" path="res://assets/audio/629008__realgtro__flashlight-click.wav" id="11_click"]
+[ext_resource type="SpriteFrames" uid="uid://bspfyibxby70l" path="res://player/art/girl_rig_v2/girl_frames.tres" id="11_girl"]
+[ext_resource type="Script" uid="uid://6p8nmhlfyuxv" path="res://player/action_state.gd" id="12_actions"]
 [ext_resource type="AudioStream" uid="uid://dsryvde7rdg5t" path="res://assets/audio/78562__joedeshon__alarm_clock_ringing_01.wav" id="12_alarm"]
+[ext_resource type="Script" uid="uid://00uelyoyjcxr" path="res://player/aim.gd" id="13_aim"]
+[ext_resource type="Script" uid="uid://bod5jb8yavy7g" path="res://player/breath_feedback.gd" id="14_breath_feedback"]
+[ext_resource type="Script" uid="uid://dfkbiqakrgaxx" path="res://player/throw_feedback.gd" id="15_throw_feedback"]
+[ext_resource type="Script" uid="uid://bvai3cu8s7ice" path="res://player/prayer_feedback.gd" id="16_prayer_feedback"]
+[ext_resource type="Script" uid="uid://cpgi4i32bkc3u" path="res://player/sprint_dust.gd" id="17_sprint_dust"]
+[ext_resource type="Script" uid="uid://1ykujjgcevm8" path="res://player/footstep_audio.gd" id="18_step_audio"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="21_b8hi5"]
+[ext_resource type="AudioStream" uid="uid://cbg5c8japhqh5" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
+[ext_resource type="AudioStream" uid="uid://dcowx5kfeasrk" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
+[ext_resource type="AudioStream" uid="uid://4e5eua575dy3" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
+[ext_resource type="AudioStream" uid="uid://41fr8oev0wle" path="res://assets/audio/footsteps/concrete_step_04.wav" id="step_4"]
+[ext_resource type="AudioStream" uid="uid://dhxpywo2ciga2" path="res://assets/audio/footsteps/concrete_step_05.wav" id="step_5"]
+[ext_resource type="AudioStream" uid="uid://b8d7ectfh4j43" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
+[ext_resource type="AudioStream" uid="uid://c71m11vomxou3" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
+[ext_resource type="AudioStream" uid="uid://bqymjmvxgjtkk" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -38,8 +37,12 @@ size = Vector2(32, 32)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(24, 24)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_wodsf"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2uvqg"]
 shader = ExtResource("5_8t03j")
+shader_parameter/saturation = 0.5
+shader_parameter/contrast = 1.0
+shader_parameter/gain = 1.0
+shader_parameter/detail_radius = 0.0
 
 [node name="Player" type="CharacterBody2D" unique_id=473472220]
 script = ExtResource("1_player")
@@ -64,15 +67,15 @@ position_smoothing_enabled = true
 script = ExtResource("2_footstep")
 walk_clips = Array[AudioStream]([ExtResource("step_1"), ExtResource("step_2"), ExtResource("step_3"), ExtResource("step_4"), ExtResource("step_5"), ExtResource("step_6"), ExtResource("step_7"), ExtResource("step_8")])
 
-[node name="ActionState" type="Node" parent="."]
+[node name="ActionState" type="Node" parent="." unique_id=1001475918]
 script = ExtResource("12_actions")
 
 [node name="HoldBreath" type="Node" parent="." unique_id=2008094638]
 script = ExtResource("3_breath")
 hold_clips = Array[AudioStream]([ExtResource("7_hold")])
-exertion_clips = Array[AudioStream]([ExtResource("8_exertion")])
 gasp_clips = Array[AudioStream]([ExtResource("8_exertion")])
 forced_gasp_clips = Array[AudioStream]([ExtResource("7_hold")])
+exertion_clips = Array[AudioStream]([ExtResource("8_exertion")])
 
 [node name="Throw" type="Node" parent="." unique_id=130069321]
 script = ExtResource("4_hg6s5")
@@ -81,9 +84,10 @@ despertador_clips = Array[AudioStream]([ExtResource("12_alarm")])
 [node name="Appearance" type="Node2D" parent="." unique_id=1642923067]
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_wodsf")
+material = SubResource("ShaderMaterial_2uvqg")
 script = ExtResource("6_2ieo8")
 kind = "actor"
+lift = null
 actor_frames = ExtResource("11_girl")
 actor_rig_enabled = true
 actor_frame_scale = 0.5
@@ -95,19 +99,19 @@ actor_value_floor = 0.05
 actor_value_range = 0.75
 actor_rim_strength = 0.15
 
-[node name="PlayerMotion" type="Node" parent="."]
+[node name="PlayerMotion" type="Node" parent="." unique_id=2070045669]
 process_mode = 1
 script = ExtResource("10_motion")
 
 [node name="LocalLight" type="PointLight2D" parent="." unique_id=341006500]
-color = Color(0.7254902, 0.77254903, 0.7254902, 1)
-energy = 0.35
+color = Color(0.7882353, 0.7647059, 0.69411767, 1)
+energy = 0.6
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5
 shadow_item_cull_mask = 3
-texture = ExtResource("7_ebec5")
-texture_scale = 1.35
+texture = ExtResource("21_b8hi5")
+texture_scale = 1.25
 
 [node name="flashlight" type="PointLight2D" parent="." unique_id=303225094]
 enabled = false
@@ -121,20 +125,20 @@ texture_scale = 2.1554403
 script = ExtResource("9_kb6p2")
 click_clips = Array[AudioStream]([ExtResource("11_click")])
 
-[node name="PlayerAim" type="Node" parent="."]
+[node name="PlayerAim" type="Node" parent="." unique_id=870822402]
 script = ExtResource("13_aim")
 
-[node name="BreathFeedback" type="Node" parent="."]
+[node name="BreathFeedback" type="Node" parent="." unique_id=670720294]
 script = ExtResource("14_breath_feedback")
 
-[node name="ThrowFeedback" type="Node" parent="."]
+[node name="ThrowFeedback" type="Node" parent="." unique_id=1244078488]
 script = ExtResource("15_throw_feedback")
 
-[node name="PrayerFeedback" type="Node" parent="."]
+[node name="PrayerFeedback" type="Node" parent="." unique_id=1679709236]
 script = ExtResource("16_prayer_feedback")
 
-[node name="SprintDust" type="Node2D" parent="."]
+[node name="SprintDust" type="Node2D" parent="." unique_id=581831046]
 script = ExtResource("17_sprint_dust")
 
-[node name="FootstepAudio" type="Node" parent="."]
+[node name="FootstepAudio" type="Node" parent="." unique_id=2034173137]
 script = ExtResource("18_step_audio")
