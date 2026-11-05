@@ -33,8 +33,8 @@ const SHADOW := Color(0, 0, 0, 0.95)
 
 # --- Medidas ---
 const METER_SIZE := Vector2(110, 5)
-const CAPTION_SIZE := 10
-const BODY_SIZE := 18
+const CAPTION_SIZE := 20
+const BODY_SIZE := 20
 const TITLE_SIZE := 24
 
 

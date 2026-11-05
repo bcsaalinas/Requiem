@@ -119,12 +119,10 @@ func _enter_tree() -> void:
 	GameState.reset()
 
 func _ready() -> void:
-	get_window().content_scale_size = Vector2i(1280,720)
-	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	Exhibit.configure_display()
 	var args := OS.get_cmdline_user_args()
 	if not test_mode and DisplayServer.get_name() != "headless" and not (args.has("--windowed") or args.has("--record") or args.has("--background")):
-		get_window().mode = Window.MODE_FULLSCREEN
+		Preferences.apply_display()
 	get_viewport().size_changed.connect(_frame_camera)
 	# Beyond the walls is void: black, like the unlit rooms.
 	RenderingServer.set_default_clear_color(Color.BLACK)
@@ -894,7 +892,7 @@ func _frame_camera() -> void:
 	var camera := player.get_node("Camera2D") as Camera2D
 	var region: Rect2 = World.REGIONS[zone]
 	var viewport_size := get_viewport_rect().size
-	var zoom := maxf(1.65,maxf(viewport_size.x/region.size.x,viewport_size.y/region.size.y))
+	var zoom := maxf(2.475,maxf(viewport_size.x/region.size.x,viewport_size.y/region.size.y))
 	camera.zoom = Vector2.ONE*zoom
 	camera.limit_left = int(region.position.x)
 	camera.limit_top = int(region.position.y)
@@ -903,7 +901,7 @@ func _frame_camera() -> void:
 	camera.force_update_scroll()
 
 func _toggle_fullscreen() -> void:
-	get_window().mode = Window.MODE_WINDOWED if get_window().mode in [Window.MODE_FULLSCREEN,Window.MODE_EXCLUSIVE_FULLSCREEN] else Window.MODE_FULLSCREEN
+	Preferences.set_fullscreen(not Preferences.fullscreen)
 
 func _toggle_pause() -> void:
 	_paused = not _paused

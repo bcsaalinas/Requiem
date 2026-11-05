@@ -37,7 +37,7 @@ const CONTROLS := [
 	["F", "Flashlight"],
 	["B", "Replace battery"],
 	["Q / Tab", "Throw · Switch"],
-	["R", "Restart checkpoint"],
+	["R / Select", "Restart demo"],
 	["F11", "Fullscreen"],
 ]
 
@@ -60,6 +60,7 @@ func _ready() -> void:
 	if _duck_bus >= 0:
 		_duck_base_db = AudioServer.get_bus_volume_db(_duck_bus)
 	_build()
+	Exhibit.fit_ui(_root)
 	_root.visible = false
 
 
@@ -90,8 +91,8 @@ func _build() -> void:
 	_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_panel.offset_left = -290
 	_panel.offset_right = 290
-	_panel.offset_top = -210
-	_panel.offset_bottom = 210
+	_panel.offset_top = -310
+	_panel.offset_bottom = 310
 	_panel.add_theme_stylebox_override("panel", UIPalette.flat(UIPalette.PANEL, 30.0))
 	_root.add_child(_panel)
 
@@ -110,7 +111,7 @@ func _build() -> void:
 	column.add_child(HSeparator.new())
 
 	var stack := Control.new()
-	stack.custom_minimum_size = Vector2(0, 250)
+	stack.custom_minimum_size = Vector2(0, 420)
 	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(stack)
 
@@ -150,16 +151,16 @@ func _build_controls() -> Control:
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 7)
 	for row in CONTROLS:
-		var key := UIPalette.label(row[0], 15, UIPalette.CANDLE)
+		var key := UIPalette.label(row[0], 20, UIPalette.CANDLE)
 		key.custom_minimum_size.x = 180
 		grid.add_child(key)
-		grid.add_child(UIPalette.label(row[1], 15, UIPalette.TEXT_DIM))
+		grid.add_child(UIPalette.label(row[1], 20, UIPalette.TEXT_DIM))
 	box.add_child(grid)
 
 	box.add_child(HSeparator.new())
 	box.add_child(UIPalette.label(
 		"Stand still to recover exertion.\nRelease your breath before your air runs out.",
-		13, UIPalette.TEXT_DIM
+		20, UIPalette.TEXT_DIM
 	))
 	box.add_child(_menu_button("Back", func(): _show_page("main")))
 	return box
@@ -197,8 +198,7 @@ func _volume_row(bus_name: String, index: int) -> Control:
 	slider.value_changed.connect(func(v: float):
 		# Silence is a real setting here, so the bottom of the slider mutes
 		# rather than sitting at a very quiet -40 dB.
-		AudioServer.set_bus_mute(index, v <= 0.001)
-		AudioServer.set_bus_volume_db(index, linear_to_db(maxf(v, 0.0001)))
+		Preferences.set_volume(bus_name, v)
 		if bus_name == duck_bus_name:
 			_duck_base_db = linear_to_db(maxf(v, 0.0001))
 			if is_open:

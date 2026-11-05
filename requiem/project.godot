@@ -17,6 +17,10 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Exhibit="*res://autoloads/exhibit.gd"
+
+Preferences="*res://autoloads/preferences.gd"
+
 NoiseManager="*res://autoloads/noise_manager.gd"
 GameState="*res://autoloads/game_state.gd"
 GameOverUi="*res://autoloads/game_over_ui.gd"
@@ -27,8 +31,13 @@ LoadingScreen="*res://tutorial/loading_screen.gd"
 
 [display]
 
-window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1920
+window/size/window_height_override=1080
+window/size/resizable=false
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
 
 [editor_plugins]
 

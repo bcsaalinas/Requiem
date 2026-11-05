@@ -129,20 +129,20 @@ size_flags_horizontal = 0
 text = "Play"
 alignment = 0
 
-[node name="ControlsButton" type="Button" parent="Column/Pages/MainPage" unique_id=1819565507]
+[node name="SettingsButton" type="Button" parent="Column/Pages/MainPage" unique_id=1819565507]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 40)
 layout_mode = 2
 size_flags_horizontal = 0
-text = "Controls"
+text = "Settings"
 alignment = 0
 
-[node name="AudioButton" type="Button" parent="Column/Pages/MainPage" unique_id=549881868]
+[node name="CreditsButton" type="Button" parent="Column/Pages/MainPage" unique_id=549881868]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 40)
 layout_mode = 2
 size_flags_horizontal = 0
-text = "Audio"
+text = "Credits"
 alignment = 0
 
 [node name="Quit" type="Button" parent="Column/Pages/MainPage" unique_id=1227719910]

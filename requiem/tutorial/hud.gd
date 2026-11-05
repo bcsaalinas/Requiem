@@ -23,6 +23,7 @@ var _hint_clock := 0.0
 var _alert_tween: Tween
 
 func _ready() -> void:
+	Exhibit.fit_ui(root)
 	# Each HUD owns these styles; warning pulses cannot leak into other scenes.
 	_breath_fill = breath.get_theme_stylebox("fill").duplicate()
 	_effort_fill = effort.get_theme_stylebox("fill").duplicate()
@@ -104,6 +105,7 @@ func pulse_slot(kind: String) -> void:
 	tween.tween_property(slot, "scale", Vector2.ONE, 0.25)
 
 func place_prompt(at: Vector2, in_dialogue := false) -> void:
+	at /= 1.5
 	var viewport_size := root.size
 	if in_dialogue:
 		prompt.position = Vector2((viewport_size.x-prompt.size.x)*.5,viewport_size.y-69)

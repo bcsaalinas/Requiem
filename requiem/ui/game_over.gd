@@ -5,6 +5,7 @@ extends Control
 
 ## The level can name what gave the player away ("It heard your footsteps.").
 func _ready() -> void:
+	Exhibit.fit_ui(self)
 	var scene := get_tree().current_scene
 	if scene != null and scene.has_method("game_over_cause"):
 		($Center/Panel/Column/Subtitle as Label).text = scene.game_over_cause()

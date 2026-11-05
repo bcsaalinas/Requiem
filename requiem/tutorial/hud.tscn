@@ -101,7 +101,7 @@ theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7254902, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 
 [node name="Battery" type="HBoxContainer" parent="Screen/Inventory" unique_id=873786898]
 visible = false
@@ -121,7 +121,7 @@ theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7254902, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 
 [node name="Rocks" type="HBoxContainer" parent="Screen/Inventory" unique_id=1794366086]
 visible = false
@@ -141,14 +141,14 @@ theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7254902, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 
 [node name="Vitals" type="HBoxContainer" parent="Screen" unique_id=1794055208]
 layout_mode = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 28.0
-offset_top = -54.0
+offset_top = -70.0
 offset_bottom = -28.0
 theme_override_constants/separation = 18
 script = ExtResource("3_w8sm5")
@@ -162,11 +162,11 @@ theme_override_colors/font_color = Color(0.7647059, 0.76862746, 0.6666667, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 20
 text = "BREATH"
 
 [node name="Meter" type="ProgressBar" parent="Screen/Vitals/Breath" unique_id=600481585]
-custom_minimum_size = Vector2(110, 5)
+custom_minimum_size = Vector2(140, 9)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_uxx2j")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lpmjs")
@@ -181,11 +181,11 @@ theme_override_colors/font_color = Color(0.80784315, 0.6745098, 0.47058824, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 20
 text = "EXERTION"
 
 [node name="Meter" type="ProgressBar" parent="Screen/Vitals/Exertion" unique_id=1729844663]
-custom_minimum_size = Vector2(110, 5)
+custom_minimum_size = Vector2(140, 9)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_fdqx6")
 theme_override_styles/fill = SubResource("StyleBoxFlat_u8ho5")
@@ -201,11 +201,11 @@ theme_override_colors/font_color = Color(0.65882355, 0.6784314, 0.60784316, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 20
 text = "BATTERY"
 
 [node name="Meter" type="ProgressBar" parent="Screen/Vitals/Battery" unique_id=1413848367]
-custom_minimum_size = Vector2(110, 5)
+custom_minimum_size = Vector2(140, 9)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_wajr8")
 theme_override_styles/fill = SubResource("StyleBoxFlat_0y45n")
@@ -219,7 +219,7 @@ theme_override_colors/font_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -235,7 +235,7 @@ theme_override_colors/font_color = Color(0.9411765, 0.9137255, 0.8509804, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 21
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -273,7 +273,7 @@ theme_override_colors/font_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 20
 text = "SPACE"
 
 [node name="Text" type="Label" parent="Screen/BreathHint" unique_id=1460231778]
@@ -282,7 +282,7 @@ theme_override_colors/font_color = Color(0.9411765, 0.9137255, 0.8509804, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "Hold breath"
 
 [node name="Alert" type="VBoxContainer" parent="Screen" unique_id=1460231779]
@@ -359,7 +359,7 @@ theme_override_colors/font_color = Color(0.72156864, 0.7294118, 0.6901961, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "WASD / arrows   Move       Shift   Sprint
 Space   Hold breath
 E   Interact       F   Flashlight

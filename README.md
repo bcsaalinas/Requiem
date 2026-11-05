@@ -4,11 +4,34 @@ Godot 4.7 project. Open `requiem/project.godot` and allow the initial asset impo
 
 ## Play and test
 
-- **F5 — playable build:** `requiem/tutorial/tutorial.tscn` (The First Breath).
+- **F5 — playable build:** `requiem/tutorial/main_menu.tscn` → Play → The First Breath.
 - **F6 — development:** open `requiem/testing/test_lab.tscn`. This is the single entry for manual feature checks, camera comparison and the mechanics sandbox.
 - **Automated checks:** `python3 requiem/testing/run_checks.py`. Add `--rendered` for GPU lighting checks with an available display. Use `--godot /path/to/godot` if needed.
 
 The [Test Lab guide](requiem/testing/README.md) covers controls, captures and adding experiments. Gameplay is not switched to a test scene for a handoff. The export preset excludes `testing/*`.
+
+## Main menu
+
+Play loads the tutorial with Retry / Back to Menu on failure. Settings groups Audio,
+Controls (reference only) and Display (fullscreen/windowed); audio and display preferences
+are saved in `user://preferences.cfg` and shared with gameplay. Credits opens a cinematic automatic roll in `requiem/tutorial/credits.tscn`: team,
+verified audio author handles, and engine/tool acknowledgements. Back/Esc exits at any
+time, and the roll returns to the menu when finished. Licenses pauses the roll to read
+complete notices. Team/resource text remains editable on the main menu script; established
+credits live in `credits_data.gd`. Quit asks for confirmation, with Cancel focused first.
+Escape returns one page, or opens Quit from the main menu. F11 toggles and saves fullscreen.
+There is no Continue option or persistent gameplay save.
+
+## Exhibition build
+
+- Starts in an animated attract screen. A keyboard, mouse or controller button opens the menu.
+- R / controller Select (Back) restarts the demo from the bedroom, including during pause or game over. This replaces the checkpoint shortcut in the production build; game-over Retry still restores a checkpoint.
+- After 60 seconds without input, the build returns to a fresh attract screen. A warning appears for the last 10 seconds. This also applies to menu subpages, credits, pause and game over; input cancels the countdown. Loading is excluded.
+- Rendering is fixed at 1920×1080, with preserved 16:9 aspect ratio and letterboxing. The window cannot be dragged to resize; F11 changes the presentation mode without changing render resolution.
+- Main instructions, dialogue and vital captions target at least 30 output pixels with high contrast. Confirm readability at two meters on the actual exhibition monitor; physical text size depends on the display.
+- No under-floor killzones: this is a top-down game with no gravity/falling mechanic.
+
+`test_exhibit` covers attract input, drift rejection, the idle timer, 1080p settings and fast reset from pause/game over. `Exhibit.enabled = false` disables exhibition automation for isolated test runners.
 
 ## Project layout
 
