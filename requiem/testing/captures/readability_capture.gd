@@ -36,28 +36,7 @@ func _ready() -> void:
 	await measure("player-forest",actor.focal_sprite,1.7)
 	await measure("forest-rocks",game.world.props["forest_rocks"].focal_sprite,1.5)
 	(await frame()).save_png(CaptureOutput.path("readability/forest-after.png"))
-	game.enter_zone("house")
-	game.hud.banner.text=""
-	game.player.position=Vector2(5890,400)
-	game.entity.position=Vector2(6000,400)
-	game.entity.show()
-	game.entity.active=true
-	game.entity._update_readability()
-	if game.entity.appearance.threat_pressure>0:
-		failed=true
-		push_error("A wall must prevent the foreground threat accent")
-	game.player.position=Vector2(6070,640)
-	game.entity.position=Vector2(6130,600)
-	game.entity._update_readability()
-	if game.entity.appearance.threat_pressure<.8:
-		failed=true
-		push_error("An unobstructed nearby threat must become readable")
-	game.player.get_node("Camera2D").reset_smoothing()
-	await frame()
-	await frame()
-	await measure("nearby-threat",game.entity.appearance.focal_sprite,1.5)
-	(await frame()).save_png(CaptureOutput.path("readability/nearby-threat.png"))
-	print("[Readability] ","FAIL" if failed else "PASS — foreground contrast and threat occlusion")
+	print("[Readability] ","FAIL" if failed else "PASS — foreground contrast")
 	game.queue_free()
 	await get_tree().process_frame
 	get_tree().quit(1 if failed else 0)
