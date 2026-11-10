@@ -77,11 +77,9 @@ venv/
 .godot/
 /android/
 
-# Machine-local agent settings and generated exports
-.codex/
+# Machine-local settings and generated exports
 requiem/*.app/
 requiem/*.command
-tools/character_rig/previews/
 requiem/testing/captures/throw_review/
 
 requiem/testing/captures/prayer_review/
