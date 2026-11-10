@@ -1,0 +1,338 @@
+{
+ "clip": "catch",
+ "canvas": [
+  318,
+  318
+ ],
+ "pivot": [
+  159,
+  159
+ ],
+ "headless": true,
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "catch_sheet.png",
+  "hframes": 13,
+  "vframes": 2
+ },
+ "head_sheet": {
+  "file": "../pursuit/head_pursuit_sheet.png",
+  "hframes": 9,
+  "vframes": 2,
+  "column": "c0",
+  "frame_rule": "Frame = row x 9 + 4"
+ },
+ "contact": {
+  "radius_u": 0.75,
+  "note": "Stop moving and turn the body to face the player on key 0, from any state."
+ },
+ "phases": {
+  "snap": [
+   0,
+   3
+  ],
+  "clamp": [
+   4,
+   5
+  ],
+  "pull": [
+   6,
+   10
+  ],
+  "fold": [
+   11,
+   16
+  ]
+ },
+ "keys": [
+  {
+   "t_ms": 0,
+   "body": 0,
+   "ms": 40,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    2
+   ]
+  },
+  {
+   "t_ms": 40,
+   "body": 1,
+   "ms": 40,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    6
+   ]
+  },
+  {
+   "t_ms": 80,
+   "body": 2,
+   "ms": 40,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    10
+   ]
+  },
+  {
+   "t_ms": 120,
+   "body": 3,
+   "ms": 60,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    11
+   ]
+  },
+  {
+   "t_ms": 180,
+   "body": 4,
+   "ms": 60,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    9
+   ]
+  },
+  {
+   "t_ms": 240,
+   "body": 5,
+   "ms": 60,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    10
+   ]
+  },
+  {
+   "t_ms": 300,
+   "body": 4,
+   "ms": 60,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    9
+   ]
+  },
+  {
+   "t_ms": 360,
+   "body": 5,
+   "ms": 60,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    10
+   ]
+  },
+  {
+   "t_ms": 420,
+   "body": 6,
+   "ms": 80,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    9
+   ]
+  },
+  {
+   "t_ms": 500,
+   "body": 7,
+   "ms": 80,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    8
+   ]
+  },
+  {
+   "t_ms": 580,
+   "body": 8,
+   "ms": 80,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    8
+   ]
+  },
+  {
+   "t_ms": 660,
+   "body": 9,
+   "ms": 80,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    9
+   ]
+  },
+  {
+   "t_ms": 740,
+   "body": 10,
+   "ms": 80,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    10
+   ]
+  },
+  {
+   "t_ms": 820,
+   "body": 11,
+   "ms": 100,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    11
+   ]
+  },
+  {
+   "t_ms": 920,
+   "body": 12,
+   "ms": 80,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    13
+   ]
+  },
+  {
+   "t_ms": 1000,
+   "body": 13,
+   "ms": 80,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    12
+   ]
+  },
+  {
+   "t_ms": 1080,
+   "body": 14,
+   "ms": 100,
+   "head_row": 0,
+   "head_offset": [
+    0,
+    12
+   ]
+  },
+  {
+   "t_ms": 1180,
+   "body": 15,
+   "ms": 80,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    15
+   ]
+  },
+  {
+   "t_ms": 1260,
+   "body": 16,
+   "ms": 80,
+   "head_row": 1,
+   "head_offset": [
+    0,
+    15
+   ]
+  }
+ ],
+ "length_ms": 1340,
+ "stillness": {
+  "body": 16,
+  "note": "After the last key the body holds on frame 16 and only the head changes. Stay on the last step until the fade.",
+  "keys": [
+   {
+    "ms": 300,
+    "head_row": 0,
+    "head_offset": [
+     0,
+     15
+    ],
+    "head_roll_deg": 0
+   },
+   {
+    "ms": 300,
+    "head_row": 1,
+    "head_offset": [
+     0,
+     15
+    ],
+    "head_roll_deg": 3
+   },
+   {
+    "ms": 300,
+    "head_row": 0,
+    "head_offset": [
+     0,
+     16
+    ],
+    "head_roll_deg": 3
+   },
+   {
+    "ms": 300,
+    "head_row": 1,
+    "head_offset": [
+     0,
+     16
+    ],
+    "head_roll_deg": 6
+   },
+   {
+    "ms": 400,
+    "head_row": 0,
+    "head_offset": [
+     0,
+     17
+    ],
+    "head_roll_deg": 6
+   },
+   {
+    "ms": 400,
+    "head_row": 1,
+    "head_offset": [
+     0,
+     17
+    ],
+    "head_roll_deg": 9
+   },
+   {
+    "ms": 400,
+    "head_row": 0,
+    "head_offset": [
+     0,
+     18
+    ],
+    "head_roll_deg": 9
+   },
+   {
+    "ms": 400,
+    "head_row": 1,
+    "head_offset": [
+     0,
+     18
+    ],
+    "head_roll_deg": 9
+   }
+  ],
+  "roll_note": "Positive is clockwise, the same as Godot's Rotation."
+ },
+ "hide_player": {
+  "t_ms": 740,
+  "body": 10,
+  "note": "The hands are under the cloth from this frame."
+ },
+ "sounds": [
+  {
+   "t_ms": 80,
+   "name": "catch_grab"
+  },
+  {
+   "t_ms": 820,
+   "name": "cloth_fall"
+  },
+  {
+   "t_ms": 1340,
+   "name": "sob_stops"
+  }
+ ]
+}

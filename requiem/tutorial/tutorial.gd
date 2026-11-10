@@ -121,10 +121,8 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	get_window().content_scale_size = Vector2i(1280,720)
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
-	var args := OS.get_cmdline_user_args()
-	if not test_mode and DisplayServer.get_name() != "headless" and not (args.has("--windowed") or args.has("--record") or args.has("--background")):
-		get_window().mode = Window.MODE_FULLSCREEN
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	if not test_mode: Kiosk.enter_fullscreen()
 	get_viewport().size_changed.connect(_frame_camera)
 	# Beyond the walls is void: black, like the unlit rooms.
 	RenderingServer.set_default_clear_color(Color.BLACK)
@@ -375,7 +373,8 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if _paused: return
-	if key==KEY_R and not resetting:
+	# In the shipping run R belongs to Kiosk: it drops the whole run back to the title.
+	if key==KEY_R and not resetting and not Kiosk.owns_reset(self):
 		request_reset("Back to the last safe place.")
 		get_viewport().set_input_as_handled()
 		return
@@ -623,19 +622,24 @@ func _on_rock_landed(at: Vector2) -> void:
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
 	# The figure stands just behind the glass; it draws above the room cover for this one beat.
-	var reveal: Node2D = world.props["reveal"]
+	var reveal: Node2D = world.landmarks["reveal"]
 	reveal.modulate=Color(.65,.65,.65,.65)
 	reveal.z_index=45
 	reveal.show()
 	play_sound("presence",reveal.global_position)
 	sequence="reveal"
 	sequence_time=0
-	world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45).name="RevealLight"
+	var reveal_light: PointLight2D = world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45)
+	reveal_light.name="RevealLight"
+	# The figure is light-only on layer 4: only this light ever shows it.
+	reveal_light.range_item_cull_mask |= 8
 	say("[Glass shatters]",4)
 
-## The screen closes in as the hunting entity comes near.
+## The screen closes in as the hunting entity comes near. Only while it hunts: then its breathing
+## is already loud, so the vignette never gives away a silent patrol behind a wall.
 func _update_threat_presentation() -> void:
-	var hunting_house: bool = zone=="house" and entity.active and entity.visible
+	var hunting_house: bool = zone=="house" and entity.active and entity.visible \
+		and entity.get_state_name()=="HUNT"
 	var pressure := 0.0
 	if hunting_house:
 		var distance := entity.global_position.distance_to(player.global_position)
@@ -673,7 +677,7 @@ func _tick_sequence(delta: float) -> void:
 	sequence_time+=delta
 	if sequence=="reveal":
 		if sequence_time>=1.15:
-			world.props["reveal"].hide()
+			world.landmarks["reveal"].hide()
 			var light:=world.get_node_or_null("RevealLight")
 			if light!=null: light.queue_free()
 			sequence=""
@@ -759,6 +763,7 @@ func _noise_name(source: int) -> String:
 		NoiseManager.SourceType.BREATH: return "breath"
 		NoiseManager.SourceType.THROW: return "throw"
 		NoiseManager.SourceType.DOOR: return "door"
+		NoiseManager.SourceType.FLASHLIGHT: return "flashlight"
 	return "footsteps"
 
 ## Opens or shuts a door; holding your breath eases it quietly.
@@ -818,11 +823,22 @@ func _begin_game_over() -> void:
 	dialogue.clear()
 	dialogue_done=Callable()
 	sequence=""
-	world.props["reveal"].hide()
+	world.landmarks["reveal"].hide()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
-	hud.shade.color=Color(0,0,0,.82)
 	play_sound("presence",player.position)
+	# The catch plays first: the arms snap shut, the shroud folds over her, a beat of stillness.
+	entity.sprite_rig.hide_player.connect(_hide_caught_player,CONNECT_ONE_SHOT)
+	entity.play_catch(player.global_position)
+	get_tree().create_timer(entity.catch_screen_delay if not test_mode else .01,false).timeout.connect(_show_game_over,CONNECT_ONE_SHOT)
+
+## The hands are under the cloth from here (catch.json hide_player).
+func _hide_caught_player() -> void:
+	if resetting: player.get_node("Appearance").hide()
+
+func _show_game_over() -> void:
+	if not resetting or GameState.is_dead: return
+	hud.shade.color=Color(0,0,0,.82)
 	GameState.kill_player()
 
 # Lo invoca la pantalla de game over cuando el jugador pulsa "Reintentar":
@@ -849,7 +865,7 @@ func request_reset(message: String, bedroom := false) -> void:
 		friend_met=false
 		world.props["friend"].show()
 	sequence=""
-	world.props["reveal"].hide()
+	world.landmarks["reveal"].hide()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
 	hud.shade.color=Color(0,0,0,.82)
@@ -874,6 +890,8 @@ func restore_checkpoint(bedroom := false) -> void:
 	player.get_node("FootstepNoise").footstep_timer=0
 	player.get_node("FootstepAudio").reset_audio()
 	player.velocity=Vector2.ZERO
+	player.get_node("Appearance").show()
+	if entity.sprite_rig.hide_player.is_connected(_hide_caught_player): entity.sprite_rig.hide_player.disconnect(_hide_caught_player)
 	GameState.reset()
 	flashlight.battery_percent=maxf(flashlight.battery_percent,float(checkpoint.get("battery",100)))
 	batteries=maxi(batteries,int(checkpoint.get("batteries",0)))

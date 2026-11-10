@@ -1,0 +1,197 @@
+{
+ "clip": "walk",
+ "canvas": [
+  318,
+  318
+ ],
+ "pivot": [
+  159,
+  159
+ ],
+ "headless": true,
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "walk_sheet.png",
+  "hframes": 13,
+  "vframes": 4
+ },
+ "speed_u_per_s": 1.0,
+ "ground_art_px_per_frame": 8,
+ "note": "Feet only stay planted at this speed with the parent scale at 0.5. Frame numbers are the same in the sheet and in frames/.",
+ "loop": {
+  "loop": true,
+  "duration_ms": 1250,
+  "frames": [
+   {
+    "index": 0,
+    "ms": 125
+   },
+   {
+    "index": 1,
+    "ms": 125
+   },
+   {
+    "index": 2,
+    "ms": 125
+   },
+   {
+    "index": 3,
+    "ms": 125
+   },
+   {
+    "index": 4,
+    "ms": 125
+   },
+   {
+    "index": 5,
+    "ms": 125
+   },
+   {
+    "index": 6,
+    "ms": 125
+   },
+   {
+    "index": 7,
+    "ms": 125
+   },
+   {
+    "index": 8,
+    "ms": 125
+   },
+   {
+    "index": 9,
+    "ms": 125
+   }
+  ],
+  "set_offset": {
+   "walk": 0,
+   "walk_twist_left": 10,
+   "walk_twist_right": 20
+  }
+ },
+ "sound_frames": [
+  {
+   "index": 0,
+   "name": "footstep_left"
+  },
+  {
+   "index": 5,
+   "name": "footstep_right"
+  }
+ ],
+ "start": {
+  "frames": [
+   {
+    "index": 30,
+    "ms": 125,
+    "speed_scale": 0.5
+   },
+   {
+    "index": 31,
+    "ms": 125,
+    "speed_scale": 1.0
+   }
+  ],
+  "then_loop_frame": 3
+ },
+ "halt": {
+  "frames_from_loop_frame": {
+   "0": [
+    32,
+    33
+   ],
+   "1": [
+    34,
+    35
+   ],
+   "2": [
+    36,
+    37
+   ],
+   "3": [
+    38,
+    39
+   ],
+   "4": [
+    40,
+    41
+   ],
+   "5": [
+    42,
+    43
+   ],
+   "6": [
+    44,
+    45
+   ],
+   "7": [
+    46,
+    47
+   ],
+   "8": [
+    48,
+    49
+   ],
+   "9": [
+    50,
+    51
+   ]
+  },
+  "ms_alert": 60,
+  "ms_calm": 125,
+  "speed_scale": 0,
+  "ends_on": "idle_00, the first pose of Idle and the pose Listen starts from"
+ },
+ "head_glance": {
+  "trigger": "random, from Godot",
+  "wait_between_glances_ms": [
+   3000,
+   6000
+  ],
+  "length_ms": 510,
+  "right": [
+   {
+    "t_ms": 0,
+    "pose": "r15",
+    "body": "walk"
+   },
+   {
+    "t_ms": 50,
+    "pose": "r35",
+    "body": "walk_twist_right"
+   },
+   {
+    "t_ms": 450,
+    "pose": "r15",
+    "body": "walk"
+   },
+   {
+    "t_ms": 510,
+    "pose": "c0",
+    "body": "walk"
+   }
+  ],
+  "left": [
+   {
+    "t_ms": 0,
+    "pose": "l15",
+    "body": "walk"
+   },
+   {
+    "t_ms": 50,
+    "pose": "l35",
+    "body": "walk_twist_left"
+   },
+   {
+    "t_ms": 450,
+    "pose": "l15",
+    "body": "walk"
+   },
+   {
+    "t_ms": 510,
+    "pose": "c0",
+    "body": "walk"
+   }
+  ]
+ }
+}

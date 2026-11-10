@@ -19,6 +19,7 @@ enum SourceType {
 	CANDLE,
 	ENVIRONMENT,
 	DOOR,
+	FLASHLIGHT,
 }
 # Se dispara cada vez que se emite un ruido en el nivel.
 # Cualquier listener (ej. EntityAI) se conecta a esta senal.

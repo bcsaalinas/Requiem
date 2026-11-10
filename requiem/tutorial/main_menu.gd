@@ -16,7 +16,7 @@ const CONTROLS := [
 	["F", "Flashlight"],
 	["B", "Swap battery"],
 	["Q / Tab", "Throw · Switch"],
-	["R", "Restart checkpoint"],
+	["R / Select", "Reset to title"],
 	["F11", "Fullscreen"],
 ]
 ## Where the candle flame sits in the key art (UV of menu_background.png), and the
@@ -45,6 +45,7 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	Kiosk.enter_fullscreen()
 	_rng.randomize()
 	_pages = {"main": %MainPage, "controls": %ControlsPage, "audio": %AudioPage}
 	%Play.pressed.connect(_start_game)

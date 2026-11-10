@@ -16,6 +16,8 @@
 [ext_resource type="PackedScene" uid="uid://cvvblqnpihcrk" path="res://level/props/altar.tscn" id="14_gwjha"]
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="15_xml7o"]
 [ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="16_uevcv"]
+[ext_resource type="Material" uid="uid://b7avlt81d8aq" path="res://tutorial/entity_lit_material.tres" id="16_vgpbg"]
+[ext_resource type="Texture2D" uid="uid://bwok0rd0ngs8r" path="res://tutorial/assets/art/entity/amortajada_full.png" id="17_2v7cn"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="17_80joc"]
 [ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="18_3fn32"]
 [ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="19_xc0nm"]
@@ -56,13 +58,6 @@ shader_parameter/gain = 1.0
 shader_parameter/detail_radius = 0.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_p7tau"]
-shader = ExtResource("10_dkkgd")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_2vbe5"]
 shader = ExtResource("10_dkkgd")
 shader_parameter/saturation = 0.5
 shader_parameter/contrast = 1.0
@@ -274,14 +269,17 @@ metadata/interaction_offset = Vector2(0, 35)
 [node name="AltarArmchair" parent="Props" unique_id=1536587967 instance=ExtResource("15_xml7o")]
 position = Vector2(1128, 560)
 
-[node name="reveal" type="Node2D" parent="Props" unique_id=1549702739]
+[node name="reveal" type="Sprite2D" parent="Props" unique_id=1080869032]
 visible = false
+light_mask = 8
 z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_2vbe5")
+texture_filter = 2
+material = ExtResource("16_vgpbg")
 position = Vector2(676, 612)
-script = ExtResource("11_5l22i")
-kind = "entity"
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("17_2v7cn")
+centered = false
+offset = Vector2(-48.8, -83.8)
 
 [node name="porch_rocks" type="Node2D" parent="Props" unique_id=847716000]
 light_mask = 2
@@ -331,6 +329,7 @@ metadata/interaction_label = "Return to the forest"
 position = Vector2(748, 146)
 color = Color(0.9372549, 0.7764706, 0.54901963, 1)
 energy = 1.1
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5
@@ -342,6 +341,7 @@ metadata/rest_color = "#efc68c"
 [node name="AltarLeftLight" type="PointLight2D" parent="Lights" unique_id=1937256068]
 position = Vector2(938, 236)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5
@@ -353,6 +353,7 @@ metadata/rest_color = "#f0c48a"
 [node name="AltarRightLight" type="PointLight2D" parent="Lights" unique_id=1274836064]
 position = Vector2(1078, 236)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5
@@ -365,6 +366,7 @@ metadata/rest_color = "#f0c48a"
 position = Vector2(318, 228)
 color = Color(0.9372549, 0.7764706, 0.54901963, 1)
 energy = 1.25
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5
@@ -376,6 +378,7 @@ metadata/lighting_role = "recovery"
 position = Vector2(672, 604)
 color = Color(0.9098039, 0.72156864, 0.47058824, 1)
 energy = 1.05
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.5

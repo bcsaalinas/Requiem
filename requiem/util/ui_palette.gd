@@ -32,10 +32,13 @@ const SUBTITLE := Color(0.9411765, 0.9137255, 0.8509804)
 const SHADOW := Color(0, 0, 0, 0.95)
 
 # --- Medidas ---
-const METER_SIZE := Vector2(110, 5)
-const CAPTION_SIZE := 10
-const BODY_SIZE := 18
-const TITLE_SIZE := 24
+const METER_SIZE := Vector2(150, 10)
+## Piso de legibilidad a 2 m. El lienzo es 1280x720 presentado a 1080p (x1.5), asi que 20 son 30 px
+## reales: unos 21 px de mayuscula, ~6.6 mm en un panel de 27", lo que una vista 20/40 lee a 2 m.
+const MIN_TEXT_SIZE := 20
+const CAPTION_SIZE := 20
+const BODY_SIZE := 22
+const TITLE_SIZE := 30
 
 
 static func flat(color: Color, margin := 0.0) -> StyleBoxFlat:

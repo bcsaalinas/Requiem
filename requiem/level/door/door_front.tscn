@@ -62,6 +62,7 @@ centered = false
 position = Vector2(0, 30)
 color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.0

@@ -37,7 +37,7 @@ const CONTROLS := [
 	["F", "Flashlight"],
 	["B", "Replace battery"],
 	["Q / Tab", "Throw · Switch"],
-	["R", "Restart checkpoint"],
+	["R / Select", "Reset to title"],
 	["F11", "Fullscreen"],
 ]
 
@@ -46,6 +46,7 @@ var is_open: bool = false
 var _root: Control
 var _veil: ColorRect
 var _panel: PanelContainer
+var _stack: Control
 var _pages: Dictionary = {}
 var _duck_bus: int = -1
 var _duck_base_db: float = 0.0
@@ -88,10 +89,13 @@ func _build() -> void:
 
 	_panel = PanelContainer.new()
 	_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_panel.offset_left = -290
-	_panel.offset_right = 290
+	_panel.offset_left = -300
+	_panel.offset_right = 300
 	_panel.offset_top = -210
 	_panel.offset_bottom = 210
+	# The Controls page is taller than the rest at the 2 m text size: stay centred around it.
+	_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_panel.add_theme_stylebox_override("panel", UIPalette.flat(UIPalette.PANEL, 30.0))
 	_root.add_child(_panel)
 
@@ -109,10 +113,10 @@ func _build() -> void:
 
 	column.add_child(HSeparator.new())
 
-	var stack := Control.new()
-	stack.custom_minimum_size = Vector2(0, 250)
-	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(stack)
+	_stack = Control.new()
+	_stack.custom_minimum_size = Vector2(0, 250)
+	_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	column.add_child(_stack)
 
 	_pages["main"] = _build_main()
 	_pages["controls"] = _build_controls()
@@ -120,7 +124,7 @@ func _build() -> void:
 	for key in _pages:
 		var page: Control = _pages[key]
 		page.set_anchors_preset(Control.PRESET_FULL_RECT)
-		stack.add_child(page)
+		_stack.add_child(page)
 
 
 func _build_main() -> Control:
@@ -150,16 +154,16 @@ func _build_controls() -> Control:
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 7)
 	for row in CONTROLS:
-		var key := UIPalette.label(row[0], 15, UIPalette.CANDLE)
+		var key := UIPalette.label(row[0], UIPalette.MIN_TEXT_SIZE, UIPalette.CANDLE)
 		key.custom_minimum_size.x = 180
 		grid.add_child(key)
-		grid.add_child(UIPalette.label(row[1], 15, UIPalette.TEXT_DIM))
+		grid.add_child(UIPalette.label(row[1], UIPalette.MIN_TEXT_SIZE, UIPalette.TEXT_DIM))
 	box.add_child(grid)
 
 	box.add_child(HSeparator.new())
 	box.add_child(UIPalette.label(
 		"Stand still to recover exertion.\nRelease your breath before your air runs out.",
-		13, UIPalette.TEXT_DIM
+		UIPalette.MIN_TEXT_SIZE, UIPalette.TEXT_DIM
 	))
 	box.add_child(_menu_button("Back", func(): _show_page("main")))
 	return box
@@ -211,7 +215,7 @@ func _volume_row(bus_name: String, index: int) -> Control:
 func _menu_button(text: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(0, 34)
+	button.custom_minimum_size = Vector2(0, 40)
 	button.add_theme_font_size_override("font_size", UIPalette.BODY_SIZE)
 	button.add_theme_color_override("font_color", UIPalette.TEXT_DIM)
 	button.add_theme_color_override("font_hover_color", UIPalette.CANDLE)
@@ -261,11 +265,13 @@ func set_open(open: bool) -> void:
 func _show_page(key: String) -> void:
 	for name in _pages:
 		(_pages[name] as Control).visible = name == key
+	var page: Control = _pages.get(key)
+	if page != null:
+		_stack.custom_minimum_size.y = maxf(250.0, page.get_combined_minimum_size().y)
 
 	# Focus the first button on the open page so pad and keyboard work without
 	# the player having to touch the mouse first.
 	await get_tree().process_frame
-	var page: Control = _pages.get(key)
 	if page == null:
 		return
 	for child in page.get_children():

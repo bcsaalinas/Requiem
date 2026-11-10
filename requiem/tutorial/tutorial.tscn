@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://qvmplrwk2j6o" path="res://player/player.tscn" id="3"]
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="3_811q2"]
 [ext_resource type="PackedScene" path="res://tutorial/tutorial_entity.tscn" id="4"]
+[ext_resource type="Script" uid="uid://o7shs20n0uj5" path="res://tutorial/safety_killzones.gd" id="4_7d2fe"]
 [ext_resource type="PackedScene" uid="uid://djod0bwigac1b" path="res://tutorial/hud.tscn" id="5"]
 [ext_resource type="Shader" uid="uid://c3hwjfm84hx2v" path="res://tutorial/atmosphere.gdshader" id="6"]
 [ext_resource type="Script" uid="uid://bv0ri88ue8g2f" path="res://tutorial/fx/heard_flash.gd" id="6_tifc7"]
@@ -24,6 +25,9 @@ script = ExtResource("1")
 
 [node name="TutorialWorld" parent="." unique_id=1183695514 instance=ExtResource("2")]
 material = SubResource("ShaderMaterial_3npmm")
+
+[node name="SafetyKillzones" type="Node2D" parent="." unique_id=2141479773]
+script = ExtResource("4_7d2fe")
 
 [node name="TutorialAmbient" type="CanvasModulate" parent="." unique_id=1594022313]
 color = Color(0.019607844, 0.023529412, 0.03137255, 1)

@@ -71,6 +71,8 @@ func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength :=
 	light.texture_scale = scale_value
 	light.color = color
 	light.energy = strength
+	# Layer 1 is the scenery, layer 3 the entity: every real light reveals her.
+	light.range_item_cull_mask = 5
 	light.shadow_enabled = true
 	light.shadow_filter = Light2D.SHADOW_FILTER_PCF5
 	light.shadow_filter_smooth = 1.5

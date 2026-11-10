@@ -18,9 +18,9 @@ size = Vector2(64, 60)
 [node name="Door" type="Node2D" unique_id=1684880140]
 script = ExtResource("1_0e2un")
 style = 1
+creak = ExtResource("2_2lsu5")
 light_energy = 1.15
 locked_light_energy = 0.5
-creak = ExtResource("2_2lsu5")
 
 [node name="Frame" type="Node2D" parent="." unique_id=1038022007]
 
@@ -49,6 +49,7 @@ centered = false
 position = Vector2(-28, -32)
 color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.0
@@ -59,6 +60,7 @@ texture_scale = 0.85
 position = Vector2(28, -32)
 color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
+range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 1
 shadow_filter_smooth = 1.0
