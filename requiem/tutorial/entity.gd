@@ -159,7 +159,7 @@ func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	_state_timer = 0.0
 	_patrol_wait = 1.5
 	last_heard_source = -1
-	current_state = State.PATROL
+	_change_state(State.PATROL)
 	active = false
 
 func _update_readability() -> void:

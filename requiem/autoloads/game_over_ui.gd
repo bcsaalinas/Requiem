@@ -6,7 +6,7 @@ extends CanvasLayer
 # over (ui/game_over.tscn), que ofrece reintentar o volver al menu.
 
 const GAME_OVER_SCENE := preload("res://ui/game_over.tscn")
-const DEATH_STINGER_PATH := "res://assets/audio/534218__thesoundfxguy_yt__piano-jump-scare-stinger.wav"
+const DEATH_STINGER_PATH := "res://assets/audio/horror-jam-kit 2/WAV/Stinger/jump_scare_02.wav"
 
 var screen: Control
 var _audio_player: AudioStreamPlayer
@@ -15,6 +15,7 @@ var _audio_player: AudioStreamPlayer
 func _ready() -> void:
 	layer = 100
 	_audio_player = AudioStreamPlayer.new()
+	_audio_player.bus = "SFX"
 	add_child(_audio_player)
 
 	GameState.player_died.connect(_on_player_died)

@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://pi056v1fblyp"
+path="res://.godot/imported/breath_texture_01.ogg-1923790562b7827f27bf15d7a16789a1.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Body/breath_texture_01.ogg"
+dest_files=["res://.godot/imported/breath_texture_01.ogg-1923790562b7827f27bf15d7a16789a1.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

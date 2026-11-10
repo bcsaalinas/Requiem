@@ -107,6 +107,10 @@ func _input(event: InputEvent) -> void:
 		return
 	idle_seconds = 0.0
 	_warning.hide()
+	if event is InputEventKey and event.keycode == KEY_F11:
+		Preferences.set_fullscreen(not Preferences.fullscreen)
+		get_viewport().set_input_as_handled()
+		return
 	if attracting:
 		# Motion wakes the timer, but only an intentional press dismisses the invitation.
 		if event is InputEventKey or event is InputEventMouseButton or event is InputEventJoypadButton:

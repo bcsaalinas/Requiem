@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://d2ufiaxkot3b7"
+path="res://.godot/imported/metal_hit_01.ogg-3b0de6675976ad2b19d6ba44b0eac155.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Impact/metal_hit_01.ogg"
+dest_files=["res://.godot/imported/metal_hit_01.ogg-3b0de6675976ad2b19d6ba44b0eac155.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

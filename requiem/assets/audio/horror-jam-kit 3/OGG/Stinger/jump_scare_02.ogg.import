@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://c2s6f7ving315"
+path="res://.godot/imported/jump_scare_02.ogg-36d3283a4037898afe58a272b4fb66cb.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Stinger/jump_scare_02.ogg"
+dest_files=["res://.godot/imported/jump_scare_02.ogg-36d3283a4037898afe58a272b4fb66cb.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -172,7 +172,7 @@ func _build_audio() -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
 
-	for bus_name in ["Master", "Ambience", "SFX"]:
+	for bus_name in ["Master", "Music", "Ambience", "SFX", "UI"]:
 		var index := AudioServer.get_bus_index(bus_name)
 		if index < 0:
 			continue

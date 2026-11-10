@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://d4fv6mn17inic"
+path="res://.godot/imported/metal_scrape_01.ogg-28f412f0a3f030cbcc3b81a7fde0765e.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Foley/metal_scrape_01.ogg"
+dest_files=["res://.godot/imported/metal_scrape_01.ogg-28f412f0a3f030cbcc3b81a7fde0765e.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
