@@ -14,6 +14,7 @@ extends CanvasLayer
 ##   LoadingScreen.begin()  ...  LoadingScreen.finish()       # manual bracket
 
 signal finished
+signal failed
 
 @export_group("Timing")
 ## Floor on how long the screen stays up. Without it a fast load flashes.
@@ -43,6 +44,8 @@ var _hint: Label
 var _bar: ProgressBar
 var _fill: StyleBoxFlat
 
+var _transition: Tween
+var _closing := false
 var _active: bool = false
 var _elapsed: float = 0.0
 var _breath_clock: float = 0.0
@@ -109,8 +112,16 @@ func _build() -> void:
 
 ## Loads a scene in the background and swaps to it once the breath settles.
 func show_for(scene_path: String) -> void:
+	if _active or _closing:
+		return
 	_target_path = scene_path
-	ResourceLoader.load_threaded_request(scene_path)
+	if not ResourceLoader.exists(scene_path, "PackedScene"):
+		_fail()
+		return
+	var error := ResourceLoader.load_threaded_request(scene_path, "PackedScene")
+	if error != OK:
+		_fail()
+		return
 	begin()
 
 
@@ -130,6 +141,7 @@ func begin() -> void:
 	_root.visible = true
 	_root.modulate.a = 0.0
 	var tween := create_tween()
+	_transition = tween
 	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tween.tween_property(_root, "modulate:a", 1.0, fade_in)
 
@@ -159,9 +171,8 @@ func _poll_load() -> void:
 	var status := ResourceLoader.load_threaded_get_status(_target_path, progress)
 	if status == ResourceLoader.THREAD_LOAD_LOADED:
 		_ready_to_leave = true
-	elif status == ResourceLoader.THREAD_LOAD_FAILED:
-		push_error("[LoadingScreen] Failed to load %s" % _target_path)
-		_ready_to_leave = true
+	elif status in [ResourceLoader.THREAD_LOAD_FAILED, ResourceLoader.THREAD_LOAD_INVALID_RESOURCE]:
+		_fail()
 
 
 ## Inhale, hold, release — the rhythm the player will be managing all game.
@@ -207,6 +218,7 @@ func _rotate_line(delta: float) -> void:
 
 func _close() -> void:
 	_active = false
+	_closing = true
 
 	var tween := create_tween()
 	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
@@ -214,9 +226,22 @@ func _close() -> void:
 	tween.tween_callback(func():
 		_root.visible = false
 		if _target_path != "":
-			var packed: PackedScene = ResourceLoader.load_threaded_get(_target_path)
+			var packed := ResourceLoader.load_threaded_get(_target_path) as PackedScene
 			_target_path = ""
-			if packed:
-				get_tree().change_scene_to_packed(packed)
+			if packed == null or get_tree().change_scene_to_packed(packed) != OK:
+				_fail()
+				return
+		_closing = false
 		finished.emit()
 	)
+
+
+func _fail() -> void:
+	if _transition and _transition.is_running():
+		_transition.kill()
+	_target_path = ""
+	_active = false
+	_closing = false
+	_ready_to_leave = false
+	_root.visible = false
+	failed.emit()

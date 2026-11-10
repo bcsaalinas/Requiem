@@ -175,7 +175,7 @@ func _build_audio() -> Control:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
 
-	for bus_name in ["Master", "Ambience", "SFX"]:
+	for bus_name in ["Master", "Music", "Ambience", "SFX", "UI"]:
 		var index := AudioServer.get_bus_index(bus_name)
 		if index < 0:
 			continue
@@ -201,8 +201,7 @@ func _volume_row(bus_name: String, index: int) -> Control:
 	slider.value_changed.connect(func(v: float):
 		# Silence is a real setting here, so the bottom of the slider mutes
 		# rather than sitting at a very quiet -40 dB.
-		AudioServer.set_bus_mute(index, v <= 0.001)
-		AudioServer.set_bus_volume_db(index, linear_to_db(maxf(v, 0.0001)))
+		Preferences.set_volume(bus_name, v)
 		if bus_name == duck_bus_name:
 			_duck_base_db = linear_to_db(maxf(v, 0.0001))
 			if is_open:

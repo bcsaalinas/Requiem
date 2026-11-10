@@ -139,7 +139,8 @@ func _next_shot() -> void:
 	_steer(Vector2.ZERO)
 	game.attack_finished = _shot.has("entity")
 	game.enter_zone(_shot.zone, _shot.route[0], false)
-	game.ambience.play()
+	# test_mode keeps the game itself quiet, but the attract loop still wants the room's bed under it.
+	AmbienceManager.set_track(load(game.ZONE_AMBIENCE_PATHS[_shot.zone]) as AudioStream, game.ZONE_AMBIENCE_VOLUME_DB[_shot.zone], 2.0)
 	game.breath.lung_percent = 100.0
 	game.breath.exertion_percent = 0.0
 	game.flashlight.battery_percent = 100.0

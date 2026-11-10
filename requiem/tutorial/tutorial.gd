@@ -57,7 +57,6 @@ var breath: Node
 var thrower: Node
 var flashlight: PointLight2D
 @onready var entity: CharacterBody2D = $Entity
-@onready var ambience: AudioStreamPlayer = $AmbientAudio
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 @onready var heard_flash: Node2D = $NoiseFx/HeardFlash
 @onready var film: ColorRect = $Atmosphere/Film
@@ -132,6 +131,7 @@ func _ready() -> void:
 	breath._bar_layer.hide()
 	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
+	MusicDirector.bind_gameplay(entity, breath)
 	flashlight=player.get_node("flashlight")
 	has_flashlight=false
 	flashlight.battery_percent=0.0
@@ -143,8 +143,8 @@ func _ready() -> void:
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
 	PauseMenu.resume_pressed.connect(_toggle_pause)
-	ambience.finished.connect(func(): ambience.play())
 	prayer_audio.stream=sound("prayer")
+	prayer_audio.bus="SFX"
 	prayer_audio.finished.connect(func():
 		if zone=="house" and not attack_finished: prayer_audio.play())
 	flashlight.click_clips.assign([load("res://assets/audio/629008__realgtro__flashlight-click.wav")])
@@ -178,6 +178,8 @@ func _exit_tree() -> void:
 		audio.stop()
 		audio.stream=null
 	_sounds.clear()
+	AmbienceManager.set_track(null, -80.0)
+	MusicDirector.bind_gameplay(null, null)
 	GameState.reset()
 
 func sound(id: String) -> AudioStream:
@@ -188,6 +190,7 @@ func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
 	if test_mode: return
 	var audio:=AudioStreamPlayer2D.new()
 	audio.position=at
+	audio.bus="SFX"
 	audio.stream=sound(id)
 	audio.volume_db=volume
 	add_child(audio)
@@ -220,9 +223,9 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
 	stage=stage_for_zone[zone]
 	stage_changed.emit(stage)
-	ambience.stream=load(ZONE_AMBIENCE_PATHS[zone])
-	ambience.volume_db=ZONE_AMBIENCE_VOLUME_DB[zone]
-	if not test_mode: ambience.play()
+	var zone_stream := load(ZONE_AMBIENCE_PATHS[zone]) as AudioStream
+	AmbienceManager.set_track(zone_stream if not test_mode else null,
+		ZONE_AMBIENCE_VOLUME_DB[zone], 2.0)
 	prayer_audio.stop()
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
 	_configure_entity()
@@ -237,6 +240,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 func _configure_entity() -> void:
 	entity.hide()
 	entity.active=false
+	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
 	# The opening forest and impossible room suggest a presence through spatial sound.
 	# No invisible active monster: the physical threat exists only after the altar attack.
@@ -364,10 +368,6 @@ func _safe_light_at(point: Vector2) -> SafeLight:
 func _input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo: return
 	var key: int=event.physical_keycode if event.physical_keycode!=0 else event.keycode
-	if key==KEY_F11:
-		_toggle_fullscreen()
-		get_viewport().set_input_as_handled()
-		return
 	if key in [KEY_H,KEY_ESCAPE]:
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
@@ -912,7 +912,7 @@ func _frame_camera() -> void:
 	var camera := player.get_node("Camera2D") as Camera2D
 	var region: Rect2 = World.REGIONS[zone]
 	var viewport_size := get_viewport_rect().size
-	var zoom := maxf(1.65,maxf(viewport_size.x/region.size.x,viewport_size.y/region.size.y))
+	var zoom := maxf(2.475,maxf(viewport_size.x/region.size.x,viewport_size.y/region.size.y))
 	camera.zoom = Vector2.ONE*zoom
 	camera.limit_left = int(region.position.x)
 	camera.limit_top = int(region.position.y)
@@ -921,7 +921,7 @@ func _frame_camera() -> void:
 	camera.force_update_scroll()
 
 func _toggle_fullscreen() -> void:
-	get_window().mode = Window.MODE_WINDOWED if get_window().mode in [Window.MODE_FULLSCREEN,Window.MODE_EXCLUSIVE_FULLSCREEN] else Window.MODE_FULLSCREEN
+	Preferences.set_fullscreen(not Preferences.fullscreen)
 
 func _toggle_pause() -> void:
 	_paused = not _paused

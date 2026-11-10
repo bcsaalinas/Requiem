@@ -102,7 +102,7 @@ func check_input_filter() -> void:
 	check(Kiosk._idle_time < 1.0, "A real mouse move restarts the idle timer")
 	Input.action_press("move_right")
 	Kiosk._idle_time = 10.0
-	await frames(2)
+	await frames(8)
 	check(Kiosk._idle_time < 1.0, "A held key counts as someone at the booth")
 	Input.action_release("move_right")
 

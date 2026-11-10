@@ -104,6 +104,7 @@ func pulse_slot(kind: String) -> void:
 	tween.tween_property(slot, "scale", Vector2.ONE, 0.25)
 
 func place_prompt(at: Vector2, in_dialogue := false) -> void:
+	at /= 1.5
 	var viewport_size := root.size
 	if in_dialogue:
 		prompt.position = Vector2((viewport_size.x-prompt.size.x)*.5,viewport_size.y-69)

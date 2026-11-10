@@ -30,11 +30,16 @@ var _fade_from_db: float = SILENT_DB
 var _fade_to_db: float = SILENT_DB
 var _outgoing: AudioStreamPlayer
 var _incoming: AudioStreamPlayer
+var _direct_stream: AudioStream
 
 
 func _ready() -> void:
 	_player_a = AudioStreamPlayer.new()
 	_player_b = AudioStreamPlayer.new()
+	_player_a.bus = "Ambience"
+	_player_b.bus = "Ambience"
+	_player_a.finished.connect(_on_player_finished.bind(_player_a))
+	_player_b.finished.connect(_on_player_finished.bind(_player_b))
 	add_child(_player_a)
 	add_child(_player_b)
 	_active_player = _player_a
@@ -84,6 +89,9 @@ func _apply_top() -> void:
 
 
 func _crossfade_to(stream: AudioStream, volume_db: float, fade_time: float) -> void:
+	if _active_player.playing and _active_player.stream == stream:
+		_active_player.volume_db = volume_db
+		return
 	var incoming := _player_b if _active_player == _player_a else _player_a
 
 	incoming.stream = stream
@@ -100,3 +108,13 @@ func _crossfade_to(stream: AudioStream, volume_db: float, fade_time: float) -> v
 	_fade_duration = maxf(fade_time, 0.01)
 	_fade_from_db = _outgoing.volume_db if _outgoing.playing else SILENT_DB
 	_fade_to_db = volume_db
+
+## For authored scene scripts that already own zone selection. It reuses this
+## manager's two-voice crossfade instead of creating a second ambience mixer.
+func set_track(stream: AudioStream, volume_db: float, fade_time := DEFAULT_FADE_TIME) -> void:
+	_direct_stream = stream
+	_crossfade_to(stream, volume_db, fade_time)
+
+func _on_player_finished(player: AudioStreamPlayer) -> void:
+	if player == _active_player and player.stream != null:
+		player.play()

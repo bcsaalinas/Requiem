@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dcs6ow2rmy1ec"
+path="res://.godot/imported/drone_tension_02.ogg-a46688a7cc4f62b13434c8d259ca214d.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Drone/drone_tension_02.ogg"
+dest_files=["res://.godot/imported/drone_tension_02.ogg-a46688a7cc4f62b13434c8d259ca214d.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

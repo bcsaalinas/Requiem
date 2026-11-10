@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dxvsctji3ew3y"]
 
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="1_0e2un"]
-[ext_resource type="AudioStream" uid="uid://dvpf7nicn1udj" path="res://tutorial/assets/audio/door.wav" id="2_2lsu5"]
+[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav" id="2_2lsu5"]
 [ext_resource type="Texture2D" uid="uid://b6i87tq7obemc" path="res://assets/level/door_plank.png" id="3_a1ds1"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="4_glow"]
 

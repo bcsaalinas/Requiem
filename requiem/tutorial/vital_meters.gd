@@ -182,12 +182,12 @@ func _drive_exertion(delta: float, action: StringName) -> void:
 			rate *= 1.25
 		var pulse: float = (sin(_clock * rate) + 1.0) * 0.5
 		_exertion_bar.modulate.a = lerpf(0.72, 1.0, pulse)
-		position = _home + Vector2(randf_range(-jitter, jitter) * urgency, 0.0)
+		position.x = _home.x + randf_range(-jitter, jitter) * urgency
 		if _exertion_caption:
 			_exertion_caption.modulate.a = lerpf(0.6, 1.0, pulse)
 	else:
 		_exertion_bar.modulate.a = 1.0
-		position = position.lerp(_home, clampf(delta * 10.0, 0.0, 1.0))
+		position.x = lerpf(position.x, _home.x, clampf(delta * 10.0, 0.0, 1.0))
 		if _exertion_caption:
 			_exertion_caption.modulate.a = 1.0
 

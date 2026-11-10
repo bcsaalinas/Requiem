@@ -70,10 +70,10 @@ Capture images are temporary evidence. Attach useful results to the matching GDD
 4. After playtest acceptance, integrate only the completed runtime components into the appropriate gameplay scene. Preserve the lab fixture for regression.
 5. Update the existing GDD location, Metrics and Bugs; run the affected checks and the core suite before a team handoff.
 
-The export preset excludes `testing/*`. Character source artwork and bake tools live outside the Godot project in `tools/character_rig/`. Addon licenses and imported runtime art remain versioned.
+The export preset excludes `testing/*`. Addon licenses and imported runtime art remain versioned.
 
 ## Footstep audio synchronization
 
 Sprint Studio also provides Steps on/off. Eight short mono WAV impacts are triggered by visible foot plants for walking, sprinting and held breath. Sprint uses +2.5 dB and held breath -8 dB relative to walking, with subtle nonrepeating variation. Hearing remains on the existing independent 0.45/0.70-second gameplay cadence. Stop lets the last short tail finish; wall pushing, idle pivots, prayer and forced recovery produce no new steps. Death, reset, disabled input and teleport clear voices.
 
-`test_footstep_audio` checks contact/frame agreement, actual audible cadence, sample variation, world-space playback, lifecycle silence and unchanged hearing/movement/exertion with audio muted. `captures/footstep_audio_capture.tscn` records an explicitly labeled reenactment of the old long-file restart followed by actual synchronized walking, sprinting, held movement, turns, stops and walls. MovieMaker records the engine audio, with ambience muted only for this comparison. Output goes to `.local-development/footstep-review/`. Regeneration and source provenance: `tools/audio/README.md` at repository root.
+`test_footstep_audio` checks contact/frame agreement, actual audible cadence, sample variation, world-space playback, lifecycle silence and unchanged hearing/movement/exertion with audio muted. `captures/footstep_audio_capture.tscn` records an explicitly labeled reenactment of the old long-file restart followed by actual synchronized walking, sprinting, held movement, turns, stops and walls. MovieMaker records the engine audio, with ambience muted only for this comparison. Output goes to `.local-development/footstep-review/`.

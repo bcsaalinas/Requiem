@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bagcx1ae81lv3"
+path="res://.godot/imported/pitch_riser_01.ogg-cbfc44e18b149c6f5fb51f89a8ac6097.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Riser/pitch_riser_01.ogg"
+dest_files=["res://.godot/imported/pitch_riser_01.ogg-cbfc44e18b149c6f5fb51f89a8ac6097.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

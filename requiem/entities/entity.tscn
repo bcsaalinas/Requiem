@@ -2,7 +2,9 @@
 
 [ext_resource type="Script" path="res://entities/entity_ai.gd" id="1_w5oec"]
 [ext_resource type="AudioStream" uid="uid://cdfkincpxkbh4" path="res://assets/audio/366137__dcsfx__monster-breathing.wav" id="2_breath"]
-[ext_resource type="AudioStream" uid="uid://dnd8ksvrq5xq7" path="res://assets/audio/534218__thesoundfxguy_yt__piano-jump-scare-stinger.wav" id="3_stinger"]
+[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 3/OGG/Stinger/dread_stinger_01.ogg" id="3_stinger"]
+[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 3/OGG/Body/breath_texture_01.ogg" id="4_investigate"]
+[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 3/OGG/Riser/riser_02.ogg" id="5_search"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xdf4s"]
 size = Vector2(32, 32)
@@ -18,6 +20,8 @@ radius = 24.0
 script = ExtResource("1_w5oec")
 breath_calm_clips = Array[AudioStream]([ExtResource("2_breath")])
 hunt_stinger_clips = Array[AudioStream]([ExtResource("3_stinger")])
+investigate_cue_clips = Array[AudioStream]([ExtResource("4_investigate")])
+search_cue_clips = Array[AudioStream]([ExtResource("5_search")])
 
 [node name="DebugSprite" type="Sprite2D" parent="." unique_id=2130364162]
 modulate = Color(0.45, 0.2, 0.2, 1)

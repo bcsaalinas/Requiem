@@ -4,11 +4,33 @@ Godot 4.7 project. Open `requiem/project.godot` and allow the initial asset impo
 
 ## Play and test
 
-- **F5 — playable build:** `requiem/tutorial/tutorial.tscn` (The First Breath).
+- **F5 — playable build:** `requiem/tutorial/main_menu.tscn` → Play → The First Breath.
 - **F6 — development:** open `requiem/testing/test_lab.tscn`. This is the single entry for manual feature checks, camera comparison and the mechanics sandbox.
 - **Automated checks:** `python3 requiem/testing/run_checks.py`. Add `--rendered` for GPU lighting checks with an available display. Use `--godot /path/to/godot` if needed.
 
 The [Test Lab guide](requiem/testing/README.md) covers controls, captures and adding experiments. Gameplay is not switched to a test scene for a handoff. The export preset excludes `testing/*`.
+
+## Main menu
+
+Play loads the tutorial with Retry / Back to Menu on failure. Settings groups Audio,
+Controls (reference only) and Display (fullscreen/windowed); audio and display preferences
+are saved in `user://preferences.cfg` and shared with gameplay. Credits opens a cinematic automatic roll in `requiem/tutorial/credits.tscn`: team,
+verified audio author handles, and engine/tool acknowledgements. Back/Esc exits at any
+time, and the roll returns to the menu when finished. Licenses pauses the roll to read
+complete notices. Team/resource text remains editable on the main menu script; established
+credits live in `credits_data.gd`. Quit asks for confirmation, with Cancel focused first.
+Escape returns one page, or opens Quit from the main menu. F11 toggles and saves fullscreen.
+There is no Continue option or persistent gameplay save.
+
+## Show-floor build
+
+- Boots to the main menu in fullscreen at a 1280×720 canvas presented at 1080p (the window cannot be resized).
+- R / controller Select returns a run straight to the title screen (`autoloads/kiosk.gd`).
+- After 60 seconds without input the build hands the screen to attract mode (`tutorial/attract_mode.tscn`); any input returns to the title. Loading is excluded, and only the production scenes are watched.
+- Instructions, dialogue and vital captions keep a 2 m legibility floor (`UIPalette.MIN_TEXT_SIZE`). Confirm on the actual monitor.
+- Safety killzones (`tutorial/safety_killzones.gd`) keep the player from leaving the playable area.
+
+`test_kiosk` covers fast reset, the idle timer, attract mode, the killzones, the 1080p lock and the text floor.
 
 ## Project layout
 
@@ -19,9 +41,8 @@ The [Test Lab guide](requiem/testing/README.md) covers controls, captures and ad
 | `requiem/level/` | Reusable level template, wall/prop TileSets and navigation |
 | `requiem/entities/`, `altar/`, `autoloads/` | Shared gameplay and state |
 | `requiem/testing/` | All manual experiments, regressions, capture tools and debug visualization |
-| `tools/character_rig/` | Reproducible source-art pipeline, outside the imported Godot project |
 
-Generated logs, captures, editor caches, machine-local settings and export binaries are not versioned. Historical tutorial images/video remain attached in Notion and recoverable from Git history before this cleanup. The original modular character source and provenance are retained.
+Generated logs, captures, editor caches, machine-local settings and export binaries are not versioned. Historical tutorial images/video remain attached in Notion and recoverable from Git history before this cleanup. 
 
 ## Living GDD
 
