@@ -15,6 +15,8 @@ const ZONE_AMBIENCE_PATHS := {
 	"forest": "res://assets/audio/320145__owlstorm__night-crickets-ambience-on-rural-property.wav",
 	"house": "res://assets/audio/410746__simo170075__basement-ambience.wav",
 	"loop": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+	"mansion_ground": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+	"mansion_upper": "res://assets/audio/410746__simo170075__basement-ambience.wav",
 }
 ## Compensacion de volumen POR PISTA (no por zona: house/loop comparten
 ## archivo y compensacion). Cada archivo real trae un nivel de grabacion muy
@@ -34,6 +36,8 @@ const ZONE_AMBIENCE_VOLUME_DB := {
 	"forest": -11.5,
 	"house": 3.5,
 	"loop": 3.5,
+	"mansion_ground": 2.0,
+	"mansion_upper": 2.0,
 }
 ## Sounds the player makes; the parents and the forest only react to these.
 const PLAYER_SOUNDS := [NoiseManager.SourceType.FOOTSTEP, NoiseManager.SourceType.SPRINT,
@@ -47,7 +51,7 @@ const HALL_STIR_MARGIN := 0.75
 ## Doors that lead to another zone when the player walks through the open doorway.
 const ZONE_DOORS := ["bedroom_exit", "hall_back", "hall_exit", "forest_back", "front_door"]
 @export_category("Entry")
-@export_enum("bedroom", "hallway", "forest", "house", "loop") var start_zone: String = "bedroom"
+@export_enum("bedroom", "hallway", "forest", "house", "loop", "mansion_ground", "mansion_upper") var start_zone: String = "bedroom"
 @export_group("Validation")
 @export var test_mode := false
 @onready var world: Node2D = $TutorialWorld
@@ -61,6 +65,7 @@ var flashlight: PointLight2D
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 @onready var heard_flash: Node2D = $NoiseFx/HeardFlash
 @onready var film: ColorRect = $Atmosphere/Film
+@onready var ambient_modulate: CanvasModulate = $TutorialAmbient
 var zone := "bedroom"
 var stage := "ki"
 var has_flashlight: bool:
@@ -139,6 +144,10 @@ func _ready() -> void:
 	flashlight._bar_layer.hide()
 	flashlight.set_process(false)
 	flashlight.set_process_unhandled_input(false)
+	flashlight.toggled.connect(func(_on: bool) -> void: hud.pulse_slot("flashlight"))
+	flashlight.toggle_rejected.connect(func() -> void:
+		if batteries <= 0:
+			hud.reject_slot("flashlight"))
 	entity.caught.connect(_caught)
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
@@ -156,11 +165,31 @@ func _ready() -> void:
 		thrower.piedra_clips.clear()
 		flashlight.click_clips.clear()
 	NoiseManager.noise_emitted.connect(_on_noise)
+	GameState.altar_completed.connect(_on_altar_prayed)
+	GameState.all_altars_completed.connect(_on_all_altars_prayed)
 	for id in ZONE_DOORS:
-		var door := world.interactables[id]["node"] as Door
-		door.get_node("Doorway").body_entered.connect(_on_zone_doorway.bind(id))
-		# Opening a door the player already stands in also counts as walking through.
-		door.opened.connect(func(): _on_zone_doorway(player,id))
+		if world.interactables.has(id):
+			var door_data = world.interactables[id]["node"]
+			if door_data is Door:
+				var door := door_data as Door
+				var doorway = door.get_node_or_null("Doorway") as Area2D
+				if doorway != null:
+					doorway.body_entered.connect(_on_zone_doorway.bind(id))
+				door.opened.connect(func(): _on_zone_doorway(player,id))
+	if world.interactables.has("stairs_to_upper"):
+		var stairs_up = world.interactables["stairs_to_upper"]["node"]
+		if stairs_up is Area2D:
+			stairs_up.body_entered.connect(func(body):
+				if body == player and zone == "mansion_ground":
+					interact("stairs_to_upper")
+			)
+	if world.interactables.has("stairs_to_ground"):
+		var stairs_down = world.interactables["stairs_to_ground"]["node"]
+		if stairs_down is Area2D:
+			stairs_down.body_entered.connect(func(body):
+				if body == player and zone == "mansion_upper":
+					interact("stairs_to_ground")
+			)
 	friend_home=world.props["friend"].global_position
 	prayer_audio.global_position=friend_home
 	enter_zone(start_zone)
@@ -201,9 +230,17 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	zone=next_zone
 	ambient_reply_cooldown=0
 	world.set_house_danger(attack_finished)
-	var start_markers:={"bedroom":"SpawnStart","hallway":"SpawnFromBedroom","forest":"SpawnFromHome","house":"SpawnFromForest","loop":"SpawnFromHouse"}
+	var start_markers:={
+		"bedroom":"SpawnStart",
+		"hallway":"SpawnFromBedroom",
+		"forest":"SpawnFromHome",
+		"house":"SpawnFromForest",
+		"loop":"SpawnFromHouse",
+		"mansion_ground":"SpawnEntrance",
+		"mansion_upper":"SpawnFromStairs"
+	}
 	if spawn==Vector2.INF:
-		spawn=world.marker(zone,start_markers[zone])
+		spawn=world.marker(zone,start_markers.get(zone, "SpawnStart"))
 	player.position=spawn
 	player.velocity=Vector2.ZERO
 	player.get_node("FootstepNoise").reset_steps()
@@ -211,22 +248,39 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	var rooms: RoomVisibility = world.rooms(zone)
 	if rooms != null:
 		rooms.sync_to(player.position)
-	if arrival_door != "":
+	if arrival_door != "" and world.interactables.has(arrival_door):
 		_close_behind(world.interactables[arrival_door]["node"])
 	player.get_node("PlayerMotion").reset_pose()
 	player.get_node("PlayerAim").reset_pose()
 	_frame_camera()
 	player.get_node("Camera2D").reset_smoothing()
-	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
-	stage=stage_for_zone[zone]
+	var stage_for_zone:={
+		"bedroom":"ki",
+		"hallway":"ki",
+		"forest":"sho",
+		"house":"ketsu" if attack_finished else "ten",
+		"loop":"ketsu",
+		"mansion_ground":"ketsu",
+		"mansion_upper":"ketsu"
+	}
+	stage=stage_for_zone.get(zone, "ketsu")
 	stage_changed.emit(stage)
-	ambience.stream=load(ZONE_AMBIENCE_PATHS[zone])
-	ambience.volume_db=ZONE_AMBIENCE_VOLUME_DB[zone]
-	if not test_mode: ambience.play()
+	if ZONE_AMBIENCE_PATHS.has(zone):
+		ambience.stream=load(ZONE_AMBIENCE_PATHS[zone])
+		ambience.volume_db=ZONE_AMBIENCE_VOLUME_DB.get(zone, 0.0)
+		if not test_mode: ambience.play()
 	prayer_audio.stop()
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
 	_configure_entity()
 	hud.set_breath_hint(false)
+	if ambient_modulate != null:
+		if zone in ["mansion_ground", "mansion_upper"]:
+			ambient_modulate.color = Color(1.0, 1.0, 1.0, 1.0)
+		else:
+			ambient_modulate.color = Color(0.019607844, 0.023529412, 0.03137255, 1.0)
+	if zone in ["mansion_ground", "mansion_upper"]:
+		hud.show_altars_tracker(true)
+		hud.set_altars_count(GameState.altars_completed, 7)
 	if zone == "hallway":
 		hall_door_cues.clear()
 		hall_stirred.clear()
@@ -247,6 +301,20 @@ func _configure_entity() -> void:
 		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
 		entity.show()
 		encounter_grace=5.0
+	elif zone == "mansion_ground":
+		var points: Array[Vector2] = []
+		for index in range(1, 9):
+			points.append(world.marker("mansion_ground", "Patrol%d" % index))
+		entity.reset_encounter(world.marker("mansion_ground", "EntitySpawn"), points)
+		entity.show()
+		encounter_grace = 6.0
+	elif zone == "mansion_upper":
+		var points: Array[Vector2] = []
+		for index in range(1, 7):
+			points.append(world.marker("mansion_upper", "Patrol%d" % index))
+		entity.reset_encounter(world.marker("mansion_upper", "Patrol1"), points)
+		entity.show()
+		encounter_grace = 4.0
 
 func _process(delta: float) -> void:
 	if _paused: return
@@ -262,6 +330,10 @@ func _process(delta: float) -> void:
 	hud.update_breath_feedback(player.get_node("BreathFeedback"))
 	hud.battery.value=flashlight.battery_percent
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
+	var throw_cooldown_frac := 0.0
+	if "_cooldown_timer" in thrower and "_release_cooldown" in thrower:
+		throw_cooldown_frac = clampf(thrower._cooldown_timer / maxf(thrower._release_cooldown, 0.001), 0.0, 1.0)
+	hud.update_equipment_state(flashlight.is_on, flashlight.battery_percent, batteries, thrower.rocks, throw_cooldown_frac)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
 	if not dialogue.is_empty() or resetting: return
 	if sequence!="": _tick_sequence(delta)
@@ -385,6 +457,10 @@ func _input(event: InputEvent) -> void:
 			and dialogue.is_empty() and not resetting:
 		insert_battery()
 		get_viewport().set_input_as_handled()
+	if event.is_action_pressed("throw") and hud.inventory.get_node("Rocks").visible and thrower.rocks<=0 \
+			and dialogue.is_empty() and not resetting:
+		hud.reject_slot("rocks")
+		say("No rocks left")
 	if key==KEY_E:
 		if not dialogue.is_empty(): advance_dialogue()
 		elif not resetting and sequence=="":
@@ -432,7 +508,8 @@ func _find_interaction() -> void:
 			nearest=id
 	for id in world.interactables:
 		var prop_node: Node2D=world.interactables[id]["node"]
-		prop_node.set_focused(id==nearest)
+		if prop_node.has_method("set_focused"):
+			prop_node.set_focused(id==nearest)
 	hud.prompt.text="" if nearest=="" else "E  ·  "+interaction_label(nearest)
 	if nearest!="": hud.place_prompt(get_canvas_transform()*world.interactables[nearest]["position"])
 
@@ -448,14 +525,34 @@ func interaction_label(id: String) -> String:
 	if id=="window" and window_broken: return "Release latch"
 	if id=="front_door" and door_unlocked: return "Open door"
 	var node: Node = world.interactables[id]["node"]
-	if node is Door and node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go through"
-	if node is Door and (node.is_open or node.locked): return node.interaction_label()
+	if node is Door:
+		if node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go through"
+		return node.interaction_label()
 	return world.interactables[id]["label"]
 
 func interact(id: String) -> void:
 	if not interaction_available(id): return
 	# Distance validation is shared by normal input and tests; no remote interactions.
 	if player.position.distance_to(world.interactables[id]["position"])>85: return
+	var target_node: Node = world.interactables[id]["node"]
+	if target_node is Door and not id in ZONE_DOORS and id != "mansion_main_porton" and id != "loop_end" and id != "loop_back":
+		_use_door(target_node as Door)
+		return
+	if id.contains("battery"):
+		batteries+=1
+		collect(id)
+		if has_flashlight and flashlight.battery_percent<=0: insert_battery()
+		else: say("Battery +1")
+		return
+	if id.contains("rocks"):
+		if thrower.rocks>=3:
+			say("Rocks full")
+		else:
+			thrower.rocks+=3
+			play_sound("pickup",player.position)
+			_animate_rocks(world.interactables[id]["node"].global_position)
+			say("Rocks +3",5)
+		return
 	match id:
 		"phone":
 			show_dialogue(["ELI: Follow the yellow trail marks to my aunt's house. Bring your flashlight."])
@@ -466,7 +563,9 @@ func interact(id: String) -> void:
 			flashlight.set_process_unhandled_input(true)
 			if batteries>0: insert_battery()
 			else: say("Flashlight")
-		"battery","forest_battery","porch_battery","house_battery":
+		"battery","forest_battery","porch_battery","house_battery", \
+		"mansion_battery_zaguan","battery_library","battery_service","battery_kitchen", \
+		"battery_ballroom","battery_study","battery_main_bedroom","battery_gallery":
 			batteries+=1
 			collect(id)
 			if has_flashlight and flashlight.battery_percent<=0: insert_battery()
@@ -494,7 +593,10 @@ func interact(id: String) -> void:
 			var home_door: Door = world.interactables[id]["node"]
 			if home_door.is_open: _go_through(id)
 			else: _use_door(home_door)
-		"forest_rocks","porch_rocks":
+		"forest_rocks","porch_rocks", \
+		"mansion_rocks_zaguan","patio_rocks_sw","patio_rocks_ne","rocks_sotano", \
+		"rocks_storage","rocks_chapel","rocks_kitchen","rocks_main_bedroom", \
+		"rocks_sewing","rocks_living","rocks_balcony":
 			if thrower.rocks>=3:
 				say("Rocks full")
 			else:
@@ -524,8 +626,30 @@ func interact(id: String) -> void:
 				_go_through(id)
 			else:
 				_use_door(front_door)
-		"kitchen_door","altar_door":
+		"kitchen_door","altar_door", \
+		"door_kitchen","door_library","door_storage","door_chapel","door_service_dorm","door_ballroom", \
+		"door_study","door_main_bedroom","door_gallery","door_sewing","door_living","door_stairs":
 			_use_door(world.interactables[id]["node"])
+		"mansion_main_porton":
+			if GameState.altars_completed >= GameState.total_altars:
+				complete = true
+				entity.active = false
+				encounter_grace = 0
+				tutorial_completed.emit()
+				(world.interactables[id]["node"] as Door).open(breath.is_holding)
+				say("El sello se ha roto. Has consagrado los 7 altares y escapado de la Hacienda.", 8.0)
+			else:
+				say("El portón está sellado con un cerrojo pesado. Debes consagrar los 7 altares.", 5.0)
+		"stairs_to_upper":
+			enter_zone("mansion_upper", world.marker("mansion_upper", "SpawnFromStairs"), true)
+			play_sound("door", player.position)
+			say("Subiendo a la planta alta...", 3.0)
+		"stairs_to_ground":
+			enter_zone("mansion_ground", world.marker("mansion_ground", "SpawnFromUpper"), true)
+			play_sound("door", player.position)
+			say("Bajando a la planta baja...", 3.0)
+		"altar_1", "altar_2", "altar_3", "altar_4", "altar_5", "altar_6", "altar_7":
+			say("Mantén presionada la tecla [E] durante 12 segundos para consagrar la ofrenda.", 4.5)
 		"friend":
 			friend_met=true
 			show_dialogue([
@@ -582,9 +706,11 @@ func insert_battery() -> void:
 		say("Take the flashlight first.")
 		return
 	if batteries<=0:
+		hud.reject_slot("battery")
 		say("No spare battery")
 		return
 	if flashlight.battery_percent>85:
+		hud.reject_slot("battery")
 		say("Battery is full")
 		return
 	batteries-=1
@@ -782,9 +908,9 @@ func _go_through(id: String) -> void:
 	if resetting or not door.is_open or not _zone_door_active(id): return
 	match id:
 		"front_door":
-			enter_zone("loop",Vector2.INF,true,"loop_back")
-			play_sound("impossible",player.position)
-			say("This should be outside.",6)
+			enter_zone("mansion_ground", world.marker("mansion_ground", "SpawnEntrance"), true, "mansion_main_porton")
+			play_sound("impossible", player.position)
+			say("La salida hacia el patio desapareció... Has entrado al zaguán de la Hacienda. El portón se ha sellado.", 7.0)
 		"bedroom_exit": enter_zone("hallway",Vector2.INF,true,"hall_back")
 		"hall_back": enter_zone("bedroom",world.marker("bedroom","SpawnFromHallway"),true,"bedroom_exit")
 		"hall_exit":
@@ -800,6 +926,23 @@ func _close_behind(door: Door) -> void:
 	while is_instance_valid(door) and door.is_open and (door.is_doorway_occupied() or player.position.distance_to(door.get_noise_origin())<72.0):
 		await get_tree().create_timer(0.2).timeout
 	if is_instance_valid(door) and door.is_open: door.close(true)
+
+func _on_altar_prayed(altar_node: Node) -> void:
+	hud.set_altars_count(GameState.altars_completed, GameState.total_altars)
+	play_sound("switch", player.position, 2.0)
+	var altar_name := "Ofrenda"
+	if "altar_name" in altar_node:
+		altar_name = altar_node.altar_name
+	say("%s consagrada (%d / %d). La llama de cempasúchil arde." % [altar_name, GameState.altars_completed, GameState.total_altars], 5.0)
+
+func _on_all_altars_prayed() -> void:
+	hud.set_altars_count(GameState.total_altars, GameState.total_altars)
+	say("¡Los 7 altares han sido consagrados! El cerrojo del portón principal se ha abierto.", 8.0)
+	play_sound("impossible", player.position, 0.0)
+	if world.interactables.has("mansion_main_porton"):
+		var porton: Door = world.interactables["mansion_main_porton"]["node"]
+		porton.locked = false
+		porton.locked_label = ""
 
 func _caught() -> void:
 	if resetting or not dialogue.is_empty() or sequence != "": return
@@ -893,6 +1036,8 @@ func _frame_camera() -> void:
 	var region: Rect2 = World.REGIONS[zone]
 	var viewport_size := get_viewport_rect().size
 	var zoom := maxf(2.475,maxf(viewport_size.x/region.size.x,viewport_size.y/region.size.y))
+	if zone in ["mansion_ground", "mansion_upper"]:
+		zoom = 1.95
 	camera.zoom = Vector2.ONE*zoom
 	camera.limit_left = int(region.position.x)
 	camera.limit_top = int(region.position.y)

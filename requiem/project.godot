@@ -18,9 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Exhibit="*res://autoloads/exhibit.gd"
-
 Preferences="*res://autoloads/preferences.gd"
-
 NoiseManager="*res://autoloads/noise_manager.gd"
 GameState="*res://autoloads/game_state.gd"
 GameOverUi="*res://autoloads/game_over_ui.gd"
@@ -28,20 +26,20 @@ AmbienceManager="*res://autoloads/ambience_manager.gd"
 PhantomCameraManager="*res://addons/phantom_camera/scripts/managers/phantom_camera_manager.gd"
 PauseMenu="*res://tutorial/pause_menu.gd"
 LoadingScreen="*res://tutorial/loading_screen.gd"
+McpRuntime="*res://addons/godot-mcp/mcp_runtime.gd"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/size/resizable=false
 window/size/window_width_override=1920
 window/size/window_height_override=1080
-window/size/resizable=false
 window/stretch/mode="viewport"
-window/stretch/aspect="keep"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/phantom_camera/plugin.cfg")
+enabled=PackedStringArray("res://addons/phantom_camera/plugin.cfg", "res://addons/godot-mcp/plugin.cfg")
 
 [input]
 

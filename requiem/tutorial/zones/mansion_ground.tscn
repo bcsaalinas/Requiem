@@ -1,0 +1,543 @@
+[gd_scene format=3 uid="uid://bjf7atvo3e8d2"]
+
+[ext_resource type="Texture2D" uid="uid://c34l3yacjtcod" path="res://assets/level/floor_wood.png" id="1_floor"]
+[ext_resource type="Texture2D" uid="uid://cnatnjlqotr5w" path="res://assets/level/rug_runner.png" id="2_runner"]
+[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_sage"]
+[ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_walls"]
+[ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="5_doorfront"]
+[ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="6_doorside"]
+[ext_resource type="PackedScene" uid="uid://cx4x0altar7m" path="res://level/props/mansion_altar.tscn" id="8_altar"]
+[ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="9_chest"]
+[ext_resource type="PackedScene" uid="uid://cqdd5x3ovgcv1" path="res://level/props/desk.tscn" id="10_desk"]
+[ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="11_wardrobe"]
+[ext_resource type="PackedScene" uid="uid://cvcmvkyrrja0n" path="res://level/props/bed.tscn" id="12_bed"]
+[ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="13_armchair"]
+[ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="14_lamp"]
+[ext_resource type="PackedScene" uid="uid://ds3510e3xtnj6" path="res://level/props/coat_rack.tscn" id="15_coat"]
+[ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="16_art"]
+[ext_resource type="PackedScene" path="res://level/props/dining_table.tscn" id="20_dining"]
+[ext_resource type="PackedScene" path="res://level/props/kitchen_stove.tscn" id="21_stove"]
+[ext_resource type="PackedScene" path="res://level/props/bookshelf.tscn" id="22_bookshelf"]
+[ext_resource type="PackedScene" path="res://level/props/chapel_pew.tscn" id="23_pew"]
+[ext_resource type="PackedScene" path="res://level/props/grand_piano.tscn" id="24_piano"]
+[ext_resource type="PackedScene" path="res://level/props/barrels.tscn" id="25_barrels"]
+[ext_resource type="PackedScene" path="res://level/props/grandfather_clock.tscn" id="26_clock"]
+[ext_resource type="PackedScene" path="res://level/props/stone_fountain.tscn" id="27_fountain"]
+[ext_resource type="Script" path="res://tutorial/zones/mansion_ground.gd" id="1_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_stairs"]
+size = Vector2(96, 96)
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_ground"]
+vertices = PackedVector2Array(64, 64, 2208, 64, 2208, 1760, 64, 1760)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+outlines = [PackedVector2Array(64, 64, 2208, 64, 2208, 1760, 64, 1760)]
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"mansion_nav"
+agent_radius = 15.0
+
+[node name="MansionGround" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_script")
+
+[node name="Floor" type="Sprite2D" parent="."]
+self_modulate = Color(0.62, 0.58, 0.52, 1)
+z_index = -10
+texture_repeat = 2
+position = Vector2(64, 64)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_floor")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 4288, 3392)
+
+[node name="Rugs" type="Node2D" parent="."]
+z_index = -9
+
+[node name="ZaguanRunner" type="Sprite2D" parent="Rugs"]
+position = Vector2(1120, 1552)
+rotation = 1.5707964
+scale = Vector2(0.75, 0.55)
+texture = ExtResource("2_runner")
+
+[node name="ChapelRunner" type="Sprite2D" parent="Rugs"]
+position = Vector2(1088, 352)
+rotation = 1.5707964
+scale = Vector2(0.75, 0.5)
+texture = ExtResource("2_runner")
+
+[node name="DiningRug" type="Sprite2D" parent="Rugs"]
+position = Vector2(384, 1552)
+scale = Vector2(0.65, 0.55)
+texture = ExtResource("3_sage")
+
+[node name="LibraryRug" type="Sprite2D" parent="Rugs"]
+position = Vector2(1568, 352)
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("3_sage")
+
+[node name="BallroomRunner" type="Sprite2D" parent="Rugs"]
+position = Vector2(1984, 448)
+rotation = 1.5707964
+scale = Vector2(0.85, 0.55)
+texture = ExtResource("2_runner")
+
+[node name="MusicRug" type="Sprite2D" parent="Rugs"]
+position = Vector2(1888, 960)
+scale = Vector2(0.5, 0.45)
+texture = ExtResource("3_sage")
+
+[node name="Walls" type="TileMapLayer" parent="." groups=["mansion_nav"]]
+z_index = 1
+y_sort_enabled = true
+tile_set = ExtResource("4_walls")
+
+[node name="PatioCentral" type="Node2D" parent="."]
+
+[node name="CanteraFountain" parent="PatioCentral" instance=ExtResource("27_fountain")]
+position = Vector2(1152, 896)
+
+[node name="PillarNW" parent="PatioCentral" instance=ExtResource("14_lamp")]
+position = Vector2(832, 704)
+energy = 0.55
+color = Color(0.78, 0.66, 0.45, 1)
+
+[node name="PillarNE" parent="PatioCentral" instance=ExtResource("14_lamp")]
+position = Vector2(1472, 704)
+energy = 0.55
+color = Color(0.78, 0.66, 0.45, 1)
+
+[node name="PillarSW" parent="PatioCentral" instance=ExtResource("14_lamp")]
+position = Vector2(832, 1184)
+energy = 0.55
+color = Color(0.78, 0.66, 0.45, 1)
+
+[node name="PillarSE" parent="PatioCentral" instance=ExtResource("14_lamp")]
+position = Vector2(1472, 1184)
+energy = 0.55
+color = Color(0.78, 0.66, 0.45, 1)
+
+[node name="Doors" type="Node2D" parent="."]
+z_index = 1
+y_sort_enabled = true
+
+[node name="MansionMainPorton" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1120, 1760)
+locked = true
+locked_label = "El portón está sellado con un cerrojo de hierro por fuera. Debes consagrar los 7 altares."
+metadata/interaction_id = "mansion_main_porton"
+metadata/interaction_label = "El portón está sellado"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="ZaguanToDiningDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(720, 1568)
+swing_side = -1
+metadata/interaction_id = "door_zaguan_dining"
+metadata/interaction_label = "Entrar al Gran Comedor"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="ZaguanToSouthSalonDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1616, 1568)
+metadata/interaction_id = "door_zaguan_south_salon"
+metadata/interaction_label = "Entrar al Salón de los Espejos"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="DiningToCellarDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(288, 1376)
+metadata/interaction_id = "door_dining_cellar"
+metadata/interaction_label = "Abrir puerta a la Cava"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="DiningToPantryDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(576, 1376)
+metadata/interaction_id = "door_dining_pantry"
+metadata/interaction_label = "Abrir puerta al Antecomedor"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="CellarToPantryDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(432, 1184)
+metadata/interaction_id = "door_cellar_pantry"
+metadata/interaction_label = "Cruzar entre Cava y Antecomedor"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="PantryToPatioDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(720, 1152)
+metadata/interaction_id = "door_pantry_patio"
+metadata/interaction_label = "Salir al Patio con Fuente"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="CellarToKitchenDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(288, 992)
+metadata/interaction_id = "door_cellar_kitchen"
+metadata/interaction_label = "Entrar a la Cocina Antigua"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="PantryToAlacenaDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(576, 992)
+metadata/interaction_id = "door_pantry_alacena"
+metadata/interaction_label = "Entrar a la Alacena"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="KitchenToAlacenaDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(496, 768)
+metadata/interaction_id = "door_kitchen_alacena"
+metadata/interaction_label = "Abrir puerta de la Cocina"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="AlacenaToPatioDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(720, 768)
+metadata/interaction_id = "door_alacena_patio"
+metadata/interaction_label = "Salir al Patio con Fuente"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="KitchenToAltar3Door" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(288, 608)
+metadata/interaction_id = "door_kitchen_altar3"
+metadata/interaction_label = "Entrar a la Cámara de la Troje"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="AlacenaToSacristiaDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(608, 608)
+metadata/interaction_id = "door_alacena_sacristia"
+metadata/interaction_label = "Entrar a la Sacristía Oeste"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="Altar3ToTrojeDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(288, 352)
+metadata/interaction_id = "door_altar3_troje"
+metadata/interaction_label = "Entrar a la Troje / Bodega"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="TrojeToSacristiaDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(496, 224)
+metadata/interaction_id = "door_troje_sacristia"
+metadata/interaction_label = "Salir a la Sacristía"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="Altar3ToSacristiaDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(496, 480)
+metadata/interaction_id = "door_altar3_sacristia"
+metadata/interaction_label = "Cruzar a la Sacristía Oeste"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="SacristiaToChapelDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(848, 320)
+metadata/interaction_id = "door_sacristia_chapel"
+metadata/interaction_label = "Entrar a la Capilla Colonial"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="ChapelDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1088, 608)
+start_open = true
+metadata/interaction_id = "door_chapel"
+metadata/interaction_label = "Entrar a la Capilla Colonial"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="ChapelToLibraryDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1360, 320)
+metadata/interaction_id = "door_chapel_library"
+metadata/interaction_label = "Entrar a la Biblioteca"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="LibrarySouthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1568, 608)
+metadata/interaction_id = "door_library_south"
+metadata/interaction_label = "Entrar a la Biblioteca"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="LibraryToBallroomDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1808, 320)
+metadata/interaction_id = "door_library_ballroom"
+metadata/interaction_label = "Entrar al Salón de Baile"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="BallroomWestDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1808, 704)
+metadata/interaction_id = "door_ballroom_west"
+metadata/interaction_label = "Salir a la Galería Este"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="PatioToEastGalleryDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1616, 704)
+metadata/interaction_id = "door_patio_east_gallery"
+metadata/interaction_label = "Cruzar a la Galería Este"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="EastGalleryToMusicDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1728, 864)
+metadata/interaction_id = "door_gallery_music"
+metadata/interaction_label = "Entrar a la Sala de Música"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="BallroomToMusicDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1984, 864)
+metadata/interaction_id = "door_ballroom_music"
+metadata/interaction_label = "Cruzar a la Sala de Música"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="MusicToPatioDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1616, 992)
+metadata/interaction_id = "door_music_patio"
+metadata/interaction_label = "Salir al Patio con Fuente"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="MusicToStairsDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1792, 1152)
+metadata/interaction_id = "door_music_stairs"
+metadata/interaction_label = "Ir a las Escaleras Principales"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="StairsToPatioDoor" parent="Doors" instance=ExtResource("6_doorside")]
+position = Vector2(1616, 1248)
+start_open = true
+metadata/interaction_id = "door_stairs_patio"
+metadata/interaction_label = "Salir al Patio con Fuente"
+metadata/interaction_offset = Vector2(0, -32)
+
+[node name="StairsToSouthSalonDoor" parent="Doors" instance=ExtResource("5_doorfront")]
+position = Vector2(1792, 1376)
+metadata/interaction_id = "door_stairs_south_salon"
+metadata/interaction_label = "Entrar al Salón Sur"
+metadata/interaction_offset = Vector2(0, -48)
+
+[node name="Props" type="Node2D" parent="." groups=["mansion_nav"]]
+z_index = 1
+y_sort_enabled = true
+
+[node name="ZaguanDesk" parent="Props" instance=ExtResource("10_desk")]
+position = Vector2(928, 1600)
+
+[node name="ZaguanCoatRack" parent="Props" instance=ExtResource("15_coat")]
+position = Vector2(800, 1456)
+
+[node name="ZaguanClock" parent="Props" instance=ExtResource("26_clock")]
+position = Vector2(1472, 1456)
+
+[node name="ZaguanBattery" type="Node2D" parent="Props"]
+position = Vector2(928, 1580)
+script = ExtResource("16_art")
+kind = "battery"
+lift = 60.0
+metadata/interaction_id = "battery_zaguan"
+metadata/interaction_label = "Tomar batería de repuesto"
+
+[node name="ZaguanRocks" type="Node2D" parent="Props"]
+position = Vector2(1312, 1600)
+script = ExtResource("16_art")
+kind = "rocks"
+metadata/interaction_id = "rocks_zaguan"
+metadata/interaction_label = "Tomar 3 piedras"
+
+[node name="ZaguanLampL" parent="Props" instance=ExtResource("14_lamp")]
+position = Vector2(896, 1664)
+energy = 0.65
+color = Color(0.94, 0.78, 0.55, 1)
+
+[node name="ZaguanLampR" parent="Props" instance=ExtResource("14_lamp")]
+position = Vector2(1344, 1664)
+energy = 0.65
+color = Color(0.94, 0.78, 0.55, 1)
+
+[node name="Altar1_Patio" parent="Props" instance=ExtResource("8_altar")]
+position = Vector2(1152, 1056)
+altar_name = "Ofrenda de la Fuente Seca"
+metadata/interaction_id = "altar_1"
+metadata/interaction_label = "Rezar en la Fuente Seca (Mantener E)"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="PatioRocks" type="Node2D" parent="Props"]
+position = Vector2(1280, 960)
+script = ExtResource("16_art")
+kind = "rocks"
+metadata/interaction_id = "rocks_patio"
+metadata/interaction_label = "Tomar 3 piedras"
+
+[node name="GranComedorTable" parent="Props" instance=ExtResource("20_dining")]
+position = Vector2(384, 1568)
+
+[node name="GranComedorWardrobe" parent="Props" instance=ExtResource("11_wardrobe")]
+position = Vector2(160, 1472)
+
+[node name="CavaBarrels1" parent="Props" instance=ExtResource("25_barrels")]
+position = Vector2(176, 1120)
+
+[node name="CavaBarrels2" parent="Props" instance=ExtResource("25_barrels")]
+position = Vector2(176, 1248)
+
+[node name="AntecomedorDesk" parent="Props" instance=ExtResource("10_desk")]
+position = Vector2(576, 1120)
+
+[node name="Altar2_Cocina" parent="Props" instance=ExtResource("8_altar")]
+position = Vector2(224, 832)
+altar_name = "Ofrenda del Fogón"
+metadata/interaction_id = "altar_2"
+metadata/interaction_label = "Rezar en el Fogón (Mantener E)"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="CocinaFogon" parent="Props" instance=ExtResource("21_stove")]
+position = Vector2(176, 688)
+
+[node name="KitchenDesk" parent="Props" instance=ExtResource("10_desk")]
+position = Vector2(368, 736)
+
+[node name="KitchenBattery" type="Node2D" parent="Props"]
+position = Vector2(368, 716)
+script = ExtResource("16_art")
+kind = "battery"
+lift = 50.0
+metadata/interaction_id = "battery_kitchen"
+metadata/interaction_label = "Tomar batería de repuesto"
+
+[node name="Altar3_Storage" parent="Props" instance=ExtResource("8_altar")]
+position = Vector2(224, 480)
+altar_name = "Ofrenda de la Troje / Bodega"
+metadata/interaction_id = "altar_3"
+metadata/interaction_label = "Rezar en la Troje (Mantener E)"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="TrojeBarrels" parent="Props" instance=ExtResource("25_barrels")]
+position = Vector2(192, 224)
+
+[node name="StorageChest" parent="Props" instance=ExtResource("9_chest")]
+position = Vector2(368, 224)
+
+[node name="StorageRocks" type="Node2D" parent="Props"]
+position = Vector2(368, 480)
+script = ExtResource("16_art")
+kind = "rocks"
+metadata/interaction_id = "rocks_storage"
+metadata/interaction_label = "Tomar 3 piedras"
+
+[node name="SacristiaWardrobe" parent="Props" instance=ExtResource("11_wardrobe")]
+position = Vector2(672, 208)
+
+[node name="Altar4_Capilla" parent="Props" instance=ExtResource("8_altar")]
+position = Vector2(1088, 224)
+altar_name = "Ofrenda de la Capilla"
+metadata/interaction_id = "altar_4"
+metadata/interaction_label = "Rezar en la Capilla (Mantener E)"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="ChapelPewL1" parent="Props" instance=ExtResource("23_pew")]
+position = Vector2(960, 368)
+
+[node name="ChapelPewR1" parent="Props" instance=ExtResource("23_pew")]
+position = Vector2(1216, 368)
+
+[node name="ChapelPewL2" parent="Props" instance=ExtResource("23_pew")]
+position = Vector2(960, 464)
+
+[node name="ChapelPewR2" parent="Props" instance=ExtResource("23_pew")]
+position = Vector2(1216, 464)
+
+[node name="ChapelChest" parent="Props" instance=ExtResource("9_chest")]
+position = Vector2(928, 208)
+
+[node name="ChapelRocks" type="Node2D" parent="Props"]
+position = Vector2(1248, 224)
+script = ExtResource("16_art")
+kind = "rocks"
+metadata/interaction_id = "rocks_chapel"
+metadata/interaction_label = "Tomar 3 piedras"
+
+[node name="LibraryShelf1" parent="Props" instance=ExtResource("22_bookshelf")]
+position = Vector2(1472, 208)
+
+[node name="LibraryShelf2" parent="Props" instance=ExtResource("22_bookshelf")]
+position = Vector2(1664, 208)
+
+[node name="LibraryDesk" parent="Props" instance=ExtResource("10_desk")]
+position = Vector2(1568, 368)
+
+[node name="LibraryArmchair" parent="Props" instance=ExtResource("13_armchair")]
+position = Vector2(1456, 448)
+
+[node name="BallroomClock" parent="Props" instance=ExtResource("26_clock")]
+position = Vector2(2080, 208)
+
+[node name="BallroomChest" parent="Props" instance=ExtResource("9_chest")]
+position = Vector2(1984, 224)
+
+[node name="BallroomArmchair1" parent="Props" instance=ExtResource("13_armchair")]
+position = Vector2(2096, 416)
+
+[node name="BallroomArmchair2" parent="Props" instance=ExtResource("13_armchair")]
+position = Vector2(2096, 576)
+
+[node name="SalaMusicaPiano" parent="Props" instance=ExtResource("24_piano")]
+position = Vector2(1920, 992)
+
+[node name="SalaMusicaArmchair" parent="Props" instance=ExtResource("13_armchair")]
+position = Vector2(2096, 992)
+
+[node name="SouthSalonTable" parent="Props" instance=ExtResource("20_dining")]
+position = Vector2(1920, 1568)
+
+[node name="SouthSalonChest" parent="Props" instance=ExtResource("9_chest")]
+position = Vector2(2080, 1456)
+
+[node name="StairsToUpper" type="Area2D" parent="Props"]
+position = Vector2(2048, 1216)
+collision_layer = 1
+collision_mask = 1
+metadata/interaction_id = "stairs_to_upper"
+metadata/interaction_label = "Subir a Planta Alta"
+metadata/interaction_offset = Vector2(0, 20)
+
+[node name="VisualStep" type="Polygon2D" parent="Props/StairsToUpper"]
+color = Color(0.35, 0.28, 0.2, 1)
+polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)
+
+[node name="VisualTreads" type="Polygon2D" parent="Props/StairsToUpper"]
+color = Color(0.48, 0.38, 0.26, 1)
+polygon = PackedVector2Array(-40, -36, 40, -36, 40, -20, -40, -20)
+
+[node name="VisualTreads2" type="Polygon2D" parent="Props/StairsToUpper"]
+color = Color(0.44, 0.35, 0.24, 1)
+polygon = PackedVector2Array(-40, -10, 40, -10, 40, 6, -40, 6)
+
+[node name="VisualTreads3" type="Polygon2D" parent="Props/StairsToUpper"]
+color = Color(0.4, 0.32, 0.22, 1)
+polygon = PackedVector2Array(-40, 16, 40, 16, 40, 32, -40, 32)
+
+[node name="Shape" type="CollisionShape2D" parent="Props/StairsToUpper"]
+shape = SubResource("RectangleShape2D_stairs")
+
+[node name="Markers" type="Node2D" parent="."]
+
+[node name="SpawnEntrance" type="Marker2D" parent="Markers"]
+position = Vector2(1120, 1632)
+
+[node name="SpawnFromUpper" type="Marker2D" parent="Markers"]
+position = Vector2(1888, 1216)
+
+[node name="EntitySpawn" type="Marker2D" parent="Markers"]
+position = Vector2(1984, 512)
+
+[node name="Patrol1" type="Marker2D" parent="Markers"]
+position = Vector2(960, 896)
+
+[node name="Patrol2" type="Marker2D" parent="Markers"]
+position = Vector2(1088, 480)
+
+[node name="Patrol3" type="Marker2D" parent="Markers"]
+position = Vector2(672, 416)
+
+[node name="Patrol4" type="Marker2D" parent="Markers"]
+position = Vector2(352, 832)
+
+[node name="Patrol5" type="Marker2D" parent="Markers"]
+position = Vector2(576, 1248)
+
+[node name="Patrol6" type="Marker2D" parent="Markers"]
+position = Vector2(544, 1568)
+
+[node name="Patrol7" type="Marker2D" parent="Markers"]
+position = Vector2(1760, 992)
+
+[node name="Patrol8" type="Marker2D" parent="Markers"]
+position = Vector2(1568, 480)
+
+[node name="MansionNavigation" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_ground")

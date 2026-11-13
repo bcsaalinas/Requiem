@@ -9,6 +9,8 @@ signal player_died
 signal state_reset
 signal prayer_started(altar: Node)
 signal prayer_ended(altar: Node, immediate: bool)
+signal altar_completed(altar: Node)
+signal all_altars_completed
 
 var is_dead: bool = false
 ## True mientras el jugador esta rezando en un altar. player.gd lo lee para
@@ -16,6 +18,10 @@ var is_dead: bool = false
 var is_praying: bool = false
 ## The accepted altar owns the ritual clock; presentation reads this source.
 var prayer_source: Node = null
+
+## Contador oficial de progreso para los 7 altares de la hacienda.
+var altars_completed: int = 0
+var total_altars: int = 7
 
 
 func begin_prayer(altar: Node) -> bool:
@@ -57,7 +63,15 @@ func kill_player() -> void:
 	player_died.emit()
 
 
+func register_altar_prayed(altar: Node) -> void:
+	altars_completed += 1
+	altar_completed.emit(altar)
+	if altars_completed >= total_altars:
+		all_altars_completed.emit()
+
+
 func reset() -> void:
 	_cancel_active_prayer()
 	is_dead = false
+	altars_completed = 0
 	state_reset.emit()

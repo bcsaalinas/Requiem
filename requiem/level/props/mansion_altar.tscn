@@ -1,0 +1,150 @@
+[gd_scene format=3 uid="uid://cx4x0altar7m"]
+
+[ext_resource type="Script" path="res://level/props/mansion_altar.gd" id="1_altar"]
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="2_shadow"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="3_mat"]
+[ext_resource type="Texture2D" uid="uid://7d5khdcuam44" path="res://level/props/textures/altar.tres" id="4_tex"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="5_lamp"]
+[ext_resource type="AudioStream" uid="uid://bdq37dkf83rnp" path="res://assets/audio/193812__geoneo0__four_voices_whispering_6.wav" id="6_whisper"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_altar"]
+size = Vector2(124, 68)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_altar"]
+closed = false
+polygon = PackedVector2Array(-58, -122, 58, -122)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pray"]
+radius = 140.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_label_bg"]
+bg_color = Color(0.06, 0.05, 0.04, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.92, 0.68, 0.22, 0.75)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 6.0
+expand_margin_top = 3.0
+expand_margin_right = 6.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.06, 0.06, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.32, 0.16, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.98, 0.74, 0.22, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="MansionAltar" type="StaticBody2D" groups=["mansion_altar"]]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1_altar")
+pray_clips = Array[AudioStream]([ExtResource("6_whisper")])
+
+[node name="Cempasuchil" type="Polygon2D" parent="."]
+z_index = -2
+color = Color(0.95, 0.55, 0.08, 0.85)
+polygon = PackedVector2Array(-95, -2, -80, -42, -50, -60, 0, -64, 52, -58, 82, -40, 98, -2, 78, 25, 32, 34, -36, 34, -80, 24)
+
+[node name="CempasuchilInner" type="Polygon2D" parent="."]
+z_index = -2
+color = Color(1, 0.82, 0.18, 0.95)
+polygon = PackedVector2Array(-72, -4, -60, -34, 0, -48, 58, -32, 70, -2, 50, 20, 0, 28, -50, 18)
+
+[node name="Shadow" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(0, -22)
+scale = Vector2(1.2, 0.95)
+texture = ExtResource("2_shadow")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+material = ExtResource("3_mat")
+position = Vector2(-68, -130)
+scale = Vector2(0.483, 0.483)
+texture = ExtResource("4_tex")
+centered = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -34)
+shape = SubResource("RectangleShape2D_altar")
+
+[node name="Occluder" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_altar")
+
+[node name="LightLeft" type="PointLight2D" parent="."]
+position = Vector2(-52, -45)
+color = Color(1, 0.72, 0.28, 1)
+energy = 1.6
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("5_lamp")
+texture_scale = 1.6
+
+[node name="LightRight" type="PointLight2D" parent="."]
+position = Vector2(52, -45)
+color = Color(1, 0.72, 0.28, 1)
+energy = 1.6
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("5_lamp")
+texture_scale = 1.6
+
+[node name="LightCenter" type="PointLight2D" parent="."]
+position = Vector2(0, -50)
+color = Color(1, 0.65, 0.2, 1)
+energy = 1.5
+texture = ExtResource("5_lamp")
+texture_scale = 2.0
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_pray")
+
+[node name="Label" type="Label" parent="."]
+z_index = 10
+offset_left = -96.0
+offset_top = -160.0
+offset_right = 96.0
+offset_bottom = -132.0
+theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_label_bg")
+text = "E  ·  Rezar (Mantener)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+z_index = 10
+offset_left = -65.0
+offset_top = -124.0
+offset_right = 65.0
+offset_bottom = -110.0
+theme_override_styles/background = SubResource("StyleBoxFlat_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
+step = 0.1
+show_percentage = false

@@ -57,6 +57,41 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_altar_card"]
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+bg_color = Color(0.035, 0.042, 0.038, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.38, 0.32, 0.75)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_altar_bg"]
+bg_color = Color(0.04, 0.05, 0.04, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.28, 0.31, 0.26, 0.7)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_altar_fill"]
+bg_color = Color(0.95, 0.73, 0.28, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [node name="HUD" type="CanvasLayer" unique_id=1039700262]
 layer = 20
 script = ExtResource("1_xqdwv")
@@ -74,21 +109,71 @@ mouse_filter = 2
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -230.0
-offset_top = 24.0
-offset_right = -28.0
-offset_bottom = 60.0
+offset_left = -380.0
+offset_top = 22.0
+offset_right = -26.0
+offset_bottom = 78.0
 grow_horizontal = 0
-theme_override_constants/separation = 22
+theme_override_constants/separation = 18
 alignment = 2
+
+[node name="AltarsTracker" type="PanelContainer" parent="Screen" unique_id=987654321]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -140.0
+offset_top = 18.0
+offset_right = 140.0
+offset_bottom = 74.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_altar_card")
+
+[node name="VBox" type="VBoxContainer" parent="Screen/AltarsTracker"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="HBoxContainer" parent="Screen/AltarsTracker/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Screen/AltarsTracker/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.86, 0.62, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+text = "OFRENDAS REZADAS"
+
+[node name="Count" type="Label" parent="Screen/AltarsTracker/VBox/Header"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.88, 0.72, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 15
+text = "0 / 7"
+
+[node name="Bar" type="ProgressBar" parent="Screen/AltarsTracker/VBox"]
+custom_minimum_size = Vector2(250, 8)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_altar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_altar_fill")
+max_value = 7.0
+step = 1.0
+show_percentage = false
 
 [node name="Flashlight" type="HBoxContainer" parent="Screen/Inventory" unique_id=54715919]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="Icon" type="TextureRect" parent="Screen/Inventory/Flashlight" unique_id=1761236781]
 texture_filter = 1
-custom_minimum_size = Vector2(30, 34)
+custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = SubResource("AtlasTexture_hna5b")
 expand_mode = 1
@@ -106,10 +191,11 @@ theme_override_font_sizes/font_size = 22
 [node name="Battery" type="HBoxContainer" parent="Screen/Inventory" unique_id=873786898]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="Icon" type="TextureRect" parent="Screen/Inventory/Battery" unique_id=501741159]
 texture_filter = 1
-custom_minimum_size = Vector2(30, 34)
+custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = SubResource("AtlasTexture_c4vy6")
 expand_mode = 1
@@ -126,10 +212,11 @@ theme_override_font_sizes/font_size = 22
 [node name="Rocks" type="HBoxContainer" parent="Screen/Inventory" unique_id=1794366086]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="Icon" type="TextureRect" parent="Screen/Inventory/Rocks" unique_id=1299560311]
 texture_filter = 1
-custom_minimum_size = Vector2(30, 34)
+custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = SubResource("AtlasTexture_7ayin")
 expand_mode = 1
@@ -147,14 +234,15 @@ theme_override_font_sizes/font_size = 22
 layout_mode = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = -70.0
-offset_bottom = -28.0
-theme_override_constants/separation = 18
+offset_left = 30.0
+offset_top = -76.0
+offset_bottom = -20.0
+theme_override_constants/separation = 26
 script = ExtResource("3_w8sm5")
 
 [node name="Breath" type="VBoxContainer" parent="Screen/Vitals" unique_id=1068166841]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="Caption" type="Label" parent="Screen/Vitals/Breath" unique_id=770395067]
 layout_mode = 2
@@ -166,7 +254,7 @@ theme_override_font_sizes/font_size = 20
 text = "BREATH"
 
 [node name="Meter" type="ProgressBar" parent="Screen/Vitals/Breath" unique_id=600481585]
-custom_minimum_size = Vector2(140, 9)
+custom_minimum_size = Vector2(180, 12)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_uxx2j")
 theme_override_styles/fill = SubResource("StyleBoxFlat_lpmjs")
@@ -174,6 +262,7 @@ show_percentage = false
 
 [node name="Exertion" type="VBoxContainer" parent="Screen/Vitals" unique_id=1033111022]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="Caption" type="Label" parent="Screen/Vitals/Exertion" unique_id=770620539]
 layout_mode = 2
@@ -185,7 +274,7 @@ theme_override_font_sizes/font_size = 20
 text = "EXERTION"
 
 [node name="Meter" type="ProgressBar" parent="Screen/Vitals/Exertion" unique_id=1729844663]
-custom_minimum_size = Vector2(140, 9)
+custom_minimum_size = Vector2(164, 12)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_fdqx6")
 theme_override_styles/fill = SubResource("StyleBoxFlat_u8ho5")
@@ -194,6 +283,7 @@ show_percentage = false
 [node name="Battery" type="VBoxContainer" parent="Screen/Vitals" unique_id=1014626798]
 visible = false
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="Caption" type="Label" parent="Screen/Vitals/Battery" unique_id=118392215]
 layout_mode = 2
@@ -205,7 +295,7 @@ theme_override_font_sizes/font_size = 20
 text = "BATTERY"
 
 [node name="Meter" type="ProgressBar" parent="Screen/Vitals/Battery" unique_id=1413848367]
-custom_minimum_size = Vector2(140, 9)
+custom_minimum_size = Vector2(154, 12)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_wajr8")
 theme_override_styles/fill = SubResource("StyleBoxFlat_0y45n")
@@ -254,10 +344,10 @@ visible = false
 layout_mode = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = -94.0
-offset_right = 228.0
-offset_bottom = -66.0
+offset_left = 30.0
+offset_top = -114.0
+offset_right = 240.0
+offset_bottom = -86.0
 mouse_filter = 2
 theme_override_constants/separation = 10
 

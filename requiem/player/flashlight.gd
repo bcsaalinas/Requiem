@@ -65,6 +65,9 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 ## duracion en vez de dejarlo sonar entero.
 @export var click_duration: float = 0.35
 
+signal toggled(is_on: bool)
+signal toggle_rejected()
+
 var battery_percent: float = 100.0
 var is_on: bool = false
 
@@ -73,6 +76,8 @@ var _audio_player: AudioStreamPlayer2D
 ## nuevo mientras esperaba, no corta el que esta sonando ahora.
 var _click_token: int = 0
 var _flicker: float = 1.0
+var _surge: float = 0.0
+var _base_color: Color = Color.WHITE
 @onready var actions: Node = get_parent().get_node_or_null("ActionState")
 @onready var aim_controller: Node = get_parent().get_node_or_null("PlayerAim")
 ## Ancho "100%" del cono: el scale.y con el que arranca el nodo (Inspector o 1).
@@ -103,6 +108,7 @@ func _ready() -> void:
 
 	_apply_beam_length()
 	_full_cone_width = scale.y
+	_base_color = color
 	is_on = start_on and battery_percent > 0.0
 	_refresh_light()
 	_update_bar()
@@ -114,6 +120,9 @@ func _process(delta: float) -> void:
 
 	if follow_mouse and is_on and aim_controller == null:
 		_aim_at_mouse()
+
+	if _surge > 0.0:
+		_surge = maxf(0.0, _surge - delta / 0.14)
 
 	_tick_cone_width(delta)
 	_tick_battery(delta)
@@ -134,11 +143,18 @@ func toggle() -> void:
 	if actions != null and (not actions.has_flashlight or not actions.can_aim()):
 		return
 	if not is_on and battery_percent <= 0.0:
+		_play_click()
+		toggle_rejected.emit()
 		return
 	is_on = not is_on
+	if is_on:
+		_surge = 1.0
+	else:
+		_surge = 0.0
 	_play_click()
 	_refresh_light()
 	_update_bar()
+	toggled.emit(is_on)
 
 
 func _aim_at_mouse() -> void:
@@ -196,8 +212,13 @@ func _refresh_light() -> void:
 	if battery_percent <= low_battery_threshold:
 		var t := clampf(battery_percent / maxf(low_battery_threshold, 0.001), 0.0, 1.0)
 		level = lerpf(low_battery_min_level, 1.0, t)
+		var dip := clampf(1.0 - _flicker, 0.0, 1.0)
+		color = _base_color.lerp(Color("d98c4a"), dip * 0.65)
+	else:
+		color = _base_color
 
-	energy = beam_energy * level * _flicker
+	var surge_boost := _surge * 0.18 if _surge > 0.0 else 0.0
+	energy = beam_energy * (level * _flicker + surge_boost)
 
 
 ## Preserve texture scale/range, but register its painted tip at the hand socket.

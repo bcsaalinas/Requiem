@@ -3,43 +3,79 @@ extends CanvasLayer
 signal resume_requested
 signal fullscreen_requested
 
+const UIPalette := preload("res://util/ui_palette.gd")
+
 @onready var root: Control = $Screen
 @onready var prompt: Label = $Screen/InteractionPrompt
 @onready var subtitle: Label = $Screen/Subtitle
 @onready var breath: ProgressBar = $Screen/Vitals/Breath/Meter
 @onready var effort: ProgressBar = $Screen/Vitals/Exertion/Meter
 @onready var battery: ProgressBar = $Screen/Vitals/Battery/Meter
+@onready var vitals: Node = $Screen/Vitals
 @onready var banner: Label = $Screen/Banner
 @onready var shade: ColorRect = $Screen/StoryFade
 @onready var help_panel: PanelContainer = $Screen/PauseMenu
 @onready var inventory: HBoxContainer = $Screen/Inventory
 @onready var breath_hint: HBoxContainer = $Screen/BreathHint
 @onready var alert: VBoxContainer = $Screen/Alert
+@onready var altars_tracker: Control = $Screen/AltarsTracker
+@onready var altars_count_label: Label = $Screen/AltarsTracker/VBox/Header/Count
+@onready var altars_bar: ProgressBar = $Screen/AltarsTracker/VBox/Bar
 var _slots: Dictionary = {}
 var _counts: Dictionary = {}
-var _breath_fill: StyleBoxFlat
-var _effort_fill: StyleBoxFlat
+var _slot_rejects: Dictionary = {}
+var _slot_base_x: Dictionary = {}
 var _hint_clock := 0.0
+var _hud_clock := 0.0
 var _alert_tween: Tween
+var _flashlight_on := false
+var _battery_percent := 0.0
+var _spare_batteries := 0
+var _rocks_count := 0
+var _throw_cooldown_frac := 0.0
+var _inventory_overlay: Control
 
 func _ready() -> void:
 	Exhibit.fit_ui(root)
-	# Each HUD owns these styles; warning pulses cannot leak into other scenes.
-	_breath_fill = breath.get_theme_stylebox("fill").duplicate()
-	_effort_fill = effort.get_theme_stylebox("fill").duplicate()
-	breath.add_theme_stylebox_override("fill", _breath_fill)
-	effort.add_theme_stylebox_override("fill", _effort_fill)
 	for kind in ["flashlight", "battery", "rocks"]:
-		var slot := inventory.get_node(String(kind).capitalize())
+		var slot: Control = inventory.get_node(String(kind).capitalize())
+		slot.custom_minimum_size = Vector2(maxf(slot.custom_minimum_size.x, 64.0), slot.custom_minimum_size.y)
 		_slots[kind] = slot
 		_counts[kind] = slot.get_node("Count")
+		_slot_rejects[kind] = 0.0
+		slot.draw.connect(_draw_slot_card.bind(kind))
+	_inventory_overlay = Control.new()
+	_inventory_overlay.name = "InventoryOverlay"
+	_inventory_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_inventory_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_inventory_overlay.draw.connect(_draw_inventory_overlay)
+	root.add_child(_inventory_overlay)
+	root.move_child(_inventory_overlay, inventory.get_index() + 1)
 
-func update_breath_feedback(feedback: Node) -> void:
-	_breath_fill.bg_color = feedback.get_meter_color()
-	_effort_fill.bg_color = feedback.get_meter_color(true)
-	var caption: Label = $Screen/Vitals/Breath/Caption
-	caption.text = feedback.get_meter_caption()
-	caption.modulate = Color.WHITE.lerp(Color("f2c3a3"), feedback.lung_pressure * feedback.pulse * 0.35)
+func _process(delta: float) -> void:
+	_hud_clock += delta
+	var any_slot_visible := false
+	for kind in _slots:
+		var slot: Control = _slots[kind]
+		var reject_t := float(_slot_rejects.get(kind, 0.0))
+		if reject_t > 0.0:
+			reject_t = maxf(0.0, reject_t - delta * 3.2)
+			_slot_rejects[kind] = reject_t
+			if not _slot_base_x.has(kind):
+				_slot_base_x[kind] = slot.position.x
+			slot.position.x = float(_slot_base_x[kind]) + sin(reject_t * TAU * 3.0) * 5.0 * reject_t
+			if reject_t <= 0.0:
+				slot.position.x = float(_slot_base_x[kind])
+				_slot_base_x.erase(kind)
+		if slot.visible:
+			any_slot_visible = true
+			slot.queue_redraw()
+	if any_slot_visible and _inventory_overlay != null:
+		_inventory_overlay.queue_redraw()
+
+func update_breath_feedback(_feedback: Node) -> void:
+	# VitalMeters owns reactive colors and captions; keep hook for compatibility.
+	pass
 
 ## The hallway's standing lesson: the key next to the breath meter. `urgency` (0..1) rises as a
 ## parent door comes within earshot and makes the hint and the meter pulse; holding the breath
@@ -92,7 +128,52 @@ func update_inventory(equipped: bool, spares: int, rocks: int) -> void:
 	_slots.rocks.visible = _slots.rocks.visible or rocks > 0
 	_counts.battery.text = str(spares)
 	_counts.rocks.text = str(rocks)
+	_spare_batteries = spares
+	_rocks_count = rocks
 	battery.get_parent().visible = equipped
+	if vitals != null and vitals.has_method("set_equipment_context"):
+		vitals.set_equipment_context(spares)
+	_refresh_slot_modulation()
+
+## Rich per-frame equipment feedback: light power, swap prompt, empty dim, throw cooldown.
+func update_equipment_state(flashlight_on: bool, battery_percent: float, spares: int, rocks: int, throw_cooldown_frac := 0.0) -> void:
+	_flashlight_on = flashlight_on
+	_battery_percent = battery_percent
+	_spare_batteries = spares
+	_rocks_count = rocks
+	_throw_cooldown_frac = clampf(throw_cooldown_frac, 0.0, 1.0)
+	if vitals != null and vitals.has_method("set_equipment_context"):
+		vitals.set_equipment_context(spares)
+	_refresh_slot_modulation()
+
+func _refresh_slot_modulation() -> void:
+	var low_bat := _battery_percent <= 25.0
+	var dead_bat := _battery_percent <= 0.0
+	var flash_slot: Control = _slots.get("flashlight")
+	if flash_slot != null:
+		if dead_bat:
+			flash_slot.modulate = Color(0.75, 0.52, 0.50, 0.85)
+		elif _flashlight_on:
+			flash_slot.modulate = Color(1.06, 1.04, 0.96, 1.0)
+		else:
+			flash_slot.modulate = Color(0.74, 0.76, 0.78, 0.88)
+	var bat_slot: Control = _slots.get("battery")
+	if bat_slot != null:
+		var pulse := 0.5 + 0.5 * sin(_hud_clock * TAU * 2.2)
+		if _spare_batteries <= 0:
+			bat_slot.modulate = Color(0.55, 0.54, 0.54, 0.65)
+		elif low_bat and _slots.flashlight.visible:
+			bat_slot.modulate = Color(1.0, 0.96, 0.88).lerp(Color(1.22, 1.12, 0.86), pulse)
+		else:
+			bat_slot.modulate = Color.WHITE
+	var rock_slot: Control = _slots.get("rocks")
+	if rock_slot != null:
+		if _rocks_count <= 0:
+			rock_slot.modulate = Color(0.52, 0.52, 0.54, 0.62)
+		elif _throw_cooldown_frac > 0.0:
+			rock_slot.modulate = Color(0.76, 0.78, 0.82, 0.88)
+		else:
+			rock_slot.modulate = Color.WHITE
 
 ## A short pop of an inventory slot when something lands in it.
 func pulse_slot(kind: String) -> void:
@@ -104,6 +185,106 @@ func pulse_slot(kind: String) -> void:
 	tween.tween_property(slot, "scale", Vector2(1.35, 1.35), 0.12).set_trans(Tween.TRANS_BACK)
 	tween.tween_property(slot, "scale", Vector2.ONE, 0.25)
 
+## Tactile rejection shake + crimson flash when an action cannot be performed.
+func reject_slot(kind: String) -> void:
+	if not _slots.has(kind):
+		return
+	_slot_rejects[kind] = 1.0
+	var slot: Control = _slots[kind]
+	slot.queue_redraw()
+
+func _draw_slot_card(kind: String) -> void:
+	var slot: Control = _slots.get(kind)
+	if slot == null or not slot.visible:
+		return
+	var rect := Rect2(Vector2(-7.0, -5.0), slot.size + Vector2(14.0, 22.0))
+	var reject_t := float(_slot_rejects.get(kind, 0.0))
+	var pulse := 0.5 + 0.5 * sin(_hud_clock * TAU * 2.2)
+
+	var bg := UIPalette.CARD_BG
+	var border := UIPalette.CARD_BORDER
+	var key_text := ""
+	var state_text := ""
+	var state_color := UIPalette.TEXT_DIM
+
+	match kind:
+		"flashlight":
+			key_text = "F"
+			if _battery_percent <= 0.0:
+				state_text = "DEAD"
+				state_color = UIPalette.BREATH_CRIT
+				border = UIPalette.BREATH_CRIT.lerp(bg, 0.35)
+			elif _flashlight_on:
+				state_text = "ON"
+				state_color = UIPalette.BATTERY_ON
+				border = UIPalette.BATTERY_ON.lerp(UIPalette.CARD_BORDER, 0.45)
+			else:
+				state_text = "OFF"
+				state_color = UIPalette.TEXT_DIM
+		"battery":
+			key_text = "B"
+			if _spare_batteries <= 0:
+				state_text = "EMPTY"
+				state_color = UIPalette.TEXT_DIM
+			elif _battery_percent <= 25.0 and _slots.flashlight.visible:
+				state_text = "SWAP"
+				state_color = UIPalette.BATTERY_LOW.lerp(Color.WHITE, pulse * 0.35)
+				border = UIPalette.BATTERY_LOW.lerp(UIPalette.CARD_BORDER, 0.35 * (1.0 - pulse))
+			else:
+				state_text = "CELL"
+				state_color = UIPalette.TEXT
+		"rocks":
+			key_text = "Q"
+			if _rocks_count <= 0:
+				state_text = "NONE"
+				state_color = UIPalette.TEXT_DIM
+			elif _throw_cooldown_frac > 0.0:
+				state_text = "WAIT"
+				state_color = UIPalette.EXERTION_HOT
+			else:
+				state_text = "THROW"
+				state_color = UIPalette.TEXT
+
+	if reject_t > 0.0:
+		bg = bg.lerp(Color(0.28, 0.07, 0.07, 0.92), reject_t * 0.85)
+		border = border.lerp(UIPalette.BREATH_CRIT, reject_t)
+
+	slot.draw_rect(rect, bg, true)
+	slot.draw_rect(rect, border, false, 1.5)
+
+	# Bottom strip divider + keycap + live status label inside card footer.
+	var footer_y := rect.end.y - 16.0
+	slot.draw_line(
+		Vector2(rect.position.x + 4.0, footer_y),
+		Vector2(rect.end.x - 4.0, footer_y),
+		Color(border.r, border.g, border.b, 0.45),
+		1.0
+	)
+	var font := ThemeDB.fallback_font
+	if font != null:
+		var key_rect := Rect2(rect.position.x + 4.0, footer_y + 2.0, 14.0, 12.0)
+		slot.draw_rect(key_rect, Color(0.14, 0.16, 0.16, 0.95), true)
+		slot.draw_rect(key_rect, Color(border.r, border.g, border.b, 0.7), false, 1.0)
+		slot.draw_string(font, Vector2(key_rect.position.x + 4.0, footer_y + 11.5), key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, UIPalette.TEXT)
+		slot.draw_string(font, Vector2(key_rect.end.x + 5.0, footer_y + 11.5), state_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, state_color)
+
+	# Flashlight active beam glow dot in top-right corner of card.
+	if kind == "flashlight" and _flashlight_on and _battery_percent > 0.0:
+		var pip_pos := Vector2(rect.end.x - 7.0, rect.position.y + 7.0)
+		slot.draw_circle(pip_pos, 4.5, Color(UIPalette.BATTERY_ON.r, UIPalette.BATTERY_ON.g, UIPalette.BATTERY_ON.b, 0.25))
+		slot.draw_circle(pip_pos, 2.3, UIPalette.BATTERY_ON)
+
+func _draw_inventory_overlay() -> void:
+	if _inventory_overlay == null:
+		return
+	var rock_slot: Control = _slots.get("rocks")
+	if rock_slot != null and rock_slot.visible and _throw_cooldown_frac > 0.0:
+		var slot_origin := inventory.position + rock_slot.position + rock_slot.pivot_offset * (Vector2.ONE - rock_slot.scale)
+		var slot_rect := Rect2(slot_origin - Vector2(7.0, 5.0) * rock_slot.scale, (rock_slot.size + Vector2(14.0, 22.0)) * rock_slot.scale)
+		var fill_h := slot_rect.size.y * _throw_cooldown_frac
+		var sweep := Rect2(slot_rect.position.x, slot_rect.end.y - fill_h, slot_rect.size.x, fill_h)
+		_inventory_overlay.draw_rect(sweep, Color(0.04, 0.05, 0.06, 0.45), true)
+
 func place_prompt(at: Vector2, in_dialogue := false) -> void:
 	at /= 1.5
 	var viewport_size := root.size
@@ -113,3 +294,19 @@ func place_prompt(at: Vector2, in_dialogue := false) -> void:
 		prompt.position = Vector2(
 			clampf(at.x-prompt.size.x*.5,24,viewport_size.x-prompt.size.x-24),
 			clampf(at.y+34,78,viewport_size.y-215))
+
+func show_altars_tracker(shown: bool) -> void:
+	if altars_tracker != null:
+		altars_tracker.visible = shown
+
+func set_altars_count(count: int, total: int = 7) -> void:
+	if altars_tracker == null or altars_count_label == null or altars_bar == null:
+		return
+	altars_count_label.text = "%d / %d" % [count, total]
+	altars_bar.max_value = float(total)
+	var tw := create_tween()
+	tw.tween_property(altars_bar, "value", float(count), 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	altars_tracker.pivot_offset = altars_tracker.size * 0.5
+	var pop := create_tween()
+	pop.tween_property(altars_tracker, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_BACK)
+	pop.tween_property(altars_tracker, "scale", Vector2.ONE, 0.22)

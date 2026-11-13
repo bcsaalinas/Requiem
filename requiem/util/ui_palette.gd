@@ -14,15 +14,27 @@ extends RefCounted
 # --- Superficies ---
 const PANEL := Color(0.035, 0.042, 0.039, 0.97)
 const PANEL_SOLID := Color(0.035, 0.042, 0.039, 1.0)
+const CARD_BG := Color(0.038, 0.046, 0.042, 0.86)
+const CARD_BORDER := Color(0.28, 0.31, 0.26, 0.72)
 const TRACK := Color(0.1, 0.14, 0.14, 0.8)
 ## 0e161b, el clear color del renderer.
 const VOID := Color(0.055, 0.086, 0.106)
 
 # --- Signos vitales ---
 const BONE := Color(0.7647059, 0.76862746, 0.6666667)      # breath
+const BREATH_HOLD := Color(0.65882355, 0.8117647, 0.7882353) # focused hold
+const BREATH_WARN := Color(0.8862745, 0.6431373, 0.35686275) # low air warning
+const BREATH_CRIT := Color(0.8392157, 0.30980393, 0.25882354)# <=20% loud gasp danger
 const AMBER := Color(0.80784315, 0.6745098, 0.47058824)    # exertion
+const EXERTION_HOT := Color(0.8627451, 0.33333334, 0.25882354)
+const EXERTION_REST := Color(0.49803922, 0.6509804, 0.5411765)
 const ASH := Color(0.65882355, 0.6784314, 0.60784316)      # battery
+const BATTERY_ON := Color(0.95686275, 0.85882354, 0.61960787)
+const BATTERY_OFF := Color(0.42745098, 0.45490196, 0.41960785)
+const BATTERY_LOW := Color(0.8784314, 0.4392157, 0.2901961)
 const ALARM := Color(0.78, 0.33, 0.27)                     # umbral cruzado
+const DANGER_ZONE := Color(0.78, 0.30, 0.24, 0.32)
+const GHOST_TRAIL := Color(0.96, 0.92, 0.80, 0.38)
 
 # --- Texto ---
 const TEXT := Color(0.8666667, 0.827451, 0.7254902)
