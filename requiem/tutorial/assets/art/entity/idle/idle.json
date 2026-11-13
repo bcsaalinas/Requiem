@@ -1,0 +1,138 @@
+{
+  "clip": "idle",
+  "canvas": [
+    318,
+    318
+  ],
+  "pivot": [
+    159,
+    159
+  ],
+  "headless": true,
+  "loop": true,
+  "duration_ms": 3600,
+  "frame_index_base": 0,
+  "sheets": {
+    "idle": {
+      "file": "idle_sheet.png",
+      "hframes": 12,
+      "vframes": 1
+    },
+    "idle_twist_left": {
+      "file": "idle_twist_left_sheet.png",
+      "hframes": 12,
+      "vframes": 1
+    },
+    "idle_twist_right": {
+      "file": "idle_twist_right_sheet.png",
+      "hframes": 12,
+      "vframes": 1
+    }
+  },
+  "frames": [
+    {
+      "index": 0,
+      "ms": 500
+    },
+    {
+      "index": 1,
+      "ms": 300
+    },
+    {
+      "index": 2,
+      "ms": 300
+    },
+    {
+      "index": 3,
+      "ms": 200
+    },
+    {
+      "index": 4,
+      "ms": 100
+    },
+    {
+      "index": 5,
+      "ms": 300
+    },
+    {
+      "index": 6,
+      "ms": 350
+    },
+    {
+      "index": 7,
+      "ms": 300
+    },
+    {
+      "index": 8,
+      "ms": 150
+    },
+    {
+      "index": 9,
+      "ms": 350
+    },
+    {
+      "index": 10,
+      "ms": 150
+    },
+    {
+      "index": 11,
+      "ms": 600
+    }
+  ],
+  "sound_frames": [
+    {
+      "index": 4,
+      "name": "claw_tick"
+    }
+  ],
+  "head_look": {
+    "trigger": "random, from Godot",
+    "wait_between_looks_ms": [
+      1500,
+      4000
+    ],
+    "length_ms": 1720,
+    "keys": [
+      {
+        "t_ms": 0,
+        "pose": "r35",
+        "body": "idle_twist_right"
+      },
+      {
+        "t_ms": 50,
+        "pose": "r55",
+        "body": "idle_twist_right"
+      },
+      {
+        "t_ms": 600,
+        "pose": "r15",
+        "body": "idle"
+      },
+      {
+        "t_ms": 650,
+        "pose": "c0",
+        "body": "idle"
+      },
+      {
+        "t_ms": 970,
+        "pose": "l15",
+        "body": "idle"
+      },
+      {
+        "t_ms": 1020,
+        "pose": "l55",
+        "body": "idle_twist_left"
+      },
+      {
+        "t_ms": 1670,
+        "pose": "l15",
+        "body": "idle"
+      },
+      {
+        "t_ms": 1720,
+        "pose": "c0",
+        "body": "idle"
+      }
+    ]
+  }
+}

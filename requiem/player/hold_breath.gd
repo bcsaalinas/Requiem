@@ -81,6 +81,7 @@ var _exertion_bar: ProgressBar
 
 func _ready() -> void:
 	_audio_player = AudioStreamPlayer2D.new()
+	_audio_player.bus = "SFX"
 	add_child(_audio_player)
 
 	_bar_layer = CanvasLayer.new()

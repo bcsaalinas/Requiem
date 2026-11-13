@@ -36,7 +36,6 @@ var _throw_cooldown_frac := 0.0
 var _inventory_overlay: Control
 
 func _ready() -> void:
-	Exhibit.fit_ui(root)
 	for kind in ["flashlight", "battery", "rocks"]:
 		var slot: Control = inventory.get_node(String(kind).capitalize())
 		slot.custom_minimum_size = Vector2(maxf(slot.custom_minimum_size.x, 64.0), slot.custom_minimum_size.y)

@@ -23,7 +23,7 @@ var _closing := false
 var _hover_tweens: Dictionary = {}
 
 func _ready() -> void:
-	Exhibit.fit_ui(self)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build()
 	resized.connect(_resize_layout)
 	_resize_layout()

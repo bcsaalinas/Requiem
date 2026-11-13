@@ -18,9 +18,7 @@ func _ready() -> void:
 	call_deferred("run")
 
 func run() -> void:
-	Exhibit.enabled = false
-	Exhibit.dismiss_attract()
-	Preferences.storage_path = "/private/tmp/requiem-menu-test-%s.cfg" % OS.get_process_id()
+	Preferences.storage_path = "user://requiem-menu-test-%s.cfg" % OS.get_process_id()
 	Preferences.load_preferences()
 	# Keep the runner alive while exercising the real scene replacement.
 	get_tree().current_scene = null

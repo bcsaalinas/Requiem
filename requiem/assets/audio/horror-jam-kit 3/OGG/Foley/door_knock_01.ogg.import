@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dhprqifgermcg"
+path="res://.godot/imported/door_knock_01.ogg-1529cd7fb08c895d9f26de9a4a066da8.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Foley/door_knock_01.ogg"
+dest_files=["res://.godot/imported/door_knock_01.ogg-1529cd7fb08c895d9f26de9a4a066da8.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

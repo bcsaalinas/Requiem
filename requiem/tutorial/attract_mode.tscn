@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bbn11nqvyg6qq"]
+
+[ext_resource type="Script" uid="uid://c5vvjl2a18mwh" path="res://tutorial/attract_mode.gd" id="1_1e622"]
+
+[node name="AttractMode" type="Node" unique_id=1878986653]
+script = ExtResource("1_1e622")

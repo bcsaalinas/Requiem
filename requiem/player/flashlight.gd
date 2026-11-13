@@ -68,6 +68,11 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 signal toggled(is_on: bool)
 signal toggle_rejected()
 
+@export_group("Ruido")
+## El click de prender/apagar se oye (la entidad no ve la luz, pero oye el
+## interruptor). Radio del ruido en unidades.
+@export var click_noise_radius_u: float = 2.5
+
 var battery_percent: float = 100.0
 var is_on: bool = false
 
@@ -152,6 +157,8 @@ func toggle() -> void:
 	else:
 		_surge = 0.0
 	_play_click()
+	# Solo el click del jugador hace ruido; el que suena al morir la bateria no.
+	NoiseManager.emit_noise(global_position, click_noise_radius_u * PX_PER_UNIT, NoiseManager.SourceType.FLASHLIGHT)
 	_refresh_light()
 	_update_bar()
 	toggled.emit(is_on)

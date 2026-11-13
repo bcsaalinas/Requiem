@@ -121,7 +121,6 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 """
 
 # Author handles and titles preserved from audio filenames referenced by runtime scenes.
-# Footstep provenance is documented in tools/audio/README.md.
 const AUDIO := [
 	["juane170058", "Room tone ambiance in empty warehouse"],
 	["ianstargem", "Spook wind ambience"],

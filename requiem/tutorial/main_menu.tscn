@@ -108,7 +108,7 @@ layout_mode = 2
 mouse_filter = 2
 
 [node name="Pages" type="Control" parent="Column" unique_id=1159537513]
-custom_minimum_size = Vector2(0, 330)
+custom_minimum_size = Vector2(0, 440)
 layout_mode = 2
 mouse_filter = 2
 

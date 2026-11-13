@@ -35,6 +35,9 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 enum State { PATROL, INVESTIGATE, SEARCH, HUNT }
 
+## Emitted only when the real FSM changes state; audio listens here without observing noise directly.
+signal state_changed(previous: int, current: int)
+
 @export_group("Oido (u)")
 ## Tope de seguridad, no una mecanica: esta por encima de todo radio real.
 @export var hearing_range_u: float = 40.0
@@ -82,6 +85,10 @@ enum State { PATROL, INVESTIGATE, SEARCH, HUNT }
 @export var breath_hunt_clips: Array[AudioStream] = []
 ## Un solo golpe de sonido al ENTRAR en HUNT (el "te encontre").
 @export var hunt_stinger_clips: Array[AudioStream] = []
+## Cues posicionales al entrar en estados de menor amenaza.
+@export var investigate_cue_clips: Array[AudioStream] = []
+@export var search_cue_clips: Array[AudioStream] = []
+@export var state_cue_volume_db: float = -13.0
 ## Un solo golpe de sonido al atraparte.
 @export var catch_clips: Array[AudioStream] = []
 @export var breath_volume_db: float = -10.0
@@ -120,10 +127,12 @@ func _ready() -> void:
 	# Hijos directos del CharacterBody2D: heredan su transform solos, no hace
 	# falta actualizar global_position a mano como en los componentes del Player.
 	_breath_player = AudioStreamPlayer2D.new()
+	_breath_player.bus = "SFX"
 	add_child(_breath_player)
 	_breath_player.finished.connect(_on_breath_finished)
 
 	_stinger_player = AudioStreamPlayer2D.new()
+	_stinger_player.bus = "SFX"
 	add_child(_stinger_player)
 
 	_play_breath_clip()
@@ -318,7 +327,9 @@ func _change_state(new_state: int) -> void:
 		return
 
 	var was_hunting := current_state == State.HUNT
+	var previous_state := current_state
 	current_state = new_state
+	state_changed.emit(previous_state, new_state)
 	_state_timer = 0.0
 
 	if new_state == State.PATROL:
@@ -334,6 +345,10 @@ func _change_state(new_state: int) -> void:
 		_play_breath_clip()
 	elif was_hunting and new_state != State.HUNT:
 		_play_breath_clip()
+	if new_state == State.INVESTIGATE:
+		_play_state_cue(investigate_cue_clips)
+	elif new_state == State.SEARCH:
+		_play_state_cue(search_cue_clips)
 
 	if log_state_changes:
 		print("[EntityAI] Estado -> ", State.keys()[new_state])
@@ -371,14 +386,15 @@ func _play_breath_clip() -> void:
 		return
 
 	var hunting := current_state == State.HUNT
+	var searching := current_state == State.SEARCH
 	# Si todavia no hay un clip DEDICADO de caza, reusa el de calma: igual
 	# suena distinto porque el volumen y el pitch ya suben mas abajo.
 	var clips := breath_hunt_clips if (hunting and not breath_hunt_clips.is_empty()) else breath_calm_clips
 	if clips.is_empty():
 		return
 
-	_breath_player.volume_db = breath_volume_db + (hunt_breath_volume_boost_db if hunting else 0.0)
-	_breath_player.pitch_scale = 1.15 if hunting else 1.0
+	_breath_player.volume_db = breath_volume_db + (hunt_breath_volume_boost_db if hunting else (2.0 if searching else 0.0))
+	_breath_player.pitch_scale = 1.15 if hunting else (1.06 if searching else (0.94 if current_state == State.PATROL else 1.0))
 	_breath_player.stream = clips[randi() % clips.size()]
 	_breath_player.play()
 
@@ -391,5 +407,14 @@ func _play_stinger(clips: Array[AudioStream]) -> void:
 	if clips.is_empty():
 		return
 	_stinger_player.volume_db = stinger_volume_db
+	_stinger_player.stream = clips[randi() % clips.size()]
+	_stinger_player.play()
+
+
+func _play_state_cue(clips: Array[AudioStream]) -> void:
+	if clips.is_empty():
+		return
+	_stinger_player.volume_db = state_cue_volume_db
+	_stinger_player.pitch_scale = randf_range(0.96, 1.04)
 	_stinger_player.stream = clips[randi() % clips.size()]
 	_stinger_player.play()

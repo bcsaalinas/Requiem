@@ -1,0 +1,298 @@
+{
+  "clip": "head_zones",
+  "canvas": [
+    318,
+    318
+  ],
+  "pivot": [
+    159,
+    159
+  ],
+  "sheet": {
+    "file": "head_sheet.png",
+    "hframes": 9,
+    "vframes": 1
+  },
+  "angle_note": "art_angle: minus = screen left, plus = screen right, with the entity facing down as drawn",
+  "poses": [
+    {
+      "index": 0,
+      "name": "l70",
+      "art_angle": -70,
+      "role": "zone",
+      "file": "head_l70.png",
+      "head_offset": [
+        -8,
+        -3
+      ],
+      "ear_left": {
+        "pos": [
+          139,
+          132
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          158,
+          183
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "l55",
+      "art_angle": -55,
+      "role": "in_between",
+      "file": "head_l55.png",
+      "head_offset": [
+        -7,
+        -2
+      ],
+      "ear_left": {
+        "pos": [
+          134,
+          137
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          165,
+          181
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "l35",
+      "art_angle": -35,
+      "role": "zone",
+      "file": "head_l35.png",
+      "head_offset": [
+        -5,
+        -1
+      ],
+      "ear_left": {
+        "pos": [
+          130,
+          145
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          175,
+          176
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "l15",
+      "art_angle": -15,
+      "role": "in_between",
+      "file": "head_l15.png",
+      "head_offset": [
+        -2,
+        0
+      ],
+      "ear_left": {
+        "pos": [
+          130,
+          155
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          183,
+          169
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "c0",
+      "art_angle": 0,
+      "role": "zone",
+      "file": "head_c0.png",
+      "head_offset": [
+        0,
+        0
+      ],
+      "ear_left": {
+        "pos": [
+          132,
+          162
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          187,
+          162
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "r15",
+      "art_angle": 15,
+      "role": "in_between",
+      "file": "head_r15.png",
+      "head_offset": [
+        2,
+        0
+      ],
+      "ear_left": {
+        "pos": [
+          136,
+          169
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          188,
+          155
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "r35",
+      "art_angle": 35,
+      "role": "zone",
+      "file": "head_r35.png",
+      "head_offset": [
+        5,
+        -1
+      ],
+      "ear_left": {
+        "pos": [
+          144,
+          176
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          188,
+          145
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "r55",
+      "art_angle": 55,
+      "role": "in_between",
+      "file": "head_r55.png",
+      "head_offset": [
+        7,
+        -2
+      ],
+      "ear_left": {
+        "pos": [
+          153,
+          181
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          184,
+          137
+        ],
+        "visible": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "r70",
+      "art_angle": 70,
+      "role": "zone",
+      "file": "head_r70.png",
+      "head_offset": [
+        8,
+        -3
+      ],
+      "ear_left": {
+        "pos": [
+          161,
+          183
+        ],
+        "visible": true
+      },
+      "ear_right": {
+        "pos": [
+          179,
+          132
+        ],
+        "visible": true
+      }
+    }
+  ],
+  "zones": [
+    {
+      "from_deg": 0,
+      "to_deg": 20,
+      "pose_left": "c0",
+      "pose_right": "c0"
+    },
+    {
+      "from_deg": 20,
+      "to_deg": 55,
+      "pose_left": "l35",
+      "pose_right": "r35"
+    },
+    {
+      "from_deg": 55,
+      "to_deg": 110,
+      "pose_left": "l70",
+      "pose_right": "r70"
+    },
+    {
+      "from_deg": 110,
+      "to_deg": 180,
+      "action": "body_turns_then_head_returns_to_centre"
+    }
+  ],
+  "timing": {
+    "snap": {
+      "one_zone": "instant cut to the target pose",
+      "two_zones": {
+        "show_middle_zone_ms": 50
+      }
+    },
+    "relax": {
+      "ms_per_zone": 120,
+      "in_between_ms": 60,
+      "path_from_70": [
+        "70",
+        "55",
+        "35",
+        "15",
+        "0"
+      ],
+      "path_from_35": [
+        "35",
+        "15",
+        "0"
+      ]
+    }
+  },
+  "body_twist": {
+    "from_abs_angle": 35,
+    "left_turn": "twist_left",
+    "right_turn": "twist_right"
+  }
+}

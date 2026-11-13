@@ -34,13 +34,6 @@ bg_color = Color(0.1, 0.14, 0.14, 0.8)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0y45n"]
 bg_color = Color(0.65882355, 0.6784314, 0.60784316, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iqu87"]
-content_margin_left = 30.0
-content_margin_top = 24.0
-content_margin_right = 30.0
-content_margin_bottom = 24.0
-bg_color = Color(0.035, 0.042, 0.039, 0.97)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_keycap"]
 content_margin_left = 8.0
 content_margin_top = 1.0
@@ -91,6 +84,13 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iqu87"]
+content_margin_left = 30.0
+content_margin_top = 24.0
+content_margin_right = 30.0
+content_margin_bottom = 24.0
+bg_color = Color(0.035, 0.042, 0.039, 0.97)
 
 [node name="HUD" type="CanvasLayer" unique_id=1039700262]
 layer = 20
@@ -309,7 +309,7 @@ theme_override_colors/font_color = Color(0.95686275, 0.85882354, 0.61960787, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 24
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -319,13 +319,13 @@ anchor_left = 0.2
 anchor_top = 1.0
 anchor_right = 0.8
 anchor_bottom = 1.0
-offset_top = -148.0
+offset_top = -184.0
 offset_bottom = -76.0
 theme_override_colors/font_color = Color(0.9411765, 0.9137255, 0.8509804, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 26
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -348,6 +348,8 @@ offset_left = 30.0
 offset_top = -114.0
 offset_right = 240.0
 offset_bottom = -86.0
+mouse_filter = 2
+theme_override_constants/separation = 10
 mouse_filter = 2
 theme_override_constants/separation = 10
 
@@ -405,7 +407,7 @@ theme_override_colors/font_color = Color(0.9411765, 0.9137255, 0.8509804, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "Hold your breath and your steps go quiet."
 horizontal_alignment = 1
 

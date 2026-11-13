@@ -61,7 +61,6 @@ var breath: Node
 var thrower: Node
 var flashlight: PointLight2D
 @onready var entity: CharacterBody2D = $Entity
-@onready var ambience: AudioStreamPlayer = $AmbientAudio
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 @onready var heard_flash: Node2D = $NoiseFx/HeardFlash
 @onready var film: ColorRect = $Atmosphere/Film
@@ -124,10 +123,10 @@ func _enter_tree() -> void:
 	GameState.reset()
 
 func _ready() -> void:
-	Exhibit.configure_display()
-	var args := OS.get_cmdline_user_args()
-	if not test_mode and DisplayServer.get_name() != "headless" and not (args.has("--windowed") or args.has("--record") or args.has("--background")):
-		Preferences.apply_display()
+	get_window().content_scale_size = Vector2i(1280,720)
+	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	if not test_mode: Kiosk.enter_fullscreen()
 	get_viewport().size_changed.connect(_frame_camera)
 	# Beyond the walls is void: black, like the unlit rooms.
 	RenderingServer.set_default_clear_color(Color.BLACK)
@@ -137,6 +136,7 @@ func _ready() -> void:
 	breath._bar_layer.hide()
 	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
+	MusicDirector.bind_gameplay(entity, breath)
 	flashlight=player.get_node("flashlight")
 	has_flashlight=false
 	flashlight.battery_percent=0.0
@@ -152,8 +152,8 @@ func _ready() -> void:
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
 	PauseMenu.resume_pressed.connect(_toggle_pause)
-	ambience.finished.connect(func(): ambience.play())
 	prayer_audio.stream=sound("prayer")
+	prayer_audio.bus="SFX"
 	prayer_audio.finished.connect(func():
 		if zone=="house" and not attack_finished: prayer_audio.play())
 	flashlight.click_clips.assign([load("res://assets/audio/629008__realgtro__flashlight-click.wav")])
@@ -207,6 +207,8 @@ func _exit_tree() -> void:
 		audio.stop()
 		audio.stream=null
 	_sounds.clear()
+	AmbienceManager.set_track(null, -80.0)
+	MusicDirector.bind_gameplay(null, null)
 	GameState.reset()
 
 func sound(id: String) -> AudioStream:
@@ -217,6 +219,7 @@ func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
 	if test_mode: return
 	var audio:=AudioStreamPlayer2D.new()
 	audio.position=at
+	audio.bus="SFX"
 	audio.stream=sound(id)
 	audio.volume_db=volume
 	add_child(audio)
@@ -266,9 +269,9 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	stage=stage_for_zone.get(zone, "ketsu")
 	stage_changed.emit(stage)
 	if ZONE_AMBIENCE_PATHS.has(zone):
-		ambience.stream=load(ZONE_AMBIENCE_PATHS[zone])
-		ambience.volume_db=ZONE_AMBIENCE_VOLUME_DB.get(zone, 0.0)
-		if not test_mode: ambience.play()
+		var zone_stream := load(ZONE_AMBIENCE_PATHS[zone]) as AudioStream
+		AmbienceManager.set_track(zone_stream if not test_mode else null,
+			ZONE_AMBIENCE_VOLUME_DB.get(zone, 0.0), 2.0)
 	prayer_audio.stop()
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
 	_configure_entity()
@@ -291,6 +294,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 func _configure_entity() -> void:
 	entity.hide()
 	entity.active=false
+	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
 	# The opening forest and impossible room suggest a presence through spatial sound.
 	# No invisible active monster: the physical threat exists only after the altar attack.
@@ -436,16 +440,13 @@ func _safe_light_at(point: Vector2) -> SafeLight:
 func _input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo: return
 	var key: int=event.physical_keycode if event.physical_keycode!=0 else event.keycode
-	if key==KEY_F11:
-		_toggle_fullscreen()
-		get_viewport().set_input_as_handled()
-		return
 	if key in [KEY_H,KEY_ESCAPE]:
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
 		return
 	if _paused: return
-	if key==KEY_R and not resetting:
+	# In the shipping run R belongs to Kiosk: it drops the whole run back to the title.
+	if key==KEY_R and not resetting and not Kiosk.owns_reset(self):
 		request_reset("Back to the last safe place.")
 		get_viewport().set_input_as_handled()
 		return
@@ -747,19 +748,24 @@ func _on_rock_landed(at: Vector2) -> void:
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
 	# The figure stands just behind the glass; it draws above the room cover for this one beat.
-	var reveal: Node2D = world.props["reveal"]
+	var reveal: Node2D = world.landmarks["reveal"]
 	reveal.modulate=Color(.65,.65,.65,.65)
 	reveal.z_index=45
 	reveal.show()
 	play_sound("presence",reveal.global_position)
 	sequence="reveal"
 	sequence_time=0
-	world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45).name="RevealLight"
+	var reveal_light: PointLight2D = world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45)
+	reveal_light.name="RevealLight"
+	# The figure is light-only on layer 4: only this light ever shows it.
+	reveal_light.range_item_cull_mask |= 8
 	say("[Glass shatters]",4)
 
-## The screen closes in as the hunting entity comes near.
+## The screen closes in as the hunting entity comes near. Only while it hunts: then its breathing
+## is already loud, so the vignette never gives away a silent patrol behind a wall.
 func _update_threat_presentation() -> void:
-	var hunting_house: bool = zone=="house" and entity.active and entity.visible
+	var hunting_house: bool = zone=="house" and entity.active and entity.visible \
+		and entity.get_state_name()=="HUNT"
 	var pressure := 0.0
 	if hunting_house:
 		var distance := entity.global_position.distance_to(player.global_position)
@@ -797,7 +803,7 @@ func _tick_sequence(delta: float) -> void:
 	sequence_time+=delta
 	if sequence=="reveal":
 		if sequence_time>=1.15:
-			world.props["reveal"].hide()
+			world.landmarks["reveal"].hide()
 			var light:=world.get_node_or_null("RevealLight")
 			if light!=null: light.queue_free()
 			sequence=""
@@ -883,6 +889,7 @@ func _noise_name(source: int) -> String:
 		NoiseManager.SourceType.BREATH: return "breath"
 		NoiseManager.SourceType.THROW: return "throw"
 		NoiseManager.SourceType.DOOR: return "door"
+		NoiseManager.SourceType.FLASHLIGHT: return "flashlight"
 	return "footsteps"
 
 ## Opens or shuts a door; holding your breath eases it quietly.
@@ -959,11 +966,22 @@ func _begin_game_over() -> void:
 	dialogue.clear()
 	dialogue_done=Callable()
 	sequence=""
-	world.props["reveal"].hide()
+	world.landmarks["reveal"].hide()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
-	hud.shade.color=Color(0,0,0,.82)
 	play_sound("presence",player.position)
+	# The catch plays first: the arms snap shut, the shroud folds over her, a beat of stillness.
+	entity.sprite_rig.hide_player.connect(_hide_caught_player,CONNECT_ONE_SHOT)
+	entity.play_catch(player.global_position)
+	get_tree().create_timer(entity.catch_screen_delay if not test_mode else .01,false).timeout.connect(_show_game_over,CONNECT_ONE_SHOT)
+
+## The hands are under the cloth from here (catch.json hide_player).
+func _hide_caught_player() -> void:
+	if resetting: player.get_node("Appearance").hide()
+
+func _show_game_over() -> void:
+	if not resetting or GameState.is_dead: return
+	hud.shade.color=Color(0,0,0,.82)
 	GameState.kill_player()
 
 # Lo invoca la pantalla de game over cuando el jugador pulsa "Reintentar":
@@ -990,7 +1008,7 @@ func request_reset(message: String, bedroom := false) -> void:
 		friend_met=false
 		world.props["friend"].show()
 	sequence=""
-	world.props["reveal"].hide()
+	world.landmarks["reveal"].hide()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
 	hud.shade.color=Color(0,0,0,.82)
@@ -1015,6 +1033,8 @@ func restore_checkpoint(bedroom := false) -> void:
 	player.get_node("FootstepNoise").footstep_timer=0
 	player.get_node("FootstepAudio").reset_audio()
 	player.velocity=Vector2.ZERO
+	player.get_node("Appearance").show()
+	if entity.sprite_rig.hide_player.is_connected(_hide_caught_player): entity.sprite_rig.hide_player.disconnect(_hide_caught_player)
 	GameState.reset()
 	flashlight.battery_percent=maxf(flashlight.battery_percent,float(checkpoint.get("battery",100)))
 	batteries=maxi(batteries,int(checkpoint.get("batteries",0)))

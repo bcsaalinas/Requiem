@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://ods2drf2urj6"
+path="res://.godot/imported/eerie_music_box_02.ogg-4124d91995bb0c3c7a3cec3910ba6f18.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Tonal/eerie_music_box_02.ogg"
+dest_files=["res://.godot/imported/eerie_music_box_02.ogg-4124d91995bb0c3c7a3cec3910ba6f18.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

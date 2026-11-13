@@ -31,6 +31,7 @@ func _ready() -> void:
 	for index in range(3):
 		var voice := AudioStreamPlayer2D.new()
 		voice.name = "FootstepVoice%d" % index
+		voice.bus = "SFX"
 		add_child(voice)
 		voice.set_as_top_level(true)
 		_voices.append(voice)

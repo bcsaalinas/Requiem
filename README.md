@@ -22,16 +22,15 @@ credits live in `credits_data.gd`. Quit asks for confirmation, with Cancel focus
 Escape returns one page, or opens Quit from the main menu. F11 toggles and saves fullscreen.
 There is no Continue option or persistent gameplay save.
 
-## Exhibition build
+## Show-floor build
 
-- Starts in an animated attract screen. A keyboard, mouse or controller button opens the menu.
-- R / controller Select (Back) restarts the demo from the bedroom, including during pause or game over. This replaces the checkpoint shortcut in the production build; game-over Retry still restores a checkpoint.
-- After 60 seconds without input, the build returns to a fresh attract screen. A warning appears for the last 10 seconds. This also applies to menu subpages, credits, pause and game over; input cancels the countdown. Loading is excluded.
-- Rendering is fixed at 1920×1080, with preserved 16:9 aspect ratio and letterboxing. The window cannot be dragged to resize; F11 changes the presentation mode without changing render resolution.
-- Main instructions, dialogue and vital captions target at least 30 output pixels with high contrast. Confirm readability at two meters on the actual exhibition monitor; physical text size depends on the display.
-- No under-floor killzones: this is a top-down game with no gravity/falling mechanic.
+- Boots to the main menu in fullscreen at a 1280×720 canvas presented at 1080p (the window cannot be resized).
+- R / controller Select returns a run straight to the title screen (`autoloads/kiosk.gd`).
+- After 60 seconds without input the build hands the screen to attract mode (`tutorial/attract_mode.tscn`); any input returns to the title. Loading is excluded, and only the production scenes are watched.
+- Instructions, dialogue and vital captions keep a 2 m legibility floor (`UIPalette.MIN_TEXT_SIZE`). Confirm on the actual monitor.
+- Safety killzones (`tutorial/safety_killzones.gd`) keep the player from leaving the playable area.
 
-`test_exhibit` covers attract input, drift rejection, the idle timer, 1080p settings and fast reset from pause/game over. `Exhibit.enabled = false` disables exhibition automation for isolated test runners.
+`test_kiosk` covers fast reset, the idle timer, attract mode, the killzones, the 1080p lock and the text floor.
 
 ## Project layout
 
@@ -42,9 +41,8 @@ There is no Continue option or persistent gameplay save.
 | `requiem/level/` | Reusable level template, wall/prop TileSets and navigation |
 | `requiem/entities/`, `altar/`, `autoloads/` | Shared gameplay and state |
 | `requiem/testing/` | All manual experiments, regressions, capture tools and debug visualization |
-| `tools/character_rig/` | Reproducible source-art pipeline, outside the imported Godot project |
 
-Generated logs, captures, editor caches, machine-local settings and export binaries are not versioned. Historical tutorial images/video remain attached in Notion and recoverable from Git history before this cleanup. The original modular character source and provenance are retained.
+Generated logs, captures, editor caches, machine-local settings and export binaries are not versioned. Historical tutorial images/video remain attached in Notion and recoverable from Git history before this cleanup. 
 
 ## Living GDD
 

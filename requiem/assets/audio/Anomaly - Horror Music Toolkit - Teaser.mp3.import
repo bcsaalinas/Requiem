@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://cdbrxe8oqsg78"
+path="res://.godot/imported/Anomaly - Horror Music Toolkit - Teaser.mp3-f89493e2a62c76d5cf8a8f40f6119684.mp3str"
+
+[deps]
+
+source_file="res://assets/audio/Anomaly - Horror Music Toolkit - Teaser.mp3"
+dest_files=["res://.godot/imported/Anomaly - Horror Music Toolkit - Teaser.mp3-f89493e2a62c76d5cf8a8f40f6119684.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

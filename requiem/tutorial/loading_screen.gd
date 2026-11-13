@@ -59,7 +59,6 @@ func _ready() -> void:
 	layer = 90
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_build()
-	Exhibit.fit_ui(_root)
 	_root.visible = false
 
 
@@ -86,7 +85,7 @@ func _build() -> void:
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(column)
 
-	_line = UIPalette.label(lines[0] if not lines.is_empty() else "", 21, UIPalette.SUBTITLE)
+	_line = UIPalette.label(lines[0] if not lines.is_empty() else "", 26, UIPalette.SUBTITLE)
 	_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_line)

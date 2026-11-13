@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://del6x6t70trlo"
+path="res://.godot/imported/metal_scrape_01.wav-939cc940036425ed0b853981e761aaff.sample"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 2/WAV/Foley/metal_scrape_01.wav"
+dest_files=["res://.godot/imported/metal_scrape_01.wav-939cc940036425ed0b853981e761aaff.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

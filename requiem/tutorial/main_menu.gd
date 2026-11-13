@@ -16,7 +16,7 @@ const CONTROLS := [
 	["F", "Flashlight"],
 	["B", "Swap battery"],
 	["Q / Tab", "Throw · Switch"],
-	["R / Select", "Restart demo"],
+	["R / Select", "Reset to title"],
 	["F11", "Fullscreen"],
 ]
 ## Where the candle flame sits in the key art (UV of menu_background.png), and the
@@ -56,12 +56,8 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
-	Exhibit.configure_display()
-	$Column.scale = Vector2.ONE * 1.5
-	$Column.offset_left = 168
-	$Column.offset_right = 608
-	$Column.offset_top = -405
-	$Column.offset_bottom = 135
+	MusicDirector.set_music_state(MusicDirector.MusicState.MENU)
+	Kiosk.enter_fullscreen()
 	_rng.randomize()
 	_pages = {"main": %MainPage, "controls": %ControlsPage, "audio": %AudioPage}
 	%Play.pressed.connect(_start_game)
@@ -111,7 +107,7 @@ func _build_controls() -> void:
 func _build_audio() -> void:
 	var page: Control = %AudioPage
 	var index := 0
-	for bus_name in ["Master", "Ambience", "SFX"]:
+	for bus_name in ["Master", "Music", "Ambience", "SFX", "UI"]:
 		var bus := AudioServer.get_bus_index(bus_name)
 		if bus < 0:
 			continue
@@ -230,10 +226,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			destination = "settings"
 		_show_page(destination)
 		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F11:
-		Preferences.set_fullscreen(not Preferences.fullscreen)
-		_fullscreen.set_pressed_no_signal(Preferences.fullscreen)
-		get_viewport().set_input_as_handled()
 
 
 func _load_failed() -> void:
@@ -265,6 +257,8 @@ func _start_game() -> void:
 ## Irregular candle flicker: a new target every 90–260 ms, eased toward rather
 ## than snapped to, so it reads as a flame and not as a broken element.
 func _process(delta: float) -> void:
+	if _fullscreen != null:
+		_fullscreen.set_pressed_no_signal(Preferences.fullscreen)
 	_clock += delta
 	_next_flicker -= delta
 	if _next_flicker <= 0.0:

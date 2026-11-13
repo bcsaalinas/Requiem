@@ -1,0 +1,296 @@
+{
+ "clip": "hunt_start",
+ "canvas": [
+  318,
+  318
+ ],
+ "pivot": [
+  159,
+  159
+ ],
+ "headless": true,
+ "frame_index_base": 0,
+ "length_ms": 1300,
+ "scream_ms": 1000,
+ "sheet": {
+  "file": "hunt_start_sheet.png",
+  "hframes": 13,
+  "vframes": 2
+ },
+ "head_sheet": {
+  "file": "head_hunt_sheet.png",
+  "hframes": 9,
+  "vframes": 5,
+  "columns": [
+   "l70",
+   "l55",
+   "l35",
+   "l15",
+   "c0",
+   "r15",
+   "r35",
+   "r55",
+   "r70"
+  ],
+  "rows": {
+   "k": "held breath, jaw shut",
+   "o": "opening, 10 px",
+   "s": "full scream, 22 px",
+   "v": "shake, 19 px",
+   "e": "out of air, 13 px"
+  },
+  "frame_rule": "Frame = row x 9 + column"
+ },
+ "zones": [
+  {
+   "from_deg": 0,
+   "to_deg": 20,
+   "pose_sound_left": "c0",
+   "pose_sound_right": "c0"
+  },
+  {
+   "from_deg": 20,
+   "to_deg": 55,
+   "pose_sound_left": "l35",
+   "pose_sound_right": "r35"
+  },
+  {
+   "from_deg": 55,
+   "to_deg": 110,
+   "pose_sound_left": "l70",
+   "pose_sound_right": "r70"
+  },
+  {
+   "from_deg": 110,
+   "to_deg": 180,
+   "action": "turn_the_body_to_the_sound_then_use_c0"
+  }
+ ],
+ "frames": [
+  {
+   "index": 0,
+   "t_ms": 0,
+   "ms": 60,
+   "head_row": 0,
+   "head": "k"
+  },
+  {
+   "index": 1,
+   "t_ms": 60,
+   "ms": 70,
+   "head_row": 0,
+   "head": "k"
+  },
+  {
+   "index": 2,
+   "t_ms": 130,
+   "ms": 70,
+   "head_row": 0,
+   "head": "k"
+  },
+  {
+   "index": 3,
+   "t_ms": 200,
+   "ms": 50,
+   "head_row": 1,
+   "head": "o"
+  },
+  {
+   "index": 4,
+   "t_ms": 250,
+   "ms": 50,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 5,
+   "t_ms": 300,
+   "ms": 70,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 6,
+   "t_ms": 370,
+   "ms": 70,
+   "head_row": 3,
+   "head": "v"
+  },
+  {
+   "index": 7,
+   "t_ms": 440,
+   "ms": 70,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 8,
+   "t_ms": 510,
+   "ms": 70,
+   "head_row": 3,
+   "head": "v"
+  },
+  {
+   "index": 9,
+   "t_ms": 580,
+   "ms": 70,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 10,
+   "t_ms": 650,
+   "ms": 70,
+   "head_row": 3,
+   "head": "v"
+  },
+  {
+   "index": 11,
+   "t_ms": 720,
+   "ms": 70,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 12,
+   "t_ms": 790,
+   "ms": 70,
+   "head_row": 3,
+   "head": "v"
+  },
+  {
+   "index": 13,
+   "t_ms": 860,
+   "ms": 70,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 14,
+   "t_ms": 930,
+   "ms": 70,
+   "head_row": 3,
+   "head": "v"
+  },
+  {
+   "index": 15,
+   "t_ms": 1000,
+   "ms": 70,
+   "head_row": 2,
+   "head": "s"
+  },
+  {
+   "index": 16,
+   "t_ms": 1070,
+   "ms": 70,
+   "head_row": 4,
+   "head": "e"
+  },
+  {
+   "index": 17,
+   "t_ms": 1140,
+   "ms": 60,
+   "head_row": 4,
+   "head": "e"
+  },
+  {
+   "index": 18,
+   "t_ms": 1200,
+   "ms": 50,
+   "head_row": 1,
+   "head": "o"
+  },
+  {
+   "index": 19,
+   "t_ms": 1250,
+   "ms": 50,
+   "head_row": 1,
+   "head": "o"
+  }
+ ],
+ "phases": {
+  "inhale": [
+   0,
+   2
+  ],
+  "burst": [
+   3,
+   4
+  ],
+  "sustain": [
+   5,
+   17
+  ],
+  "launch": [
+   18,
+   19
+  ]
+ },
+ "bridge_from_listen": {
+  "front": [
+   20,
+   21
+  ],
+  "left": [
+   22,
+   23
+  ],
+  "right": [
+   24,
+   25
+  ],
+  "note": "Show these instead of frames 0 and 1, with the same times, then carry on from frame 2."
+ },
+ "sounds": [
+  {
+   "t_ms": 0,
+   "name": "inhale"
+  },
+  {
+   "t_ms": 200,
+   "name": "scream",
+   "length_ms": 1000
+  },
+  {
+   "t_ms": 200,
+   "name": "foot_slam"
+  },
+  {
+   "t_ms": 1200,
+   "name": "launch_step"
+  }
+ ],
+ "vfx": {
+  "starts_at_ms": 200,
+  "canvas": [
+   640,
+   640
+  ],
+  "pivot": [
+   320,
+   320
+  ],
+  "frames": 26,
+  "ms": 50,
+  "back": {
+   "file": "scream_vfx_back_sheet.png",
+   "hframes": 7,
+   "vframes": 4,
+   "draw": "behind the body"
+  },
+  "front": {
+   "file": "scream_vfx_front_sheet.png",
+   "hframes": 7,
+   "vframes": 4,
+   "draw": "above the head"
+  },
+  "drawn_facing": "down, the same as art angle 0",
+  "rotation_degrees": {
+   "l70": 70,
+   "l35": 35,
+   "c0": 0,
+   "r35": -35,
+   "r70": -70
+  }
+ }
+}

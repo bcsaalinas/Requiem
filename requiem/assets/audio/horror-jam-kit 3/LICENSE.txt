@@ -1,0 +1,15 @@
+SOUND EFFECTS LICENSE (royalty-free)
+
+By purchasing or downloading this pack you receive a perpetual, worldwide, non-exclusive
+license to use these sound effects in any number of your own projects, commercial or
+non-commercial: games, apps, videos, streams, websites, prototypes and game jams.
+No attribution is required (it is appreciated).
+
+You may NOT:
+ - resell, redistribute, sublicense or share the sound files themselves, alone or as part
+   of another sound/asset pack or library, whether modified or unmodified;
+ - upload them to any sound library, marketplace or AI-training dataset;
+ - register them with content-ID or similar fingerprinting systems.
+
+The sounds were designed and synthesised from scratch in code by the author; no samples
+from third parties are included.

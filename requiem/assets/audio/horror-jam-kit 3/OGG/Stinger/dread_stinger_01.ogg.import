@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://rn2tmafjc3i2"
+path="res://.godot/imported/dread_stinger_01.ogg-42d45cda38eed0193f8249346eca2d0e.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/horror-jam-kit 3/OGG/Stinger/dread_stinger_01.ogg"
+dest_files=["res://.godot/imported/dread_stinger_01.ogg-42d45cda38eed0193f8249346eca2d0e.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
