@@ -480,3 +480,59 @@ shape = SubResource("RectangleShape2D_7jk8c")
 
 [node name="HouseNavigation" type="NavigationRegion2D" parent="." unique_id=1285337116]
 navigation_polygon = SubResource("NavigationPolygon_qf4s4")
+
+[node name="RouteVeladora0" type="Node2D" parent="Props"]
+position = Vector2(570,600)
+script = ExtResource("11_5l22i")
+kind = "candle"
+
+[node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora0"]
+position = Vector2(0,-12)
+texture = ExtResource("17_80joc")
+texture_scale = 0.55
+energy = 0.75
+range_item_cull_mask = 5
+color = Color(0.94,0.77,0.54,1)
+shadow_enabled = true
+
+[node name="RouteVeladora1" type="Node2D" parent="Props"]
+position = Vector2(700,470)
+script = ExtResource("11_5l22i")
+kind = "candle"
+
+[node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora1"]
+position = Vector2(0,-12)
+texture = ExtResource("17_80joc")
+texture_scale = 0.55
+energy = 0.75
+range_item_cull_mask = 5
+color = Color(0.94,0.77,0.54,1)
+shadow_enabled = true
+
+[node name="RouteVeladora2" type="Node2D" parent="Props"]
+position = Vector2(875,430)
+script = ExtResource("11_5l22i")
+kind = "candle"
+
+[node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora2"]
+position = Vector2(0,-12)
+texture = ExtResource("17_80joc")
+texture_scale = 0.55
+energy = 0.75
+range_item_cull_mask = 5
+color = Color(0.94,0.77,0.54,1)
+shadow_enabled = true
+
+[node name="RouteVeladora3" type="Node2D" parent="Props"]
+position = Vector2(990,330)
+script = ExtResource("11_5l22i")
+kind = "candle"
+
+[node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora3"]
+position = Vector2(0,-12)
+texture = ExtResource("17_80joc")
+texture_scale = 0.55
+energy = 0.75
+range_item_cull_mask = 5
+color = Color(0.94,0.77,0.54,1)
+shadow_enabled = true

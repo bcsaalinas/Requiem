@@ -11,6 +11,13 @@
 [ext_resource type="PackedScene" uid="uid://divkq7aknh84x" path="res://level/props/spruce.tscn" id="9_326u6"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="10_hvswp"]
 
+[ext_resource type="Script" path="res://tutorial/forest_ranger.gd" id="ranger"]
+
+[ext_resource type="SpriteFrames" path="res://player/art/girl_rig_v2/girl_frames.tres" id="ranger_frames"]
+
+[sub_resource type="CircleShape2D" id="ranger_shape"]
+radius = 12.0
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rq8ch"]
 shader = ExtResource("5_ber70")
 shader_parameter/saturation = 0.5
@@ -429,3 +436,69 @@ position = Vector2(810, 285)
 
 [node name="ForestNavigation" type="NavigationRegion2D" parent="." unique_id=1705343690]
 navigation_polygon = SubResource("NavigationPolygon_84x7g")
+
+[node name="Ranger" type="CharacterBody2D" parent="."]
+position = Vector2(850,400)
+script = ExtResource("ranger")
+metadata/interaction_id = "ranger"
+metadata/interaction_label = "Speak to the ranger"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ranger"]
+shape = SubResource("ranger_shape")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="Ranger"]
+path_desired_distance = 6.0
+target_desired_distance = 15.0
+
+[node name="Appearance" type="Node2D" parent="Ranger"]
+script = ExtResource("6_gscj6")
+kind = "actor"
+actor_frames = ExtResource("ranger_frames")
+actor_frame_scale = 0.5
+actor_frame_pivot = Vector2(128,128)
+actor_ground_offset = Vector2(0,0)
+actor_shadow_offset = Vector2(0,0)
+actor_shadow_radius = Vector2(12,7)
+modulate = Color(0.65,0.75,0.48,1)
+
+[node name="RangerLantern" parent="Props" instance=ExtResource("7_drsj5")]
+position = Vector2(880,440)
+energy = 1.2
+reach = 1.65
+
+[node name="early_rocks" type="Node2D" parent="Props"]
+position = Vector2(300,540)
+script = ExtResource("6_gscj6")
+kind = "rocks"
+metadata/interaction_id = "early_rocks"
+metadata/interaction_label = "Pick up stones"
+
+[node name="EarlyStonesLamp" parent="Props" instance=ExtResource("7_drsj5")]
+position = Vector2(330,570)
+energy = 0.85
+reach = 1.1
+
+[node name="ThrowTarget" type="Node2D" parent="."]
+visible = false
+position = Vector2(815,540)
+z_index = 3
+
+[node name="Pool" type="PointLight2D" parent="ThrowTarget"]
+texture = ExtResource("10_hvswp")
+texture_scale = 0.65
+energy = 1.2
+color = Color(1,0.78,0.42,1)
+
+[node name="Stones" type="Node2D" parent="ThrowTarget"]
+script = ExtResource("6_gscj6")
+kind = "rocks"
+
+[node name="Label" type="Label" parent="ThrowTarget"]
+offset_left = -60.0
+offset_right = 60.0
+offset_top = 24.0
+text = "THROW HERE"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 12
+modulate = Color(1,0.85,0.55,1)
+light_mask = 0

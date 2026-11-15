@@ -106,6 +106,8 @@ var loop_hold_seen := false
 ## The house entrance shuts behind the player once, the first time they step inside.
 var front_door_shut_behind := false
 var low_battery_hinted := false
+var stone_hint_seen := false
+var ranger_checkpoint_ready := false
 var dead_light_time := 0.0
 ## Eased 0..1 closeness of the hunting entity (drives the Atmosphere vignette).
 var threat_pressure := 0.0
@@ -113,6 +115,7 @@ var friend_home := Vector2.ZERO
 var _paused := false
 var _paused_modes: Dictionary = {}
 var _sounds: Dictionary = {}
+
 
 func _enter_tree() -> void:
 	GameState.reset()
@@ -140,6 +143,8 @@ func _ready() -> void:
 	flashlight.set_process(false)
 	flashlight.set_process_unhandled_input(false)
 	entity.caught.connect(_caught)
+	world.zones["forest"].get_node("Ranger").caught.connect(_on_ranger_caught)
+	world.zones["forest"].get_node("Ranger").spotted.connect(_on_ranger_spotted)
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
 	PauseMenu.resume_pressed.connect(_toggle_pause)
@@ -230,6 +235,11 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
 	_configure_entity()
 	hud.set_breath_hint(false)
+	world.zones["forest"].get_node("Ranger").active = zone == "forest"
+	if zone == "forest":
+		world.zones["forest"].get_node("Ranger").reset_patrol()
+		ranger_checkpoint_ready = false
+		world.zones["forest"].get_node("ThrowTarget").hide()
 	if zone == "hallway":
 		hall_door_cues.clear()
 		hall_stirred.clear()
@@ -238,6 +248,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	if save: save_checkpoint()
 
 func _configure_entity() -> void:
+	entity.revisit_chance = 0.35
 	entity.hide()
 	entity.active=false
 	MusicDirector.clear_entity_threat()
@@ -254,6 +265,8 @@ func _configure_entity() -> void:
 
 func _process(delta: float) -> void:
 	if _paused: return
+	if zone == "forest":
+		world.interactables["ranger"]["position"] = world.zones["forest"].get_node("Ranger").global_position
 	ambient_reply_cooldown=maxf(0,ambient_reply_cooldown-delta)
 	if subtitle_time>0:
 		subtitle_time-=delta
@@ -268,6 +281,9 @@ func _process(delta: float) -> void:
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
 	if not dialogue.is_empty() or resetting: return
+	if zone == "forest":
+		_tick_ranger_checkpoint()
+		if not dialogue.is_empty(): return
 	if sequence!="": _tick_sequence(delta)
 	if encounter_grace>0:
 		encounter_grace-=delta
@@ -433,7 +449,8 @@ func _find_interaction() -> void:
 			nearest=id
 	for id in world.interactables:
 		var prop_node: Node2D=world.interactables[id]["node"]
-		prop_node.set_focused(id==nearest)
+		if prop_node.has_method("set_focused"):
+			prop_node.set_focused(id==nearest)
 	hud.prompt.text="" if nearest=="" else "E  ·  "+interaction_label(nearest)
 	if nearest!="": hud.place_prompt(get_canvas_transform()*world.interactables[nearest]["position"])
 
@@ -458,6 +475,8 @@ func interact(id: String) -> void:
 	# Distance validation is shared by normal input and tests; no remote interactions.
 	if player.position.distance_to(world.interactables[id]["position"])>85: return
 	match id:
+		"abuela_note":
+			show_dialogue(["My dear, I left the flashlight beside this note. Remember to turn it off when you do not need it. — Abuela"] )
 		"phone":
 			show_dialogue(["ELI: Follow the yellow trail marks to my aunt's house. Bring your flashlight."])
 		"flashlight":
@@ -466,7 +485,7 @@ func interact(id: String) -> void:
 			flashlight.set_process(true)
 			flashlight.set_process_unhandled_input(true)
 			if batteries>0: insert_battery()
-			else: say("Flashlight")
+			say("F · Turn flashlight on / off", 4.0)
 		"battery","forest_battery","porch_battery","house_battery":
 			batteries+=1
 			collect(id)
@@ -495,15 +514,27 @@ func interact(id: String) -> void:
 			var home_door: Door = world.interactables[id]["node"]
 			if home_door.is_open: _go_through(id)
 			else: _use_door(home_door)
-		"forest_rocks","porch_rocks":
+		"early_rocks","forest_rocks","porch_rocks":
 			if thrower.rocks>=3:
-				say("Rocks full")
+				say("Stones full · Aim with the mouse, press Q to throw.\nThe impact makes noise and draws attention.", 7.0)
 			else:
-				thrower.rocks+=3
+				thrower.rocks=mini(3,thrower.rocks+3)
 				play_sound("pickup",player.position)
 				_animate_rocks(world.interactables[id]["node"].global_position)
-				say("Rocks +3",5)
-		"forest_exit": enter_zone("house")
+				say("Stones collected · Aim with the mouse, press Q to throw.\nThe impact makes noise. Throw away from the trail to distract the ranger.", 8.0)
+			if not stone_hint_seen:
+				stone_hint_seen = true
+				world.zones["forest"].get_node("Ranger").active = false
+				show_dialogue([""], _finish_stone_hint)
+				hud.flash_alert("Q · THROW A STONE", "Aim with the mouse. Press Q to throw.\nThe impact makes noise and attracts attention.\nThrow away from the trail, then pass behind him.\nIf he sees you, he will chase you.", 3600.0)
+		"forest_exit":
+			var ranger = world.zones["forest"].get_node("Ranger")
+			if not ranger.stone_distraction_completed or ranger.chasing:
+				say("The ranger is watching the trail. Throw a stone away from the path to distract him.", 6.0)
+				return
+			enter_zone("house")
+		"ranger":
+			say("RANGER: This trail is closed tonight. Head back home.", 5.0)
 		"house_back":
 			if attack_finished: say("The path has disappeared into the dark.")
 			else: enter_zone("forest",world.marker("forest","SpawnFromHouse"))
@@ -515,7 +546,7 @@ func interact(id: String) -> void:
 				front_door.locked=false
 				front_door.open()
 				say("[Latch clicks. The door swings in.]",5)
-			else: say("The latch is behind the glass.\nQ · Throw rock",6)
+			else: say("The latch is behind the glass.\nAim with the mouse · Q to throw",6)
 		"front_door":
 			var front_door: Door = world.interactables[id]["node"]
 			if not door_unlocked:
@@ -621,18 +652,9 @@ func _on_rock_landed(at: Vector2) -> void:
 	side_light.broken=true
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
-	# The figure stands just behind the glass; it draws above the room cover for this one beat.
-	var reveal: Node2D = world.landmarks["reveal"]
-	reveal.modulate=Color(.65,.65,.65,.65)
-	reveal.z_index=45
-	reveal.show()
-	play_sound("presence",reveal.global_position)
-	sequence="reveal"
-	sequence_time=0
-	var reveal_light: PointLight2D = world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45)
-	reveal_light.name="RevealLight"
-	# The figure is light-only on layer 4: only this light ever shows it.
-	reveal_light.range_item_cull_mask |= 8
+	# Keep this an auditory presence. The first visual reveal belongs to the altar aftermath.
+	world.landmarks["reveal"].hide()
+	play_sound("presence", side_light.global_position)
 	say("[Glass shatters]",4)
 
 ## The screen closes in as the hunting entity comes near. Only while it hunts: then its breathing
@@ -796,7 +818,6 @@ func _go_through(id: String) -> void:
 		"hall_back": enter_zone("bedroom",world.marker("bedroom","SpawnFromHallway"),true,"bedroom_exit")
 		"hall_exit":
 			enter_zone("forest",Vector2.INF,true,"forest_back")
-			say("The yellow marks. Eli went this way.",5)
 		"forest_back": enter_zone("hallway",world.marker("hallway","SpawnFromForest"),true,"hall_exit")
 	door.snap(false)
 
@@ -821,6 +842,7 @@ func _begin_game_over() -> void:
 	player.process_mode=Node.PROCESS_MODE_DISABLED
 	player.velocity=Vector2.ZERO
 	dialogue.clear()
+	hud.dismiss_alert()
 	dialogue_done=Callable()
 	sequence=""
 	world.landmarks["reveal"].hide()
@@ -859,6 +881,7 @@ func request_reset(message: String, bedroom := false) -> void:
 	player.process_mode=Node.PROCESS_MODE_DISABLED
 	player.velocity=Vector2.ZERO
 	dialogue.clear()
+	hud.dismiss_alert()
 	dialogue_done=Callable()
 	if sequence=="attack":
 		# Retrying before the completed attack should permit the conversation again.
@@ -935,3 +958,42 @@ func _toggle_pause() -> void:
 			child.process_mode = _paused_modes.get(child,Node.PROCESS_MODE_INHERIT)
 	if not _paused: _paused_modes.clear()
 	get_tree().paused = _paused
+
+func _finish_stone_hint() -> void:
+	hud.dismiss_alert()
+	world.zones["forest"].get_node("Ranger").active = zone == "forest"
+	say("Aim with the mouse · Q to throw", 4.0)
+
+func _on_ranger_spotted() -> void:
+	if zone == "forest" and not resetting:
+		say("RANGER: You there! Stop!", 3.0)
+
+func _on_ranger_caught() -> void:
+	if zone == "forest" and not resetting:
+		request_reset("The ranger caught you. Distract him with a stone, then pass behind him.")
+
+func _tick_ranger_checkpoint() -> void:
+	var forest: Node2D = world.zones["forest"]
+	var ranger = forest.get_node("Ranger")
+	if ranger.distracted:
+		forest.get_node("ThrowTarget").hide()
+	if ranger_checkpoint_ready: return
+	var setup: Vector2 = forest.global_position + Vector2(700,400)
+	if player.global_position.distance_to(setup) > 55.0: return
+	ranger_checkpoint_ready = true
+	thrower.rocks = maxi(thrower.rocks,3)
+	# This known clear spot makes every retry and the directional instruction consistent.
+	player.global_position = setup
+	player.velocity = Vector2.ZERO
+	player.get_node("FootstepNoise").reset_steps()
+	save_checkpoint()
+	ranger.reset_patrol()
+	ranger.active = false
+	forest.get_node("ThrowTarget").show()
+	show_dialogue([""], _finish_ranger_checkpoint)
+	hud.flash_alert("DISTRACT THE RANGER", "His back is turned. Aim DOWN-RIGHT at the lit stones.\nPress Q to throw, then pass behind him along the upper trail.\nIf he spots you, break his line of sight before throwing again.",3600.0)
+
+func _finish_ranger_checkpoint() -> void:
+	hud.dismiss_alert()
+	world.zones["forest"].get_node("Ranger").active = true
+	say("Q · Throw at the lit stones below-right, then pass behind him.",7.0)

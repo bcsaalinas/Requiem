@@ -110,12 +110,20 @@ func _ready() -> void:
 	check(game.ambient_reply_cooldown==0,"Held movement does not provoke the distant forest response")
 	NoiseManager.emit_noise(Vector2(3580,350),96,NoiseManager.SourceType.FOOTSTEP)
 	check(game.ambient_reply_cooldown>0 and not game.resetting,"Audible footsteps receive an environmental answer without an unfair unseen capture")
+	at_interaction("early_rocks")
+	check(game.hud.alert.visible and game.player.process_mode==Node.PROCESS_MODE_DISABLED,"First stones pause movement and show the centered lesson")
+	check(not game.world.zones["forest"].get_node("Ranger").active,"Ranger pauses during the stone alert")
+	game.advance_dialogue()
+	check(game.player.process_mode==Node.PROCESS_MODE_INHERIT,"Continue releases the player and camera")
 	at_interaction("forest_rocks")
+	check(game.dialogue.is_empty(),"Later stones do not repeat the interruption")
 	check(game.thrower.rocks==3,"Forest rock pile fills finite inventory")
+	await complete_sound_lesson()
 	game.entity.active=false
 	game.encounter_grace=999
 	at_interaction("forest_exit")
 	check(game.zone=="house" and game.stage=="ten","House begins the turn")
+	at_interaction("porch_rocks")
 	at_interaction("front_door")
 	check(not game.door_unlocked,"Front door initially stays locked")
 	game._on_rock_landed(Vector2(5500,700))
@@ -136,7 +144,7 @@ func _ready() -> void:
 	check(game.window_broken,"Rock flight and impact break the sidelight")
 	var side_light: WallWindow = game.world.interactables["window"]["node"]
 	check(side_light.broken and side_light.get_node("Shards").visible,"Window impact breaks the glass and drops shards on the porch")
-	check(game.sequence=="reveal","Window impact starts the brief figure reveal")
+	check(not game.world.landmarks["reveal"].visible and not game.entity.visible,"Window impact keeps the entity unseen until the altar")
 	await frames(150)
 	check(game.sequence=="","Window reveal finishes without trapping interactions")
 	var front_door: Door = game.world.interactables["front_door"]["node"]
@@ -176,7 +184,7 @@ func _ready() -> void:
 	at_interaction("front_door",Vector2(0,-55))
 	await frames(4)
 	check(game.zone=="loop","Return doorway leads to the impossible room")
-	check(not game.entity.visible and not game.entity.active,"Impossible room keeps the presence indirect")
+	check(not game.entity.active,"Return visit preserves the aftermath")
 	at_interaction("loop_end",Vector2(-45,0))
 	check(game.complete and not game.entity.active,"Final doorway completes tutorial and stops encounter")
 	game.queue_free()
@@ -185,3 +193,81 @@ func _ready() -> void:
 	# Let the audio mixer release stopped playbacks after scene teardown.
 	await get_tree().create_timer(0.25).timeout
 	get_tree().quit(0 if failures.is_empty() else 1)
+
+func complete_sound_lesson() -> void:
+	var ranger = game.world.zones["forest"].get_node("Ranger")
+	var home: Vector2 = ranger.global_position
+	await frames(180)
+	check(ranger.global_position.distance_to(home)<2.0 and ranger.facing==Vector2.RIGHT,"First encounter waits with its back toward the approach")
+	at_interaction("forest_exit")
+	check(game.zone=="forest","Ranger must be distracted before leaving")
+	ranger.active = false
+	ranger.reset_patrol()
+	game.player.position = ranger.home + Vector2(0,80)
+	await frames(2)
+	ranger.facing = Vector2.DOWN
+	check(ranger.can_see_player(),"Ranger sees a player in front on a clear path")
+	ranger.facing = Vector2.UP
+	check(not ranger.can_see_player(),"Player behind the ranger is outside his vision")
+	ranger.facing = Vector2.DOWN
+	var blocker := StaticBody2D.new()
+	var shape := CollisionShape2D.new()
+	var rectangle := RectangleShape2D.new()
+	rectangle.size = Vector2(60,12)
+	shape.shape = rectangle
+	blocker.add_child(shape)
+	blocker.position = ranger.home + Vector2(0,40)
+	game.add_child(blocker)
+	await frames(2)
+	check(not ranger.can_see_player(),"Opaque collision geometry blocks the ranger's sight")
+	blocker.queue_free()
+	await frames(2)
+	ranger.active = true
+	await frames(2)
+	check(ranger.chasing,"Seeing the player starts pursuit")
+	game.player.position = ranger.home + Vector2(-500,0)
+	var remembered: Vector2 = ranger.target
+	await frames(4)
+	check(ranger.target.is_equal_approx(remembered),"Losing sight preserves last seen position rather than tracking through cover")
+	var recovery_impact: Vector2 = ranger.home + Vector2(0,120)
+	NoiseManager.emit_noise(recovery_impact,256,NoiseManager.SourceType.THROW)
+	check(not ranger.chasing and ranger.target.is_equal_approx(recovery_impact),"A heard stone interrupts pursuit once vision is broken")
+	game.player.position = ranger.global_position + Vector2(2,0)
+	await frames(20)
+	check(not ranger.chasing and not ranger.distracted and not game.resetting,"Capture restores the forest checkpoint and resets the encounter")
+	ranger.reset_patrol()
+	ranger.active = true
+	game.player.position = game.world.zones["forest"].global_position + Vector2(700,400)
+	await frames(2)
+	check(game.hud.alert.visible and not ranger.active,"Approach checkpoint pauses safely and shows the directional alert")
+	check(game.world.zones["forest"].get_node("ThrowTarget").visible,"Lit target marks where the first stone should land")
+	check(game.checkpoint.position.is_equal_approx(game.player.position),"Checkpoint saves the safe throw position")
+	game.advance_dialogue()
+	await frames(2)
+	game.player.get_node("PlayerAim").set_target(game.world.zones["forest"].global_position + Vector2(800,520))
+	var impact: Vector2 = game.thrower._compute_landing()
+	Input.action_press("throw")
+	await frames(1)
+	Input.action_release("throw")
+	await frames(80)
+	check(ranger.target.is_equal_approx(impact),"Q projectile impact reaches ranger through NoiseManager")
+	for tick in range(900):
+		if ranger.distracted: break
+		await frames(1)
+	check(ranger.distracted,"Ranger investigates the stone and opens the route")
+	var destination: Vector2 = game.world.interactables["forest_exit"]["position"] + Vector2(-45,0)
+	var route := NavigationServer2D.map_get_path(game.player.get_world_2d().navigation_map,game.player.global_position,destination,true)
+	var next_point := 1
+	for tick in range(700):
+		if next_point >= route.size() or game.resetting or not game.dialogue.is_empty(): break
+		var direction: Vector2 = route[next_point] - game.player.global_position
+		if direction.length() < 16.0:
+			next_point += 1
+			continue
+		for action in ["move_left","move_right","move_up","move_down"]: Input.action_release(action)
+		if absf(direction.x)>6.0: Input.action_press("move_right" if direction.x>0 else "move_left")
+		if absf(direction.y)>6.0: Input.action_press("move_down" if direction.y>0 else "move_up")
+		await frames(1)
+	for action in ["move_left","move_right","move_up","move_down"]: Input.action_release(action)
+	check(game.player.global_position.distance_to(destination)<60.0 and not ranger.chasing,"Player can physically cross the forest after distracting the ranger")
+	check(not game.entity.visible and not game.entity.active,"Entity is absent throughout the ranger encounter")

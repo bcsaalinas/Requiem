@@ -15,6 +15,8 @@
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="13_fnyqe"]
 [ext_resource type="Texture2D" uid="uid://cpvkd1x0ocyb4" path="res://assets/Textures/light_texture.png" id="14_qcv8i"]
 
+[ext_resource type="Script" path="res://tutorial/note_highlight.gd" id="note_highlight"]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qcv8i"]
 shader = ExtResource("11_4vynj")
 shader_parameter/saturation = 0.5
@@ -178,3 +180,9 @@ position = Vector2(480, 420)
 
 [node name="SpawnFromHallway" type="Marker2D" parent="Markers" unique_id=352856213]
 position = Vector2(832, 416)
+
+[node name="AbuelaNote" type="Node2D" parent="Props"]
+script = ExtResource("note_highlight")
+position = Vector2(735,263)
+metadata/interaction_id = "abuela_note"
+metadata/interaction_label = "Read Abuela's letter"

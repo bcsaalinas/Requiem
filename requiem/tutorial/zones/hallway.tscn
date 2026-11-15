@@ -244,3 +244,11 @@ shape = SubResource("RectangleShape2D_ttq1y")
 [node name="East" type="CollisionShape2D" parent="Edges" unique_id=138373591]
 position = Vector2(944, 352)
 shape = SubResource("RectangleShape2D_oru21")
+
+[node name="FinalDoorPool" type="PointLight2D" parent="."]
+position = Vector2(875,365)
+texture = ExtResource("13_d0uwm")
+texture_scale = 1.05
+energy = 1.1
+color = Color(0.94,0.77,0.54,1)
+shadow_enabled = true
