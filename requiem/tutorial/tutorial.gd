@@ -121,11 +121,7 @@ func _enter_tree() -> void:
 	GameState.reset()
 
 func _ready() -> void:
-	get_window().content_scale_size = Vector2i(1280,720)
-	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	if not test_mode: Kiosk.enter_fullscreen()
-	get_viewport().size_changed.connect(_frame_camera)
 	# Beyond the walls is void: black, like the unlit rooms.
 	RenderingServer.set_default_clear_color(Color.BLACK)
 	thrower=player.get_node("Throw")
@@ -224,7 +220,6 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	player.get_node("PlayerMotion").reset_pose()
 	player.get_node("PlayerAim").reset_pose()
 	_frame_camera()
-	player.get_node("Camera2D").reset_smoothing()
 	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
 	stage=stage_for_zone[zone]
 	stage_changed.emit(stage)
@@ -932,16 +927,13 @@ func restore_checkpoint(bedroom := false) -> void:
 
 func _frame_camera() -> void:
 	if not is_instance_valid(player): return
-	var camera := player.get_node("Camera2D") as Camera2D
+	var camera := player.get_node("Camera2D") as PixelCamera
 	var region: Rect2 = World.REGIONS[zone]
-	var viewport_size := get_viewport_rect().size
-	var zoom := maxf(2.475,maxf(viewport_size.x/region.size.x,viewport_size.y/region.size.y))
-	camera.zoom = Vector2.ONE*zoom
 	camera.limit_left = int(region.position.x)
 	camera.limit_top = int(region.position.y)
 	camera.limit_right = int(region.end.x)
 	camera.limit_bottom = int(region.end.y)
-	camera.force_update_scroll()
+	camera.snap_to_target()
 
 func _toggle_fullscreen() -> void:
 	Preferences.set_fullscreen(not Preferences.fullscreen)

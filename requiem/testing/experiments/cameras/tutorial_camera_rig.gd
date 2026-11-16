@@ -1,11 +1,6 @@
 extends Node2D
 ## Presentation-only camera experiment. Gameplay never depends on this rig.
 
-@export_range(1.0, 3.0) var exploration_zoom := 1.65
-@export_range(1.0, 3.0) var hallway_zoom := 1.80
-@export_range(1.0, 3.0) var reveal_zoom := 1.85
-@export_range(1.0, 3.0) var altar_zoom := 1.90
-
 @onready var camera: Camera2D = $Camera2D
 @onready var host: PhantomCameraHost = $Camera2D/PhantomCameraHost
 @onready var exploration: PhantomCamera2D = $Exploration
@@ -38,22 +33,16 @@ func apply_region(bounds: Rect2) -> void:
 	region = bounds
 	# Noise uses Camera2D.offset, which can pass native limits. Reserve a small inset.
 	var safe_bounds := bounds.grow(-4.0)
-	var viewport_size := get_viewport_rect().size
-	var minimum_zoom := maxf(viewport_size.x / safe_bounds.size.x,
-		viewport_size.y / safe_bounds.size.y)
-	var nominal_zooms := [exploration_zoom, hallway_zoom, reveal_zoom, altar_zoom, exploration_zoom]
-	for index in range(shots.size()):
-		var shot := shots[index]
+	for shot in shots:
 		shot.set_limit_left(int(safe_bounds.position.x))
 		shot.set_limit_top(int(safe_bounds.position.y))
 		shot.set_limit_right(int(safe_bounds.end.x))
 		shot.set_limit_bottom(int(safe_bounds.end.y))
-		var desired_zoom := maxf(minimum_zoom, nominal_zooms[index])
 		if shot.auto_zoom:
-			shot.auto_zoom_min = maxf(minimum_zoom, exploration_zoom)
-			shot.auto_zoom_max = maxf(shot.auto_zoom_min, desired_zoom)
+			shot.auto_zoom_min = Units.CAMERA_ZOOM
+			shot.auto_zoom_max = Units.CAMERA_ZOOM
 		else:
-			shot.zoom = Vector2.ONE * desired_zoom
+			shot.zoom = Vector2.ONE * Units.CAMERA_ZOOM
 
 
 func enter_region(bounds: Rect2) -> void:

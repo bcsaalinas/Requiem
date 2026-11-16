@@ -56,6 +56,7 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	LegacyUi.fit_root(self)
 	MusicDirector.set_music_state(MusicDirector.MusicState.MENU)
 	Kiosk.enter_fullscreen()
 	_rng.randomize()

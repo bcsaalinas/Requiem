@@ -26,6 +26,7 @@ func _on_player_died() -> void:
 	if is_instance_valid(screen):
 		screen.queue_free()
 	screen = GAME_OVER_SCENE.instantiate()
+	LegacyUi.fit_root(screen)
 	add_child(screen)
 	play_death_stinger()
 

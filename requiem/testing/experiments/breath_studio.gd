@@ -32,6 +32,7 @@ func _build_studio_controls() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "BreathStudioOverlay"
 	layer.layer = 30
+	LegacyUi.fit_layer(layer)
 	add_child(layer)
 	var panel := VBoxContainer.new()
 	panel.position = Vector2(20, 16)

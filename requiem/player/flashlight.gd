@@ -93,6 +93,7 @@ func _ready() -> void:
 	add_child(_audio_player)
 
 	_bar_layer = CanvasLayer.new()
+	LegacyUi.fit_layer(_bar_layer)
 	add_child(_bar_layer)
 
 	_battery_bar = ProgressBar.new()

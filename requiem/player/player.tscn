@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://qvmplrwk2j6o"]
 
 [ext_resource type="Script" uid="uid://o5a4tc70y5s1" path="res://player/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://bpapsxo6sb147" path="res://player/pixel_camera.gd" id="2_2uvqg"]
 [ext_resource type="Script" uid="uid://cdbfenw3olwtf" path="res://player/footstep_noise.gd" id="2_footstep"]
 [ext_resource type="Script" uid="uid://d03iu060ho22s" path="res://player/hold_breath.gd" id="3_breath"]
 [ext_resource type="Script" uid="uid://boyc4w7ax6xiy" path="res://tutorial/throw.gd" id="4_hg6s5"]
@@ -56,12 +57,12 @@ texture = SubResource("PlaceholderTexture2D_player")
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=473842570]
-zoom = Vector2(1.65, 1.65)
+zoom = Vector2(2.5, 2.5)
 limit_left = 0
 limit_top = 0
 limit_right = 960
 limit_bottom = 640
-position_smoothing_enabled = true
+script = ExtResource("2_2uvqg")
 
 [node name="FootstepNoise" type="Node" parent="." unique_id=627701284]
 script = ExtResource("2_footstep")
@@ -87,7 +88,6 @@ texture_filter = 1
 material = SubResource("ShaderMaterial_2uvqg")
 script = ExtResource("6_2ieo8")
 kind = "actor"
-lift = null
 actor_frames = ExtResource("11_girl")
 actor_rig_enabled = true
 actor_frame_scale = 0.5

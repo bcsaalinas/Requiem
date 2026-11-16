@@ -8,6 +8,7 @@ var _camera_started := false
 
 
 func _ready() -> void:
+	LegacyUi.fit_layer($CameraTestOverlay)
 	# Comparison must also work while dialogue disables the rest of the player.
 	player.get_node("Camera2D").process_mode = Node.PROCESS_MODE_PAUSABLE
 	camera_rig.setup(player, world)

@@ -81,10 +81,14 @@ func run() -> void:
 	finish()
 
 func check_display_lock() -> void:
-	check(ProjectSettings.get_setting("display/window/size/window_width_override") == 1920
-		and ProjectSettings.get_setting("display/window/size/window_height_override") == 1080, "The window opens at 1920x1080")
-	check(ProjectSettings.get_setting("display/window/size/viewport_width") == 1280
-		and ProjectSettings.get_setting("display/window/size/viewport_height") == 720, "The canvas stays 1280x720, so framing and layout are unchanged")
+	check(ProjectSettings.get_setting("display/window/size/viewport_width") == 1920
+		and ProjectSettings.get_setting("display/window/size/viewport_height") == 1080
+		and not ProjectSettings.get_setting("display/window/size/window_width_override", 0)
+		and not ProjectSettings.get_setting("display/window/size/window_height_override", 0), "The window opens at 1920x1080")
+	check(ProjectSettings.get_setting("display/window/stretch/mode") == "viewport"
+		and ProjectSettings.get_setting("display/window/stretch/scale_mode") == "integer"
+		and ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter") == 0
+		and ProjectSettings.get_setting("rendering/2d/snap/snap_2d_transforms_to_pixel") == true, "The game renders a 1920x1080 viewport at integer scale, so 1 art px = 1 screen px")
 	check(not ProjectSettings.get_setting("display/window/size/resizable"), "The window cannot be resized")
 	check(get_window().content_scale_aspect == Window.CONTENT_SCALE_ASPECT_KEEP, "Other aspect ratios letterbox instead of showing more of the world")
 

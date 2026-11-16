@@ -21,7 +21,9 @@ var switching := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_window().mode = Window.MODE_WINDOWED
-	get_window().size = Vector2i(1280, 720)
+	get_window().size = Vector2i(
+		ProjectSettings.get_setting("display/window/size/viewport_width"),
+		ProjectSettings.get_setting("display/window/size/viewport_height"))
 	noise = NoiseOverlay.new()
 	noise.enabled = false
 	add_child(noise)
@@ -31,7 +33,7 @@ func _ready() -> void:
 	layer.layer = 110
 	add_child(layer)
 	menu = PanelContainer.new()
-	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	LegacyUi.fit_root(menu)
 	layer.add_child(menu)
 	var center := CenterContainer.new()
 	menu.add_child(center)
@@ -58,6 +60,7 @@ func _ready() -> void:
 	choices.add_child(help)
 	toolbar = HBoxContainer.new()
 	toolbar.position = Vector2(20, 116)
+	toolbar.scale = Vector2.ONE * LegacyUi.SCALE
 	layer.add_child(toolbar)
 	add_button(toolbar, "F1 · Test Lab", show_menu)
 	add_button(toolbar, "Restart test", restart)
