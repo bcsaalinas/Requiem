@@ -23,6 +23,7 @@ var _hint_clock := 0.0
 var _alert_tween: Tween
 
 func _ready() -> void:
+	LegacyUi.fit_root(root)
 	# Each HUD owns these styles; warning pulses cannot leak into other scenes.
 	_breath_fill = breath.get_theme_stylebox("fill").duplicate()
 	_effort_fill = effort.get_theme_stylebox("fill").duplicate()

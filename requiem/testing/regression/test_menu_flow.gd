@@ -45,7 +45,7 @@ func run() -> void:
 	check(is_instance_valid(menu._credits) and menu._credits.visible, "Credits scene is reachable")
 	check(menu._credits.team_credits == menu.team_credits, "Credits preserves every established name and role")
 	check(menu._credits.back_button.has_focus(), "Credits focuses Back for keyboard navigation")
-	check(menu._credits.back_button.get_global_rect().end.y <= menu.size.y, "Credits Back stays within the viewport")
+	check(get_viewport().get_visible_rect().encloses(menu._credits.back_button.get_global_rect()), "Credits Back stays within the viewport")
 	var first_position: float = menu._credits._travel
 	await get_tree().create_timer(1.0).timeout
 	check(menu._credits._travel > first_position, "Credits advances automatically without input")

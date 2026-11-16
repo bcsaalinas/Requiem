@@ -54,7 +54,7 @@ func _build_overlay() -> void:
 	add_child(layer)
 
 	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	LegacyUi.fit_root(root)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.theme = preload("res://ui/requiem_theme.tres")
 	layer.add_child(root)

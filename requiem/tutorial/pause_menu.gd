@@ -76,7 +76,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build() -> void:
 	_root = Control.new()
-	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	LegacyUi.fit_root(_root)
 	add_child(_root)
 
 	# A tint, not a blackout: the player still sees the room they are standing

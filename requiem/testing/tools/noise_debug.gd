@@ -70,6 +70,7 @@ func _ready() -> void:
 	# Leyenda fija en pantalla.
 	_legend_layer = CanvasLayer.new()
 	_legend_layer.layer = 90
+	LegacyUi.fit_layer(_legend_layer)
 	add_child(_legend_layer)
 
 	_legend = Label.new()

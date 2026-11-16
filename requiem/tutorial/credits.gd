@@ -23,7 +23,10 @@ var _closing := false
 var _hover_tweens: Dictionary = {}
 
 func _ready() -> void:
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if get_parent() is Control:
+		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	else:
+		LegacyUi.fit_root(self)
 	_build()
 	resized.connect(_resize_layout)
 	_resize_layout()
