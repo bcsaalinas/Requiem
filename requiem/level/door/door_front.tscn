@@ -19,6 +19,12 @@ polygon = PackedVector2Array(-34, -80, 34, -80)
 cull_mode = 2
 polygon = PackedVector2Array(-32, -22.8, 32, -22.8, 32, -9.2, -32, -9.2)
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_post_l"]
+polygon = PackedVector2Array(-33, -96, -31, -96, -31, -22.8, -33, -22.8)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_post_r"]
+polygon = PackedVector2Array(31, -96, 33, -96, 33, -22.8, 31, -22.8)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ya7gp"]
 size = Vector2(56, 124)
 
@@ -67,6 +73,12 @@ occluder = SubResource("OccluderPolygon2D_ya7gp")
 
 [node name="OccluderLeaf" type="LightOccluder2D" parent="."]
 occluder = SubResource("OccluderPolygon2D_leaf")
+
+[node name="OccluderPostL" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_post_l")
+
+[node name="OccluderPostR" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_post_r")
 
 [node name="Doorway" type="Area2D" parent="." unique_id=1461647427]
 monitorable = false
