@@ -17,6 +17,6 @@ void fragment() {
 void light() {
     // Opacity follows the light that reaches her, so a lamp's dark falloff or a shadow never
     // draws a black cut-out: where no light lands, nothing of her is drawn.
-    float reach = clamp(max(LIGHT_COLOR.r,max(LIGHT_COLOR.g,LIGHT_COLOR.b))*LIGHT_ENERGY*reveal_gain,0.0,1.0);
+    float reach = step(0.5,max(LIGHT_COLOR.r,max(LIGHT_COLOR.g,LIGHT_COLOR.b))*LIGHT_ENERGY*reveal_gain);
     LIGHT = vec4(COLOR.rgb*LIGHT_COLOR.rgb*LIGHT_ENERGY,LIGHT_COLOR.a*reach);
 }

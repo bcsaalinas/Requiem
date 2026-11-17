@@ -4,7 +4,7 @@
 
 [resource]
 shader = ExtResource("1_2vj38")
-shader_parameter/saturation = null
+shader_parameter/saturation = 1.0
 shader_parameter/contrast = null
 shader_parameter/gain = null
 shader_parameter/reveal_gain = null
