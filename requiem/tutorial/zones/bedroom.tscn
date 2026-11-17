@@ -19,6 +19,7 @@
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="18_i7gi3"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="19_4vynj"]
 [ext_resource type="Script" uid="uid://b1a78v681ok8r" path="res://tutorial/note_highlight.gd" id="note_highlight"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qcv8i"]
 shader = ExtResource("11_4vynj")
@@ -148,10 +149,9 @@ position = Vector2(756, 164)
 color = Color(0.9372549, 0.7764706, 0.54901963, 1)
 energy = 1.15
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("13_fnyqe")
-texture_scale = 1.15
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.6
 metadata/lighting_role = "recovery"
 
 [node name="MoonLight" type="PointLight2D" parent="Lights" unique_id=1655640566]
@@ -169,10 +169,9 @@ position = Vector2(858, 416)
 color = Color(0.8901961, 0.70980394, 0.4862745, 1)
 energy = 0.95
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_fnyqe")
-texture_scale = 0.55
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="Edges" type="StaticBody2D" parent="." unique_id=674115061]
 

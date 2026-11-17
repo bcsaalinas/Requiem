@@ -2,7 +2,6 @@ extends Node2D
 ## Real-input presentation checks plus a compact exhaustive upper-pose sweep.
 ## Gameplay parity is checked with presentation enabled and disabled.
 
-const RigLayers := preload("res://player/character_rig_layers.gd")
 const GRIP_LENS := Vector2(16, 34)
 const DIRECTIONS := [&"e", &"se", &"s", &"sw", &"w", &"nw", &"n", &"ne"]
 

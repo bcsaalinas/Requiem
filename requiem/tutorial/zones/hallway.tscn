@@ -21,6 +21,7 @@
 [ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="16_2x0rn"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="20_vsnya"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="21_ineoj"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k744n"]
 size = Vector2(128, 152)
@@ -166,20 +167,18 @@ position = Vector2(320, 324)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_d0uwm")
-texture_scale = 0.52
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
 position = Vector2(672, 324)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_d0uwm")
-texture_scale = 0.52
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="SafeLights" type="Node2D" parent="." unique_id=1596456614]
 
@@ -269,8 +268,8 @@ position = Vector2(875, 365)
 color = Color(0.94, 0.77, 0.54, 1)
 energy = 1.1
 shadow_enabled = true
-texture = ExtResource("13_d0uwm")
-texture_scale = 1.05
+texture = ExtResource("light_pool")
+texture_scale = 1.6
 
 [node name="ArtFloor" type="TileMapLayer" parent="." unique_id=660460144]
 z_index = -10

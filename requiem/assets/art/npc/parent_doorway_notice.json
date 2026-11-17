@@ -1,0 +1,82 @@
+{
+ "clip": "doorway_notice",
+ "character": "parent_doorway",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same frame as every girl / NPC sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "parent_doorway_notice.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_right",
+  "head"
+ ],
+ "option": "A",
+ "design_note": "side lean (A): the parent stands beside the opening, under the jamb's wall, and leans sideways past the jamb into her room; faces south (into her room) like Viv's sheets. Hair = Viv's own (Beti 2026-11-16), bun off",
+ "cut_x": 88,
+ "placement_note": "everything at x >= 88 is hidden by the door frame: place the sprite so column 88 sits flush under the jamb's wall top (its last column, 87, is the cut rim). In the mock scene: sprite x = jamb inner edge - cut_x, with the door opening to the sprite's left. Mirror (flip_h) for a jamb on the other side",
+ "playback_note": "play once when the door has opened and light_door_spill reaches her; hold the last frame while the girl's caught plays (the game holds it ~1 s, then fades)",
+ "head_note": "the head is drawn in the sheet (Viv's head poses 0 / +35, bun off); head_center per frame",
+ "loop_ms": 960,
+ "sound_frames": [],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 160,
+   "label": "lean starts (head leads, mostly behind the jamb)",
+   "anchors": {
+    "head_center": [
+     92.0,
+     95.5
+    ],
+    "head_turn_deg": 0.0
+   },
+   "body_shift": [
+    22,
+    0
+   ]
+  },
+  {
+   "frame": 1,
+   "ms": 200,
+   "label": "leaned in",
+   "anchors": {
+    "head_center": [
+     78.0,
+     97.5
+    ],
+    "head_turn_deg": 0.0
+   },
+   "body_shift": [
+    12,
+    1
+   ]
+  },
+  {
+   "frame": 2,
+   "ms": 600,
+   "label": "turned toward her (held)",
+   "anchors": {
+    "head_center": [
+     71.68,
+     94.88
+    ],
+    "head_turn_deg": 35.0
+   },
+   "body_shift": [
+    7,
+    1
+   ]
+  }
+ ]
+}

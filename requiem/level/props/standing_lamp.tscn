@@ -5,6 +5,7 @@
 [ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_sskwk"]
 [ext_resource type="Texture2D" uid="uid://l1q845u3lb46" path="res://level/props/textures/lantern.tres" id="3_ar68v"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="4_25gae"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m54j7"]
 size = Vector2(14, 8)
@@ -31,10 +32,9 @@ color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 1.1
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("4_25gae")
-texture_scale = 1.3
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.6
 
 [node name="Body" type="StaticBody2D" parent="." unique_id=1991181826]
 

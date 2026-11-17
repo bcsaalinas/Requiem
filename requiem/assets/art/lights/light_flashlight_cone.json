@@ -1,0 +1,52 @@
+{
+ "name": "light_flashlight_cone",
+ "kind": "light texture (PointLight2D), the girl's flashlight beam",
+ "canvas": [
+  256,
+  128
+ ],
+ "file": "light_flashlight_cone.png",
+ "tip_px": [
+  6.0,
+  64.0
+ ],
+ "tip_note": "the beam's tip, px-edge coordinates from the top-left: flashlight.gd `beam_tip_pixels` (the old prop_radius_0.png used (24, 78.5)); put it on the girl's `flashlight_tip` anchor",
+ "direction": "+x (the cone points to the right of the texture); symmetric about y = 64",
+ "half_angle_deg": 13.5,
+ "length_px": 246.0,
+ "opaque_bbox": [
+  6,
+  6,
+  246,
+  116
+ ],
+ "bands_core_to_spill": [
+  "#bab4aa",
+  "#8d817b",
+  "#605551",
+  "#473e3c",
+  "#272323"
+ ],
+ "band_values": [
+  0.701,
+  0.514,
+  0.342,
+  0.252,
+  0.142
+ ],
+ "outside": "transparent (alpha 0): no light",
+ "scale_note": "13 u reach: flashlight.gd sets texture_scale = beam_length_u * 32 / 256 = 1.625 (world px), = 4.06 art px per texture px; the whole-number art scale is 4 (12.8 u). The brief allows whole-number scales only for light textures.",
+ "filter": "nearest (project default_texture_filter 0), so the bands stay hard",
+ "game_settings_used_in_review": {
+  "blend_mode": "Add",
+  "color": [
+   1,
+   1,
+   1
+  ],
+  "energy": 1.0
+ },
+ "energy_note": "the brightest band is #bab4aa (0.71), so at energy 1 the lit floor peaks at albedo x 0.87 (house) / 0.73 (tutorial); the old texture peaked at white. Raise beam_energy to ~1.3-1.4 for the old peak (for Beti / the Godot session).",
+ "breath_hold_note": "flashlight.gd squeezes node scale.y to 0.45 on breath hold; the bands are >= 3 px across the beam so they survive it (see review/light_flashlight_cone_aims.png)",
+ "design": "option C 'hand-made' (critic pick): a hot core tongue from the lens, band edges drifting 1-3 px, shoulder steps at the 2nd / 3rd band ends, a far end of three broad lobes"
+}

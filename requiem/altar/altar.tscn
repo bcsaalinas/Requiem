@@ -1,16 +1,14 @@
 [gd_scene format=3 uid="uid://cci6ad6gs3jxu"]
 
 [ext_resource type="Script" uid="uid://bpijkk2spl8f7" path="res://altar/body_altar.gd" id="1_hm6q3"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_coffin.png" id="3_coffin"]
 [ext_resource type="AudioStream" uid="uid://bdq37dkf83rnp" path="res://assets/audio/193812__geoneo0__four_voices_whispering_6.wav" id="2_eo3o5"]
 
-[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_y1fia"]
-size = Vector2(40, 40)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_y1fia"]
-size = Vector2(40, 40)
+size = Vector2(64, 128)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_y1fia"]
-radius = 80.23092
+radius = 112.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hm6q3"]
 bg_color = Color(0.6, 0.972549, 1, 1)
@@ -22,9 +20,8 @@ script = ExtResource("1_hm6q3")
 pray_clips = Array[AudioStream]([ExtResource("2_eo3o5")])
 
 [node name="Sprite2D" type="Sprite2D" parent="BodyAltar" unique_id=649606900]
-modulate = Color(1, 1, 0, 1)
-self_modulate = Color(1, 1, 0, 1)
-texture = SubResource("PlaceholderTexture2D_y1fia")
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_coffin")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BodyAltar" unique_id=849931913]
 shape = SubResource("RectangleShape2D_y1fia")

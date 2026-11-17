@@ -718,8 +718,6 @@ func _tick_sequence(delta: float) -> void:
 	if sequence_time>=3.6 and sequence_step==1:
 		sequence_step=2
 		world.props["friend"].fallen=true
-		world.props["friend"].global_position=friend_home+Vector2(0,27)
-		world.props["friend"].show()
 		hud.shade.color=Color(0,0,0,0)
 		prayer_audio.stop()
 		attack_finished=true
@@ -778,7 +776,31 @@ func _parent_heard(listener: ParentListener, at: Vector2, source: int) -> void:
 		get_tree().create_timer(1.1).timeout.connect(func(): player.set_physics_process(true))
 		return
 	parent_failures+=1
+	_parent_doorway_notice(listener)
 	request_reset("DAD: Back to bed. Now.\nHe heard your %s through the door." % _noise_name(source),true)
+
+## On the second hear the parent leans out of the doorway toward her; the leaf swings open for the
+## picture only (no blocker change) and everything is undone on the next reset.
+func _parent_doorway_notice(listener: ParentListener) -> void:
+	var doors: Node = world.zones["hallway"].get_node("Doors")
+	var closest_door: Door = null
+	for node in doors.get_children():
+		if node is Door and node.name.begins_with("ParentDoor") \
+				and (closest_door == null or node.global_position.distance_to(listener.global_position) < closest_door.global_position.distance_to(listener.global_position)):
+			closest_door = node
+	if closest_door == null: return
+	var notice := CharacterSprite.new()
+	notice.head_enabled = false
+	notice.hide_head()
+	notice.z_index = 1
+	world.zones["hallway"].add_child(notice)
+	var cut_x := 88.0
+	notice.global_position = closest_door.global_position + Vector2(32.0 - (cut_x - 80.0) * Units.ART_SCALE, -48.0)
+	notice.play(&"upper", "parent_doorway_notice", {"loop": false, "hold_last": true})
+	create_tween().tween_property(closest_door, "swing", 1.0, closest_door.swing_time)
+	GameState.state_reset.connect(func():
+		notice.queue_free()
+		closest_door.swing = 1.0 if closest_door.is_open else 0.0, CONNECT_ONE_SHOT)
 
 func _noise_name(source: int) -> String:
 	match source:

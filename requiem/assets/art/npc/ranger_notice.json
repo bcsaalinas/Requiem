@@ -1,0 +1,162 @@
+{
+ "clip": "notice",
+ "character": "ranger",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "ranger_notice.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left",
+  "arm_right",
+  "flashlight_held",
+  "head"
+ ],
+ "lower_note": "the boots are not in this sheet: draw Viv's exported lower frame given in each frame's `lower` under it (frames 0-1 = girl_walk_lower 0 / 4, the walk's contact steps; frame 2 = girl_stand_lower)",
+ "draw_order": "draw order: the frame's lower, then this sheet frame i (torso, left arm, right arm, flashlight over the hand, cap). The whole sprite turns as one (MOVEMENT_PLAN 1)",
+ "state": "flashlight raised, on (always: one carry state, as ranger_stand)",
+ "option": "C",
+ "turn_note": "he turns to face her: the game turns the whole sprite (240 deg/s, MOVEMENT_PLAN 3 / 6) while frames 0 then 1 play (the boot shuffle MOVEMENT_PLAN 2 gives standing turns). If the sprite is still turning after frame 1 (turns over ~62 deg), keep this sheet on frame 1 and only alternate the lower (girl_walk_lower 0, 4, 0, ... at 130 ms) until the rotation ends, so the arm never pulls back; then play frame 2 and hold it (the girl's caught plays meanwhile). Works for either direction, no flip",
+ "turn_repeat": {
+  "upper_frame": 1,
+  "lowers": [
+   {
+    "file": "../player/girl_walk_lower.png",
+    "frame": 0
+   },
+   {
+    "file": "../player/girl_walk_lower.png",
+    "frame": 4
+   }
+  ],
+  "ms": [
+   130,
+   130
+  ]
+ },
+ "flashlight_note": "his light is session 04's flashlight cone, from flashlight_tip along flashlight_angle_deg (deg out from straight ahead = down the sheet; + = toward screen-left, his right; - = in toward his centre line). Frame 2 aims 8 deg in: the beam crosses his centre line ~250 px (about 3 units) ahead, where she stands once he faces her; the game may aim the cone at her exact position from flashlight_tip instead",
+ "head_note": "the cap is drawn in the sheet and turns with the light (head_turn_deg); head_center includes the walk's head_offset on frames 0-1",
+ "hip_note": "hip_center is the stand's",
+ "end_note": "frame 2 is a held aim, not the stand: return to ranger_stand (a 4 px reach / 8 deg pop) only after the caught sequence resets the scene",
+ "loop_ms": 660,
+ "sound_frames": [
+  0,
+  1
+ ],
+ "sound_note": "a soft footstep on each shuffle step (frames 0 and 1, and each repeated lower)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 130,
+   "label": "step (walk 0)",
+   "lower": {
+    "file": "../player/girl_walk_lower.png",
+    "frame": 0
+   },
+   "reach_px": 0,
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     104.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "head_turn_deg": 0.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 130,
+   "label": "step, reach +2",
+   "lower": {
+    "file": "../player/girl_walk_lower.png",
+    "frame": 4
+   },
+   "reach_px": 2,
+   "anchors": {
+    "hand_right": [
+     49.1,
+     130.4
+    ],
+    "hand_left": [
+     110.0,
+     114.0
+    ],
+    "flashlight_tip": [
+     48.5,
+     152.0
+    ],
+    "flashlight_angle_deg": -4.0,
+    "head_center": [
+     80.8,
+     95.5
+    ],
+    "head_turn_deg": -3.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 400,
+   "label": "aim: reach +4, -8",
+   "lower": {
+    "file": "../player/girl_stand_lower.png",
+    "frame": 0
+   },
+   "reach_px": 4,
+   "anchors": {
+    "hand_right": [
+     52.1,
+     132.4
+    ],
+    "hand_left": [
+     110.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     53.5,
+     154.0
+    ],
+    "flashlight_angle_deg": -8.0,
+    "head_center": [
+     81.5,
+     94.4
+    ],
+    "head_turn_deg": -6.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  }
+ ]
+}

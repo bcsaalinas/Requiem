@@ -89,7 +89,7 @@ func _initialize() -> void:
 # --- Atlas helpers ----------------------------------------------------------
 
 static func coords(index: int) -> Vector2i:
-	return Vector2i(index % COLUMNS, index / COLUMNS)
+	return Vector2i(index % COLUMNS, floori(index / float(COLUMNS)))
 
 
 static func transform_mask(mask: int, alternative: int) -> int:
@@ -222,29 +222,29 @@ func _set_terrain_tile(atlas: TileSetAtlasSource, index: int, alternative: int, 
 
 func _bake_zone(zone: String) -> void:
 	var packed: PackedScene = load("res://tutorial/zones/%s.tscn" % zone)
-	var root := packed.instantiate()
-	var floor_rects := _floor_rects(root, zone)
+	var zone_root := packed.instantiate()
+	var floor_rects := _floor_rects(zone_root, zone)
 	for node_name: String in OLD_NODES + ART_NODES:
-		var old := root.get_node_or_null(node_name)
+		var old := zone_root.get_node_or_null(node_name)
 		if old != null:
-			root.remove_child(old)
+			zone_root.remove_child(old)
 			old.free()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = ("zone_art_" + zone).hash()
 	seed(rng.seed)
 
-	var walls := root.get_node("Walls") as TileMapLayer
+	var walls := zone_root.get_node("Walls") as TileMapLayer
 	var collision := {}
 	for cell in walls.get_used_cells():
 		collision[cell] = true
-	var windows := _windows(root)
+	var windows := _windows(zone_root)
 	var gap_cells := {}
 	for entry in windows:
 		for cell: Vector2i in entry["gap"]:
 			gap_cells[cell] = true
 			collision[cell] = true
 
-	var rooms := _rooms(root)
+	var rooms := _rooms(zone_root)
 	var floor_cells := {}
 	for rect in floor_rects:
 		for y in range(floori(rect.position.y / CELL), ceili(rect.end.y / CELL)):
@@ -254,7 +254,7 @@ func _bake_zone(zone: String) -> void:
 					continue
 				floor_cells[cell] = true
 
-	floor_cells = _reachable(root, floor_cells, rooms)
+	floor_cells = _reachable(zone_root, floor_cells, rooms)
 
 	var drawn := {}
 	for cell: Vector2i in collision:
@@ -267,10 +267,10 @@ func _bake_zone(zone: String) -> void:
 		if not drawn.has(cell) and (_runs_between_drawn(cell, Vector2i.DOWN, collision, drawn) or _runs_between_drawn(cell, Vector2i.RIGHT, collision, drawn)):
 			filler[cell] = true
 
-	var floor_layer := _layer(root, "ArtFloor", -10)
-	var base_layer := _layer(root, "ArtWallBase", 0)
-	var face_layer := _layer(root, "ArtWallInnerFace", 0)
-	var tops_layer := _layer(root, "ArtWallTops", 2)
+	var floor_layer := _layer(zone_root, "ArtFloor", -10)
+	var base_layer := _layer(zone_root, "ArtWallBase", 0)
+	var face_layer := _layer(zone_root, "ArtWallInnerFace", 0)
+	var tops_layer := _layer(zone_root, "ArtWallTops", 2)
 	tops_layer.visible = false
 
 	_paint_floor(zone, floor_layer, floor_cells, rooms, rng)
@@ -317,29 +317,29 @@ func _bake_zone(zone: String) -> void:
 	shifted.name = "ArtWallTopsShifted"
 	shifted.z_index = 2
 	shifted.scale = Vector2.ONE * Units.ART_SCALE
-	root.add_child(shifted)
+	zone_root.add_child(shifted)
 	shifted.source = tops_layer
 
 	walls.self_modulate = Color(1, 1, 1, 0)
-	_adjust_doors(root, zone)
+	_adjust_doors(zone_root, zone)
 
 	for node_name: String in ART_NODES:
-		_own(root.get_node(node_name), root)
+		_own(zone_root.get_node(node_name), zone_root)
 	var result := PackedScene.new()
-	result.pack(root)
+	result.pack(zone_root)
 	var path := "res://tutorial/zones/%s.tscn" % zone
 	var scene_uid := ResourceLoader.get_resource_uid(path)
 	var error := ResourceSaver.save(result, path)
 	_restore_uids(path, scene_uid)
 	print("Baked %s: floor %d, walls %d, filler %d (save %s)" % [zone, floor_cells.size(), drawn.size(), filler.size(), error_string(error)])
-	root.free()
+	zone_root.free()
 
 
 ## Keeps only the floor connected to a marker or a room, so floor sprite area outside the building
 ## (and beyond its walls) stays void.
-func _reachable(root: Node, floor_cells: Dictionary, rooms: Dictionary) -> Dictionary:
+func _reachable(zone_root: Node, floor_cells: Dictionary, rooms: Dictionary) -> Dictionary:
 	var seeds: Array[Vector2i] = []
-	var markers := root.get_node_or_null("Markers")
+	var markers := zone_root.get_node_or_null("Markers")
 	if markers != null:
 		for marker in markers.get_children():
 			seeds.append(Vector2i((marker as Node2D).position / CELL))
@@ -384,13 +384,13 @@ func _restore_uids(path: String, scene_uid: int) -> void:
 	file.store_string("\n".join(lines))
 
 
-func _layer(root: Node, node_name: String, z: int) -> TileMapLayer:
+func _layer(zone_root: Node, node_name: String, z: int) -> TileMapLayer:
 	var layer := TileMapLayer.new()
 	layer.name = node_name
 	layer.tile_set = _tile_set
 	layer.z_index = z
 	layer.scale = Vector2.ONE * Units.ART_SCALE
-	root.add_child(layer)
+	zone_root.add_child(layer)
 	return layer
 
 
@@ -431,24 +431,24 @@ func _finds_drawn(cell: Vector2i, step: Vector2i, collision: Dictionary, drawn: 
 
 ## The old floor sprites are removed by the bake, so their rects are kept as zone metadata and
 ## re-used when the baker runs again.
-func _floor_rects(root: Node, _zone: String) -> Array[Rect2]:
+func _floor_rects(zone_root: Node, _zone: String) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	for node_name: String in ["Floor", "PorchDeck", "Ground"]:
-		var sprite := root.get_node_or_null(node_name) as Sprite2D
+		var sprite := zone_root.get_node_or_null(node_name) as Sprite2D
 		if sprite == null:
 			continue
 		rects.append(Rect2(sprite.position, sprite.region_rect.size * sprite.scale))
-	if rects.is_empty() and root.has_meta("art_floor_rects"):
-		rects.assign(root.get_meta("art_floor_rects"))
+	if rects.is_empty() and zone_root.has_meta("art_floor_rects"):
+		rects.assign(zone_root.get_meta("art_floor_rects"))
 	if rects.is_empty():
-		push_error("%s has no floor sprites and no art_floor_rects metadata" % root.name)
-	root.set_meta("art_floor_rects", rects)
+		push_error("%s has no floor sprites and no art_floor_rects metadata" % zone_root.name)
+	zone_root.set_meta("art_floor_rects", rects)
 	return rects
 
 
-func _rooms(root: Node) -> Dictionary:
+func _rooms(zone_root: Node) -> Dictionary:
 	var rooms := {}
-	var holder := root.get_node_or_null("Rooms")
+	var holder := zone_root.get_node_or_null("Rooms")
 	if holder == null:
 		return rooms
 	for area in holder.get_children():
@@ -473,9 +473,9 @@ func _is_void(zone: String, cell: Vector2i, rooms: Dictionary) -> bool:
 	return false
 
 
-func _windows(root: Node) -> Array[Dictionary]:
+func _windows(zone_root: Node) -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
-	var doors := root.get_node_or_null("Doors")
+	var doors := zone_root.get_node_or_null("Doors")
 	if doors == null:
 		return found
 	for node in doors.get_children():
@@ -588,8 +588,8 @@ func _distance_to_trail(point: Vector2) -> float:
 	return best
 
 
-func _adjust_doors(root: Node, zone: String) -> void:
-	var doors := root.get_node_or_null("Doors")
+func _adjust_doors(zone_root: Node, zone: String) -> void:
+	var doors := zone_root.get_node_or_null("Doors")
 	if doors == null:
 		return
 	if zone == "hallway" or zone == "loop":

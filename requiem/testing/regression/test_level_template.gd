@@ -73,7 +73,7 @@ func _paint_house(walls: TileMapLayer, props: TileMapLayer) -> void:
 			cells.append(Vector2i(x, 9))
 	for c in cells:
 		walls.set_cell(c, 0, Vector2i.ZERO)
-	props.set_cell(Vector2i(19, 4), 0, Vector2i.ZERO, 0)
+	props.set_cell(Vector2i(19, 3), 0, Vector2i.ZERO, 0)
 
 
 func _check_fitting(level: Node2D) -> void:

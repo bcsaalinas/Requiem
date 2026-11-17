@@ -1,0 +1,141 @@
+{
+ "clip": "turn_to_noise",
+ "character": "ranger",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "ranger_turn_to_noise.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left",
+  "arm_right",
+  "flashlight_held",
+  "head"
+ ],
+ "lower_note": "the boots are not in this sheet: draw Viv's exported lower frame given in each frame's `lower` under it (frames 0-1 = girl_walk_lower 0 / 4, the walk's contact steps (her footstep frames); frame 2 = girl_stand_lower)",
+ "draw_order": "draw order: the frame's lower, then this sheet frame i (torso, left arm, right arm, flashlight over the hand, cap). The whole sprite turns as one (MOVEMENT_PLAN 1)",
+ "state": "flashlight raised, on (always: one carry state, as ranger_stand)",
+ "option": "C",
+ "turn_note": "the game turns the whole sprite toward the noise (240 deg/s, MOVEMENT_PLAN 3 / 6) while frames 0-1 play: the boot shuffle MOVEMENT_PLAN 2 gives standing turns. Turns over ~60 deg take longer than frames 0-1 (260 ms): repeat frames 0-1 until the rotation ends, then play frame 2 (the settle). Frame 2 equals ranger_stand, so the clip ends in stand without a pop; to walk toward the noise, enter ranger_walk on frame 2 or 6 (passing). Works for either direction, no flip",
+ "flashlight_note": "his light is session 04's flashlight cone, from flashlight_tip along flashlight_angle_deg (deg out from straight ahead = down the sheet); steady through the turn (the sprite's rotation turns it)",
+ "head_note": "the cap is drawn in the sheet; head_center includes the walk's head_offset on frames 0-1",
+ "hip_note": "hip_center is the stand's",
+ "loop_ms": 480,
+ "sound_frames": [
+  0,
+  1
+ ],
+ "sound_note": "a soft footstep on each shuffle step (frames 0 and 1)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 130,
+   "label": "step (walk 0)",
+   "lower": {
+    "file": "../player/girl_walk_lower.png",
+    "frame": 0
+   },
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     104.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "head_turn_deg": 0.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 130,
+   "label": "step (walk 4)",
+   "lower": {
+    "file": "../player/girl_walk_lower.png",
+    "frame": 4
+   },
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     114.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "head_turn_deg": 0.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 220,
+   "label": "settle = stand",
+   "lower": {
+    "file": "../player/girl_stand_lower.png",
+    "frame": 0
+   },
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     94.5
+    ],
+    "head_turn_deg": 0.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  }
+ ]
+}

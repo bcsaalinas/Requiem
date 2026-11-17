@@ -2,9 +2,6 @@ extends Node2D
 ## Exercise sprint through real physics, painted rig anchors, and hearing events.
 ## Dense angle sweeps protect the independently planted feet during aim changes.
 
-const RigLayers := preload("res://player/character_rig_layers.gd")
-const CharacterAnimation := preload("res://player/character_animation.gd")
-const LegPose := preload("res://player/leg_pose.gd")
 const DIRECTIONS := [Vector2.RIGHT, Vector2(1, 1), Vector2.DOWN, Vector2(-1, 1),
 	Vector2.LEFT, Vector2(-1, -1), Vector2.UP, Vector2(1, -1)]
 const FACING := [&"e", &"se", &"s", &"sw", &"w", &"nw", &"n", &"ne"]
@@ -158,51 +155,19 @@ func _ready() -> void:
 
 
 func check_source_poses() -> void:
-	var layers := RigLayers.new()
-	var anchors = RigLayers.SPRINT_ANCHORS
-	check(anchors.FRAMES.size() == 48 and anchors.LOWER_FRAMES.size() == 64,
-		"Sprint has eight upper poses in six equipment modes and eight independent leg poses in eight travel directions")
-	check(is_equal_approx(anchors.CYCLE_SECONDS, 0.6) and is_equal_approx(anchors.STRIDE_DISTANCE, 103.68),
-		"The new visual stride covers 3.24 units in 0.60 seconds at the existing 5.4 u/s sprint speed")
+	var lower := CharacterClips.get_clip("girl_sprint_lower")
+	check(lower["frames"].size() == 8 and is_equal_approx(lower["loop_ms"], 600.0) and is_equal_approx(lower["speed_u_s"], 5.4),
+		"The sprint lower covers its eight frames in 0.60 seconds, authored at the existing 5.4 u/s sprint speed")
 	var min_lane_width := INF
-	var min_boot_alpha := 1.0
-	var max_reach := 0.0
-	var bad_contact_lift := 0.0
-	var airborne_frames := 0
-	var correct_atlases := true
-	var left_image: Image = RigLayers.SPRINT_LEFT_ATLAS.get_image()
-	var right_image: Image = RigLayers.SPRINT_RIGHT_ATLAS.get_image()
-	for direction in RigLayers.DIRECTIONS:
-		for frame in range(8):
-			var pose: Dictionary = layers.get_lower_pose("sprint", frame, direction)
-			correct_atlases = correct_atlases and pose.left_texture == RigLayers.SPRINT_LEFT_ATLAS \
-				and pose.right_texture == RigLayers.SPRINT_RIGHT_ATLAS
-			var metadata: Dictionary = pose.metadata
-			min_lane_width = minf(min_lane_width, (Vector2(metadata.left.boot) - Vector2(metadata.right.boot)).x)
-			if not metadata.left.contact and not metadata.right.contact: airborne_frames += 1
-			for side in ["left", "right"]:
-				var leg: Dictionary = metadata[side]
-				max_reach = maxf(max_reach, Vector2(leg.hip).distance_to(leg.ankle))
-				var image: Image = left_image if side == "left" else right_image
-				var pixel := Vector2i(pose.region.position) + Vector2i(Vector2(leg.boot).round())
-				min_boot_alpha = minf(min_boot_alpha, image.get_pixelv(pixel).a)
-				if leg.contact: bad_contact_lift = maxf(bad_contact_lift, absf(float(leg.lift)))
-	check(correct_atlases, "Every sprint direction uses the new independent left and right leg sheets")
-	check(min_lane_width >= 18.0, "Authored sprint boots retain separate anatomical lanes at all diagonal and sideways angles")
-	check(max_reach <= 60.01 and min_boot_alpha > 0.1,
-		"Every new sprint boot anchor lands on visible artwork within the established anatomical leg reach")
-	check(bad_contact_lift < 0.001 and airborne_frames >= 8,
-		"Sprint distinguishes planted support from raised recovery and includes a readable flight phase")
-	var min_cuff_alpha := 1.0
-	var upper_image: Image = RigLayers.SPRINT_UPPER_ATLAS.get_image()
-	for index in range(8, 48):
-		var cuff: Vector2 = anchors.FRAMES[index].right_hand
-		var at := Vector2i((index % 8) * 256, floori(float(index) / 8.0) * 256) + Vector2i(cuff.round())
-		var alpha := 0.0
-		for x in range(-3, 4):
-			for y in range(-3, 4): alpha = maxf(alpha, upper_image.get_pixelv(at + Vector2i(x, y)).a)
-		min_cuff_alpha = minf(min_cuff_alpha, alpha)
-	check(min_cuff_alpha > 0.4, "All forty equipped sprint poses paint the sleeve around the rigid hand/torch socket")
+	for frame in range(8):
+		var boots: Dictionary = appearance._boot_points("girl_sprint_lower", frame)
+		min_lane_width = minf(min_lane_width, absf(boots.left.x - boots.right.x))
+	check(min_lane_width >= 8.0, "Sprint boot centroids retain separate lanes in every frame (%.2f art px)" % min_lane_width)
+	var arms_ok := true
+	for carry in ["none", "off", "on"]:
+		arms_ok = arms_ok and CharacterClips.get_clip("girl_sprint_arm_right_%s" % carry)["frames"].size() == 8
+	check(arms_ok and CharacterClips.get_clip("girl_sprint_upper")["frames"].size() == 8 and not CharacterClips.get_clip("girl_sprint_head").is_empty(),
+		"Sprint has eight upper, arm and head frames for absent, unlit and lit flashlight modes")
 	completed_scenarios += 1
 
 

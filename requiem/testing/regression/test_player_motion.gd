@@ -10,7 +10,6 @@ var noises: Array[Dictionary] = []
 var planted_steps := 0
 var max_lift := 0.0
 var walk_frames_seen: Dictionary = {}
-const CharacterAnimation := preload("res://player/character_animation.gd")
 const FACING_VECTORS := {
 	"s": Vector2.DOWN, "sw": Vector2(-1, 1), "w": Vector2.LEFT,
 	"nw": Vector2(-1, -1), "n": Vector2.UP, "ne": Vector2(1, -1),

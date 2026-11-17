@@ -1,0 +1,157 @@
+{
+ "clip": "sweep",
+ "character": "ranger",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "ranger_sweep.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left",
+  "arm_right",
+  "flashlight_held",
+  "head"
+ ],
+ "lower": {
+  "file": "../player/girl_stand_lower.png",
+  "note": "Viv's exported stand boots, drawn under every frame (he stands while he sweeps)"
+ },
+ "draw_order": "draw order: lower (girl_stand_lower), then this sheet frame i (torso, left arm, right arm, flashlight over the hand, cap). The whole sprite turns as one (MOVEMENT_PLAN 1)",
+ "state": "flashlight raised, on (always: one carry state, as ranger_stand)",
+ "option": "B",
+ "loop": "0 out (beam toward his right, screen-left) -> 1 centre -> 2 in (across his body) -> 3 centre; frames 1 and 3 equal ranger_stand, so stand <-> sweep can switch there without a pop",
+ "flashlight_note": "his light is session 04's flashlight cone, from flashlight_tip along flashlight_angle_deg (deg out from straight ahead = down the sheet; + = toward screen-left, his right). The game may ease the cone between frames; the art swings the arm about the shoulder in whole px",
+ "head_note": "the cap is drawn in the sheet; head_turn_deg is the cap's turn about the pivot (+ = clockwise on screen, toward screen-left), head_center includes it",
+ "hip_note": "hip_center is the stand's",
+ "loop_ms": 1400,
+ "sound_frames": [],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 450,
+   "label": "out (his right)",
+   "anchors": {
+    "hand_right": [
+     36.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     29.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 14.0,
+    "head_center": [
+     77.5,
+     94.3
+    ],
+    "head_turn_deg": 10.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 250,
+   "label": "centre = stand",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     94.5
+    ],
+    "head_turn_deg": 0.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 450,
+   "label": "in (across)",
+   "anchors": {
+    "hand_right": [
+     56.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     59.5,
+     150.0
+    ],
+    "flashlight_angle_deg": -14.0,
+    "head_center": [
+     82.5,
+     94.3
+    ],
+    "head_turn_deg": -10.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 250,
+   "label": "centre = stand",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     94.5
+    ],
+    "head_turn_deg": 0.0,
+    "hip_center": [
+     80.0,
+     81.0
+    ]
+   }
+  }
+ ]
+}

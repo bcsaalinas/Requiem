@@ -1,0 +1,49 @@
+{
+ "name": "light_presence",
+ "kind": "light texture (PointLight2D), Viv's faint presence circle (player.tscn LocalLight), so she's never fully blind",
+ "canvas": [
+  128,
+  128
+ ],
+ "file": "light_presence.png",
+ "centre_px": [
+  64.0,
+  64.0
+ ],
+ "centre_note": "px-edge coordinates from the top-left = the texture centre (PointLight2D centres its texture on the node) = Viv's pivot; the bands are centred on it within ~1 px",
+ "opaque_bbox": [
+  1,
+  7,
+  125,
+  116
+ ],
+ "bands_core_to_spill": [
+  "#bab4aa",
+  "#8d817b",
+  "#605551",
+  "#473e3c",
+  "#272323"
+ ],
+ "band_values": [
+  0.701,
+  0.514,
+  0.342,
+  0.252,
+  0.142
+ ],
+ "outside": "transparent (alpha 0): no light",
+ "scale_note": "review at the whole-number art scale 4 (radius 256 art px = 3.2 u) = texture_scale 1.6 in world px (1 u = 32 world px = 80 art px). The old LocalLight was the 256 px lamp_pool.tres gradient at texture_scale 1.25 (radius 5 u, most of its light inside ~2.5 u). The brief allows whole-number scales only for light textures.",
+ "filter": "nearest (project default_texture_filter 0), so the bands stay hard",
+ "game_settings_used_in_review": {
+  "blend_mode": "Add",
+  "color": [
+   0.7882353,
+   0.7647059,
+   0.69411767
+  ],
+  "energy": 0.6,
+  "source": "player/player.tscn LocalLight"
+ },
+ "energy_note": "the brightest band is #bab4aa (0.71); the old gradient peaked at white, so at energy 0.6 the core is dimmer than before (energy ~0.85 gives the old peak). The review keeps 0.6: the presence should stay faint (for Beti / the Godot session).",
+ "design": "option C 'long tail' (critic pick): a core ~21 px across that shows a few px past her sprite, three inner bands whose widths swell and pinch (4-13 px) so they don't run parallel, and a wide dim #272323 spill (~21-30 px) with 2-3 broad lobes; no band edge runs straight for more than 8 px"
+}

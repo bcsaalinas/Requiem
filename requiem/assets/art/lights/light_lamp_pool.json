@@ -1,0 +1,49 @@
+{
+ "name": "light_lamp_pool",
+ "kind": "light texture (PointLight2D), a standing lamp's pool (tutorial rooms)",
+ "canvas": [
+  192,
+  192
+ ],
+ "file": "light_lamp_pool.png",
+ "centre_px": [
+  96.0,
+  96.0
+ ],
+ "centre_note": "the pool's centre, px-edge coordinates from the top-left = the texture centre (PointLight2D centres its texture on the node); put the light on the lamp's shade",
+ "opaque_bbox": [
+  4,
+  4,
+  184,
+  185
+ ],
+ "bands_core_to_spill": [
+  "#bab4aa",
+  "#8d817b",
+  "#605551",
+  "#473e3c",
+  "#272323"
+ ],
+ "band_values": [
+  0.701,
+  0.514,
+  0.342,
+  0.252,
+  0.142
+ ],
+ "outside": "transparent (alpha 0): no light",
+ "scale_note": "the old lamp_pool.tres (256 px gradient) at texture_scale 1.3 reached 5.2 u. For the same reach this 192 px texture needs 4.33 art px per texture px; the whole-number art scale is 4 (radius 4.8 u) = texture_scale 1.6 in world px (1 u = 32 world px = 80 art px). Scale 3 (texture_scale 1.2) keeps the pool inside a small room; scale 2 (0.8) is a small lamp. The brief allows whole-number scales only for light textures.",
+ "filter": "nearest (project default_texture_filter 0), so the bands stay hard",
+ "game_settings_used_in_review": {
+  "blend_mode": "Add",
+  "color": [
+   0.9098,
+   0.7529,
+   0.5333
+  ],
+  "energy": 1.1,
+  "source": "level/props/standing_lamp.tscn"
+ },
+ "energy_note": "the brightest band is #bab4aa (0.71); the old gradient peaked at white, so the core is dimmer than before at the same energy. ~1.4 gives the old peak (for Beti / the Godot session).",
+ "design": "option B 'shade disc' (critic pick): a wide hot core (the shade's open bottom) with drifting edges, a 2nd band that swells to ~13 px and pinches to ~3 px on opposite sides, bands 3 and 4 2-4 px off-centre in different directions, an uneven dim spill (~10-30 px)"
+}

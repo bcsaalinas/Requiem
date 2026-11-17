@@ -12,6 +12,7 @@ const REGIONS := {
 	"loop": Rect2(7200, 0, 960, 640),
 }
 
+const FriendVisual := preload("res://tutorial/friend_visual.gd")
 var props: Dictionary = {}
 var interactables: Dictionary = {}
 var landmarks: Dictionary = {}
@@ -38,7 +39,7 @@ func _index(node: Node) -> void:
 		scene_nodes.append(child)
 		if not landmarks.has(String(child.name)):
 			landmarks[String(child.name)] = child
-		if child.get_script() == Art:
+		if child.get_script() == Art or child.get_script() == FriendVisual:
 			props[String(child.name)] = child
 		if child.has_meta("interaction_id"):
 			var id: String = child.get_meta("interaction_id")

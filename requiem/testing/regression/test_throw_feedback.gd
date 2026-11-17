@@ -2,7 +2,6 @@ extends Node2D
 ## Throw presentation follows accepted mechanics, including the actual release.
 ## Live input covers integration; explicit timer steps check gameplay parity.
 
-const RigLayers := preload("res://player/character_rig_layers.gd")
 const GRIP_LENS := Vector2(16, 34)
 const DIRECTIONS := [&"e", &"se", &"s", &"sw", &"w", &"nw", &"n", &"ne"]
 

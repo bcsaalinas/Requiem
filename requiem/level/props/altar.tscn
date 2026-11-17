@@ -1,36 +1,33 @@
 [gd_scene format=3 uid="uid://cvvblqnpihcrk"]
 
-[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_vvwid"]
-[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_4quf1"]
-[ext_resource type="Texture2D" uid="uid://7d5khdcuam44" path="res://level/props/textures/altar.tres" id="3_7ehm2"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_altar.png" id="1_altar"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_crucifix_flat.png" id="2_cross"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6spdh"]
-size = Vector2(124, 68)
+size = Vector2(96, 64)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_7i2wx"]
 closed = false
-polygon = PackedVector2Array(-58, -122, 58, -122)
+polygon = PackedVector2Array(-48, -64, 48, -64)
 
 [node name="Altar" type="Node2D" unique_id=22824885]
 
-[node name="Shadow" type="Sprite2D" parent="." unique_id=1082305501]
-z_index = -1
-position = Vector2(0, -22)
-scale = Vector2(1.15, 0.9)
-texture = ExtResource("1_vvwid")
-
 [node name="Sprite" type="Sprite2D" parent="." unique_id=430670509]
-material = ExtResource("2_4quf1")
-position = Vector2(-68, -130)
-scale = Vector2(0.483, 0.483)
-texture = ExtResource("3_7ehm2")
-centered = false
+position = Vector2(0, -32)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_altar")
+
+[node name="Crucifix" type="Sprite2D" parent="." unique_id=430670510]
+position = Vector2(0, -36)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_cross")
 
 [node name="Body" type="StaticBody2D" parent="." unique_id=1272784862]
 
 [node name="Shape" type="CollisionShape2D" parent="Body" unique_id=1578049363]
-position = Vector2(0, -34)
+position = Vector2(0, -32)
 shape = SubResource("RectangleShape2D_6spdh")
 
 [node name="Occluder" type="LightOccluder2D" parent="." unique_id=807771161]
 occluder = SubResource("OccluderPolygon2D_7i2wx")
+metadata/interaction_label = "Take spare battery"
