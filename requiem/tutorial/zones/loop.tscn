@@ -92,7 +92,7 @@ light_energy = 1.15
 locked_light_energy = 0.5
 locked_label = "It won't open"
 metadata/interaction_id = "loop_back"
-metadata/interaction_label = "The door will not open"
+metadata/interaction_label = "Locked"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="ParentDoorA" type="Node2D" parent="Doors" unique_id=1999569606 instance=ExtResource("6_4xqdr")]
@@ -124,7 +124,7 @@ creak = ExtResource("6_croy5")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "loop_end"
-metadata/interaction_label = "Enter the next room"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Props" type="Node2D" parent="." unique_id=392503483]

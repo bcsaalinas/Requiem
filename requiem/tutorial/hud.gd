@@ -15,13 +15,12 @@ signal fullscreen_requested
 @onready var end_title: Label = $Screen/EndTitle
 @onready var help_panel: PanelContainer = $Screen/PauseMenu
 @onready var inventory: HBoxContainer = $Screen/Inventory
-@onready var breath_hint: HBoxContainer = $Screen/BreathHint
+@onready var key_hint: Label = $Screen/KeyHint
 @onready var alert: VBoxContainer = $Screen/Alert
 var _slots: Dictionary = {}
 var _counts: Dictionary = {}
 var _breath_fill: StyleBoxFlat
 var _effort_fill: StyleBoxFlat
-var _hint_clock := 0.0
 var _alert_tween: Tween
 
 func _ready() -> void:
@@ -43,21 +42,6 @@ func update_breath_feedback(feedback: Node) -> void:
 	caption.text = feedback.get_meter_caption()
 	caption.modulate = Color.WHITE.lerp(Color("f2c3a3"), feedback.lung_pressure * feedback.pulse * 0.35)
 
-## The hallway's standing lesson: the key next to the breath meter. `urgency` (0..1) rises as a
-## parent door comes within earshot and makes the hint and the meter pulse; holding the breath
-## settles both.
-func set_breath_hint(shown: bool, holding := false, urgency := 0.0, delta := 0.0) -> void:
-	var meter_box := breath.get_parent() as CanvasItem
-	breath_hint.visible = shown
-	if not shown:
-		meter_box.modulate = Color.WHITE
-		return
-	_hint_clock += delta
-	var pulse := 0.5 + 0.5 * sin(_hint_clock * TAU * 1.4)
-	var glow := 0.0 if holding else (0.25 + 0.75 * urgency) * pulse
-	(breath_hint.get_node("Text") as Label).text = "Quiet steps" if holding else "Hold breath"
-	breath_hint.modulate = Color(1, 1, 1, 0.55) if holding else Color.WHITE.lerp(Color(1.45, 1.2, 1.0), glow)
-	meter_box.modulate = Color.WHITE.lerp(Color(1.6, 1.4, 1.15), glow)
 
 ## A large centred call to action that fades out on its own (the first parent warning).
 func flash_alert(title: String, detail: String, duration := 3.0) -> void:
@@ -105,6 +89,14 @@ func pulse_slot(kind: String) -> void:
 	var tween := slot.create_tween()
 	tween.tween_property(slot, "scale", Vector2(1.35, 1.35), 0.12).set_trans(Tween.TRANS_BACK)
 	tween.tween_property(slot, "scale", Vector2.ONE, 0.25)
+
+func show_key_hint(text: String, at: Vector2) -> void:
+	key_hint.text = text
+	key_hint.visible = text != ""
+	if text == "":
+		return
+	at = LegacyUi.to_ui(at)
+	key_hint.position = Vector2(at.x - key_hint.size.x * .5, at.y + 34)
 
 func place_prompt(at: Vector2, in_dialogue := false) -> void:
 	at = LegacyUi.to_ui(at)

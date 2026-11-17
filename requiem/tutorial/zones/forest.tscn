@@ -113,7 +113,7 @@ creak = ExtResource("4_drsj5")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "forest_back"
-metadata/interaction_label = "Return home"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Props" type="Node2D" parent="." unique_id=1233763393 groups=["forest_nav"]]
@@ -159,7 +159,7 @@ kind = "marker"
 [node name="forest_rocks" parent="Props" unique_id=1981820686 instance=ExtResource("pebble_pile")]
 position = Vector2(660, 400)
 metadata/interaction_id = "forest_rocks"
-metadata/interaction_label = "Collect three rocks"
+metadata/interaction_label = "Take"
 
 [node name="forest_battery" type="Node2D" parent="Props" unique_id=1505660642]
 light_mask = 2
@@ -170,7 +170,7 @@ position = Vector2(650, 460)
 script = ExtResource("6_gscj6")
 kind = "battery"
 metadata/interaction_id = "forest_battery"
-metadata/interaction_label = "Take spare battery"
+metadata/interaction_label = "Take"
 
 [node name="forest_exit" type="Node2D" parent="Props" unique_id=1861059203]
 light_mask = 2
@@ -360,7 +360,7 @@ reach = 1.6
 [node name="early_rocks" parent="Props" unique_id=295402807 instance=ExtResource("pebble_pile")]
 position = Vector2(300, 540)
 metadata/interaction_id = "early_rocks"
-metadata/interaction_label = "Pick up stones"
+metadata/interaction_label = "Take"
 
 [node name="EarlyStonesLamp" type="Node2D" parent="Props" unique_id=848978029 instance=ExtResource("7_drsj5")]
 position = Vector2(330, 570)
@@ -432,7 +432,7 @@ navigation_polygon = SubResource("NavigationPolygon_84x7g")
 position = Vector2(850, 400)
 script = ExtResource("ranger")
 metadata/interaction_id = "ranger"
-metadata/interaction_label = "Speak to the ranger"
+metadata/interaction_label = "Talk"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Ranger" unique_id=129305341]
 shape = SubResource("ranger_shape")
@@ -457,16 +457,6 @@ texture_scale = 0.8
 
 [node name="Stones" parent="ThrowTarget" unique_id=1977776761 instance=ExtResource("pebble_pile")]
 position = Vector2(1, 0)
-
-[node name="Label" type="Label" parent="ThrowTarget" unique_id=1730397648]
-modulate = Color(1, 0.85, 0.55, 1)
-light_mask = 0
-offset_left = -60.0
-offset_top = 24.0
-offset_right = 60.0
-theme_override_font_sizes/font_size = 12
-text = "THROW HERE"
-horizontal_alignment = 1
 
 [node name="ArtFloor" type="TileMapLayer" parent="." unique_id=196121688]
 light_mask = 17

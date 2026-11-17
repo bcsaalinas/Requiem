@@ -78,7 +78,7 @@ creak = ExtResource("5_bobs7")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "bedroom_exit"
-metadata/interaction_label = "Leave bedroom"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="MoonWindow" type="Node2D" parent="Doors" unique_id=1167108085 instance=ExtResource("5_xgi6i")]
@@ -114,7 +114,7 @@ script = ExtResource("12_48vr2")
 kind = "phone"
 lift = 44.0
 metadata/interaction_id = "phone"
-metadata/interaction_label = "Read the message"
+metadata/interaction_label = "Read"
 
 [node name="flashlight" type="Node2D" parent="Props" unique_id=1421340781]
 z_index = 1
@@ -125,7 +125,7 @@ script = ExtResource("12_48vr2")
 kind = "flashlight"
 lift = 84.0
 metadata/interaction_id = "flashlight"
-metadata/interaction_label = "Take flashlight"
+metadata/interaction_label = "Take"
 
 [node name="battery" type="Node2D" parent="Props" unique_id=1306387376]
 z_index = 1
@@ -135,13 +135,13 @@ position = Vector2(262, 300)
 script = ExtResource("12_48vr2")
 kind = "battery"
 metadata/interaction_id = "battery"
-metadata/interaction_label = "Take battery"
+metadata/interaction_label = "Take"
 
 [node name="AbuelaNote" type="Node2D" parent="Props" unique_id=2093974020]
 position = Vector2(735, 263)
 script = ExtResource("note_highlight")
 metadata/interaction_id = "abuela_note"
-metadata/interaction_label = "Read Abuela's letter"
+metadata/interaction_label = "Read"
 
 [node name="Lights" type="Node2D" parent="." unique_id=529946740]
 

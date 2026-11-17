@@ -66,8 +66,8 @@ enum Style { FRONT, SIDE }
 @export var focused_light_boost := 1.6
 
 @export_group("Interaction")
-@export var open_label := "Open door"
-@export var close_label := "Close door"
+@export var open_label := "Open"
+@export var close_label := "Close"
 @export var locked_label := "Locked"
 
 ## Leaf art: 160x34 px canvas drawn hinged on the left, swinging south; the pivot is the hinge-end

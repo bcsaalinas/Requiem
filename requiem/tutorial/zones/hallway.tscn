@@ -91,7 +91,7 @@ creak = ExtResource("6_qo5fo")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "hall_back"
-metadata/interaction_label = "Return to bedroom"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="ParentDoorA" type="Node2D" parent="Doors" unique_id=1999569606 instance=ExtResource("6_dw150")]
@@ -123,7 +123,7 @@ creak = ExtResource("6_qo5fo")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "hall_exit"
-metadata/interaction_label = "Go outside"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Props" type="Node2D" parent="." unique_id=392503483]
