@@ -797,7 +797,7 @@ func _begin_attack() -> void:
 func _sync_roof() -> void:
 	var current: Room = world.rooms("house").current
 	var roof_on := current == null or current.name == "Porch"
-	for id in ["ArtRoof", "ArtRoofEaves", "ArtRoofEaveCorners", "RoofMoon"]:
+	for id in ["ArtRoof", "ArtRoofEaves", "ArtRoofEaveCorners"]:
 		world.zones["house"].get_node(id).visible = roof_on
 
 func _attack_candle_time(index: int) -> float:

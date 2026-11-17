@@ -66,6 +66,9 @@ polygon = PackedVector2Array(31.2, 12, 32.8, 12, 32.8, 20, 31.2, 20)
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_mullion"]
 polygon = PackedVector2Array(-0.8, 12, 0.8, 12, 0.8, 20, -0.8, 20)
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_unshaded"]
+light_mode = 1
+
 [node name="Bedroom" type="Node2D" unique_id=1793363046]
 y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(64, 64, 832, 512)])
@@ -268,6 +271,8 @@ tile_map_data = PackedByteArray("AAACAAQAAAAHAAUAAAADAAQAAAAGAAYAAAAEAAQAAAAGAAU
 tile_set = ExtResource("18_i7gi3")
 
 [node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=984543906 node_paths=PackedStringArray("source")]
+material = SubResource("CanvasItemMaterial_unshaded")
+self_modulate = Color(0.086, 0.104, 0.123, 1)
 light_mask = 65
 z_index = 41
 scale = Vector2(0.4, 0.4)
