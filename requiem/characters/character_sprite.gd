@@ -78,6 +78,8 @@ func play(part: StringName, sheet_name: String, options := {}) -> void:
 func stop(part: StringName) -> void:
 	(_players[part] as Dictionary)["clip"] = {}
 	(_layers[part] as Sprite2D).visible = false
+	if part == &"head":
+		_refresh_layout()
 
 
 func set_mirror(value: bool) -> void:
