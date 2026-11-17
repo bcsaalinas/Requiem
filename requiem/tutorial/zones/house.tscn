@@ -325,12 +325,12 @@ kind = "candle"
 [node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora0" unique_id=321138196]
 position = Vector2(-0.8, 0.4)
 color = Color(0.94, 0.77, 0.54, 1)
-energy = 0.75
+energy = 2.5
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
 texture_scale = 0.8
-metadata/rest_energy = 0.75
+metadata/rest_energy = 2.5
 metadata/rest_color = "#f0c48a"
 
 [node name="RouteVeladora1" type="Node2D" parent="Props" unique_id=1086629292]
@@ -341,12 +341,12 @@ kind = "candle"
 [node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora1" unique_id=1496599721]
 position = Vector2(-0.8, 0.4)
 color = Color(0.94, 0.77, 0.54, 1)
-energy = 0.75
+energy = 2.5
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
 texture_scale = 0.8
-metadata/rest_energy = 0.75
+metadata/rest_energy = 2.5
 metadata/rest_color = "#f0c48a"
 
 [node name="RouteVeladora2" type="Node2D" parent="Props" unique_id=819752352]
@@ -357,12 +357,12 @@ kind = "candle"
 [node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora2" unique_id=1154970874]
 position = Vector2(-0.8, 0.4)
 color = Color(0.94, 0.77, 0.54, 1)
-energy = 0.75
+energy = 2.5
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
 texture_scale = 0.8
-metadata/rest_energy = 0.75
+metadata/rest_energy = 2.5
 metadata/rest_color = "#f0c48a"
 
 [node name="RouteVeladora3" type="Node2D" parent="Props" unique_id=1931067657]
@@ -373,12 +373,12 @@ kind = "candle"
 [node name="WarmPool" type="PointLight2D" parent="Props/RouteVeladora3" unique_id=1336587587]
 position = Vector2(-0.8, 0.4)
 color = Color(0.94, 0.77, 0.54, 1)
-energy = 0.75
+energy = 2.5
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
 texture_scale = 0.8
-metadata/rest_energy = 0.75
+metadata/rest_energy = 2.5
 metadata/rest_color = "#f0c48a"
 
 [node name="Lights" type="Node2D" parent="." unique_id=962909668]
@@ -386,24 +386,25 @@ metadata/rest_color = "#f0c48a"
 [node name="VestibuleLight" type="PointLight2D" parent="Lights" unique_id=1300145648]
 position = Vector2(747.2, 176.4)
 color = Color(0.9372549, 0.7764706, 0.54901963, 1)
-energy = 1.1
+energy = 2.5
 range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 0
 texture = ExtResource("light_vel")
 texture_scale = 1.2
-metadata/rest_energy = 1.1
+metadata/rest_energy = 2.5
 metadata/rest_color = "#efc68c"
 
 [node name="AltarLeftLight" type="PointLight2D" parent="Lights" unique_id=1937256068]
 position = Vector2(1007.2, 222)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
+energy = 2.5
 range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 0
 texture = ExtResource("light_vel")
 texture_scale = 1.2
-metadata/rest_energy = 1
+metadata/rest_energy = 2.5
 metadata/rest_color = "#f0c48a"
 
 [node name="HouseRecoveryLight" type="PointLight2D" parent="Lights" unique_id=1614545812]
