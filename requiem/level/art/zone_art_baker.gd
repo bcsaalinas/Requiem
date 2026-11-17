@@ -54,7 +54,7 @@ const STRAIGHT_TOPS := [51, 60, 61, 62, 63]
 const WINDOW_TOP := 64
 const WINDOW_CRACKED_TOP := 66
 const FLOOR_FIRST := {"wood": 0, "pasta": 4, "cement": 8, "patio": 12, "bath": 16, "forest": 20, "trail": 24}
-const TRAIL_PIECES := {"edge": 25, "edge_b": 26, "corner_outer": 27, "corner_inner": 28, "diagonal": 29}
+const TRAIL_PIECES := {"edge": 28, "edge_b": 29, "corner_outer": 30, "corner_inner": 31, "diagonal": 32}
 ## Corners (NW, NE, SW, SE) that are trail, as drawn.
 const TRAIL_PIECE_CORNERS := {"edge": NW | NE, "edge_b": NW | NE, "corner_outer": NW, "corner_inner": NW | NE | SW, "diagonal": NW | SE}
 const TRAIL_CENTRE := {"edge": 1, "edge_b": 1, "corner_outer": 0, "corner_inner": 1, "diagonal": 1}
@@ -186,6 +186,10 @@ func _ensure_terrains() -> void:
 	_tile_set.set_terrain_name(0, TRAIL_TERRAIN, "trail")
 	_tile_set.set_terrain_color(0, TRAIL_TERRAIN, Color(0.5, 0.42, 0.32))
 	var atlas: TileSetAtlasSource = _tile_set.get_source(0)
+	for tile_index in atlas.get_tiles_count():
+		var tile_coords := atlas.get_tile_id(tile_index)
+		for alternative_index in atlas.get_alternative_tiles_count(tile_coords):
+			atlas.get_tile_data(tile_coords, atlas.get_alternative_tile_id(tile_coords, alternative_index)).terrain_set = -1
 	for variant in 4:
 		_set_terrain_tile(atlas, FLOOR_FIRST["forest"] + variant, 0, 0, FOREST_TERRAIN)
 		_set_terrain_tile(atlas, FLOOR_FIRST["trail"] + variant, 0, 0, TRAIL_TERRAIN)
@@ -489,14 +493,7 @@ func _windows(root: Node) -> Array[Dictionary]:
 func _paint_floor(zone: String, layer: TileMapLayer, floor_cells: Dictionary, rooms: Dictionary, rng: RandomNumberGenerator) -> void:
 	var cells := _sorted(floor_cells.keys())
 	if zone == "forest":
-		var forest_cells: Array[Vector2i] = []
-		var trail_cells: Array[Vector2i] = []
-		for cell: Vector2i in cells:
-			forest_cells.append(cell)
-			if _is_trail_cell(cell):
-				trail_cells.append(cell)
-		layer.set_cells_terrain_connect(forest_cells, 0, FOREST_TERRAIN)
-		layer.set_cells_terrain_connect(trail_cells, 0, TRAIL_TERRAIN)
+		_paint_forest(layer, cells, rng)
 		return
 	for cell: Vector2i in cells:
 		var group := _floor_group(zone, cell, rooms)
@@ -524,11 +521,63 @@ func _floor_group(zone: String, cell: Vector2i, rooms: Dictionary) -> String:
 	return HOUSE_FLOORS.get(nearest, "wood")
 
 
-func _is_trail_cell(cell: Vector2i) -> bool:
-	for corner in [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]:
-		if _distance_to_trail(Vector2(cell + corner) * CELL) > TRAIL_RADIUS:
-			return false
-	return true
+## Corner grounds, as Match Corners reads them: a cell corner is trail when it lies within the trail
+## radius of the old Trail Line2D polyline. Each cell takes a tile or alternative whose four corner
+## grounds match exactly (weighted random among equals), so neighbouring cells always agree.
+func _paint_forest(layer: TileMapLayer, cells: Array, rng: RandomNumberGenerator) -> void:
+	var candidates := {}
+	var piece_names := {}
+	for variant in 4:
+		_add_candidate(candidates, FLOOR_FIRST["forest"] + variant, 0, 0)
+		_add_candidate(candidates, FLOOR_FIRST["trail"] + variant, 0, NW | NE | SW | SE)
+		piece_names[FLOOR_FIRST["forest"] + variant] = "forest"
+		piece_names[FLOOR_FIRST["trail"] + variant] = "trail"
+	for piece: String in TRAIL_PIECES:
+		piece_names[TRAIL_PIECES[piece]] = piece
+		for alternative in 8:
+			if _atlas.has_alternative_tile(coords(TRAIL_PIECES[piece]), alternative):
+				_add_candidate(candidates, TRAIL_PIECES[piece], alternative, transform_mask(TRAIL_PIECE_CORNERS[piece], alternative))
+	var chosen := {}
+	var counts := {}
+	for cell: Vector2i in cells:
+		var mask := 0
+		for corner in [[NW, Vector2i(0, 0)], [NE, Vector2i(1, 0)], [SW, Vector2i(0, 1)], [SE, Vector2i(1, 1)]]:
+			if _distance_to_trail(Vector2(cell + corner[1]) * CELL) <= TRAIL_RADIUS:
+				mask |= corner[0]
+		var pick := _pick_candidate(rng, candidates[mask])
+		chosen[cell] = {"mask": mask}
+		layer.set_cell(cell, 0, coords(pick["index"]), pick["alternative"])
+		counts[piece_names[pick["index"]]] = counts.get(piece_names[pick["index"]], 0) + 1
+	var mismatches := 0
+	for cell: Vector2i in chosen:
+		var mask: int = chosen[cell]["mask"]
+		var right := cell + Vector2i.RIGHT
+		var below := cell + Vector2i.DOWN
+		if chosen.has(right):
+			var other: int = chosen[right]["mask"]
+			mismatches += int(bool(mask & NE) != bool(other & NW)) + int(bool(mask & SE) != bool(other & SW))
+		if chosen.has(below):
+			var other: int = chosen[below]["mask"]
+			mismatches += int(bool(mask & SW) != bool(other & NW)) + int(bool(mask & SE) != bool(other & NE))
+	print("Forest trail pieces: ", counts, " corner mismatches: ", mismatches)
+
+
+func _add_candidate(candidates: Dictionary, index: int, alternative: int, mask: int) -> void:
+	if not candidates.has(mask):
+		candidates[mask] = []
+	candidates[mask].append({"index": index, "alternative": alternative, "weight": _atlas.get_tile_data(coords(index), alternative).probability})
+
+
+func _pick_candidate(rng: RandomNumberGenerator, options: Array) -> Dictionary:
+	var total := 0.0
+	for option: Dictionary in options:
+		total += option["weight"]
+	var roll := rng.randf() * total
+	for option: Dictionary in options:
+		roll -= option["weight"]
+		if roll <= 0.0:
+			return option
+	return options[options.size() - 1]
 
 
 func _distance_to_trail(point: Vector2) -> float:
