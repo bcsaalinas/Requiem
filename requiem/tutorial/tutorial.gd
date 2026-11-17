@@ -376,6 +376,14 @@ func _wall_listeners() -> Array:
 		if node is ParentListener: points.append(node.global_position+Vector2(0,-40))
 	return points
 
+func _nearest_wall_listener(point: Vector2) -> ParentListener:
+	var nearest_listener: ParentListener = null
+	for node in world.nodes_in("loop","Listeners"):
+		if node is ParentListener and (nearest_listener == null \
+				or node.global_position.distance_to(point) < nearest_listener.global_position.distance_to(point)):
+			nearest_listener = node
+	return nearest_listener
+
 func _safe_light_at(point: Vector2) -> SafeLight:
 	for node in world.nodes_in(zone,"SafeLights"):
 		if node is SafeLight and node.contains(point): return node
@@ -741,6 +749,7 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 				if at.distance_to(listener)<=radius:
 					play_sound("branch" if zone=="forest" else "behind_wall",listener,-4)
 					say("[Branches shift nearby]" if zone=="forest" else "[The dragging stops]",4)
+					if zone=="loop": _nearest_wall_listener(listener).listen()
 					ambient_reply_cooldown=6.0
 					break
 	if zone!="hallway" or resetting or not dialogue.is_empty(): return
@@ -757,7 +766,6 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 ## The first time is a warning that teaches Hold Breath; after that the player is sent back.
 func _parent_heard(listener: ParentListener, at: Vector2, source: int) -> void:
 	print("[Tutorial] parent heard ",NoiseManager.SourceType.keys()[source]," at ",at.round()," (warned before: ",hall_warned,")")
-	heard_flash.flash(listener.to_global(Vector2(-listener.half_width,0)),listener.to_global(Vector2(listener.half_width,0)))
 	listener.listen()
 	if not hall_warned:
 		hall_warned=true
