@@ -18,34 +18,6 @@
 [ext_resource type="Script" path="res://tutorial/ranger_visual.gd" id="ranger_visual"]
 [ext_resource type="PackedScene" path="res://level/props/pebble_pile.tscn" id="pebble_pile"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_rq8ch"]
-shader = ExtResource("5_ber70")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_5rfjf"]
-shader = ExtResource("5_ber70")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_gf1bk"]
-shader = ExtResource("5_ber70")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_n0waw"]
-shader = ExtResource("5_ber70")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7b6hl"]
 shader = ExtResource("5_ber70")
 shader_parameter/saturation = 0.5
@@ -119,42 +91,6 @@ metadata/interaction_offset = Vector2(0, -32)
 z_index = 1
 y_sort_enabled = true
 
-[node name="mark_a" type="Node2D" parent="Props" unique_id=1381781564]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_rq8ch")
-position = Vector2(270, 580)
-script = ExtResource("6_gscj6")
-kind = "marker"
-
-[node name="mark_b" type="Node2D" parent="Props" unique_id=2121878140]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_5rfjf")
-position = Vector2(420, 400)
-script = ExtResource("6_gscj6")
-kind = "marker"
-
-[node name="mark_c" type="Node2D" parent="Props" unique_id=115879464]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_gf1bk")
-position = Vector2(760, 395)
-script = ExtResource("6_gscj6")
-kind = "marker"
-
-[node name="mark_d" type="Node2D" parent="Props" unique_id=1977138128]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_n0waw")
-position = Vector2(1080, 580)
-script = ExtResource("6_gscj6")
-kind = "marker"
-
 [node name="forest_rocks" parent="Props" unique_id=1981820686 instance=ExtResource("pebble_pile")]
 position = Vector2(660, 400)
 metadata/interaction_id = "forest_rocks"
@@ -181,18 +117,6 @@ script = ExtResource("6_gscj6")
 kind = "marker"
 metadata/interaction_id = "forest_exit"
 metadata/interaction_label = "Follow the path to the house"
-
-[node name="ClearingLamp" type="Node2D" parent="Props" unique_id=476799547 instance=ExtResource("7_drsj5")]
-position = Vector2(700, 470)
-script = ExtResource("8_326u6")
-energy = 1.15
-reach = 1.6
-
-[node name="RestLamp" type="Node2D" parent="Props" unique_id=1714719389 instance=ExtResource("7_drsj5")]
-position = Vector2(1000, 520)
-script = ExtResource("8_326u6")
-energy = 1.05
-reach = 1.2
 
 [node name="ExitLamp" type="Node2D" parent="Props" unique_id=2131959633 instance=ExtResource("7_drsj5")]
 position = Vector2(1290, 510)
