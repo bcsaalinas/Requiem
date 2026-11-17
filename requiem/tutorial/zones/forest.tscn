@@ -60,9 +60,6 @@ agent_radius = 15.0
 [sub_resource type="CircleShape2D" id="ranger_shape"]
 radius = 12.0
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_unshaded"]
-light_mode = 1
-
 [node name="Forest" type="Node2D" unique_id=811175299]
 y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(0, 0, 1440, 800)])
@@ -409,9 +406,6 @@ tile_map_data = PackedByteArray("AAABAAAAAAAGAAUABAABAAEAAAAAAAcABAABAAIAAAAGAAU
 tile_set = ExtResource("14_hvswp")
 
 [node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=1667237075 node_paths=PackedStringArray("source")]
-material = SubResource("CanvasItemMaterial_unshaded")
-self_modulate = Color(0.086, 0.104, 0.123, 1)
-light_mask = 65
 z_index = 41
 scale = Vector2(0.4, 0.4)
 script = ExtResource("15_rq8ch")

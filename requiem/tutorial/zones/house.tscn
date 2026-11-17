@@ -597,9 +597,6 @@ tile_map_data = PackedByteArray("AAACAAMAAAAHAAUAAAADAAMAAAAGAAUAAAAEAAMAAAAHAAY
 tile_set = ExtResource("25_7kgsy")
 
 [node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=1429480865 node_paths=PackedStringArray("source")]
-material = SubResource("CanvasItemMaterial_unshaded")
-self_modulate = Color(0.086, 0.104, 0.123, 1)
-light_mask = 65
 z_index = 41
 scale = Vector2(0.4, 0.4)
 script = ExtResource("26_g6mak")

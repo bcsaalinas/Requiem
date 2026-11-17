@@ -48,9 +48,6 @@ source_geometry_mode = 1
 source_geometry_group_name = &"loop_nav"
 agent_radius = 15.0
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_unshaded"]
-light_mode = 1
-
 [node name="Loop" type="Node2D" unique_id=1541038903]
 y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(32, 32, 896, 544)])
@@ -325,9 +322,6 @@ tile_map_data = PackedByteArray("AAAIAAcAAAAGAAUABAALAAcAAAAGAAUABQAMAAcAAAAHAAY
 tile_set = ExtResource("19_iday8")
 
 [node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=844418163 node_paths=PackedStringArray("source")]
-material = SubResource("CanvasItemMaterial_unshaded")
-self_modulate = Color(0.086, 0.104, 0.123, 1)
-light_mask = 65
 z_index = 41
 scale = Vector2(0.4, 0.4)
 script = ExtResource("20_2egko")
