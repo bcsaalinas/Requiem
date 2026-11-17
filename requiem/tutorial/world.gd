@@ -80,6 +80,15 @@ func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength :=
 	add_child(light)
 	return light
 
+func set_house_light_out(light_id: String, candle_id: String) -> void:
+	if landmarks.has(light_id):
+		var light := landmarks[light_id] as PointLight2D
+		light.energy = 0.12
+		light.color = Color("71889b")
+	if props.has(candle_id):
+		props[candle_id].extinguished = true
+		props[candle_id].queue_redraw()
+
 func set_house_danger(danger: bool) -> void:
 	for id in ["VestibuleLight", "AltarLeftLight", "AltarRightLight"]:
 		if not landmarks.has(id):
