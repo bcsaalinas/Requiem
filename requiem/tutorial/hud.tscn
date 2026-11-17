@@ -326,6 +326,18 @@ anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
 
+[node name="EndTitle" type="Label" parent="Screen"]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.5529412, 0.5058824, 0.48235294, 1)
+theme_override_font_sizes/font_size = 46
+text = "REQUIEM"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="PauseMenu" type="PanelContainer" parent="Screen" unique_id=1718583822]
 process_mode = 3
 visible = false

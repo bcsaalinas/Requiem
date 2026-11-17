@@ -587,6 +587,9 @@ func interact(id: String) -> void:
 				(world.interactables[id]["node"] as Door).open(breath.is_holding)
 				say("There has to be another way out.",9)
 				play_sound("impossible",player.position,-14)
+				sequence="ending"
+				sequence_time=0
+				sequence_step=0
 
 func collect(id: String) -> void:
 	collected[id]=true
@@ -719,6 +722,21 @@ func _tick_sequence(delta: float) -> void:
 			if light!=null: light.queue_free()
 			sequence=""
 			say("",6)
+		return
+	if sequence=="ending":
+		if sequence_time>=4.0 and sequence_step==0:
+			sequence_step=1
+			hud.shade.color=Color.BLACK
+			hud.subtitle.text=""
+			hud.prompt.text=""
+			player.process_mode=Node.PROCESS_MODE_DISABLED
+			play_sound("behind_wall",player.position)
+		if sequence_time>=6.0 and sequence_step==1:
+			sequence_step=2
+			hud.end_title.show()
+		if sequence_time>=9.0 and sequence_step==2:
+			sequence_step=3
+			Kiosk.go_to_title()
 		return
 	if sequence!="attack": return
 	if sequence_time>=0.9 and sequence_step==0:
