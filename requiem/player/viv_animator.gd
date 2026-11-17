@@ -370,7 +370,7 @@ func _present_legs(action: StringName) -> void:
 	if reverse:
 		rate *= REVERSE_RATE
 	_rig.play(&"lower", clip_name, {"rate": rate, "reverse": reverse})
-	_rig.set_mirror(_leg_zone == 1 and side)
+	_rig.set_mirror(_leg_zone == 1 and side, [&"lower"])
 	_lock_frames_to_lower([&"upper", &"arm_right"] if _sequence.is_empty() and action != &"hold_breath" else [])
 
 

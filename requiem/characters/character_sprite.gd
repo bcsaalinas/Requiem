@@ -20,6 +20,7 @@ var steps_mode := false
 var facing := PI / 2.0
 var head_turn_deg := 0.0
 var mirror := false
+var _mirror_parts: Array = PARTS
 
 var _layers := {}
 var _players := {}
@@ -82,8 +83,9 @@ func stop(part: StringName) -> void:
 		_refresh_layout()
 
 
-func set_mirror(value: bool) -> void:
+func set_mirror(value: bool, parts: Array = PARTS) -> void:
 	mirror = value
+	_mirror_parts = parts
 	_refresh_layout()
 
 
@@ -144,7 +146,7 @@ func flashlight_angle_global() -> float:
 	if not anchors.has("flashlight_angle_deg"):
 		anchors = _frame_data(&"upper").get("anchors", {})
 	var degrees: float = anchors.get("flashlight_angle_deg", 0.0)
-	if mirror:
+	if _part_mirrored(&"arm_right"):
 		degrees = -degrees
 	return global_rotation + PI / 2.0 + deg_to_rad(degrees)
 
@@ -174,17 +176,17 @@ func _anchor_local(anchor: String) -> Vector2:
 			var point := Vector2(anchors[anchor][0], anchors[anchor][1])
 			if part == &"upper" or part == &"arm_right":
 				point += _frame_data(&"upper").get("upper_offset", Vector2.ZERO) if part == &"arm_right" else Vector2.ZERO
-			return _art_to_local(point)
+			return _art_to_local(point, part)
 	if anchor == "head_center" and _head_pose_clip.has("frames"):
 		var anchors: Dictionary = _head_pose_clip["frames"][_head_frame()].get("anchors", {})
 		if anchors.has("head_center"):
-			return _art_to_local(Vector2(anchors["head_center"][0], anchors["head_center"][1]) + _head_offset())
+			return _art_to_local(Vector2(anchors["head_center"][0], anchors["head_center"][1]) + _head_offset(), &"head")
 	return Vector2.ZERO
 
 
-func _art_to_local(art_point: Vector2) -> Vector2:
+func _art_to_local(art_point: Vector2, part: StringName = &"lower") -> Vector2:
 	var point := art_point - PIVOT
-	if mirror:
+	if _part_mirrored(part):
 		point.x = -point.x
 	return point * Units.ART_SCALE
 
@@ -253,7 +255,7 @@ func _refresh_layout() -> void:
 	for part in PARTS:
 		var sprite: Sprite2D = _layers[part]
 		var state: Dictionary = _players[part]
-		sprite.flip_h = mirror
+		sprite.flip_h = _part_mirrored(part)
 		if part == &"head":
 			_refresh_head(sprite, upper_data)
 			continue
@@ -261,7 +263,7 @@ func _refresh_layout() -> void:
 			continue
 		sprite.frame = state["frame"]
 		var offset := upper_offset if part == &"upper" or part == &"arm_right" else Vector2.ZERO
-		sprite.offset = _mirrored(offset)
+		sprite.offset = _mirrored(offset, part)
 
 
 func _refresh_head(sprite: Sprite2D, upper_data: Dictionary) -> void:
@@ -280,14 +282,18 @@ func _refresh_head(sprite: Sprite2D, upper_data: Dictionary) -> void:
 	sprite.texture = _head_pose_clip["texture"]
 	sprite.hframes = _head_pose_clip["hframes"]
 	sprite.frame = _head_frame()
-	sprite.offset = _mirrored(_head_offset())
+	sprite.offset = _mirrored(_head_offset(), &"head")
 
 
 var head_enabled := true
 
 
-func _mirrored(offset: Vector2) -> Vector2:
-	return Vector2(-offset.x if mirror else offset.x, offset.y)
+func _mirrored(offset: Vector2, part: StringName) -> Vector2:
+	return Vector2(-offset.x if _part_mirrored(part) else offset.x, offset.y)
+
+
+func _part_mirrored(part: StringName) -> bool:
+	return mirror and _mirror_parts.has(part)
 
 
 func _apply_rotation() -> void:
