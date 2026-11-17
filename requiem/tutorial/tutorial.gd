@@ -80,6 +80,7 @@ var dialogue_done: Callable
 var subtitle_time := 0.0
 var banner_time := 0.0
 var encounter_grace := 0.0
+var entity_scream_staged := false
 var resetting := false
 var sequence := ""
 var sequence_time := 0.0
@@ -192,8 +193,8 @@ func sound(id: String) -> AudioStream:
 	if not _sounds.has(id): _sounds[id]=load("res://tutorial/assets/audio/%s.wav"%id)
 	return _sounds[id]
 
-func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
-	if test_mode: return
+func play_sound(id: String, at: Vector2, volume := -8.0) -> AudioStreamPlayer2D:
+	if test_mode: return null
 	var audio:=AudioStreamPlayer2D.new()
 	audio.position=at
 	audio.bus="SFX"
@@ -203,6 +204,7 @@ func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
 	audio.add_to_group("tutorial_audio")
 	audio.finished.connect(audio.queue_free)
 	audio.play()
+	return audio
 
 ## Moves the player into a zone. `arrival_door` (an interaction id) starts open behind the
 ## player and swings shut once they step away from it.
@@ -262,6 +264,7 @@ func _configure_entity() -> void:
 		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
 		entity.show()
 		encounter_grace=5.0
+		entity_scream_staged=false
 
 func _process(delta: float) -> void:
 	if _paused: return
@@ -287,6 +290,9 @@ func _process(delta: float) -> void:
 	if sequence!="": _tick_sequence(delta)
 	if encounter_grace>0:
 		encounter_grace-=delta
+		if encounter_grace<=entity.hunt_start_hold and not complete and entity.visible and not entity_scream_staged:
+			entity_scream_staged=true
+			entity.stage_scream()
 		if encounter_grace<=0 and not complete and entity.visible: entity.active=true
 	if zone=="hallway": _tick_hallway(delta)
 	if zone=="forest" and not forest_cued and player.position.x>3500:
@@ -702,7 +708,9 @@ func _begin_attack() -> void:
 	player.process_mode=Node.PROCESS_MODE_DISABLED
 	player.velocity=Vector2.ZERO
 	thrower.available=false
-	play_sound("presence",friend_home+Vector2(-10,-150))
+	var scrape := play_sound("presence",friend_home+Vector2(-110,-150))
+	if scrape != null:
+		scrape.create_tween().tween_property(scrape,"position",friend_home+Vector2(100,-150),2.3)
 	say("[Scraping behind the wall]",3)
 
 func _tick_sequence(delta: float) -> void:
@@ -716,20 +724,28 @@ func _tick_sequence(delta: float) -> void:
 			say("",6)
 		return
 	if sequence!="attack": return
-	if sequence_time>=2.3 and sequence_step==0:
+	if sequence_time>=0.9 and sequence_step==0:
 		sequence_step=1
-		play_sound("thud",friend_home,-2)
-		NoiseManager.emit_noise(friend_home,256,NoiseManager.SourceType.ENVIRONMENT)
-		hud.shade.color=Color(0,0,0,.96)
-		world.props["friend"].hide()
-		say("[A gasp. A heavy impact.]",3)
-	if sequence_time>=3.6 and sequence_step==1:
+		world.set_house_light_out("AltarLeftLight","altar_candle_left")
+	if sequence_time>=1.6 and sequence_step==1:
 		sequence_step=2
+		world.set_house_light_out("AltarRightLight","altar_candle_right")
+	if sequence_time>=2.3 and sequence_step==2:
+		sequence_step=3
+		var spawn: Vector2 = world.marker("house","EntitySpawn")
+		play_sound("thud",spawn,-2)
+		NoiseManager.emit_noise(spawn,256,NoiseManager.SourceType.ENVIRONMENT)
+		world.set_house_light_out("VestibuleLight","vestibule_candle")
+		prayer_audio.stop()
+		var friend_rig: CharacterSprite = world.props["friend"].rig
+		friend_rig.set_rate(&"upper",0.0)
+		friend_rig.set_rate(&"lower",0.0)
+		say("[A gasp. A heavy impact.]",3)
+	if sequence_time>=3.6 and sequence_step==3:
+		sequence_step=4
 		world.props["friend"].fallen=true
-		hud.shade.color=Color(0,0,0,0)
 		prayer_audio.stop()
 		attack_finished=true
-		world.set_house_danger(true)
 		stage="ketsu"
 		stage_changed.emit(stage)
 		player.process_mode=Node.PROCESS_MODE_INHERIT

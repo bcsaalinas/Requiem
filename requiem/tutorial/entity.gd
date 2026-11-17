@@ -52,6 +52,7 @@ var sprite_rig: Node2D
 var last_heard_source := -1
 var _listening := 0.0
 var _scream_left := 0.0
+var _staged_scream := 0.0
 var _memory: Array[Vector2] = []
 var _drag: AudioStreamPlayer2D
 var _feel_player: AudioStreamPlayer2D
@@ -76,6 +77,7 @@ func _ready() -> void:
 	add_child(_feel_player)
 
 func _physics_process(delta: float) -> void:
+	_staged_scream = maxf(0.0, _staged_scream - delta)
 	if not active:
 		velocity = Vector2.ZERO
 		_update_drag(false)
@@ -140,9 +142,13 @@ func hearing_multiplier() -> float:
 func is_listening() -> bool:
 	return _listening > 0.0
 
+## Staging only: the scream without a hunt, used once when it arrives.
+func stage_scream() -> void:
+	_staged_scream = hunt_start_hold
+
 ## True during the scream hold that starts a hunt.
 func is_screaming() -> bool:
-	return _scream_left > 0.0 and active
+	return (_scream_left > 0.0 and active) or _staged_scream > 0.0
 
 ## It stands where the sound was and feels the floor for it: the end of a hunt that reached
 ## the spot (until hunt_persistence runs out) and a moment at each search point.
