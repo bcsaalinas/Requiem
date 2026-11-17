@@ -13,6 +13,8 @@ const REGIONS := {
 }
 
 const FriendVisual := preload("res://tutorial/friend_visual.gd")
+const ATTACK_CANDLES := ["RouteVeladora0", "RouteVeladora1", "vestibule_candle", "RouteVeladora2", "altar_candle_left", "altar_candle_right", "RouteVeladora3"]
+const HOUSE_CANDLE_LIGHTS := {"vestibule_candle": "VestibuleLight", "altar_candle_left": "AltarLeftLight", "altar_candle_right": "AltarRightLight"}
 var props: Dictionary = {}
 var interactables: Dictionary = {}
 var landmarks: Dictionary = {}
@@ -80,24 +82,20 @@ func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength :=
 	add_child(light)
 	return light
 
-func set_house_light_out(light_id: String, candle_id: String) -> void:
-	if landmarks.has(light_id):
-		var light := landmarks[light_id] as PointLight2D
-		light.energy = 0.12
-		light.color = Color("71889b")
+func set_candle_out(candle_id: String, out: bool) -> void:
+	var light: PointLight2D = null
+	if HOUSE_CANDLE_LIGHTS.has(candle_id):
+		light = landmarks.get(HOUSE_CANDLE_LIGHTS[candle_id]) as PointLight2D
+	elif props.has(candle_id):
+		light = props[candle_id].get_node_or_null("WarmPool") as PointLight2D
+	if light != null:
+		light.energy = 0.12 if out else float(light.get_meta("rest_energy"))
+		light.color = Color("71889b") if out else Color(light.get_meta("rest_color"))
 	if props.has(candle_id):
-		props[candle_id].extinguished = true
+		props[candle_id].extinguished = out
 		props[candle_id].queue_redraw()
 
 func set_house_danger(danger: bool) -> void:
-	for id in ["VestibuleLight", "AltarLeftLight", "AltarRightLight"]:
-		if not landmarks.has(id):
-			continue
-		var light := landmarks[id] as PointLight2D
-		light.energy = 0.12 if danger else float(light.get_meta("rest_energy"))
-		light.color = Color("71889b") if danger else light.get_meta("rest_color")
 	# The kitchen candle stays lit: the recovery light survives the attack.
-	for id in ["altar_candle_left", "altar_candle_right", "vestibule_candle"]:
-		if props.has(id):
-			props[id].extinguished = danger
-			props[id].queue_redraw()
+	for id in ATTACK_CANDLES:
+		set_candle_out(id, danger)

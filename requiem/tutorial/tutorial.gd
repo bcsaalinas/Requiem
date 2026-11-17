@@ -4,6 +4,8 @@ signal stage_changed(stage: String)
 signal tutorial_completed
 const World := preload("res://tutorial/world.gd")
 const Art := preload("res://tutorial/art.gd")
+const ATTACK_CANDLE_STEP := 0.6
+const ATTACK_LAST_PAUSE := 1.0
 ## Pista de ambiente real por zona (reemplaza el placeholder corto
 ## room.wav/forest.wav de tutorial/assets/audio). bedroom es la unica que se
 ## queda tranquila; hallway usa viento (corriente de aire, inquieta antes de
@@ -266,6 +268,7 @@ func _configure_entity() -> void:
 	entity.active=false
 	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
+	world.props["friend"].visible = not attack_finished
 	# The opening forest and impossible room suggest a presence through spatial sound.
 	# No invisible active monster: the physical threat exists only after the altar attack.
 	if zone == "house" and attack_finished:
@@ -778,25 +781,27 @@ func _tick_sequence(delta: float) -> void:
 			Kiosk.go_to_title.call_deferred()
 		return
 	if sequence!="attack": return
-	if sequence_time>=0.9 and sequence_step==0:
-		sequence_step=1
-		world.set_house_light_out("AltarLeftLight","altar_candle_left")
-	if sequence_time>=1.6 and sequence_step==1:
-		sequence_step=2
-		world.set_house_light_out("AltarRightLight","altar_candle_right")
-	if sequence_time>=2.3 and sequence_step==2:
-		sequence_step=3
+	var last_candle: int=World.ATTACK_CANDLES.size()-1
+	var last_candle_time: float=0.9+ATTACK_CANDLE_STEP*(last_candle-1)+ATTACK_LAST_PAUSE
+	if sequence_step<last_candle and sequence_time>=0.9+ATTACK_CANDLE_STEP*sequence_step:
+		world.set_candle_out(World.ATTACK_CANDLES[sequence_step],true)
+		sequence_step+=1
+		if sequence_step==last_candle:
+			prayer_audio.stop()
+			var friend_rig: CharacterSprite = world.props["friend"].rig
+			friend_rig.set_rate(&"upper",0.0)
+			friend_rig.set_rate(&"lower",0.0)
+	if sequence_step==last_candle and sequence_time>=last_candle_time:
+		sequence_step+=1
+		world.set_candle_out(World.ATTACK_CANDLES[last_candle],true)
+		world.props["friend"].hide()
+		world.props["friend"].fallen=true
 		var spawn: Vector2 = world.marker("house","EntitySpawn")
 		play_sound("thud",spawn,-2)
 		NoiseManager.emit_noise(spawn,256,NoiseManager.SourceType.ENVIRONMENT)
-		world.set_house_light_out("VestibuleLight","vestibule_candle")
-		prayer_audio.stop()
-		var friend_rig: CharacterSprite = world.props["friend"].rig
-		friend_rig.set_rate(&"upper",0.0)
-		friend_rig.set_rate(&"lower",0.0)
 		caption("[A gasp. Something heavy falls.]")
-	if sequence_time>=3.6 and sequence_step==3:
-		sequence_step=4
+	if sequence_step==last_candle+1 and sequence_time>=last_candle_time+1.3:
+		sequence_step+=1
 		world.props["friend"].fallen=true
 		prayer_audio.stop()
 		attack_finished=true
