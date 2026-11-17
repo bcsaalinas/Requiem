@@ -6,6 +6,9 @@ const World := preload("res://tutorial/world.gd")
 const Art := preload("res://tutorial/art.gd")
 const ATTACK_CANDLE_STEP := 0.6
 const ATTACK_LAST_PAUSE := 1.0
+const HEARD_PHASE := 20.0
+const HEARD_PHASE_RETRY := 8.0
+const HEARD_BEAM_WAIT := 3.0
 ## Pista de ambiente real por zona (reemplaza el placeholder corto
 ## room.wav/forest.wav de tutorial/assets/audio). bedroom es la unica que se
 ## queda tranquila; hallway usa viento (corriente de aire, inquieta antes de
@@ -89,6 +92,14 @@ var breathing_captioned := false
 var entity_was_screaming := false
 var banner_time := 0.0
 var encounter_grace := 0.0
+var heard_length := 0.0
+var heard_step := 0
+var heard_at := Vector2.INF
+var heard_phase_seen := false
+var arrival_place := Vector2.INF
+var arrival_target := Vector2.ZERO
+var arrival_wait := 0.0
+var _beam_image: Image
 var resetting := false
 var sequence := ""
 var sequence_time := 0.0
@@ -268,6 +279,7 @@ func _configure_entity() -> void:
 	entity.active=false
 	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
+	arrival_place=Vector2.INF
 	world.props["friend"].visible = not attack_finished
 	# The opening forest and impossible room suggest a presence through spatial sound.
 	# No invisible active monster: the physical threat exists only after the altar attack.
@@ -275,12 +287,14 @@ func _configure_entity() -> void:
 		var points: Array[Vector2] = []
 		for index in range(1,7):
 			points.append(world.marker("house","Patrol%d" % index))
-		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
-		entity.show()
-		encounter_grace=5.0
-		if not breathing_captioned:
-			breathing_captioned=true
-			caption("[Wet breathing]")
+		entity.reset_encounter(world.marker("house","EntityArrive"),points)
+		entity.set_breathing(false)
+		entity.get_node("CollisionShape2D").set_deferred("disabled",true)
+		encounter_grace=HEARD_PHASE_RETRY if heard_phase_seen else HEARD_PHASE
+		heard_length=encounter_grace
+		heard_phase_seen=true
+		heard_step=0
+		heard_at=Vector2.INF
 
 func _process(delta: float) -> void:
 	if _paused: return
@@ -310,11 +324,8 @@ func _process(delta: float) -> void:
 		_tick_ranger_checkpoint()
 		if not dialogue.is_empty(): return
 	if sequence!="": _tick_sequence(delta)
-	if encounter_grace>0:
-		encounter_grace-=delta
-		if encounter_grace<=0 and not complete and entity.visible:
-			entity.active=true
-			entity.notice(friend_home)
+	if encounter_grace>0: _tick_heard_phase(delta)
+	if arrival_place!=Vector2.INF: _tick_arrival(delta)
 	if zone=="hallway": _tick_hallway(delta)
 	if zone=="forest" and not forest_cued and player.position.x>3500:
 		forest_cued=true
@@ -750,10 +761,74 @@ func _begin_attack() -> void:
 	thrower.available=false
 	world.props["friend"].kneel()
 	if not test_mode: prayer_audio.play()
-	var scrape := play_sound("presence",friend_home+Vector2(-110,-150))
+	var front_door: Door = world.interactables["front_door"]["node"]
+	var scrape := play_sound("presence",front_door.global_position)
 	if scrape != null:
-		scrape.create_tween().tween_property(scrape,"position",friend_home+Vector2(100,-150),2.3)
-	caption("[Scraping behind the wall]")
+		scrape.finished.disconnect(scrape.queue_free)
+		scrape.finished.connect(scrape.play)
+		var tween := scrape.create_tween()
+		var previous := 0.0
+		for index in World.ATTACK_CANDLES.size():
+			tween.tween_property(scrape,"position",world.props[World.ATTACK_CANDLES[index]].global_position,_attack_candle_time(index)-previous)
+			previous=_attack_candle_time(index)
+		tween.tween_callback(scrape.queue_free)
+	caption("[Something drags across the floor]")
+
+func _attack_candle_time(index: int) -> float:
+	var last: int=World.ATTACK_CANDLES.size()-1
+	return 0.9+ATTACK_CANDLE_STEP*mini(index,last-1)+(ATTACK_LAST_PAUSE if index==last else 0.0)
+
+func _tick_heard_phase(delta: float) -> void:
+	encounter_grace-=delta
+	var elapsed: float=heard_length-encounter_grace
+	var beat: float=heard_length/HEARD_PHASE
+	var house: Vector2=world.zones["house"].global_position
+	if heard_step==0 and elapsed>=5.0*beat:
+		heard_step=1
+		heard_at=house+Vector2(544,690)
+		play_sound("presence",heard_at)
+	if heard_step==1 and elapsed>=9.0*beat:
+		heard_step=2
+		heard_at=house+Vector2(700,470)
+		play_sound("presence",heard_at)
+	if heard_step==2 and elapsed>=13.0*beat:
+		heard_step=3
+		heard_at=house+Vector2(832,512)
+		entity.global_position=heard_at
+		entity.set_breathing(true)
+		if not breathing_captioned:
+			breathing_captioned=true
+			caption("[Wet breathing]")
+	if heard_step==3 and elapsed>=17.0*beat:
+		heard_step=4
+		heard_at=world.marker("house","EntityArrive")
+		entity.global_position=heard_at
+	if encounter_grace<=0 and not complete:
+		_arrive(world.marker("house","EntityArrive"),friend_home)
+
+func _arrive(place: Vector2, target: Vector2) -> void:
+	arrival_place=NavigationServer2D.map_get_closest_point(world.landmarks["HouseNavigation"].get_navigation_map(),place)
+	arrival_target=target
+	arrival_wait=HEARD_BEAM_WAIT
+
+func _tick_arrival(delta: float) -> void:
+	arrival_wait-=delta
+	if arrival_wait>0 and _in_beam(arrival_place): return
+	entity.global_position=arrival_place
+	entity.get_node("CollisionShape2D").set_deferred("disabled",false)
+	entity.show()
+	entity.active=true
+	entity.notice(arrival_target)
+	arrival_place=Vector2.INF
+
+func _in_beam(at: Vector2) -> bool:
+	if not flashlight.enabled or flashlight.texture == null: return false
+	if _beam_image == null: _beam_image=flashlight.texture.get_image()
+	var local: Vector2=flashlight.global_transform.affine_inverse()*at
+	var pixel: Vector2=(local-flashlight.offset)/flashlight.texture_scale+Vector2(_beam_image.get_size())*0.5
+	if not Rect2(Vector2.ZERO,Vector2(_beam_image.get_size())).has_point(pixel): return false
+	var texel: Color=_beam_image.get_pixelv(Vector2i(pixel))
+	return texel.a*texel.v>0.05
 
 func _tick_sequence(delta: float) -> void:
 	sequence_time+=delta
@@ -782,8 +857,8 @@ func _tick_sequence(delta: float) -> void:
 		return
 	if sequence!="attack": return
 	var last_candle: int=World.ATTACK_CANDLES.size()-1
-	var last_candle_time: float=0.9+ATTACK_CANDLE_STEP*(last_candle-1)+ATTACK_LAST_PAUSE
-	if sequence_step<last_candle and sequence_time>=0.9+ATTACK_CANDLE_STEP*sequence_step:
+	var last_candle_time: float=_attack_candle_time(last_candle)
+	if sequence_step<last_candle and sequence_time>=_attack_candle_time(sequence_step):
 		world.set_candle_out(World.ATTACK_CANDLES[sequence_step],true)
 		sequence_step+=1
 		if sequence_step==last_candle:
@@ -796,9 +871,8 @@ func _tick_sequence(delta: float) -> void:
 		world.set_candle_out(World.ATTACK_CANDLES[last_candle],true)
 		world.props["friend"].hide()
 		world.props["friend"].fallen=true
-		var spawn: Vector2 = world.marker("house","EntitySpawn")
-		play_sound("thud",spawn,-2)
-		NoiseManager.emit_noise(spawn,256,NoiseManager.SourceType.ENVIRONMENT)
+		play_sound("thud",friend_home,-2)
+		NoiseManager.emit_noise(friend_home,256,NoiseManager.SourceType.ENVIRONMENT)
 		caption("[A gasp. Something heavy falls.]")
 	if sequence_step==last_candle+1 and sequence_time>=last_candle_time+1.3:
 		sequence_step+=1
@@ -815,6 +889,12 @@ func _tick_sequence(delta: float) -> void:
 		sequence=""
 
 func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> void:
+	if encounter_grace>0 and zone=="house" and not resetting and source in PLAYER_SOUNDS:
+		var front_door: Door = world.interactables["front_door"]["node"]
+		var reach: Vector2=heard_at if heard_at!=Vector2.INF else front_door.global_position
+		if at.distance_to(reach)<=radius:
+			encounter_grace=0.0
+			_arrive(reach,at)
 	# The unseen passages answer audible player actions, without an invisible capture body.
 	# This preserves a readable relationship between breath, footfalls and environmental response.
 	if zone in ["forest","loop"] and not resetting and ambient_reply_cooldown<=0:

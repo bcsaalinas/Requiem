@@ -214,6 +214,12 @@ func _remember(at: Vector2) -> void:
 	if _memory.size() > 4:
 		_memory.pop_front()
 
+func set_breathing(on: bool) -> void:
+	if on:
+		_resume_breathing()
+	else:
+		_breath_player.stop()
+
 func _resume_breathing() -> void:
 	if not _breath_player.playing:
 		_play_breath_clip()
