@@ -618,7 +618,7 @@ func interact(id: String) -> void:
 		"ranger":
 			say("RANGER: This trail is closed tonight. Head back home.", 5.0)
 		"house_back":
-			if attack_finished: say("The path has disappeared into the dark.")
+			if attack_finished: say("The path is gone.")
 			else: enter_zone("forest",world.marker("forest","SpawnFromHouse"))
 		"window":
 			if window_broken:
@@ -646,7 +646,7 @@ func interact(id: String) -> void:
 			world.props["friend"].face_and_stand(player.global_position)
 			prayer_audio.stop()
 			show_dialogue([
-				"ELI: My aunt said we had to come here and pray at the altars. It keeps something here.",
+				"ELI: My aunt said we have to pray at the altars. It keeps something here.",
 				"ELI: Wait. Do you hear that?"
 			],_begin_attack)
 		"loop_back": pass
@@ -984,7 +984,7 @@ func _parent_doorway_notice(listener: ParentListener) -> void:
 	world.zones["hallway"].add_child(notice)
 	var cut_x := 88.0
 	notice.global_position = closest_door.global_position + Vector2(32.0 - (cut_x - 80.0) * Units.ART_SCALE, -48.0)
-	notice.play(&"upper", "parent_doorway_notice", {"loop": false, "hold_last": true, "rate": 1.6})
+	notice.play(&"upper", "parent_doorway_notice", {"loop": false, "hold_last": true, "rate": 1.0})
 	create_tween().tween_property(closest_door, "swing", 1.0, minf(closest_door.swing_time, 0.3))
 	var blockers: Array[CanvasItem] = []
 	for path in ["Occluder", "OccluderLeaf"]:
@@ -1149,7 +1149,7 @@ func request_reset(message: String, bedroom := false) -> void:
 
 func _restore_after_delay(bedroom: bool) -> void:
 	if bedroom and not test_mode:
-		await get_tree().create_timer(.6).timeout
+		await get_tree().create_timer(.9).timeout
 		hud.shade.color=Color.BLACK
 		await get_tree().create_timer(.1).timeout
 	else:
@@ -1219,7 +1219,7 @@ func _on_ranger_spotted() -> void:
 
 func _on_ranger_caught() -> void:
 	if zone == "forest" and not resetting:
-		request_reset("The ranger caught you. Distract him with a stone, then pass behind him.")
+		request_reset("RANGER: Trail's closed. Go home.")
 
 func _tick_ranger_checkpoint() -> void:
 	var forest: Node2D = world.zones["forest"]

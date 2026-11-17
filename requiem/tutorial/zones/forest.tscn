@@ -116,7 +116,7 @@ position = Vector2(1320, 540)
 script = ExtResource("6_gscj6")
 kind = "marker"
 metadata/interaction_id = "forest_exit"
-metadata/interaction_label = "Follow the path to the house"
+metadata/interaction_label = "Go on"
 
 [node name="ExitLamp" type="Node2D" parent="Props" unique_id=2131959633 instance=ExtResource("7_drsj5")]
 position = Vector2(1290, 510)
