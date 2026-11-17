@@ -201,9 +201,10 @@ func _sync_blockers() -> void:
 	var shape := get_node_or_null("Blocker/Shape") as CollisionShape2D
 	if shape != null:
 		shape.set_deferred("disabled", is_open)
-	var occluder := get_node_or_null("Occluder") as LightOccluder2D
-	if occluder != null:
-		occluder.visible = not is_open
+	for occluder_name in ["Occluder", "OccluderLeaf"]:
+		var occluder := get_node_or_null(occluder_name) as LightOccluder2D
+		if occluder != null:
+			occluder.visible = not is_open
 
 
 func _apply_swing() -> void:
