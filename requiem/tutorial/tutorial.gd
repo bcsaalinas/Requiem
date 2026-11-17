@@ -725,7 +725,7 @@ func _update_threat_presentation() -> void:
 ## Shown on the capture screen: the sound that gave the player away.
 func game_over_cause() -> String:
 	if entity.last_heard_source < 0: return "It found you in the dark."
-	return "It heard your %s." % _noise_name(entity.last_heard_source).replace(" right by the door","")
+	return "It heard you."
 
 ## Bug fix: the entrance stays a visible door and swings shut once the player is inside.
 func _shut_front_door_behind() -> void:
