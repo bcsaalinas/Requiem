@@ -277,7 +277,7 @@ position = Vector2(176, 800)
 position = Vector2(608, 800)
 script = ExtResource("21_5l22i")
 energy = 1.2
-reach = 1.8
+reach = 2.0
 
 [node name="house_back" type="Node2D" parent="Props" unique_id=1344128710]
 light_mask = 2

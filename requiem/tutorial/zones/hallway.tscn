@@ -330,6 +330,7 @@ position = Vector2(944, 352)
 shape = SubResource("RectangleShape2D_oru21")
 
 [node name="FinalDoorPool" type="PointLight2D" parent="." unique_id=1818344250]
+enabled = false
 position = Vector2(875, 365)
 color = Color(0.94, 0.77, 0.54, 1)
 energy = 1.1

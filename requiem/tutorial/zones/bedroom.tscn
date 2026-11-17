@@ -160,8 +160,7 @@ position = Vector2(410, -250)
 color = Color(0.5411765, 0.627451, 0.7058824, 1)
 energy = 1.15
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
+shadow_filter = 0
 texture = ExtResource("14_qcv8i")
 texture_scale = 5.2
 

@@ -147,7 +147,7 @@ color = Color(0.62352943, 0.7019608, 0.76862746, 1)
 position = Vector2(884, 412)
 script = ExtResource("12_syqel")
 energy = 1.25
-reach = 1.5
+reach = 1.6
 color = Color(0.9411765, 0.78431374, 0.5647059, 1)
 
 [node name="ParentWardrobeA" type="Node2D" parent="Props" unique_id=2070999330 instance=ExtResource("10_syqel")]
