@@ -16,7 +16,7 @@ signal player_exited(room: Room)
 ## room leads outside (or to another zone).
 @export var doors: Array[Door] = []
 ## Seconds the cover takes to fade in or out.
-@export_range(0.0, 2.0, 0.05) var fade_time := 0.3
+@export_range(0.0, 2.0, 0.05) var fade_time := 0.0
 
 var revealed := true
 var _tween: Tween

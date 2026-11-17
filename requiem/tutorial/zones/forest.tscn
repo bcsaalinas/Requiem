@@ -446,7 +446,7 @@ script = ExtResource("ranger_visual")
 
 [node name="ThrowTarget" type="Node2D" parent="." unique_id=632276324]
 visible = false
-z_index = 3
+z_index = 42
 position = Vector2(815, 540)
 
 [node name="Pool" type="PointLight2D" parent="ThrowTarget" unique_id=1697274704]
@@ -493,7 +493,7 @@ tile_map_data = PackedByteArray("AAABAAAAAAAHAAYABAABAAEAAAAGAAUABAABAAIAAAAGAAY
 tile_set = ExtResource("14_hvswp")
 
 [node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=1667237075 node_paths=PackedStringArray("source")]
-z_index = 2
+z_index = 41
 scale = Vector2(0.4, 0.4)
 script = ExtResource("15_rq8ch")
 source = NodePath("../ArtWallTops")

@@ -320,7 +320,7 @@ func _bake_zone(zone: String) -> void:
 
 	var shifted := HeightShiftedTiles.new()
 	shifted.name = "ArtWallTopsShifted"
-	shifted.z_index = 2
+	shifted.z_index = 41
 	shifted.scale = Vector2.ONE * Units.ART_SCALE
 	zone_root.add_child(shifted)
 	shifted.source = tops_layer

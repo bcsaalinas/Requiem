@@ -33,7 +33,7 @@ func _ready() -> void:
 	aim_arc.top_level = true
 	aim_arc.width = 1.5
 	aim_arc.default_color = Color(0.85,0.79,0.63,0.65)
-	aim_arc.z_index = 10
+	aim_arc.z_index = 49
 	add_child(aim_arc)
 	aim_arc.hide()
 
