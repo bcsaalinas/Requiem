@@ -20,6 +20,22 @@ var _reveal_active := false
 var _altar_active := false
 
 
+func _enter_tree() -> void:
+	PixelDisplay.attach_camera($Camera2D)
+	get_tree().root.size_changed.connect(_use_world_size)
+	_use_world_size()
+
+
+func _exit_tree() -> void:
+	PixelDisplay.detach_camera($Camera2D)
+	get_tree().root.size_changed.disconnect(_use_world_size)
+
+
+## The addon sizes its limit maths from the window; the camera really renders the fixed world image.
+func _use_world_size() -> void:
+	PhantomCameraManager.screen_size = PixelDisplay.WORLD_SIZE
+
+
 func setup(actor: CharacterBody2D, world: Node2D) -> void:
 	player = actor
 	shots.assign([exploration, hallway, reveal, altar, reset])

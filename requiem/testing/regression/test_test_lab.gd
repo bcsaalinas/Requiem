@@ -36,7 +36,7 @@ func _ready() -> void:
 	lab.active_scene.jump_to_zone(2)
 	await frames(4)
 	check(lab.active_scene.zone == "forest", "Comparison area shortcuts still work")
-	check(get_viewport().get_camera_2d() == lab.active_scene.camera_rig.camera, "Comparison owns the active camera")
+	check(PixelDisplay.world_view.get_camera_2d() == lab.active_scene.camera_rig.camera, "Comparison owns the active camera")
 	await lab.launch(lab.SANDBOX)
 	await frames(20)
 	var sandbox = lab.active_scene
@@ -70,7 +70,7 @@ func check_breath_studio(lab: Node) -> void:
 		"Breath studio starts with visible equipped light")
 	var studio_controls: Rect2 = studio.studio_status.get_parent().get_parent().get_global_rect()
 	check(studio_controls.end.y <= lab.toolbar.position.y
-		and get_viewport().get_visible_rect().encloses(studio_controls),
+		and Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS).encloses(studio_controls),
 		"Breath studio controls fit the viewport above the lab return toolbar")
 	check(studio.equipment_button.focus_mode == Control.FOCUS_NONE
 		and studio.area_selector.focus_mode == Control.FOCUS_NONE
@@ -154,7 +154,7 @@ func check_throw_studio(lab: Node) -> void:
 		and studio.area_selector.focus_mode == Control.FOCUS_NONE,
 		"Throw studio controls leave gameplay keys available after clicking")
 	var controls: Rect2 = studio.studio_status.get_parent().get_parent().get_global_rect()
-	check(controls.end.y <= lab.toolbar.position.y and get_viewport().get_visible_rect().encloses(controls),
+	check(controls.end.y <= lab.toolbar.position.y and Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS).encloses(controls),
 		"Throw studio controls fit the viewport above the lab return toolbar")
 	studio.player.get_node("PlayerAim").set_target(studio.player.global_position + Vector2.DOWN * 200.0)
 	Input.action_press("throw")
@@ -232,7 +232,7 @@ func check_prayer_studio(lab: Node) -> void:
 		and studio.heading_selector.focus_mode == Control.FOCUS_NONE,
 		"Prayer studio controls leave E and Space available after clicking presets")
 	var controls: Rect2 = studio.studio_status.get_parent().get_parent().get_global_rect()
-	check(controls.end.y <= lab.toolbar.position.y and get_viewport().get_visible_rect().encloses(controls),
+	check(controls.end.y <= lab.toolbar.position.y and Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS).encloses(controls),
 		"Prayer studio controls fit the viewport above the lab return toolbar")
 	Input.action_press("pray")
 	await frames(7)
@@ -334,7 +334,7 @@ func check_sprint_studio(lab: Node) -> void:
 		and dust.enabled and dust.effects_strength == 1.0 and dust.particles.is_empty(),
 		"Sprint studio starts on the open rug with enabled, empty ground dust")
 	var controls: Rect2 = studio.studio_status.get_parent().get_parent().get_global_rect()
-	check(controls.end.y <= lab.toolbar.position.y and get_viewport().get_visible_rect().encloses(controls),
+	check(controls.end.y <= lab.toolbar.position.y and Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS).encloses(controls),
 		"Sprint studio controls fit above the lab return toolbar")
 	check(studio.equipment_button.focus_mode == Control.FOCUS_NONE
 		and studio.area_selector.focus_mode == Control.FOCUS_NONE

@@ -15,12 +15,12 @@ func check(ok: bool, message: String) -> void:
 func frame() -> Image:
 	for i in range(3): await get_tree().process_frame
 	await RenderingServer.frame_post_draw
-	return get_viewport().get_texture().get_image()
+	return PixelDisplay.world_view.get_texture().get_image()
 
 func sprite_luminance(picture: Image, sprite: Sprite2D) -> float:
 	var atlas := sprite.texture.get_image()
-	# The window may be resized by the desktop; samples must use rendered pixels.
-	var transform := get_viewport().get_final_transform()*sprite.get_global_transform_with_canvas()
+	# Samples use the fixed world image, which does not depend on the window size.
+	var transform := PixelDisplay.world_view.canvas_transform*sprite.get_global_transform()
 	var bounds: Vector4 = sprite.material.get_shader_parameter("atlas_bounds")
 	var total := 0.0
 	var count := 0
@@ -37,7 +37,7 @@ func sprite_luminance(picture: Image, sprite: Sprite2D) -> float:
 	return total/maxi(count,1)
 
 func probe_value(picture: Image, receiver: CanvasItem) -> float:
-	var pixel := Vector2i(get_viewport().get_final_transform()*receiver.get_global_transform_with_canvas()*Vector2(6,6))
+	var pixel := Vector2i(PixelDisplay.world_view.canvas_transform*receiver.get_global_transform()*Vector2(6,6))
 	return picture.get_pixelv(pixel).get_luminance()
 
 func _ready() -> void:

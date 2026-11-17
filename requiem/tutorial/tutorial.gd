@@ -119,8 +119,13 @@ var _sounds: Dictionary = {}
 
 func _enter_tree() -> void:
 	GameState.reset()
+	PixelDisplay.attach_world_layer($Atmosphere)
 
 func _ready() -> void:
+	var atmosphere_film := $Atmosphere/Film as Control
+	atmosphere_film.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	atmosphere_film.position = Vector2.ZERO
+	atmosphere_film.size = Vector2(PixelDisplay.WORLD_SIZE)
 	if not test_mode: Kiosk.enter_fullscreen()
 	# Beyond the walls is void: black, like the unlit rooms.
 	RenderingServer.set_default_clear_color(Color.BLACK)

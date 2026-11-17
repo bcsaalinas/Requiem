@@ -13,6 +13,18 @@ var _last_target := Vector2.ZERO
 var _was_enabled := false
 
 
+func _init() -> void:
+	custom_viewport = PixelDisplay.world_view
+
+
+func _enter_tree() -> void:
+	PixelDisplay.attach_camera(self)
+
+
+func _exit_tree() -> void:
+	PixelDisplay.detach_camera(self)
+
+
 func _ready() -> void:
 	top_level = true
 	position_smoothing_enabled = false
@@ -48,7 +60,7 @@ func _target() -> Vector2:
 
 func _apply() -> void:
 	var step := Vector2.ONE / zoom
-	var half_view := get_viewport_rect().size * 0.5 / zoom
+	var half_view := Vector2(PixelDisplay.WORLD_SIZE) * 0.5 / zoom
 	global_position = Vector2(
 		_axis(_smoothed.x, limit_left, limit_right, half_view.x, step.x),
 		_axis(_smoothed.y, limit_top, limit_bottom, half_view.y, step.y))

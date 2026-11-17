@@ -138,6 +138,9 @@ func _build_main() -> Control:
 	))
 	box.add_child(_menu_button("Controls", func(): _show_page("controls")))
 	box.add_child(_menu_button("Audio", func(): _show_page("audio")))
+	var display_mode := _menu_button(Preferences.display_caption(), Preferences.toggle_display_mode)
+	Preferences.display_mode_changed.connect(func(): display_mode.text = Preferences.display_caption())
+	box.add_child(display_mode)
 	box.add_child(_menu_button("Quit to desktop", func():
 		quit_pressed.emit()
 		get_tree().quit()

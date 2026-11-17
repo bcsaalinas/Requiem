@@ -32,9 +32,13 @@ func _ready() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 110
 	add_child(layer)
+	var ui := Control.new()
+	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	LegacyUi.fit_root(ui)
+	layer.add_child(ui)
 	menu = PanelContainer.new()
-	LegacyUi.fit_root(menu)
-	layer.add_child(menu)
+	ui.add_child(menu)
+	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var center := CenterContainer.new()
 	menu.add_child(center)
 	var choices := VBoxContainer.new()
@@ -60,8 +64,7 @@ func _ready() -> void:
 	choices.add_child(help)
 	toolbar = HBoxContainer.new()
 	toolbar.position = Vector2(20, 116)
-	toolbar.scale = Vector2.ONE * LegacyUi.SCALE
-	layer.add_child(toolbar)
+	ui.add_child(toolbar)
 	add_button(toolbar, "F1 · Test Lab", show_menu)
 	add_button(toolbar, "Restart test", restart)
 	toolbar.hide()
