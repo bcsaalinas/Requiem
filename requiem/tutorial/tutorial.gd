@@ -88,6 +88,10 @@ var subtitle_time := 0.0
 var caption_time := 0.0
 var space_hint := false
 var flash_hint_time := 0.0
+var sprint_hint_time := 0.0
+var has_sprinted := false
+var _sprint_seen := 0.0
+var _sprint_hint_offered := false
 var has_thrown := false
 var prayer_captioned := false
 var breathing_captioned := false
@@ -274,6 +278,9 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 		world.zones["forest"].get_node("Ranger").reset_patrol()
 		ranger_checkpoint_ready = false
 		world.zones["forest"].get_node("ThrowTarget").hide()
+		if save and not _sprint_hint_offered:
+			sprint_hint_time = 8.0
+			_sprint_hint_offered = true
 	if zone == "hallway":
 		hall_door_cues.clear()
 		hall_stirred.clear()
@@ -354,11 +361,16 @@ func _process(delta: float) -> void:
 
 func _update_key_hint(delta: float) -> void:
 	flash_hint_time=maxf(0.0,flash_hint_time-delta)
+	if dialogue.is_empty(): sprint_hint_time=maxf(0.0,sprint_hint_time-delta)
+	if player.is_sprinting:
+		_sprint_seen += delta
+		if _sprint_seen >= 0.3: has_sprinted = true
 	if breath.is_holding: space_hint=false
 	var text := ""
 	if space_hint and zone=="hallway": text="SPACE · Hold breath"
 	elif has_flashlight and batteries>0 and flashlight.battery_percent<=flashlight.low_battery_threshold: text="B · Battery"
 	elif thrower.rocks>0 and not has_thrown: text="Q · Throw"
+	elif zone=="forest" and not has_sprinted and sprint_hint_time>0: text="SHIFT · Sprint"
 	elif flash_hint_time>0: text="F · Light"
 	hud.show_key_hint(text, get_canvas_transform()*player.global_position)
 
@@ -1203,6 +1215,7 @@ func _toggle_pause() -> void:
 func _on_ranger_spotted() -> void:
 	if zone == "forest" and not resetting:
 		say("RANGER: You there! Stop!", 3.0)
+		if not has_sprinted: sprint_hint_time = 4.0
 
 func _on_ranger_caught() -> void:
 	if zone == "forest" and not resetting:
