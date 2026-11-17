@@ -432,6 +432,9 @@ func _on_clip_finished(part: StringName, clip: StringName) -> void:
 		_arm_sequence.pop_front()
 		_start_arm_sequence()
 		return
+	if part == &"upper" and clip == &"girl_breath_hold_in_upper" and _hold_phase == "hold_in":
+		_hold_phase = "hold_loop"
+		return
 	if part != &"upper" or _sequence.is_empty() or _frozen:
 		return
 	if clip != StringName("girl_%s_upper" % _sequence[0]):
