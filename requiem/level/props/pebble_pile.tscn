@@ -1,27 +1,73 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://level/props/pebble_pile.gd" id="1_pile"]
 [ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_a.png" id="2_a"]
 [ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_b.png" id="3_b"]
 [ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_c.png" id="4_c"]
-[ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_a_glint.png" id="5_glint"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_a_glint.png" id="5_glint_a"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_b_glint.png" id="6_glint_b"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_pebble_c_glint.png" id="7_glint_c"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_glint0"]
-atlas = ExtResource("5_glint")
+[sub_resource type="AtlasTexture" id="AtlasTexture_glint_a0"]
+atlas = ExtResource("5_glint_a")
 region = Rect2(0, 0, 12, 12)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_glint1"]
-atlas = ExtResource("5_glint")
+[sub_resource type="AtlasTexture" id="AtlasTexture_glint_a1"]
+atlas = ExtResource("5_glint_a")
 region = Rect2(12, 0, 12, 12)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_glint"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_glint_a"]
 animations = [{
 "frames": [{
 "duration": 0.16,
-"texture": SubResource("AtlasTexture_glint0")
+"texture": SubResource("AtlasTexture_glint_a0")
 }, {
 "duration": 0.48,
-"texture": SubResource("AtlasTexture_glint1")
+"texture": SubResource("AtlasTexture_glint_a1")
+}],
+"loop": true,
+"name": &"glint",
+"speed": 1.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_glint_b0"]
+atlas = ExtResource("6_glint_b")
+region = Rect2(0, 0, 12, 12)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_glint_b1"]
+atlas = ExtResource("6_glint_b")
+region = Rect2(12, 0, 12, 12)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_glint_b"]
+animations = [{
+"frames": [{
+"duration": 0.16,
+"texture": SubResource("AtlasTexture_glint_b0")
+}, {
+"duration": 0.48,
+"texture": SubResource("AtlasTexture_glint_b1")
+}],
+"loop": true,
+"name": &"glint",
+"speed": 1.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_glint_c0"]
+atlas = ExtResource("7_glint_c")
+region = Rect2(0, 0, 12, 12)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_glint_c1"]
+atlas = ExtResource("7_glint_c")
+region = Rect2(12, 0, 12, 12)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_glint_c"]
+animations = [{
+"frames": [{
+"duration": 0.16,
+"texture": SubResource("AtlasTexture_glint_c0")
+}, {
+"duration": 0.48,
+"texture": SubResource("AtlasTexture_glint_c1")
 }],
 "loop": true,
 "name": &"glint",
@@ -33,31 +79,61 @@ z_index = 1
 script = ExtResource("1_pile")
 
 [node name="A" type="Sprite2D" parent="."]
-position = Vector2(-6.4, -1.6)
+position = Vector2(-10.4, -2.4)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("2_a")
 
 [node name="B" type="Sprite2D" parent="."]
-position = Vector2(-1.6, -4.8)
+position = Vector2(-5.6, -7.2)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_b")
 
 [node name="C" type="Sprite2D" parent="."]
-position = Vector2(3.2, -0.8)
+position = Vector2(0.8, -4)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("4_c")
 
 [node name="A2" type="Sprite2D" parent="."]
-position = Vector2(5.6, 3.2)
+position = Vector2(6.4, -8)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("2_a")
 
 [node name="B2" type="Sprite2D" parent="."]
-position = Vector2(-3.2, 2.4)
+position = Vector2(10.4, -1.6)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_b")
 
+[node name="C2" type="Sprite2D" parent="."]
+position = Vector2(4.8, 3.2)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("4_c")
+
+[node name="A3" type="Sprite2D" parent="."]
+position = Vector2(-2.4, 2.4)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_a")
+
+[node name="B3" type="Sprite2D" parent="."]
+position = Vector2(-8, 5.6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_b")
+
+[node name="C3" type="Sprite2D" parent="."]
+position = Vector2(1.6, 8.8)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("4_c")
+
 [node name="Glint" type="AnimatedSprite2D" parent="A"]
-sprite_frames = SubResource("SpriteFrames_glint")
+sprite_frames = SubResource("SpriteFrames_glint_a")
+animation = &"glint"
+autoplay = "glint"
+
+[node name="Glint" type="AnimatedSprite2D" parent="B2"]
+sprite_frames = SubResource("SpriteFrames_glint_b")
+animation = &"glint"
+autoplay = "glint"
+
+[node name="Glint" type="AnimatedSprite2D" parent="C3"]
+sprite_frames = SubResource("SpriteFrames_glint_c")
 animation = &"glint"
 autoplay = "glint"
