@@ -140,6 +140,11 @@ func attach_world_layer(layer: CanvasLayer) -> void:
 	layer.custom_viewport = world_view
 
 
+## True while a camera renders the world.
+func has_camera() -> bool:
+	return not _cameras.is_empty()
+
+
 func _update_active() -> void:
 	var active := not _cameras.is_empty()
 	world_view.render_target_update_mode = SubViewport.UPDATE_ALWAYS if active else SubViewport.UPDATE_DISABLED
