@@ -2,8 +2,8 @@ extends Node2D
 ## Draws La Amortajada with the entity-lab sprite sheets (tutorial/assets/art/entity, copied from
 ## entity-lab/art_drop/entity with the same folder layout), driven by the AI of its parent
 ## (tutorial/entity.gd). Frame numbers, timings, joins and head rules follow each clip's NOTES.md
-## in entity-lab. Body and head are drawn only where a light lands (lit_material, light layer 3);
-## the scream and ear effects ignore lighting, so the player feels them in the dark.
+## in entity-lab. Body, head and the scream and ear effects are all drawn only where a light lands
+## (lit_material, light layer 3): in the dark the scream is heard, not seen.
 ##
 ## AI state -> clip: PATROL moving = walk, PATROL still = idle, listening = listen,
 ## scream hold = hunt_start, HUNT moving = pursuit, HUNT/SEARCH still = feel,
@@ -128,14 +128,16 @@ func _ready() -> void:
 	_entity = get_parent()
 	scale = Vector2(0.4, 0.4)
 	z_index = 1
-	_scream_back = _sprite("ScreamBack", true)
-	_body = _sprite("Body", false)
-	_head = _sprite("Head", false)
-	_ear = _sprite("EarVfx", true)
-	_scream_front = _sprite("ScreamFront", true)
-	for sprite in [_body, _head]:
+	_scream_back = _sprite("ScreamBack")
+	_body = _sprite("Body")
+	_head = _sprite("Head")
+	_ear = _sprite("EarVfx")
+	_scream_front = _sprite("ScreamFront")
+	for sprite in [_scream_back, _body, _head, _ear, _scream_front]:
 		sprite.material = lit_material
 		sprite.light_mask = 4
+	for sprite in [_scream_back, _ear, _scream_front]:
+		sprite.hide()
 	_ok = _load_art()
 	if not _ok:
 		for line in load_errors:
@@ -172,9 +174,9 @@ func reset() -> void:
 	rotation = heading - PI * 0.5
 
 
-## Review only: false draws body and head unlit (true sprite colours, no light needed).
+## Review only: false draws body, head and effects unlit (true sprite colours, no light needed).
 func set_lit(on: bool) -> void:
-	for sprite in [_body, _head]:
+	for sprite in [_scream_back, _body, _head, _ear, _scream_front]:
 		sprite.material = lit_material if on else null
 		sprite.light_mask = 4 if on else 1
 
@@ -231,15 +233,9 @@ func _load_art() -> bool:
 	return true
 
 
-func _sprite(node_name: String, unshaded: bool) -> Sprite2D:
+func _sprite(node_name: String) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.name = node_name
-	if unshaded:
-		# Effects ignore lighting, so the player feels them even when the entity is unseen.
-		var unshaded_material := CanvasItemMaterial.new()
-		unshaded_material.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
-		sprite.material = unshaded_material
-		sprite.hide()
 	add_child(sprite)
 	return sprite
 
