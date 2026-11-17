@@ -329,7 +329,7 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 1.2
+texture_scale = 0.8
 metadata/rest_energy = 0.75
 metadata/rest_color = "#f0c48a"
 
@@ -345,7 +345,7 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 1.2
+texture_scale = 0.8
 metadata/rest_energy = 0.75
 metadata/rest_color = "#f0c48a"
 
@@ -361,7 +361,7 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 1.2
+texture_scale = 0.8
 metadata/rest_energy = 0.75
 metadata/rest_color = "#f0c48a"
 
@@ -377,7 +377,7 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 1.2
+texture_scale = 0.8
 metadata/rest_energy = 0.75
 metadata/rest_color = "#f0c48a"
 
@@ -396,18 +396,7 @@ metadata/rest_energy = 1.1
 metadata/rest_color = "#efc68c"
 
 [node name="AltarLeftLight" type="PointLight2D" parent="Lights" unique_id=1937256068]
-position = Vector2(972, 222)
-color = Color(0.9411765, 0.76862746, 0.5411765, 1)
-range_item_cull_mask = 5
-shadow_enabled = true
-shadow_filter = 0
-texture = ExtResource("light_vel")
-texture_scale = 1.2
-metadata/rest_energy = 1
-metadata/rest_color = "#f0c48a"
-
-[node name="AltarRightLight" type="PointLight2D" parent="Lights" unique_id=1274836064]
-position = Vector2(1042.4, 222)
+position = Vector2(1007.2, 222)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
 range_item_cull_mask = 5
 shadow_enabled = true
@@ -431,7 +420,7 @@ metadata/lighting_role = "recovery"
 [node name="WindowGlow" type="PointLight2D" parent="Lights" unique_id=1092692053]
 position = Vector2(672, 604)
 color = Color(0.9098039, 0.72156864, 0.47058824, 1)
-energy = 1.05
+energy = 0.3
 range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 0
