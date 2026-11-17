@@ -82,6 +82,7 @@ var is_open := false
 var focused := false
 var _tween: Tween
 var _hinge_base := Vector2.ZERO
+var _leaf_body_pending := false
 
 
 func _ready() -> void:
@@ -106,6 +107,8 @@ func _process(_delta: float) -> void:
 		return
 	var shift := HeightShift.offset_for(assembly.global_position)
 	hinge.position = _hinge_base + shift.rotated(-assembly.global_rotation)
+	if _leaf_body_pending:
+		_update_leaf_body()
 
 
 func _on_doorway_body_entered(body: Node2D) -> void:
@@ -207,6 +210,50 @@ func _sync_blockers() -> void:
 			# FRONT doors keep the y -80 line off: it stopped her beam 57 px
 			# before the leaf; the jamb posts seal the sides now.
 			occluder.visible = false if occluder_name == "Occluder" 				and style == Style.FRONT else not is_open
+	_sync_leaf_body()
+
+
+## The swung-open leaf gets its own Viv-only body once it lands; a shut door
+## still relies on Blocker. Layer 2 reaches only her mask, so the entity, the
+## ranger, pebbles and navigation never feel it.
+func _sync_leaf_body() -> void:
+	var shape := get_node_or_null("LeafBody/Shape") as CollisionShape2D
+	if shape == null:
+		return
+	if not is_open:
+		_leaf_body_pending = false
+		shape.set_deferred("disabled", true)
+	else:
+		_leaf_body_pending = true
+
+
+func _update_leaf_body() -> void:
+	var shape := get_node_or_null("LeafBody/Shape") as CollisionShape2D
+	var leaf := get_node_or_null("Assembly/Hinge/Leaf") as Sprite2D
+	if shape == null or leaf == null:
+		_leaf_body_pending = false
+		return
+	if not is_open or swing < 0.99:
+		return
+	var xf := global_transform.affine_inverse() * leaf.global_transform
+	var points := PackedVector2Array([xf * Vector2.ZERO, xf * Vector2(LEAF_WIDTH, 0.0), \
+		xf * Vector2(0.0, 34.0), xf * Vector2(LEAF_WIDTH, 34.0)])
+	var aabb := Rect2(points[0], Vector2.ZERO)
+	for i in range(1, points.size()):
+		aabb = aabb.expand(points[i])
+	shape.position = aabb.get_center()
+	(shape.shape as RectangleShape2D).size = aabb.size
+	# If she stands where the leaf lands, the body waits until she is clear
+	# instead of shoving or trapping her.
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape.shape
+	query.transform = global_transform * Transform2D(0.0, shape.position)
+	query.collision_mask = 1
+	for hit in get_world_2d().direct_space_state.intersect_shape(query, 8):
+		if (hit["collider"] as Node).is_in_group("player"):
+			return
+	shape.set_deferred("disabled", false)
+	_leaf_body_pending = false
 
 
 func _apply_swing() -> void:
