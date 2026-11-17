@@ -474,6 +474,7 @@ func interact(id: String) -> void:
 	if not interaction_available(id): return
 	# Distance validation is shared by normal input and tests; no remote interactions.
 	if player.position.distance_to(world.interactables[id]["position"])>85: return
+	_player_visual("play_pickup")
 	match id:
 		"abuela_note":
 			show_dialogue(["My dear, I left the flashlight beside this note. Remember to turn it off when you do not need it. — Abuela"] )
@@ -578,6 +579,7 @@ func interact(id: String) -> void:
 
 func collect(id: String) -> void:
 	collected[id]=true
+	_player_visual("play_pickup")
 	var item: Node2D = world.interactables[id]["node"]
 	play_sound("pickup",player.position)
 	# The item flies into her hands and the inventory slot pops; her animation is untouched.
@@ -837,6 +839,7 @@ func _caught() -> void:
 # derrota (GameState.player_died -> GameOverUi instancia ui/game_over.tscn).
 func _begin_game_over() -> void:
 	resetting=true
+	_player_visual("play_death")
 	entity.active=false
 	encounter_grace=0
 	player.process_mode=Node.PROCESS_MODE_DISABLED
@@ -873,7 +876,13 @@ func save_checkpoint() -> void:
 	checkpoint={"zone":zone,"position":player.position,"battery":flashlight.battery_percent,"batteries":batteries,"rocks":thrower.rocks}
 	print("[Tutorial] checkpoint: ",zone," / ",stage)
 
+## Visual-only hook into the player's animator (absent in studios that swap the rig).
+func _player_visual(method: String) -> void:
+	var animator := player.get_node_or_null("VivAnimator")
+	if animator != null: animator.call(method)
+
 func request_reset(message: String, bedroom := false) -> void:
+	_player_visual("play_caught")
 	if resetting: return
 	resetting=true
 	entity.active=false

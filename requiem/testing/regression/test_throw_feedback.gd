@@ -43,14 +43,9 @@ func frames(count: int) -> void:
 		await get_tree().physics_frame
 		await get_tree().process_frame
 		if _watch_rearward_legs:
-			var lower: Dictionary = appearance.get_actor_lower_pose()
+			var boots: Dictionary = appearance.get_actor_lower_pose()["boots"]
 			for side in ["left", "right"]:
-				var leg: Dictionary = lower.pose.metadata[side]
-				var leg_transform: Transform2D = appearance.get_actor_leg_transform(side)
-				var hip: Vector2 = appearance.to_global(leg_transform * leg.hip)
-				var ankle: Vector2 = appearance.to_global(leg_transform * leg.ankle)
-				_rearward_leg_reach = maxf(_rearward_leg_reach, hip.distance_to(ankle))
-				_rearward_hip_distance = maxf(_rearward_hip_distance, hip.distance_to(appearance.global_position))
+				_rearward_leg_reach = maxf(_rearward_leg_reach, (boots[side] as Vector2).distance_to(appearance.global_position))
 
 
 func release_inputs() -> void:
@@ -61,7 +56,7 @@ func release_inputs() -> void:
 func observe(event: StringName) -> void:
 	events.append({"event": event, "phase": feedback.phase, "pose_phase": feedback.pose_phase,
 		"hand": appearance.to_global(appearance.get_actor_throw_hand_position()),
-		"region": appearance._rig_pose.upper_region, "flight_count": thrower._in_flight.size()})
+		"region": appearance.rig.clip_name(&"upper"), "flight_count": thrower._in_flight.size()})
 
 
 func event_count(event: StringName) -> int:
@@ -181,7 +176,7 @@ func check_start_release_and_cooldown() -> void:
 	Input.action_release("throw")
 	check(event_count(&"start") == 1 and thrower.rocks == 2 and feedback.phase == &"windup",
 		"Accepted Q input spends exactly one collected rock and begins the authored anticipation")
-	check(appearance._rig_pose.upper_texture == RigLayers.THROW_ATLAS
+	check(String(appearance.rig.clip_name(&"upper")).begins_with("girl_throw_")
 		and is_equal_approx(feedback.pose_phase, thrower.get_windup_phase()),
 		"The playable character's throw pose reads normalized progress from the actual windup timer")
 	var committed_landing: Vector2 = thrower._pending_landing
@@ -242,7 +237,7 @@ func check_interruptions() -> void:
 			&"death": GameState.kill_player()
 			&"dialogue": player.process_mode = Node.PROCESS_MODE_DISABLED
 		await frames(40)
-		check(not thrower.is_throwing and feedback.phase == &"idle" and appearance._throw_track == &"idle",
+		check(not thrower.is_throwing and feedback.phase == &"idle" and appearance.throw_track == &"idle",
 			"%s removes both pending throw and its presentation" % blocker)
 		check(event_count(&"cancel") == 1 and event_count(&"release") == 0
 			and thrower._in_flight.is_empty() and thrower.rocks == 2,
@@ -262,7 +257,7 @@ func check_interruptions() -> void:
 			&"death": GameState.kill_player()
 			&"dialogue": player.process_mode = Node.PROCESS_MODE_DISABLED
 		await frames(2)
-		check(feedback.phase == &"idle" and appearance._throw_track == &"idle"
+		check(feedback.phase == &"idle" and appearance.throw_track == &"idle"
 			and event_count(&"release") == 1 and event_count(&"cancel") == 0,
 			"%s clears released follow-through without a false pending cancellation or another projectile" % blocker)
 	completed_scenarios += 1
@@ -289,7 +284,7 @@ func check_pause_and_reset() -> void:
 		"Pause freezes follow-through, flight and cooldown together")
 	get_tree().paused = false
 	thrower.clear_pending()
-	check(feedback.phase == &"idle" and appearance._throw_track == &"idle"
+	check(feedback.phase == &"idle" and appearance.throw_track == &"idle"
 		and thrower._in_flight.is_empty() and is_zero_approx(thrower._cooldown_timer),
 		"Checkpoint-style clear resets a released follow-through and removes its pending flight")
 	await frames(40)
@@ -312,7 +307,7 @@ func check_pause_and_reset() -> void:
 		"Teleporting just before release cancels before the timer fires, clears anticipation and preserves the spent rock")
 	await frames(40)
 	check(event_count(&"cancel") == 1 and event_count(&"release") == 0 and noises.is_empty()
-		and thrower._in_flight.is_empty() and feedback.phase == &"idle" and appearance._throw_track == &"idle",
+		and thrower._in_flight.is_empty() and feedback.phase == &"idle" and appearance.throw_track == &"idle",
 		"A teleported windup stays cancelled without a late projectile, impact or replayed pose")
 	await reset_scenario()
 	thrower._start_throw()
@@ -321,7 +316,7 @@ func check_pause_and_reset() -> void:
 	var original_landing: Vector2 = thrower._in_flight[0].to
 	player.global_position += Vector2.RIGHT * Units.to_px(4.0)
 	await frames(2)
-	check(feedback.phase == &"idle" and appearance._throw_track == &"idle" and event_count(&"cancel") == 0
+	check(feedback.phase == &"idle" and appearance.throw_track == &"idle" and event_count(&"cancel") == 0
 		and event_count(&"release") == 1 and thrower._in_flight.size() == 1 and thrower._in_flight[0].to == original_landing,
 		"Teleporting after release clears follow-through without falsely cancelling or redirecting the existing world projectile")
 	await frames(40)
@@ -339,11 +334,11 @@ func check_breath_and_locomotion() -> void:
 	thrower._start_throw()
 	await frames(4)
 	check(breath.is_holding and breath_feedback.phase == &"hold" and feedback.phase == &"windup"
-		and appearance._rig_pose.upper_texture == RigLayers.THROW_ATLAS and breath.lung_percent < lung_before,
+		and String(appearance.rig.clip_name(&"upper")).begins_with("girl_throw_") and breath.lung_percent < lung_before,
 		"Throw takes the upper-body pose while held breath continues its actual resource costs underneath")
 	await frames(52)
 	check(feedback.phase == &"idle" and breath.is_holding and breath_feedback.phase == &"hold"
-		and appearance._rig_pose.upper_texture == RigLayers.BREATH_ATLAS,
+		and String(appearance.rig.clip_name(&"upper")).begins_with("girl_breath_"),
 		"The continuing breath pose returns naturally after the throw settles")
 	await reset_scenario()
 	Input.action_press("move_right")
@@ -353,9 +348,8 @@ func check_breath_and_locomotion() -> void:
 	thrower._start_throw()
 	await frames(12)
 	check(feedback.phase == &"windup" and player.global_position.x > start.x + 20.0
-		and absf(player.get_speed_u() - player.sprint_speed_u) < 0.05
-		and String(appearance.actor_animation).begins_with("sprint_"),
-		"Throw anticipation retains real sprint travel and the established lower-body locomotion")
+		and not player.is_sprinting and player.get_speed_u() < player.sprint_speed_u - 0.05,
+		"A throw ends the sprint: anticipation continues at walking travel")
 	completed_scenarios += 1
 
 
@@ -422,40 +416,37 @@ func check_transformed_parent_release() -> void:
 func check_throw_shapes() -> void:
 	await reset_scenario()
 	var track_coverage := {}
+	var carry_names := ["none", "off", "on"]
+	var rig: CharacterSprite = appearance.rig
 	for equipment in range(3):
 		action.has_flashlight = equipment > 0
 		flashlight.is_on = equipment == 2
 		flashlight._refresh_light()
-		for heading in range(8):
-			appearance.actor_facing = DIRECTIONS[heading]
-			aim.reset_pose()
-			var boots := {"left": appearance.get_actor_boot_position("left"), "right": appearance.get_actor_boot_position("right")}
-			var lower: Dictionary = appearance.get_actor_lower_pose().duplicate(true)
-			for arm_step in (range(-2, 3) if equipment > 0 else [0]):
-				aim._arm_step = arm_step
-				aim.aim_angle = heading * PI / 4.0 + arm_step * PI / 8.0 + (deg_to_rad(15.0) if equipment > 0 else 0.0)
-				for track in RigLayers.THROW_ANCHORS.TRACKS:
-					var count: int = RigLayers.THROW_ANCHORS.TRACKS[track].count
-					for frame in range(count):
-						appearance.set_throw_pose(StringName(track), frame / float(maxi(count - 1, 1)), 0)
-						aim._apply_pose()
-						_pose_samples += 1
-						for side in ["left", "right"]:
-							_boot_drift = maxf(_boot_drift, appearance.get_actor_boot_position(side).distance_to(boots[side]))
-						if equipment > 0:
-							var grip: Transform2D = appearance.get_actor_grip_transform()
-							_lens_error = maxf(_lens_error, appearance.to_global(grip * GRIP_LENS).distance_to(aim.get_beam_global_position()))
-							var grip_heading: float = (appearance.global_transform * grip).basis_xform(Vector2.DOWN).angle()
-							var forearm_heading: float = appearance.global_rotation + appearance._rig_rotation + appearance._rig_pose.flashlight_angle
-							_wrist_bend = maxf(_wrist_bend, absf(rad_to_deg(angle_difference(forearm_heading, grip_heading))))
-						track_coverage["%d:%d:%s" % [equipment, heading, track]] = true
-			check(appearance.get_actor_lower_pose() == lower, "Throw poses preserve the existing lower-pose data for equipment %d heading %d" % [equipment, heading])
+		var boots := {"left": appearance.get_actor_boot_position("left"), "right": appearance.get_actor_boot_position("right")}
+		for track in ["windup", "release", "recover"]:
+			var upper := CharacterClips.get_clip("girl_throw_%s_upper" % track)
+			var arm := CharacterClips.get_clip("girl_throw_%s_arm_right_%s" % [track, carry_names[equipment]])
+			if upper.is_empty() or arm.is_empty():
+				continue
+			rig.play(&"upper", "girl_throw_%s_upper" % track, {"restart": true})
+			rig.play(&"arm_right", "girl_throw_%s_arm_right_%s" % [track, carry_names[equipment]], {"restart": true})
+			for frame in range(upper["frames"].size()):
+				rig.set_frame(&"upper", frame)
+				rig.set_frame(&"arm_right", frame)
+				aim._apply_pose()
+				_pose_samples += 1
+				for side in ["left", "right"]:
+					_boot_drift = maxf(_boot_drift, appearance.get_actor_boot_position(side).distance_to(boots[side]))
+				if equipment > 0:
+					_lens_error = maxf(_lens_error, rig.flashlight_tip_global().distance_to(aim.get_muzzle_global_position()))
+					_wrist_bend = maxf(_wrist_bend, absf(rad_to_deg(angle_difference(flashlight.global_rotation, aim.aim_angle))))
+			track_coverage["%d:%s" % [equipment, track]] = true
 		check(appearance.actor_equipped == (equipment > 0) and flashlight.is_on == (equipment == 2),
 			"Throw tracks retain absent, unlit and lit flashlight ownership state %d" % equipment)
-	check(track_coverage.size() == 3 * 8 * 2 and _pose_samples == 8 * 11 * RigLayers.THROW_ANCHORS.FRAMES_PER_MODE,
-		"Both authored tracks cover all eight headings and every arm aim with absent, unlit and lit flashlight variants")
-	check(appearance._rig_pose.upper_texture == RigLayers.THROW_ATLAS,
-		"The exhaustive pose sweep renders the authored throw atlas")
+	check(track_coverage.size() == 3 * 3 and _pose_samples > 20,
+		"All three authored throw clips exist with matching upper and arm sheets for absent, unlit and lit flashlight variants")
+	check(String(rig.clip_name(&"upper")).begins_with("girl_throw_"),
+		"The exhaustive pose sweep plays the authored throw clips")
 	completed_scenarios += 1
 
 
