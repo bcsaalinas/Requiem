@@ -53,6 +53,7 @@ const TOP_FIRST := 51
 const STRAIGHT_TOPS := [51, 60, 61, 62, 63]
 const WINDOW_TOP := 64
 const WINDOW_CRACKED_TOP := 66
+const FLOOR_LIGHT_MASK := 1 | 16
 const FLOOR_FIRST := {"wood": 0, "pasta": 4, "cement": 8, "patio": 12, "bath": 16, "forest": 20, "trail": 24}
 const TRAIL_PIECES := {"edge": 28, "edge_b": 29, "corner_outer": 30, "corner_inner": 31, "diagonal": 32}
 ## Corners (NW, NE, SW, SE) that are trail, as drawn.
@@ -268,6 +269,7 @@ func _bake_zone(zone: String) -> void:
 			filler[cell] = true
 
 	var floor_layer := _layer(zone_root, "ArtFloor", -10)
+	floor_layer.light_mask = FLOOR_LIGHT_MASK
 	var base_layer := _layer(zone_root, "ArtWallBase", 0)
 	var face_layer := _layer(zone_root, "ArtWallInnerFace", 0)
 	var tops_layer := _layer(zone_root, "ArtWallTops", 2)

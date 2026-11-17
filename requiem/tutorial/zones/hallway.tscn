@@ -23,6 +23,17 @@
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="21_ineoj"]
 [ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jamb_l"]
+closed = false
+polygon = PackedVector2Array(-60, -9, -30, -9)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jamb_r"]
+closed = false
+polygon = PackedVector2Array(30, -9, 60, -9)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_foot"]
+polygon = PackedVector2Array(-4, -2, 4, -2, 4, 2, -4, 2)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k744n"]
 size = Vector2(128, 152)
 
@@ -86,6 +97,7 @@ metadata/interaction_offset = Vector2(0, -32)
 position = Vector2(320, 320)
 script = ExtResource("5_dw150")
 locked = true
+locked_light_energy = 0.0
 swing_side = -1
 leaf_texture = ExtResource("8_nunbk")
 creak = ExtResource("6_qo5fo")
@@ -95,6 +107,7 @@ locked_label = "Mum and Dad"
 position = Vector2(672, 320)
 script = ExtResource("5_dw150")
 locked = true
+locked_light_energy = 0.0
 swing_side = -1
 leaf_texture = ExtResource("8_nunbk")
 creak = ExtResource("6_qo5fo")
@@ -162,22 +175,62 @@ position = Vector2(672, 320)
 script = ExtResource("12_ineoj")
 glow = NodePath("../DoorGlowB")
 
+[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+occluder = SubResource("OccluderPolygon2D_jamb_l")
+occluder_light_mask = 16
+
+[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+occluder = SubResource("OccluderPolygon2D_jamb_r")
+occluder_light_mask = 16
+
+[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+position = Vector2(-12, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
+[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+position = Vector2(10, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
 [node name="DoorGlowA" type="PointLight2D" parent="Listeners" unique_id=1237831859]
-position = Vector2(320, 324)
+position = Vector2(320, 268)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
 shadow_filter = 0
+shadow_item_cull_mask = 16
 texture = ExtResource("light_pool")
+offset = Vector2(0, 52)
 texture_scale = 0.8
 
+[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
+occluder = SubResource("OccluderPolygon2D_jamb_l")
+occluder_light_mask = 16
+
+[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
+occluder = SubResource("OccluderPolygon2D_jamb_r")
+occluder_light_mask = 16
+
+[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
+position = Vector2(-12, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
+[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
+position = Vector2(10, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
 [node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
-position = Vector2(672, 324)
+position = Vector2(672, 268)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
 shadow_filter = 0
+shadow_item_cull_mask = 16
 texture = ExtResource("light_pool")
+offset = Vector2(0, 52)
 texture_scale = 0.8
 
 [node name="SafeLights" type="Node2D" parent="." unique_id=1596456614]
@@ -239,6 +292,12 @@ z_index = 40
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(160, 40, 480, 40, 480, 224, 160, 224)
 
+[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomA"]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(288, 224, 352, 224, 352, 297, 288, 297)
+
 [node name="ParentRoomB" type="Area2D" parent="Rooms" unique_id=1382177846 node_paths=PackedStringArray("doors")]
 monitorable = false
 script = ExtResource("16_2x0rn")
@@ -252,6 +311,12 @@ light_mask = 0
 z_index = 40
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(512, 40, 832, 40, 832, 224, 512, 224)
+
+[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomB"]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(640, 224, 704, 224, 704, 297, 640, 297)
 
 [node name="Edges" type="StaticBody2D" parent="." unique_id=685681006]
 
@@ -272,6 +337,7 @@ texture = ExtResource("light_pool")
 texture_scale = 1.6
 
 [node name="ArtFloor" type="TileMapLayer" parent="." unique_id=660460144]
+light_mask = 17
 z_index = -10
 scale = Vector2(0.4, 0.4)
 tile_map_data = PackedByteArray("AAAJAAcAAAACAAAAAAAKAAcAAAAAAAAAAAAUAAcAAAACAAAAAAAVAAcAAAABAAAAAAAJAAgAAAABAAAAAAAKAAgAAAABAAAAAAAUAAgAAAAAAAAAAAAVAAgAAAABAAAAAAAJAAkAAAACAAAAAAAKAAkAAAAAAAAAAAAUAAkAAAACAAAAAAAVAAkAAAACAAAAAAABAAoAAAAAAAAAAAACAAoAAAAAAAAAAAADAAoAAAAAAAAAAAAEAAoAAAAAAAAAAAAFAAoAAAAAAAAAAAAGAAoAAAAAAAAAAAAHAAoAAAAAAAAAAAAIAAoAAAADAAAAAAAJAAoAAAABAAAAAAAKAAoAAAADAAAAAAALAAoAAAAAAAAAAAAMAAoAAAABAAAAAAANAAoAAAAAAAAAAAAOAAoAAAABAAAAAAAPAAoAAAACAAAAAAAQAAoAAAABAAAAAAARAAoAAAACAAAAAAASAAoAAAACAAAAAAATAAoAAAACAAAAAAAUAAoAAAACAAAAAAAVAAoAAAAAAAAAAAAWAAoAAAACAAAAAAAXAAoAAAACAAAAAAAYAAoAAAADAAAAAAAZAAoAAAACAAAAAAAaAAoAAAAAAAAAAAAbAAoAAAABAAAAAAAcAAoAAAACAAAAAAABAAsAAAAAAAAAAAACAAsAAAABAAAAAAADAAsAAAACAAAAAAAEAAsAAAACAAAAAAAFAAsAAAAAAAAAAAAGAAsAAAACAAAAAAAHAAsAAAACAAAAAAAIAAsAAAAAAAAAAAAJAAsAAAADAAAAAAAKAAsAAAACAAAAAAALAAsAAAACAAAAAAAMAAsAAAAAAAAAAAANAAsAAAAAAAAAAAAOAAsAAAACAAAAAAAPAAsAAAAAAAAAAAAQAAsAAAAAAAAAAAARAAsAAAAAAAAAAAASAAsAAAABAAAAAAATAAsAAAABAAAAAAAUAAsAAAABAAAAAAAVAAsAAAAAAAAAAAAWAAsAAAACAAAAAAAXAAsAAAAAAAAAAAAYAAsAAAACAAAAAAAZAAsAAAAAAAAAAAAaAAsAAAAAAAAAAAAbAAsAAAAAAAAAAAAcAAsAAAAAAAAAAAACAAwAAAAAAAAAAAADAAwAAAACAAAAAAAEAAwAAAAAAAAAAAAFAAwAAAAAAAAAAAAGAAwAAAACAAAAAAAHAAwAAAAAAAAAAAAIAAwAAAAAAAAAAAAJAAwAAAABAAAAAAAKAAwAAAABAAAAAAALAAwAAAAAAAAAAAAMAAwAAAACAAAAAAANAAwAAAABAAAAAAAOAAwAAAABAAAAAAAPAAwAAAADAAAAAAAQAAwAAAAAAAAAAAARAAwAAAABAAAAAAASAAwAAAACAAAAAAATAAwAAAACAAAAAAAUAAwAAAAAAAAAAAAVAAwAAAABAAAAAAAWAAwAAAABAAAAAAAXAAwAAAACAAAAAAAYAAwAAAABAAAAAAAZAAwAAAACAAAAAAAaAAwAAAAAAAAAAAAbAAwAAAACAAAAAAANAA0AAAAAAAAAAAAOAA0AAAABAAAAAAAPAA0AAAAAAAAAAAAQAA0AAAACAAAAAAANAA4AAAAAAAAAAAAOAA4AAAAAAAAAAAAPAA4AAAABAAAAAAAQAA4AAAABAAAAAAANAA8AAAACAAAAAAAOAA8AAAAAAAAAAAAPAA8AAAAAAAAAAAAQAA8AAAACAAAAAAANABAAAAABAAAAAAAOABAAAAABAAAAAAAPABAAAAACAAAAAAAQABAAAAACAAAAAAA=")
