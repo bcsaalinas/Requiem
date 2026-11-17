@@ -36,6 +36,12 @@ func _on_source_changed() -> void:
 	queue_redraw()
 
 
+## Call after changing cells of the source layer from code.
+func refresh() -> void:
+	_cells_dirty = true
+	queue_redraw()
+
+
 func _read_cells() -> void:
 	_cells.clear()
 	_cells_dirty = false

@@ -278,14 +278,17 @@ func _bake_zone(zone: String) -> void:
 	var window_tops := {}
 	for entry in windows:
 		var top_index := WINDOW_CRACKED_TOP if entry["exterior"] else WINDOW_TOP
+		var room_side := -1 if floor_cells.has(entry["gap"][0] + Vector2i(0, -1)) else 1
+		var origin: Vector2i = entry["origin"]
+		var outer_row := origin.y - 1 if room_side == -1 else origin.y - 3
 		var art_cells := PackedVector2Array()
 		for cell: Vector2i in entry["gap"]:
-			if drawn.has(cell):
+			if drawn.has(cell) and (not entry["exterior"] or cell.y == outer_row):
 				window_tops[cell] = top_index
 				art_cells.append(Vector2(cell))
 		var window_node: Node = entry["node"]
 		window_node.set_meta("art_cells", art_cells)
-		window_node.set("room_side", -1 if floor_cells.has(entry["gap"][0] + Vector2i(0, -1)) else 1)
+		window_node.set("room_side", room_side)
 
 	for cell in _sorted(drawn.keys() + filler.keys()):
 		var mask := 0
@@ -486,7 +489,7 @@ func _windows(zone_root: Node) -> Array[Dictionary]:
 		for row in [origin.y - 3, origin.y - 2, origin.y - 1]:
 			gap.append(Vector2i(origin.x - 1, row))
 			gap.append(Vector2i(origin.x, row))
-		found.append({"node": node, "gap": gap, "exterior": node.get("exterior")})
+		found.append({"node": node, "gap": gap, "exterior": node.get("exterior"), "origin": origin})
 	return found
 
 

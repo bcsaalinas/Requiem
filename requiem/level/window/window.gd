@@ -99,6 +99,7 @@ func _set_frame(frame: int) -> void:
 			_intact[cell] = [layer.get_cell_atlas_coords(cell), layer.get_cell_alternative_tile(cell)]
 		# Keep the cell's flip/transpose alternative: the pane faces the same way as the intact one.
 		layer.set_cell(cell, 0, BREAKING_FIRST + Vector2i(frame, 0), _intact[cell][1])
+	_refresh_drawn_tops(layer)
 
 
 func _restore_intact() -> void:
@@ -108,6 +109,13 @@ func _restore_intact() -> void:
 	for cell: Vector2i in _intact:
 		layer.set_cell(cell, 0, _intact[cell][0], _intact[cell][1])
 	_intact.clear()
+	_refresh_drawn_tops(layer)
+
+
+func _refresh_drawn_tops(layer: TileMapLayer) -> void:
+	var shifted := layer.get_parent().get_node_or_null("ArtWallTopsShifted")
+	if shifted != null and shifted.has_method("refresh"):
+		shifted.refresh()
 
 
 ## Shards lie on the room-side floor cells next to the wall: the decal's wall edge touches the wall
@@ -118,12 +126,13 @@ func _place_shards() -> void:
 	var cell := float(Units.TILE_PX)
 	var art := Units.ART_SCALE
 	var height := SHARD_HEIGHT_ART_PX * art
-	var row_top := 0.0 if room_side == 1 else -4.0 * cell
 	for index in 2:
 		var shard := get_node_or_null("Shards/Shards" + ["A", "B"][index]) as Sprite2D
 		if shard == null:
 			continue
-		var wall_edge_top := room_side == 1
+		var side := room_side if index == 0 else -room_side
+		var row_top := 0.0 if side == 1 else -4.0 * cell
+		var wall_edge_top := side == 1
 		shard.flip_v = not wall_edge_top
 		var y := row_top if wall_edge_top else row_top + cell - height
 		shard.position = Vector2(-cell + index * cell + SHARD_X_ART_PX * art, y)
