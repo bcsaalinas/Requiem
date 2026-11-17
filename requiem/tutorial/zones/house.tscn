@@ -86,6 +86,27 @@ source_geometry_mode = 1
 source_geometry_group_name = &"house_nav"
 agent_radius = 15.0
 
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_window_wall_l"]
+closed = false
+polygon = PackedVector2Array(-120, 20, -32, 20)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_window_wall_r"]
+closed = false
+polygon = PackedVector2Array(32, 20, 120, 20)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_window_back"]
+closed = false
+polygon = PackedVector2Array(-120, -4, 120, -4)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_window_post_l"]
+polygon = PackedVector2Array(-32.8, 12, -31.2, 12, -31.2, 20, -32.8, 20)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_window_post_r"]
+polygon = PackedVector2Array(31.2, 12, 32.8, 12, 32.8, 20, 31.2, 20)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_window_mullion"]
+polygon = PackedVector2Array(-0.8, 12, 0.8, 12, 0.8, 20, -0.8, 20)
+
 [node name="House" type="Node2D" unique_id=771048110]
 y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(64, 32, 1152, 640), Rect2(32, 672, 1216, 256)])
@@ -412,6 +433,41 @@ shadow_enabled = true
 shadow_filter = 0
 texture = ExtResource("light_pool")
 texture_scale = 2.0
+
+[node name="WindowSpill" type="PointLight2D" parent="Lights"]
+position = Vector2(672, 716)
+color = Color(0.9098039, 0.72156864, 0.47058824, 1)
+energy = 1.4
+range_item_cull_mask = 20
+shadow_enabled = true
+shadow_filter = 0
+shadow_item_cull_mask = 16
+texture = ExtResource("light_pool")
+texture_scale = 0.8
+
+[node name="WallLeft" type="LightOccluder2D" parent="Lights/WindowSpill"]
+occluder = SubResource("OccluderPolygon2D_window_wall_l")
+occluder_light_mask = 16
+
+[node name="WallRight" type="LightOccluder2D" parent="Lights/WindowSpill"]
+occluder = SubResource("OccluderPolygon2D_window_wall_r")
+occluder_light_mask = 16
+
+[node name="Back" type="LightOccluder2D" parent="Lights/WindowSpill"]
+occluder = SubResource("OccluderPolygon2D_window_back")
+occluder_light_mask = 16
+
+[node name="JambLeft" type="LightOccluder2D" parent="Lights/WindowSpill"]
+occluder = SubResource("OccluderPolygon2D_window_post_l")
+occluder_light_mask = 16
+
+[node name="JambRight" type="LightOccluder2D" parent="Lights/WindowSpill"]
+occluder = SubResource("OccluderPolygon2D_window_post_r")
+occluder_light_mask = 16
+
+[node name="Mullion" type="LightOccluder2D" parent="Lights/WindowSpill"]
+occluder = SubResource("OccluderPolygon2D_window_mullion")
+occluder_light_mask = 16
 
 [node name="Rooms" type="Node2D" parent="." unique_id=966338201]
 script = ExtResource("18_3fn32")
