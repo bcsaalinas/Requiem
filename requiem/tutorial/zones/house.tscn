@@ -193,7 +193,7 @@ z_index = 1
 y_sort_enabled = true
 
 [node name="CoatRack" type="Node2D" parent="Props" unique_id=697432684 instance=ExtResource("8_kiov0")]
-position = Vector2(476, 150)
+position = Vector2(476, 137.6)
 
 [node name="VestibuleChest" type="Node2D" parent="Props" unique_id=2095263743 instance=ExtResource("9_3giw8")]
 position = Vector2(744, 176)
