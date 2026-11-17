@@ -32,6 +32,7 @@ position = Vector2(0, -16)
 [node name="Frame" type="Sprite2D" parent="Assembly"]
 light_mask = 17
 z_index = -9
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("frame_tex")
 
 [node name="Hinge" type="Node2D" parent="Assembly"]

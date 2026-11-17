@@ -31,6 +31,7 @@ rotation = -1.5707964
 
 [node name="Frame" type="Sprite2D" parent="Assembly"]
 z_index = -9
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("frame_tex")
 
 [node name="Hinge" type="Node2D" parent="Assembly"]
