@@ -248,7 +248,7 @@ light_mask = 2
 z_index = 1
 texture_filter = 1
 material = SubResource("ShaderMaterial_2v7cn")
-position = Vector2(938, 252)
+position = Vector2(972.8, 221.6)
 script = ExtResource("11_5l22i")
 kind = "candle"
 
@@ -257,7 +257,7 @@ light_mask = 2
 z_index = 1
 texture_filter = 1
 material = SubResource("ShaderMaterial_uqkfb")
-position = Vector2(1078, 252)
+position = Vector2(1043.2, 221.6)
 script = ExtResource("11_5l22i")
 kind = "candle"
 
@@ -393,7 +393,7 @@ metadata/rest_energy = 1.1
 metadata/rest_color = "#efc68c"
 
 [node name="AltarLeftLight" type="PointLight2D" parent="Lights" unique_id=1937256068]
-position = Vector2(938, 236)
+position = Vector2(972, 222)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
 range_item_cull_mask = 5
 shadow_enabled = true
@@ -404,7 +404,7 @@ metadata/rest_energy = 1
 metadata/rest_color = "#f0c48a"
 
 [node name="AltarRightLight" type="PointLight2D" parent="Lights" unique_id=1274836064]
-position = Vector2(1078, 236)
+position = Vector2(1042.4, 222)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
 range_item_cull_mask = 5
 shadow_enabled = true

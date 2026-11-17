@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_altar.png" id="1_altar"]
 [ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_crucifix_flat.png" id="2_cross"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_copal_burner.png" id="3_copal"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6spdh"]
 size = Vector2(96, 64)
@@ -21,6 +22,11 @@ texture = ExtResource("1_altar")
 position = Vector2(0, -36)
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("2_cross")
+
+[node name="CopalBurner" type="Sprite2D" parent="."]
+position = Vector2(0, -13.6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_copal")
 
 [node name="Body" type="StaticBody2D" parent="." unique_id=1272784862]
 

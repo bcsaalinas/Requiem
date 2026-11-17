@@ -572,6 +572,8 @@ func interact(id: String) -> void:
 			_use_door(world.interactables[id]["node"])
 		"friend":
 			friend_met=true
+			world.props["friend"].face_and_stand(player.global_position)
+			prayer_audio.stop()
 			show_dialogue([
 				"ELI: My aunt said we had to come here and pray at the altars. It keeps something here.",
 				"ELI: Wait. Do you hear that?"
@@ -707,6 +709,8 @@ func _begin_attack() -> void:
 	player.process_mode=Node.PROCESS_MODE_DISABLED
 	player.velocity=Vector2.ZERO
 	thrower.available=false
+	world.props["friend"].kneel()
+	if not test_mode: prayer_audio.play()
 	var scrape := play_sound("presence",friend_home+Vector2(-110,-150))
 	if scrape != null:
 		scrape.create_tween().tween_property(scrape,"position",friend_home+Vector2(100,-150),2.3)
