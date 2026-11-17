@@ -78,6 +78,10 @@ var checkpoint: Dictionary = {}
 var dialogue: Array[String] = []
 var dialogue_done: Callable
 var subtitle_time := 0.0
+var caption_time := 0.0
+var prayer_captioned := false
+var breathing_captioned := false
+var entity_was_screaming := false
 var banner_time := 0.0
 var encounter_grace := 0.0
 var resetting := false
@@ -176,6 +180,7 @@ func _ready() -> void:
 			"ELI: And be quiet leaving. Your parents are still awake."
 		])
 		play_sound("phone",player.position)
+		caption("[Phone buzzes]")
 
 func _exit_tree() -> void:
 	PauseMenu.set_open(false)
@@ -233,7 +238,11 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	AmbienceManager.set_track(zone_stream if not test_mode else null,
 		ZONE_AMBIENCE_VOLUME_DB[zone], 2.0)
 	prayer_audio.stop()
-	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
+	if zone=="house" and not attack_finished and not test_mode:
+		prayer_audio.play()
+		if not prayer_captioned:
+			prayer_captioned=true
+			caption("[Low praying]")
 	_configure_entity()
 	hud.set_breath_hint(false)
 	world.zones["forest"].get_node("Ranger").active = zone == "forest"
@@ -263,6 +272,9 @@ func _configure_entity() -> void:
 		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
 		entity.show()
 		encounter_grace=5.0
+		if not breathing_captioned:
+			breathing_captioned=true
+			caption("[Wet breathing]")
 
 func _process(delta: float) -> void:
 	if _paused: return
@@ -272,6 +284,12 @@ func _process(delta: float) -> void:
 	if subtitle_time>0:
 		subtitle_time-=delta
 		if subtitle_time<=0 and dialogue.is_empty(): hud.subtitle.text=""
+	if caption_time>0:
+		caption_time-=delta
+		if caption_time<=0: hud.caption.text=""
+	var screaming: bool = entity.is_screaming()
+	if screaming and not entity_was_screaming: caption("[A deep scream]")
+	entity_was_screaming = screaming
 	if banner_time>0:
 		banner_time-=delta
 		if banner_time<=0: hud.banner.text=""
@@ -294,12 +312,12 @@ func _process(delta: float) -> void:
 	if zone=="hallway": _tick_hallway(delta)
 	if zone=="forest" and not forest_cued and player.position.x>3500:
 		forest_cued=true
-		say("[A branch snaps beyond the marked path. Nothing moves.]",5)
+		caption("[Branch snaps]")
 		play_sound("branch",Vector2(3630,215),-4)
 	if zone=="loop" and not loop_cued and player.position.x>7460:
 		loop_cued=true
 		play_sound("behind_wall",_wall_listeners()[0]+Vector2(0,-60),-5)
-		say("[Slow dragging on the other side of the wall.]",5)
+		caption("[Dragging behind the wall]")
 	if zone=="loop" and breath.is_holding: loop_hold_seen=true
 	if zone=="house" and door_unlocked and not attack_finished and player.position.y<660 and checkpoint.get("position",Vector2.ZERO).y>704:
 		save_checkpoint()
@@ -322,13 +340,14 @@ func _tick_hallway(delta: float) -> void:
 			hall_door_cues[index]=true
 			hall_cued=true
 			if index==0 and not hall_lesson_done:
-				say("[A chair scrapes behind the door]\nThey're still up. Hold my breath past their doors.",5)
+				caption("[Chair scrapes behind the door]")
 			else:
-				say("[A chair scrapes behind the door]" if index==0 else "[Movement behind the door]",4)
+				caption("[Chair scrapes behind the door]" if index==0 else "[Movement behind the door]")
 			play_sound("chair_scrape",door.global_position+Vector2(0,-40),-3)
 			hall_audio_clock=4.0
 	if hall_audio_clock<=0 and nearest_door != null:
 		play_sound("parent_rustle",nearest_door.global_position+Vector2(0,-40),-7)
+		caption("[Rustling behind the door]")
 		hall_audio_clock=6.5
 	# Teach before the danger: a door stirs once her next step could reach it and settles while she
 	# holds her breath. The key stays next to the breath meter until both doors are behind her.
@@ -343,6 +362,7 @@ func _tick_hallway(delta: float) -> void:
 		if door.danger >= 0.6 and not hall_stirred.has(index):
 			hall_stirred[index]=true
 			play_sound("parent_rustle",door.global_position+Vector2(0,-40),-4)
+			caption("[Rustling behind the door]")
 			hall_audio_clock=maxf(hall_audio_clock,4.0)
 		elif door.danger < 0.2:
 			hall_stirred.erase(index)
@@ -447,6 +467,12 @@ func advance_dialogue() -> void:
 func say(message: String, duration := 4.0) -> void:
 	hud.subtitle.text=message
 	subtitle_time=duration
+
+func caption(text: String, seconds := 3.0) -> void:
+	if not Preferences.captions:
+		return
+	hud.caption.text = text
+	caption_time = seconds
 
 func _find_interaction() -> void:
 	nearest=""
@@ -557,13 +583,14 @@ func interact(id: String) -> void:
 				var front_door: Door = world.interactables["front_door"]["node"]
 				front_door.locked=false
 				front_door.open()
-				say("[Latch clicks. The door swings in.]",5)
+				caption("[Latch clicks]")
 			else: say("The latch is behind the glass.\nAim with the mouse · Q to throw",6)
 		"front_door":
 			var front_door: Door = world.interactables[id]["node"]
 			if not door_unlocked:
 				say("Locked. The latch is beside the window.",5)
 				play_sound("door",player.position)
+				caption("[Door rattles]")
 			elif attack_finished and front_door.is_open:
 				_go_through(id)
 			else:
@@ -589,6 +616,7 @@ func interact(id: String) -> void:
 				(world.interactables[id]["node"] as Door).open(breath.is_holding)
 				say("There has to be another way out.",9)
 				play_sound("impossible",player.position,-14)
+				caption("[The house shifts]")
 				sequence="ending"
 				sequence_time=0
 				sequence_step=0
@@ -657,7 +685,7 @@ func _tick_battery(delta: float) -> void:
 		dead_light_time+=delta
 		if dead_light_time>=1.2:
 			insert_battery()
-			say("Her hands find a spare battery in the dark.",4)
+			caption("[Battery clicks in]")
 	else:
 		dead_light_time=0.0
 
@@ -672,7 +700,8 @@ func _on_rock_landed(at: Vector2) -> void:
 	# Keep this an auditory presence. The first visual reveal belongs to the altar aftermath.
 	world.landmarks["reveal"].hide()
 	play_sound("presence", side_light.global_position)
-	say("[Glass shatters]",4)
+	caption("[Glass shatters]")
+	get_tree().create_timer(1.5,false).timeout.connect(func(): caption("[Something moves inside]"))
 
 ## The screen closes in as the hunting entity comes near. Only while it hunts: then its breathing
 ## is already loud, so the vignette never gives away a silent patrol behind a wall.
@@ -714,7 +743,7 @@ func _begin_attack() -> void:
 	var scrape := play_sound("presence",friend_home+Vector2(-110,-150))
 	if scrape != null:
 		scrape.create_tween().tween_property(scrape,"position",friend_home+Vector2(100,-150),2.3)
-	say("[Scraping behind the wall]",3)
+	caption("[Scraping behind the wall]")
 
 func _tick_sequence(delta: float) -> void:
 	sequence_time+=delta
@@ -758,7 +787,7 @@ func _tick_sequence(delta: float) -> void:
 		var friend_rig: CharacterSprite = world.props["friend"].rig
 		friend_rig.set_rate(&"upper",0.0)
 		friend_rig.set_rate(&"lower",0.0)
-		say("[A gasp. A heavy impact.]",3)
+		caption("[A gasp. Something heavy falls.]")
 	if sequence_time>=3.6 and sequence_step==3:
 		sequence_step=4
 		world.props["friend"].fallen=true
@@ -782,7 +811,7 @@ func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> voi
 			for listener in listeners:
 				if at.distance_to(listener)<=radius:
 					play_sound("branch" if zone=="forest" else "behind_wall",listener,-4)
-					say("[Branches shift nearby]" if zone=="forest" else "[The dragging stops]",4)
+					caption("[Branches shift]" if zone=="forest" else "[The dragging stops]")
 					if zone=="loop": _nearest_wall_listener(listener).listen()
 					ambient_reply_cooldown=6.0
 					break
@@ -895,6 +924,7 @@ func _go_through(id: String) -> void:
 		"front_door":
 			enter_zone("loop",Vector2.INF,true,"loop_back")
 			play_sound("impossible",player.position)
+			caption("[The house shifts]")
 			say("This should be outside.",6)
 		"bedroom_exit": enter_zone("hallway",Vector2.INF,true,"hall_back")
 		"hall_back": enter_zone("bedroom",world.marker("bedroom","SpawnFromHallway"),true,"bedroom_exit")

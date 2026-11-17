@@ -6,6 +6,7 @@ signal fullscreen_requested
 @onready var root: Control = $Screen
 @onready var prompt: Label = $Screen/InteractionPrompt
 @onready var subtitle: Label = $Screen/Subtitle
+@onready var caption: Label = $Screen/Caption
 @onready var breath: ProgressBar = $Screen/Vitals/Breath/Meter
 @onready var effort: ProgressBar = $Screen/Vitals/Exertion/Meter
 @onready var battery: ProgressBar = $Screen/Vitals/Battery/Meter
