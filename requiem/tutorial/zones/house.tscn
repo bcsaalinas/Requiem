@@ -473,6 +473,9 @@ position = Vector2(530, 850)
 [node name="EntitySpawn" type="Marker2D" parent="Markers" unique_id=385571603]
 position = Vector2(1110, 200)
 
+[node name="EntityArrive" type="Marker2D" parent="Markers" unique_id=1590347212]
+position = Vector2(900, 590)
+
 [node name="Patrol1" type="Marker2D" parent="Markers" unique_id=1481412800]
 position = Vector2(1008, 430)
 
