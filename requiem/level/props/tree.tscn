@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://jc1e2w437hfj"]
 
-[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_ueoq5"]
-[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_jex4c"]
-[ext_resource type="Texture2D" uid="uid://bvs2jhyghggx6" path="res://level/props/textures/tree.tres" id="3_qqvjw"]
+[ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="1_tree"]
+[ext_resource type="Texture2D" uid="uid://b4iby0jl6vxe8" path="res://assets/art/props/tree_bare_trunk_base.png" id="2_trunk"]
+[ext_resource type="Texture2D" uid="uid://8j7kfcl1ewqc" path="res://assets/art/props/tree_bare_canopy_top.png" id="3_canopy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vhvmi"]
 size = Vector2(22, 14)
@@ -11,20 +11,19 @@ size = Vector2(22, 14)
 polygon = PackedVector2Array(-9, -8, -5, -15, 5, -15, 9, -8, 5, -1, -5, -1)
 
 [node name="Tree" type="Node2D" unique_id=1837041621]
+script = ExtResource("1_tree")
 
-[node name="Shadow" type="Sprite2D" parent="." unique_id=217443211]
-z_index = -1
-position = Vector2(0, -4)
-scale = Vector2(0.55, 0.45)
-texture = ExtResource("1_ueoq5")
+[node name="Trunk" type="Sprite2D" parent="." unique_id=840736265]
+position = Vector2(0, -6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_trunk")
 
-[node name="Sprite" type="Sprite2D" parent="." unique_id=840736265]
-self_modulate = Color(0.78039217, 0.8, 0.78039217, 1)
-material = ExtResource("2_jex4c")
-position = Vector2(-85, -160)
-scale = Vector2(0.531, 0.531)
-texture = ExtResource("3_qqvjw")
-centered = false
+[node name="Canopy" type="Sprite2D" parent="." unique_id=840736266]
+z_as_relative = false
+z_index = 30
+position = Vector2(0, -6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_canopy")
 
 [node name="Body" type="StaticBody2D" parent="." unique_id=1542087512]
 

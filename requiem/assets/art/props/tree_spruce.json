@@ -1,0 +1,16 @@
+{
+  "name": "tree_spruce",
+  "description": "Tutorial outdoors spruce, straight down: dense radial needle boughs. Tall: trunk_base (ground contact) + canopy_top (height-shifted crown).",
+  "canvas": [240, 240],
+  "frame_size": [240, 240],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [120, 120],
+  "layers": {
+    "base": "tree_spruce_trunk_base.png",
+    "top": "tree_spruce_canopy_top.png"
+  },
+  "height_effect": true,
+  "scale_note": "Brief B size 3 x 3 units = 240 x 240 art px. Collision in spruce.tscn is 20 x 14 world px (50 x 35 art). The canopy covers the larger crown; the trunk_base covers the ground contact. Pivot is the canvas centre.",
+  "sound_frames": []
+}
