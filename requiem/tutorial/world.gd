@@ -94,6 +94,8 @@ func set_candle_out(candle_id: String, out: bool) -> void:
 	if props.has(candle_id):
 		props[candle_id].extinguished = out
 		props[candle_id].queue_redraw()
+	if candle_id == "vestibule_candle":
+		zones["house"].get_node("Lights/WindowSpill").visible = not out
 
 func set_house_danger(danger: bool) -> void:
 	# The kitchen candle stays lit: the recovery light survives the attack.

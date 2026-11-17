@@ -185,6 +185,8 @@ func _ready() -> void:
 		thrower.piedra_clips.clear()
 		flashlight.click_clips.clear()
 	NoiseManager.noise_emitted.connect(_on_noise)
+	var window_mullion: Node2D = world.zones["house"].get_node("Lights/WindowSpill/Mullion")
+	(world.interactables["window"]["node"] as WallWindow).broken_changed.connect(func(is_broken: bool): window_mullion.visible = not is_broken)
 	for room in world.rooms("house").get_rooms():
 		room.player_entered.connect(func(_room): _sync_roof())
 		room.player_exited.connect(func(_room): _sync_roof())
