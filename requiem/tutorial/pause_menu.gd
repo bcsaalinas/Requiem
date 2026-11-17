@@ -67,6 +67,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build() -> void:
 	_root = Control.new()
 	LegacyUi.fit_root(_root)
+	_root.theme = preload("res://tutorial/ui_text_theme.tres")
 	add_child(_root)
 
 	# A tint, not a blackout: the player still sees the room they are standing
