@@ -61,7 +61,9 @@ const TRAIL_PIECE_CORNERS := {"edge": NW | NE, "edge_b": NW | NE, "corner_outer"
 const TRAIL_CENTRE := {"edge": 1, "edge_b": 1, "corner_outer": 0, "corner_inner": 1, "diagonal": 1}
 const FOREST_TERRAIN := 0
 const TRAIL_TERRAIN := 1
-const TRAIL_POLYLINE := [Vector2(40, 540), Vector2(380, 540), Vector2(380, 350), Vector2(830, 350), Vector2(830, 540), Vector2(1360, 540)]
+const TRAIL_POLYLINE := [Vector2(40, 540), Vector2(316, 540), Vector2(380, 476), Vector2(380, 414),
+	Vector2(444, 350), Vector2(766, 350), Vector2(830, 414), Vector2(830, 476), Vector2(894, 540),
+	Vector2(1440, 540)]
 const TRAIL_RADIUS := 45.0
 
 const HOUSE_FLOORS := {"Kitchen": "cement", "Vestibule": "pasta", "AltarRoom": "wood", "Porch": "patio"}
@@ -550,7 +552,12 @@ func _paint_forest(layer: TileMapLayer, cells: Array, rng: RandomNumberGenerator
 			if _distance_to_trail(Vector2(cell + corner[1]) * CELL) <= TRAIL_RADIUS:
 				mask |= corner[0]
 		var pick := _pick_candidate(rng, candidates[mask])
-		chosen[cell] = {"mask": mask}
+		if mask == 0 or mask == (NW | NE | SW | SE):
+			for _attempt in 8:
+				if not (_same_pick(chosen.get(cell + Vector2i.LEFT, {}), pick) or _same_pick(chosen.get(cell + Vector2i.UP, {}), pick)):
+					break
+				pick = _pick_candidate(rng, candidates[mask])
+		chosen[cell] = {"mask": mask, "index": pick["index"], "alternative": pick["alternative"]}
 		layer.set_cell(cell, 0, coords(pick["index"]), pick["alternative"])
 		counts[piece_names[pick["index"]]] = counts.get(piece_names[pick["index"]], 0) + 1
 	var mismatches := 0
@@ -565,6 +572,10 @@ func _paint_forest(layer: TileMapLayer, cells: Array, rng: RandomNumberGenerator
 			var other: int = chosen[below]["mask"]
 			mismatches += int(bool(mask & SW) != bool(other & NW)) + int(bool(mask & SE) != bool(other & NE))
 	print("Forest trail pieces: ", counts, " corner mismatches: ", mismatches)
+
+
+func _same_pick(neighbour: Dictionary, pick: Dictionary) -> bool:
+	return not neighbour.is_empty() and neighbour["index"] == pick["index"] and neighbour["alternative"] == pick["alternative"]
 
 
 func _add_candidate(candidates: Dictionary, index: int, alternative: int, mask: int) -> void:
