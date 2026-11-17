@@ -303,7 +303,9 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 0.8
+texture_scale = 1.2
+metadata/rest_energy = 0.75
+metadata/rest_color = "#f0c48a"
 
 [node name="RouteVeladora1" type="Node2D" parent="Props" unique_id=1086629292]
 position = Vector2(700, 470)
@@ -317,7 +319,9 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 0.8
+texture_scale = 1.2
+metadata/rest_energy = 0.75
+metadata/rest_color = "#f0c48a"
 
 [node name="RouteVeladora2" type="Node2D" parent="Props" unique_id=819752352]
 position = Vector2(876, 430)
@@ -331,7 +335,9 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 0.8
+texture_scale = 1.2
+metadata/rest_energy = 0.75
+metadata/rest_color = "#f0c48a"
 
 [node name="RouteVeladora3" type="Node2D" parent="Props" unique_id=1931067657]
 position = Vector2(990, 330)
@@ -345,7 +351,9 @@ energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
 texture = ExtResource("light_vel")
-texture_scale = 0.8
+texture_scale = 1.2
+metadata/rest_energy = 0.75
+metadata/rest_color = "#f0c48a"
 
 [node name="Lights" type="Node2D" parent="." unique_id=962909668]
 
