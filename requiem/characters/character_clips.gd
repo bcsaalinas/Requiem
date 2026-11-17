@@ -38,18 +38,22 @@ static func get_clip(name: String) -> Dictionary:
 			"texture": load(DIRECTORY + String(sheet["file"])),
 			"hframes": int(sheet["hframes"]),
 			"frames": frames,
-			"loop_ms": float(raw.get("loop_ms", 0)),
+			"loop_ms": _number(raw.get("loop_ms"), 0.0),
 			"loop": bool(raw.get("loop", true)),
-			"sound_frames": raw.get("sound_frames", []),
+			"sound_frames": PackedInt32Array(Array(raw.get("sound_frames", []), TYPE_INT, "", null)),
 			"projectile_frame": int(raw.get("projectile_frame", -1)),
 			"action_frame": int(raw.get("action_frame", -1)),
 			"hold_last_frame": bool(raw.get("hold_last_frame", false)),
 			"lower": stem(String(raw["lower"])) if raw.has("lower") and String(raw["lower"]) != "" else "",
-			"speed_u_s": float(raw.get("speed_u_s", 0.0)),
+			"speed_u_s": _number(raw.get("speed_u_s"), 0.0),
 			"raw": raw,
 		}
 	_cache[key] = result
 	return result
+
+
+static func _number(value: Variant, fallback: float) -> float:
+	return float(value) if value is float or value is int else fallback
 
 
 static func _vector(value: Variant) -> Vector2:

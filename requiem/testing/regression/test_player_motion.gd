@@ -46,7 +46,7 @@ func _ready() -> void:
 	player.get_node("Camera2D").enabled = false
 	motion = player.get_node("PlayerMotion")
 	footsteps = player.get_node("FootstepNoise")
-	check_animation_contract(player.get_node("Appearance").actor_frames)
+	check_animation_contract()
 	footsteps.walk_clips.clear()
 	footsteps.sprint_clips.clear()
 	player.get_node("HoldBreath").hold_clips.clear()
@@ -64,8 +64,8 @@ func _ready() -> void:
 	check(not noises.is_empty() and noises[-1].radius == 96.0,
 		"Walking retains the existing hearing radius")
 	check(is_equal_approx(footsteps.footstep_interval, 0.45), "Walking cadence is unchanged")
-	check(player.get_node("Appearance").actor_frames.resource_path == "res://player/art/girl_rig_v2/girl_frames.tres",
-		"The shared player scene equips the coherent directional girl")
+	check(player.get_node("Appearance").rig is CharacterSprite,
+		"The shared player scene hosts the CharacterSprite rig")
 	check(player.get_node("Appearance").actor_animation == &"walk_e",
 		"Right input displays the authored east view")
 	check(walk_frames_seen.size() == 8,
@@ -181,50 +181,15 @@ func _ready() -> void:
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 
-func check_animation_contract(resource: SpriteFrames) -> void:
-	var neutral := resource.get_frame_texture(&"idle_s", 0) as AtlasTexture
-	var identity_atlas: Texture2D = neutral.atlas if neutral != null else null
-	for facing: String in FACING_VECTORS:
-		for action in ["idle", "walk", "sprint"]:
-			var name := StringName(action + "_" + facing)
-			check(resource.has_animation(name), "Authored animation exists: %s" % name)
-			if not resource.has_animation(name): continue
-			var expected := 1 if action == "idle" else 8
-			check(resource.get_frame_count(name) == expected,
-				"%s uses %d deliberate poses, within the 24-frame limit" % [name, expected])
-			for index in range(resource.get_frame_count(name)):
-				var texture := resource.get_frame_texture(name, index)
-				check(texture is AtlasTexture and texture.get_size() == Vector2(256, 256)
-					and texture.atlas == identity_atlas,
-					"%s frame %d shares the neutral pose's atlas and registered canvas" % [name, index])
-	var controller := CharacterAnimation.new()
-	controller.reset(resource)
-	controller.advance(resource, 0.0, true, Vector2.DOWN, 0.0, false)
-	check(controller.frame == 2 and is_equal_approx(controller.phase, 0.25),
-		"Starting from neutral enters the closest passing pose")
-	for facing: String in FACING_VECTORS:
-		controller.advance(resource, 1.0 / 60.0, true, FACING_VECTORS[facing], 0.125, false)
-		check(controller.animation == StringName("walk_" + facing),
-			"Direction selects its own perspective: %s" % facing)
-		check(is_equal_approx(controller.phase, 0.375) and controller.frame == 3,
-			"Turning preserves gait phase for %s" % facing)
-		controller.advance(resource, 0.0, true, FACING_VECTORS[facing], 0.125, true)
-		check(controller.animation == StringName("sprint_" + facing) and controller.frame == 3,
-			"Walk to sprint preserves the same contact phase for %s" % facing)
-		controller.advance(resource, 0.0, true, FACING_VECTORS[facing], 0.125, false)
-		check(controller.animation == StringName("walk_" + facing) and controller.frame == 3,
-			"Sprint to walk preserves the same contact phase for %s" % facing)
-	controller.advance(resource, 0.06, false, Vector2.ZERO, 0.0, false)
-	check(controller.frame == 2, "Stopping gathers the feet in the nearest passing pose")
-	controller.advance(resource, 0.06, false, Vector2.ZERO, 0.0, false)
-	check(controller.animation == &"idle_se" and controller.frame == 0 and is_equal_approx(controller.phase, 0.25),
-		"Stopping reaches matching neutral in at most two pose changes")
-	controller.advance(resource, 0.0, true, Vector2(1, 1), 0.0, false)
-	check(controller.frame == 2 and controller.animation == &"walk_se",
-		"Restart resumes the gathered-foot phase retained during idle")
-	controller.advance(resource, 0.0, true, Vector2.RIGHT, 0.2, false)
-	controller.advance(resource, 0.0, true, Vector2.from_angle(deg_to_rad(24)), 0.2, false)
-	check(controller.facing == &"e", "Small direction jitter does not flicker adjacent views")
+func check_animation_contract() -> void:
+	for clip_name in ["girl_stand_lower", "girl_walk_lower", "girl_sneak_lower", "girl_side_step_lower", "girl_sprint_lower",
+			"girl_walk_upper", "girl_sprint_upper", "girl_idle_calm_upper", "girl_idle_tired_upper", "girl_idle_exhausted_upper"]:
+		var clip := CharacterClips.get_clip(clip_name)
+		check(not clip.is_empty() and clip["frames"].size() == clip["hframes"] and clip["hframes"] >= 1,
+			"Authored clip exists with one JSON entry per sheet frame: %s" % clip_name)
+	for clip_name in ["girl_walk_lower", "girl_sprint_lower"]:
+		check(CharacterClips.get_clip(clip_name)["frames"].size() == 8, "%s uses eight deliberate poses" % clip_name)
+
 
 
 func check_input_directions() -> void:

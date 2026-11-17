@@ -39,6 +39,7 @@ var is_sprinting: bool = false
 
 @onready var hold_breath: Node = get_node_or_null("HoldBreath")
 @onready var action_state: Node = get_node_or_null("ActionState")
+@onready var thrower: Node = get_node_or_null("Throw")
 
 
 func _ready() -> void:
@@ -65,7 +66,8 @@ func _physics_process(_delta: float) -> void:
 
 	# is_sprinting se calcula DESPUES de input_dir a proposito: necesita saber
 	# si de verdad te estas moviendo. Aguantar la respiracion lo cancela.
-	is_sprinting = Input.is_action_pressed("sprint") and input_dir != Vector2.ZERO and not holding_breath
+	var throwing: bool = thrower != null and thrower.is_throwing
+	is_sprinting = Input.is_action_pressed("sprint") and input_dir != Vector2.ZERO and not holding_breath and not throwing
 
 	# Prioridad: aguantar respiracion > sprint > caminar.
 	var target_speed_u := walk_speed_u

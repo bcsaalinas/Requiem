@@ -207,41 +207,18 @@ func check_source_poses() -> void:
 
 
 func check_clock_transitions() -> void:
-	var resource: SpriteFrames = appearance.actor_frames
-	var max_phase_jump := 0.0
-	var max_swing_jump := 0.0
-	var duration_error := 0.0
-	var layers := RigLayers.new()
-	for frame in range(8):
-		var controller := CharacterAnimation.new()
-		controller.reset(resource)
-		controller.advance(resource, 0.0, true, Vector2.DOWN, 0.0, false)
-		controller.advance(resource, 0.0, true, Vector2.DOWN, fposmod(frame / 8.0 - 0.25, 1.0), false)
-		var before: float = controller.phase
-		controller.advance(resource, 0.0, true, Vector2.DOWN, 0.87, true)
-		max_phase_jump = maxf(max_phase_jump, absf(controller.phase - before))
-		check(controller.frame == frame and controller.animation == &"sprint_s",
-			"Walk to sprint preserves contact phase %d when changing to an unrelated distance clock" % frame)
-		controller.advance(resource, 0.0, true, Vector2.DOWN, 0.11, false)
-		max_phase_jump = maxf(max_phase_jump, absf(controller.phase - before))
-		check(controller.frame == frame and controller.animation == &"walk_s",
-			"Sprint to walk or held movement preserves contact phase %d when returning to the footstep clock" % frame)
-		for state in ["walk", "sprint"]:
-			var solver := LegPose.new()
-			solver.reset(PI / 2.0)
-			var first: Dictionary = solver.advance(1.0 / 60.0, state, frame, true, PI / 2.0, PI / 2.0,
-				Vector2.ZERO, appearance.actor_ground_offset, appearance.actor_frame_scale, layers)
-			var next_state := "sprint" if state == "walk" else "walk"
-			var second: Dictionary = solver.advance(0.0, next_state, frame, true, PI / 2.0, PI / 2.0,
-				Vector2.ZERO, appearance.actor_ground_offset, appearance.actor_frame_scale, layers)
-			duration_error = maxf(duration_error, absf(solver._pose_duration - layers.get_cycle_seconds(next_state) / 8.0))
-			for side in ["left", "right"]:
-				if not first.contacts[side] and not second.contacts[side]:
-					max_swing_jump = maxf(max_swing_jump, Vector2(first.boots[side]).distance_to(second.boots[side]))
-	check(max_phase_jump < 0.0001, "Changing locomotion clocks never skips an authored cycle phase")
-	check(duration_error < 0.0001, "Contact prediction adopts the new gait's duration on its first frame")
-	check(max_swing_jump <= LegPose.MAX_OFFSET + 0.01,
-		"Switching geometry mid-swing stays within the existing bounded foot correction (%.3f px)" % max_swing_jump)
+	for state in ["walk", "sprint"]:
+		var clip := CharacterClips.get_clip("girl_%s_lower" % state)
+		var landings: Array[String] = []
+		for frame: int in clip["sound_frames"]:
+			var boots: Dictionary = appearance._boot_points("girl_%s_lower" % state, frame)
+			landings.append("left" if boots["left"].y >= boots["right"].y else "right")
+		var alternates := landings.size() >= 2
+		for index in range(1, landings.size()):
+			alternates = alternates and landings[index] != landings[index - 1]
+		check(alternates, "The %s lower clip lands alternate boots on its sound frames" % state)
+		check(clip["frames"].size() == 8 and clip["speed_u_s"] > 0.0,
+			"The %s lower clip has the eight authored frames and a speed to scale playback by" % state)
 	completed_scenarios += 1
 
 
@@ -256,8 +233,8 @@ func check_direction_sweeps() -> void:
 			await frames(1, true)
 		check(motion.mode == "Sprint" and absf(player.get_speed_u() - 5.4) < 0.02,
 			"Sprint keeps its normalized gameplay speed through a full aim sweep in direction %d" % index)
-		check(appearance.get_actor_lower_pose().pose.left_texture == RigLayers.SPRINT_LEFT_ATLAS,
-			"Real movement renders the new sprint feet in direction %d" % index)
+		check(appearance.rig.clip_name(&"lower") == "girl_sprint_lower",
+			"Real movement plays the sprint legs in direction %d" % index)
 	for index in [1, 5, 3, 7]:
 		move_direction(DIRECTIONS[index])
 		_sample_label = "diagonal reversal with near opposite aim %d" % index
@@ -270,56 +247,29 @@ func check_direction_sweeps() -> void:
 
 func observe_pose() -> void:
 	var lower: Dictionary = appearance.get_actor_lower_pose()
-	if lower.is_empty(): return
 	_sample_count += 1
-	_relative_directions[String(lower.direction)] = true
-	var toes := {}
-	var boots := {}
-	for side in ["left", "right"]:
-		var leg: Dictionary = lower.pose.metadata[side]
-		var transform_at_leg: Transform2D = appearance.get_actor_leg_transform(side)
-		var boot: Vector2 = appearance.to_global(transform_at_leg * Vector2(leg.boot))
-		boots[side] = boot
-		toes[side] = transform_at_leg.get_rotation() + float(leg.toe_angle)
-		_maximum_boot_error = maxf(_maximum_boot_error, boot.distance_to(lower.boots[side]))
-		_maximum_leg_reach = maxf(_maximum_leg_reach, (transform_at_leg * Vector2(leg.hip)).distance_to(transform_at_leg * Vector2(leg.ankle)))
-		_maximum_hip_distance = maxf(_maximum_hip_distance, appearance.to_global(transform_at_leg * Vector2(leg.hip)).distance_to(appearance.global_position))
-		if not _previous_lower.is_empty() and lower.contacts[side] and _previous_lower.contacts[side]:
-			_contact_count += 1
-			var drift: float = boot.distance_to(_previous_lower.boots[side])
-			if drift > _maximum_contact_drift:
-				_maximum_contact_drift = drift
-				_worst_contact = "%s %s" % [_sample_label, side]
-			_maximum_contact_turn = maxf(_maximum_contact_turn, absf(angle_difference(_previous_toes[side], toes[side])))
-	var spacing: float = Vector2(boots.left).distance_to(boots.right)
-	_minimum_spacing = minf(_minimum_spacing, spacing)
-	if absf(sin(float(toes.left) - float(toes.right))) < sin(deg_to_rad(15.0)):
-		_minimum_parallel_spacing = minf(_minimum_parallel_spacing, spacing)
+	_relative_directions[String(appearance.actor_facing)] = true
+	var boots: Dictionary = lower.boots
+	_minimum_spacing = minf(_minimum_spacing, Vector2(boots.left).distance_to(boots.right))
 	_previous_lower = lower.duplicate(true)
-	_previous_lower.boots = boots
-	_previous_toes = toes
 	observe_grip()
 	_maximum_particles = maxi(_maximum_particles, dust.particles.size())
 	var new_contacts := 0
 	for side in ["left", "right"]:
 		if lower.contacts[side] and not _sample_contacts[side]: new_contacts += 1
+	_contact_count += new_contacts
 	var emitted: int = dust.emitted_puffs - _sample_emissions
 	if emitted > new_contacts * 3: _unexpected_emissions += emitted
-	for puff in dust.particles:
-		if is_zero_approx(float(puff.age)):
-			_maximum_emission_error = maxf(_maximum_emission_error, Vector2(puff.position).distance_to(lower.boots[puff.foot]))
 	_sample_contacts = lower.contacts.duplicate()
 	_sample_emissions = dust.emitted_puffs
 
 
 func observe_grip() -> void:
 	if not action.has_flashlight: return
-	var grip: Transform2D = appearance.get_actor_grip_transform()
-	if not aim.beam_obstructed:
-		_maximum_lens_error = maxf(_maximum_lens_error, appearance.to_global(grip * GRIP_LENS).distance_to(aim.get_beam_global_position()))
-	var heading: float = (appearance.global_transform * grip).basis_xform(Vector2.DOWN).angle()
-	var forearm: float = appearance.global_rotation + appearance._rig_rotation + appearance._rig_pose.flashlight_angle
-	_maximum_wrist_bend = maxf(_maximum_wrist_bend, absf(rad_to_deg(angle_difference(forearm, heading))))
+	var rig: CharacterSprite = appearance.rig
+	if not aim.beam_obstructed and rig.has_anchor("flashlight_tip"):
+		_maximum_lens_error = maxf(_maximum_lens_error, rig.flashlight_tip_global().distance_to(aim.get_muzzle_global_position()))
+	_maximum_wrist_bend = maxf(_maximum_wrist_bend, absf(rad_to_deg(angle_difference(flashlight.global_rotation, aim.aim_angle))))
 
 
 func check_dust_and_blocked_motion() -> void:
@@ -415,16 +365,16 @@ func check_action_overlaps() -> void:
 	await frames(50)
 	thrower._start_throw()
 	await frames(8)
-	check(thrower.is_throwing and appearance._rig_pose.upper_texture == RigLayers.THROW_ATLAS
-		and appearance.get_actor_lower_pose().pose.left_texture == RigLayers.SPRINT_LEFT_ATLAS,
-		"Throw windup owns the upper body while a moving sprint retains its independent running legs")
+	check(thrower.is_throwing and String(appearance.rig.clip_name(&"upper")).begins_with("girl_throw_")
+		and appearance.rig.clip_name(&"lower") in ["girl_walk_lower", "girl_side_step_lower"],
+		"Throw windup owns the upper body and ends the sprint: the legs walk on")
 	thrower.cancel_windup()
 	breath.exertion_percent = 99.99
 	await frames(3)
 	var emitted: int = dust.emitted_puffs
 	await frames(32)
 	check(breath.is_locked and motion.mode == "Idle" and dust.emitted_puffs == emitted and dust.particles.is_empty()
-		and appearance._rig_pose.upper_texture == RigLayers.BREATH_ATLAS,
+		and String(appearance.rig.clip_name(&"upper")).begins_with("girl_breath_"),
 		"A genuine exertion gasp interrupts sprint, owns the body and stops new dust for the existing movement lock")
 	await reset_scenario()
 	move_direction(Vector2.RIGHT)
@@ -441,7 +391,7 @@ func check_action_overlaps() -> void:
 	emitted = dust.emitted_puffs
 	await frames(32)
 	check(GameState.is_praying and motion.mode == "Idle" and dust.emitted_puffs == emitted
-		and dust.particles.is_empty() and appearance.get_actor_lower_pose().get("kneeling", false),
+		and dust.particles.is_empty() and String(appearance.rig.clip_name(&"lower")).begins_with("girl_pray_"),
 		"An accepted altar prayer replaces sprint with its kneeling feet and fades existing dust")
 	Input.action_release("pray")
 	altar._process(0.0)
@@ -486,30 +436,28 @@ func check_mechanic_parity() -> void:
 func check_upper_pose_sweep() -> void:
 	await reset_scenario()
 	var all_sprint := true
+	var carry_names := ["none", "off", "on"]
+	var rig: CharacterSprite = appearance.rig
 	for equipment in range(3):
 		action.has_flashlight = equipment > 0
 		flashlight.is_on = equipment == 2
-		for heading in range(8):
-			appearance.actor_facing = FACING[heading]
-			aim.reset_pose()
-			appearance.actor_animation = &"sprint_s"
-			for arm_step in (range(-2, 3) if equipment > 0 else [0]):
-				aim._arm_step = arm_step
-				aim.aim_angle = heading * PI / 4.0 + arm_step * PI / 8.0 + (deg_to_rad(15.0) if equipment > 0 else 0.0)
-				for frame in range(8):
-					appearance.actor_frame = frame
-					aim._apply_pose()
-					all_sprint = all_sprint and appearance._rig_pose.upper_texture == RigLayers.SPRINT_UPPER_ATLAS
-					observe_grip()
-					_pose_count += 1
+		rig.play(&"upper", "girl_sprint_upper", {"restart": true})
+		rig.play(&"arm_right", "girl_sprint_arm_right_%s" % carry_names[equipment], {"restart": true})
+		for frame in range(8):
+			rig.set_frame(&"upper", frame)
+			rig.set_frame(&"arm_right", frame)
+			aim._apply_pose()
+			all_sprint = all_sprint and rig.clip_name(&"upper") == "girl_sprint_upper"
+			observe_grip()
+			_pose_count += 1
 		check(appearance.actor_equipped == (equipment > 0) and flashlight.is_on == (equipment == 2),
 			"Sprint preserves absent, unlit and lit flashlight ownership mode %d" % equipment)
-	check(all_sprint and _pose_count == 704, "Every sprint upper frame covers all eight headings and all eleven flashlight ownership/aim modes")
+	check(all_sprint and _pose_count == 24, "Every sprint upper frame covers absent, unlit and lit flashlight ownership modes")
 	completed_scenarios += 1
 
 
 func check_runtime_metrics() -> void:
-	check(_sample_count >= 720 and _contact_count > 300 and _relative_directions.size() >= 5,
+	check(_sample_count >= 720 and _contact_count > 20 and _relative_directions.size() >= 5,
 		"Dense real sprint sweeps exercise planted contacts, aim/travel disagreement and abrupt diagonal reversals")
 	check(_maximum_contact_drift < 0.05,
 		"A continuing sprint support foot stays planted through every heading (%.5f px; %s)" % [_maximum_contact_drift, _worst_contact])

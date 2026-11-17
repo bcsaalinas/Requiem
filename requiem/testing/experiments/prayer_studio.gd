@@ -114,6 +114,7 @@ func reset_studio_prayer(lung := 100.0) -> void:
 	# settle it normally. This also supports headings before flashlight pickup.
 	var appearance := player.get_node("Appearance")
 	appearance.set_actor_gait(0.0, true, direction, false, 0.0)
+	appearance.actor_facing = StringName(["e", "se", "s", "sw", "w", "nw", "n", "ne"][selected_heading])
 	player.get_node("PlayerMotion").reset_pose()
 	player.get_node("PlayerAim").reset_pose()
 	player.get_node("PlayerAim").set_target(ALTAR_POSITION)

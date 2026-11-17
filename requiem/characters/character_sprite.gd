@@ -48,9 +48,9 @@ func _process(delta: float) -> void:
 
 
 ## Starts a clip on one layer. Options: rate, reverse, mirror, loop, hold_last, frame, restart.
-func play(part: StringName, clip_name: String, options := {}) -> void:
+func play(part: StringName, sheet_name: String, options := {}) -> void:
 	var state: Dictionary = _players[part]
-	var clip := CharacterClips.get_clip(clip_name)
+	var clip := CharacterClips.get_clip(sheet_name)
 	var same: bool = not clip.is_empty() and state["clip"].get("name", "") == clip.get("name", "x")
 	if same and not options.get("restart", false):
 		state["rate"] = options.get("rate", state["rate"])

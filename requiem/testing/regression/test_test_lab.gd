@@ -120,7 +120,7 @@ func check_breath_studio(lab: Node) -> void:
 	studio.effects_button.pressed.emit()
 	await frames(3)
 	check(feedback.effects_strength == 0.0 and studio.effects_button.text == "Effects: off"
-		and feedback.enabled and feedback.phase == &"strain" and appearance._breath_track == &"strain"
+		and feedback.enabled and feedback.phase == &"strain" and appearance.breath_track == &"strain"
 		and breath.is_holding and breath.lung_percent < lung_before_effects_toggle,
 		"Effects comparison disables VFX while the live breath animation and mechanic continue")
 	studio.effects_button.pressed.emit()
@@ -168,7 +168,7 @@ func check_throw_studio(lab: Node) -> void:
 		"The studio releases its projectile into authored follow-through and the existing cooldown")
 	studio.reset_studio_throw()
 	check(thrower.rocks == 3 and thrower.can_throw() and thrower._in_flight.is_empty()
-		and feedback.phase == &"idle" and appearance._throw_track == &"idle",
+		and feedback.phase == &"idle" and appearance.throw_track == &"idle",
 		"Reset during follow-through clears the flight and pose, removes cooldown and refills three rocks")
 	await frames(28)
 	check(thrower._in_flight.is_empty() and not studio.resetting and studio.parent_failures == 0
@@ -243,7 +243,7 @@ func check_prayer_studio(lab: Node) -> void:
 	Input.action_press("move_right")
 	await frames(24)
 	check(studio.player.global_position.distance_to(prayer_position) < 0.01
-		and feedback.phase == &"loop" and appearance._prayer_track == &"loop"
+		and feedback.phase == &"loop" and appearance.prayer_track == &"loop"
 		and studio.studio_status.text.contains("Loop") and studio.studio_status.text.contains("prayer"),
 		"Prayer roots the real player and reaches a sustained pose with truthful studio status")
 	Input.action_release("move_right")
@@ -253,7 +253,7 @@ func check_prayer_studio(lab: Node) -> void:
 		and studio.altar.tiempo_interaccion == 0.0 and feedback.phase == &"exit",
 		"Releasing E cancels actual ritual progress and enters the authored prayer exit")
 	await frames(24)
-	check(feedback.phase == &"idle" and appearance._prayer_track == &"idle",
+	check(feedback.phase == &"idle" and appearance.prayer_track == &"idle",
 		"The studio returns the shared character to idle after prayer release")
 
 	studio.reset_studio_prayer(25.0)
