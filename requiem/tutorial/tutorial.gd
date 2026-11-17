@@ -79,6 +79,9 @@ var dialogue: Array[String] = []
 var dialogue_done: Callable
 var subtitle_time := 0.0
 var caption_time := 0.0
+var space_hint := false
+var flash_hint_time := 0.0
+var has_thrown := false
 var prayer_captioned := false
 var breathing_captioned := false
 var entity_was_screaming := false
@@ -139,6 +142,7 @@ func _ready() -> void:
 	breath._bar_layer.hide()
 	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
+	thrower.object_released.connect(func(): has_thrown=true)
 	MusicDirector.bind_gameplay(entity, breath)
 	flashlight=player.get_node("flashlight")
 	has_flashlight=false
@@ -176,7 +180,7 @@ func _ready() -> void:
 	enter_zone(start_zone)
 	if not test_mode:
 		show_dialogue([
-			"ELI: I'm at my aunt's old house. Follow the yellow trail marks. Bring a light.",
+			"ELI: I'm at my aunt's old house. Follow the trail. Bring a light.",
 			"ELI: And be quiet leaving. Your parents are still awake."
 		])
 		play_sound("phone",player.position)
@@ -244,7 +248,6 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 			prayer_captioned=true
 			caption("[Low praying]")
 	_configure_entity()
-	hud.set_breath_hint(false)
 	world.zones["forest"].get_node("Ranger").active = zone == "forest"
 	if zone == "forest":
 		world.zones["forest"].get_node("Ranger").reset_patrol()
@@ -325,6 +328,17 @@ func _process(delta: float) -> void:
 	_update_threat_presentation()
 	_tick_battery(delta)
 	_find_interaction()
+	_update_key_hint(delta)
+
+func _update_key_hint(delta: float) -> void:
+	flash_hint_time=maxf(0.0,flash_hint_time-delta)
+	if breath.is_holding: space_hint=false
+	var text := ""
+	if space_hint and zone=="hallway": text="SPACE · Hold breath"
+	elif has_flashlight and batteries>0 and flashlight.battery_percent<=flashlight.low_battery_threshold: text="B · Battery"
+	elif thrower.rocks>0 and not has_thrown: text="Q · Throw"
+	elif flash_hint_time>0: text="F · Light"
+	hud.show_key_hint(text, get_canvas_transform()*player.global_position)
 
 func _tick_hallway(delta: float) -> void:
 	hall_audio_clock -= delta
@@ -341,6 +355,7 @@ func _tick_hallway(delta: float) -> void:
 			hall_cued=true
 			if index==0 and not hall_lesson_done:
 				caption("[Chair scrapes behind the door]")
+				space_hint=true
 			else:
 				caption("[Chair scrapes behind the door]" if index==0 else "[Movement behind the door]")
 			play_sound("chair_scrape",door.global_position+Vector2(0,-40),-3)
@@ -368,14 +383,12 @@ func _tick_hallway(delta: float) -> void:
 			hall_stirred.erase(index)
 	if not hall_lesson_done and not listeners.is_empty() and player.position.x > listeners.back().global_position.x+90:
 		hall_lesson_done=true
-	hud.set_breath_hint(not hall_lesson_done,breath.is_holding,urgency,delta)
 	if hall_hold_alert and breath.is_holding:
 		hall_hold_alert=false
 		hud.dismiss_alert()
 	# Only explain the refuge when it matters: arriving out of breath or still holding it.
 	if in_light and not hall_refuge_cued and (breath.is_holding or breath.lung_percent < 80.0):
 		hall_refuge_cued=true
-		say("Safe in the light. Let your breath go. Rest here.",5)
 	elif not in_light and not breath.is_holding:
 		hall_refuge_cued=false
 
@@ -422,7 +435,7 @@ func _input(event: InputEvent) -> void:
 	if _paused: return
 	# In the shipping run R belongs to Kiosk: it drops the whole run back to the title.
 	if key==KEY_R and not resetting and not Kiosk.owns_reset(self):
-		request_reset("Back to the last safe place.")
+		request_reset("")
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action("swap_battery") and dialogue.is_empty() and not resetting:
@@ -447,7 +460,7 @@ func show_dialogue(lines: Array[String], done := Callable()) -> void:
 	player.velocity=Vector2.ZERO
 	entity.active=false
 	hud.subtitle.text=dialogue[0]
-	hud.prompt.text="E  ·  Continue"
+	hud.prompt.text="E"
 	hud.place_prompt(Vector2.ZERO,true)
 
 func advance_dialogue() -> void:
@@ -488,8 +501,12 @@ func _find_interaction() -> void:
 		var prop_node: Node2D=world.interactables[id]["node"]
 		if prop_node.has_method("set_focused"):
 			prop_node.set_focused(id==nearest)
-	hud.prompt.text="" if nearest=="" else "E  ·  "+interaction_label(nearest)
+	hud.prompt.text="" if nearest=="" else (interaction_label(nearest) if _prompt_without_key(nearest) else "E · "+interaction_label(nearest))
 	if nearest!="": hud.place_prompt(get_canvas_transform()*world.interactables[nearest]["position"])
+
+func _prompt_without_key(id: String) -> bool:
+	var node: Node = world.interactables[id]["node"]
+	return id=="loop_back" or (node is Door and node.locked and not (id=="front_door" and door_unlocked))
 
 func interaction_available(id: String) -> bool:
 	if collected.has(id): return false
@@ -500,10 +517,10 @@ func interaction_available(id: String) -> bool:
 	return true
 
 func interaction_label(id: String) -> String:
-	if id=="window" and window_broken: return "Release latch"
-	if id=="front_door" and door_unlocked: return "Open door"
+	if id=="window" and window_broken: return "Unlatch"
+	if id=="front_door" and door_unlocked: return "Open"
 	var node: Node = world.interactables[id]["node"]
-	if node is Door and node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go through"
+	if node is Door and node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go"
 	if node is Door and (node.is_open or node.locked): return node.interaction_label()
 	return world.interactables[id]["label"]
 
@@ -516,19 +533,19 @@ func interact(id: String) -> void:
 		"abuela_note":
 			show_dialogue(["My dear, I left the flashlight beside this note. Remember to turn it off when you do not need it. — Abuela"] )
 		"phone":
-			show_dialogue(["ELI: Follow the yellow trail marks to my aunt's house. Bring your flashlight."])
+			show_dialogue(["ELI: I'm at my aunt's old house. Follow the trail. Bring a light.",
+				"ELI: And be quiet leaving. Your parents are still awake."])
 		"flashlight":
 			has_flashlight=true
 			collect(id)
 			flashlight.set_process(true)
 			flashlight.set_process_unhandled_input(true)
 			if batteries>0: insert_battery()
-			say("F · Turn flashlight on / off", 4.0)
+			flash_hint_time=3.0
 		"battery","forest_battery","porch_battery","house_battery":
 			batteries+=1
 			collect(id)
 			if has_flashlight and flashlight.battery_percent<=0: insert_battery()
-			else: say("Battery +1")
 		"bedroom_exit":
 			var exit_door: Door = world.interactables[id]["node"]
 			if exit_door.is_open:
@@ -537,10 +554,10 @@ func interact(id: String) -> void:
 			# Gate on what was collected, not on the charge left: an empty battery must never
 			# lock the player in the bedroom (bug: dead battery prevents leaving).
 			if not has_flashlight:
-				say("I need a light before I go.")
+				say("Not without a light.")
 				return
 			if not collected.has("battery"):
-				say("The flashlight needs its battery.")
+				say("It needs a battery.")
 				return
 			if flashlight.battery_percent<=0 and batteries>0: insert_battery()
 			_use_door(exit_door)
@@ -553,22 +570,15 @@ func interact(id: String) -> void:
 			if home_door.is_open: _go_through(id)
 			else: _use_door(home_door)
 		"early_rocks","forest_rocks","porch_rocks":
-			if thrower.rocks>=3:
-				say("Stones full · Aim with the mouse, press Q to throw.\nThe impact makes noise and draws attention.", 7.0)
-			else:
+			if thrower.rocks<3:
 				thrower.rocks=mini(3,thrower.rocks+3)
 				play_sound("pickup",player.position)
 				_animate_rocks(world.interactables[id]["node"].global_position)
-				say("Stones collected · Aim with the mouse, press Q to throw.\nThe impact makes noise. Throw away from the trail to distract the ranger.", 8.0)
-			if not stone_hint_seen:
-				stone_hint_seen = true
-				world.zones["forest"].get_node("Ranger").active = false
-				show_dialogue([""], _finish_stone_hint)
-				hud.flash_alert("Q · THROW A STONE", "Aim with the mouse. Press Q to throw.\nThe impact makes noise and attracts attention.\nThrow away from the trail, then pass behind him.\nIf he sees you, he will chase you.", 3600.0)
+			stone_hint_seen = true
 		"forest_exit":
 			var ranger = world.zones["forest"].get_node("Ranger")
 			if not ranger.stone_distraction_completed or ranger.chasing:
-				say("The ranger is watching the trail. Throw a stone away from the path to distract him.", 6.0)
+				say("He's watching the trail.", 6.0)
 				return
 			enter_zone("house")
 		"ranger":
@@ -584,11 +594,11 @@ func interact(id: String) -> void:
 				front_door.locked=false
 				front_door.open()
 				caption("[Latch clicks]")
-			else: say("The latch is behind the glass.\nAim with the mouse · Q to throw",6)
+			else: say("The latch is behind the glass.",6)
 		"front_door":
 			var front_door: Door = world.interactables[id]["node"]
 			if not door_unlocked:
-				say("Locked. The latch is beside the window.",5)
+				say("Locked.",5)
 				play_sound("door",player.position)
 				caption("[Door rattles]")
 			elif attack_finished and front_door.is_open:
@@ -605,7 +615,7 @@ func interact(id: String) -> void:
 				"ELI: My aunt said we had to come here and pray at the altars. It keeps something here.",
 				"ELI: Wait. Do you hear that?"
 			],_begin_attack)
-		"loop_back": say("It won't open.")
+		"loop_back": pass
 		"loop_end":
 			if not complete:
 				complete=true
@@ -656,13 +666,12 @@ func _animate_rocks(pile: Vector2) -> void:
 
 func insert_battery() -> void:
 	if not has_flashlight:
-		say("Take the flashlight first.")
 		return
 	if batteries<=0:
-		say("No spare battery")
+		play_sound("switch",player.position)
+		hud.pulse_slot("battery")
 		return
 	if flashlight.battery_percent>85:
-		say("Battery is full")
 		return
 	batteries-=1
 	flashlight.battery_percent=100
@@ -670,7 +679,6 @@ func insert_battery() -> void:
 	flashlight._refresh_light()
 	play_sound("switch",player.position)
 	hud.pulse_slot("battery")
-	say("Battery replaced")
 	low_battery_hinted=false
 
 ## Bug fix (battery changing was not intuitive): a hint appears only when the light fades and a
@@ -680,7 +688,6 @@ func _tick_battery(delta: float) -> void:
 	var charge: float = flashlight.battery_percent
 	if charge>0.0 and charge<=flashlight.low_battery_threshold and batteries>0 and not low_battery_hinted:
 		low_battery_hinted=true
-		say("The light is fading.\nB · Swap battery",5)
 	if charge<=0.0 and batteries>0:
 		dead_light_time+=delta
 		if dead_light_time>=1.2:
@@ -837,8 +844,7 @@ func _parent_heard(listener: ParentListener, at: Vector2, source: int) -> void:
 		say("DAD: ...Hm? Someone up?",PARENT_LISTEN_TIME+2.5)
 		# Held steps right by the door are the one sound Space cannot fix: ask for distance instead.
 		hall_hold_alert = source != NoiseManager.SourceType.CROUCH
-		if hall_hold_alert: hud.flash_alert("HOLD  SPACE","Hold your breath and your steps go quiet.",PARENT_LISTEN_TIME)
-		else: hud.flash_alert("TOO CLOSE","Even held steps carry right by their door.",PARENT_LISTEN_TIME)
+		space_hint=true
 		# She freezes for a beat so the warning and the prompt land before another step can count.
 		# Only movement stops: breath input stays live, so Space pressed now works at once.
 		player.velocity=Vector2.ZERO
@@ -848,7 +854,7 @@ func _parent_heard(listener: ParentListener, at: Vector2, source: int) -> void:
 		return
 	parent_failures+=1
 	_parent_doorway_notice(listener)
-	request_reset("DAD: Back to bed. Now.\nHe heard your %s through the door." % _noise_name(source),true)
+	request_reset("DAD: Back to bed. Now.",true)
 
 ## On the second hear the parent leans out of the doorway toward her; the leaf swings open for the
 ## picture only (no blocker change) and everything is undone on the next reset.
@@ -1052,7 +1058,7 @@ func restore_checkpoint(bedroom := false) -> void:
 	# A parent catch restarts at the hallway entrance, close to the lesson, with gear kept.
 	if bedroom: enter_zone("hallway",world.marker("hallway","SpawnFromBedroom"),false)
 	else: enter_zone(checkpoint.get("zone","bedroom"),checkpoint.get("position",Vector2(340,440)),false)
-	if bedroom: say("Hold SPACE before the doors. Breathe out in the light.",5)
+	if bedroom: space_hint=true
 
 func _frame_camera() -> void:
 	if not is_instance_valid(player): return
@@ -1080,11 +1086,6 @@ func _toggle_pause() -> void:
 	if not _paused: _paused_modes.clear()
 	get_tree().paused = _paused
 
-func _finish_stone_hint() -> void:
-	hud.dismiss_alert()
-	world.zones["forest"].get_node("Ranger").active = zone == "forest"
-	say("Aim with the mouse · Q to throw", 4.0)
-
 func _on_ranger_spotted() -> void:
 	if zone == "forest" and not resetting:
 		say("RANGER: You there! Stop!", 3.0)
@@ -1109,12 +1110,5 @@ func _tick_ranger_checkpoint() -> void:
 	player.get_node("FootstepNoise").reset_steps()
 	save_checkpoint()
 	ranger.reset_patrol()
-	ranger.active = false
+	ranger.active = true
 	forest.get_node("ThrowTarget").show()
-	show_dialogue([""], _finish_ranger_checkpoint)
-	hud.flash_alert("DISTRACT THE RANGER", "His back is turned. Aim DOWN-RIGHT at the lit stones.\nPress Q to throw, then pass behind him along the upper trail.\nIf he spots you, break his line of sight before throwing again.",3600.0)
-
-func _finish_ranger_checkpoint() -> void:
-	hud.dismiss_alert()
-	world.zones["forest"].get_node("Ranger").active = true
-	say("Q · Throw at the lit stones below-right, then pass behind him.",7.0)

@@ -136,7 +136,7 @@ script = ExtResource("8_dkkgd")
 exterior = true
 room_side = -1
 metadata/interaction_id = "window"
-metadata/interaction_label = "Inspect the sidelight"
+metadata/interaction_label = "Look"
 metadata/interaction_offset = Vector2(0, -48)
 metadata/art_cells = PackedVector2Array(20, 22, 21, 22)
 
@@ -149,7 +149,7 @@ creak = ExtResource("6_3giw8")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "kitchen_door"
-metadata/interaction_label = "Open door"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="AltarDoor" type="Node2D" parent="Doors" unique_id=37243981 instance=ExtResource("7_2vbe5")]
@@ -162,7 +162,7 @@ creak = ExtResource("6_3giw8")
 light_energy = 1.15
 locked_light_energy = 0.5
 metadata/interaction_id = "altar_door"
-metadata/interaction_label = "Open door"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Props" type="Node2D" parent="." unique_id=7763226 groups=["house_nav"]]
@@ -209,7 +209,7 @@ script = ExtResource("11_5l22i")
 kind = "battery"
 lift = 74.0
 metadata/interaction_id = "house_battery"
-metadata/interaction_label = "Take spare battery"
+metadata/interaction_label = "Take"
 
 [node name="Altar" type="Node2D" parent="Props" unique_id=22824885 instance=ExtResource("14_gwjha")]
 position = Vector2(1008, 236)
@@ -236,7 +236,7 @@ texture_filter = 1
 position = Vector2(1008, 318)
 script = ExtResource("friend_visual")
 metadata/interaction_id = "friend"
-metadata/interaction_label = "Speak to your friend"
+metadata/interaction_label = "Talk"
 metadata/interaction_offset = Vector2(0, 35)
 
 [node name="AltarArmchair" type="Node2D" parent="Props" unique_id=1536587967 instance=ExtResource("15_xml7o")]
@@ -257,7 +257,7 @@ offset = Vector2(-48.8, -83.8)
 [node name="porch_rocks" parent="Props" unique_id=847716000 instance=ExtResource("pebble_pile")]
 position = Vector2(300, 812)
 metadata/interaction_id = "porch_rocks"
-metadata/interaction_label = "Collect three rocks"
+metadata/interaction_label = "Take"
 
 [node name="porch_battery" type="Node2D" parent="Props" unique_id=792728758]
 light_mask = 2
@@ -268,7 +268,7 @@ position = Vector2(900, 830)
 script = ExtResource("11_5l22i")
 kind = "battery"
 metadata/interaction_id = "porch_battery"
-metadata/interaction_label = "Take spare battery"
+metadata/interaction_label = "Take"
 
 [node name="PorchCrate" type="Node2D" parent="Props" unique_id=530448000 instance=ExtResource("9_3giw8")]
 position = Vector2(176, 800)
@@ -289,7 +289,7 @@ script = ExtResource("11_5l22i")
 kind = "marker"
 dimensions = Vector2(32, 32)
 metadata/interaction_id = "house_back"
-metadata/interaction_label = "Return to the forest"
+metadata/interaction_label = "Go back"
 
 [node name="RouteVeladora0" type="Node2D" parent="Props" unique_id=75144861]
 position = Vector2(570, 600)
