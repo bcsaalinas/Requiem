@@ -8,17 +8,7 @@ extends Control
 ## Visual rule: the room is dark and still. The candle on the altar and the thin rule under the
 ## title are the only things that move, on the same flicker idiom as a dying flashlight.
 
-const CONTROLS := [
-	["WASD / Arrows", "Move"],
-	["Shift", "Sprint"],
-	["Space", "Hold breath"],
-	["E", "Interact · Doors · Pray"],
-	["F", "Flashlight"],
-	["B", "Swap battery"],
-	["Q / Tab", "Throw · Switch"],
-	["R / Select", "Reset to title"],
-	["F11", "Fullscreen"],
-]
+const ControlsList := preload("res://tutorial/controls_list.gd")
 ## Where the candle flame sits in the key art (UV of menu_background.png), and the
 ## size of its glow in art pixels. The art is drawn "covered", so the glow follows it.
 const CANDLE_UV := Vector2(0.8156, 0.5444)
@@ -94,7 +84,7 @@ func _ready() -> void:
 
 func _build_controls() -> void:
 	var grid: GridContainer = %ControlsGrid
-	for row in CONTROLS:
+	for row in ControlsList.ROWS:
 		var key := Label.new()
 		key.text = row[0]
 		key.theme_type_variation = &"KeyLabel"

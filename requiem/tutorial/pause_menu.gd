@@ -29,17 +29,7 @@ signal quit_pressed
 @export var duck_bus_name: String = "Master"
 @export var duck_db: float = -14.0
 
-const CONTROLS := [
-	["WASD / Arrows", "Move"],
-	["Shift", "Sprint"],
-	["Space", "Hold breath"],
-	["E", "Interact · Pray"],
-	["F", "Flashlight"],
-	["B", "Replace battery"],
-	["Q / Tab", "Throw · Switch"],
-	["R / Select", "Reset to title"],
-	["F11", "Fullscreen"],
-]
+const ControlsList := preload("res://tutorial/controls_list.gd")
 
 var is_open: bool = false
 
@@ -162,7 +152,7 @@ func _build_controls() -> Control:
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 7)
-	for row in CONTROLS:
+	for row in ControlsList.ROWS:
 		var key := UIPalette.label(row[0], UIPalette.MIN_TEXT_SIZE, UIPalette.CANDLE)
 		key.custom_minimum_size.x = 180
 		grid.add_child(key)
