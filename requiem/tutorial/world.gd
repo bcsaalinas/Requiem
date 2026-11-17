@@ -14,7 +14,7 @@ const REGIONS := {
 
 const FriendVisual := preload("res://tutorial/friend_visual.gd")
 const ATTACK_CANDLES := ["RouteVeladora0", "RouteVeladora1", "vestibule_candle", "RouteVeladora2", "altar_candle_left", "altar_candle_right", "RouteVeladora3"]
-const HOUSE_CANDLE_LIGHTS := {"vestibule_candle": "VestibuleLight", "altar_candle_left": "AltarLeftLight", "altar_candle_right": "AltarRightLight"}
+const HOUSE_CANDLE_LIGHTS := {"vestibule_candle": "VestibuleLight", "altar_candle_left": "AltarLeftLight", "altar_candle_right": "AltarLeftLight"}
 var props: Dictionary = {}
 var interactables: Dictionary = {}
 var landmarks: Dictionary = {}

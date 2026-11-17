@@ -15,11 +15,14 @@
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="11_4vynj"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="12_48vr2"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="13_fnyqe"]
-[ext_resource type="Texture2D" uid="uid://cpvkd1x0ocyb4" path="res://assets/Textures/light_texture.png" id="14_qcv8i"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="18_i7gi3"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="19_4vynj"]
 [ext_resource type="Script" uid="uid://b1a78v681ok8r" path="res://tutorial/note_highlight.gd" id="note_highlight"]
 [ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_moon_flat"]
+atlas = ExtResource("light_pool")
+region = Rect2(78, 78, 36, 36)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qcv8i"]
 shader = ExtResource("11_4vynj")
@@ -182,8 +185,8 @@ color = Color(0.5411765, 0.627451, 0.7058824, 1)
 energy = 1.15
 shadow_enabled = true
 shadow_filter = 0
-texture = ExtResource("14_qcv8i")
-texture_scale = 5.2
+texture = SubResource("AtlasTexture_moon_flat")
+texture_scale = 60.0
 
 [node name="MoonSpill" type="PointLight2D" parent="Lights"]
 position = Vector2(512, 140)
