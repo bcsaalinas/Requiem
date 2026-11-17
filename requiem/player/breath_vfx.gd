@@ -7,7 +7,7 @@ var _edge: ColorRect
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	LegacyUi.fit_root(self)
 	_edge = ColorRect.new()
 	_edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_edge.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -38,9 +38,9 @@ func _draw() -> void:
 	var event_active: bool = progress < 1.0 and feedback.cue != &""
 	var warning_active: bool = feedback.breath.is_holding and feedback.strain > 0.12
 	if not event_active and not warning_active: return
-	var at: Vector2 = feedback.appearance.get_global_transform_with_canvas().origin
-	# Screen-space width remains restrained at any gameplay camera zoom.
-	var scale_factor: float = feedback.appearance.get_global_transform_with_canvas().get_scale().x
+	var at := LegacyUi.to_ui(feedback.appearance.get_global_transform_with_canvas().origin)
+	# Screen-space width remains restrained at any gameplay camera zoom and window size.
+	var scale_factor: float = feedback.appearance.get_global_transform_with_canvas().get_scale().x / scale.x
 	var radius := lerpf(43.0, 33.0, ease(progress, 0.55)) if feedback.cue == &"inhale" else lerpf(33.0, 45.0, progress)
 	radius *= clampf(scale_factor, 1.0, 2.2)
 	var color := Color("c6cfbe")

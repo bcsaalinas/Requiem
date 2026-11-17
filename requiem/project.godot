@@ -31,14 +31,13 @@ PauseMenu="*res://tutorial/pause_menu.gd"
 LoadingScreen="*res://tutorial/loading_screen.gd"
 Kiosk="*uid://bpyfjo7fw5roa"
 MusicDirector="*res://autoloads/music_director.gd"
+PixelDisplay="*uid://bg081nyu5xrq3"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/resizable=false
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
 
 [editor_plugins]
 

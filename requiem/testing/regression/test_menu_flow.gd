@@ -17,7 +17,10 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	call_deferred("run")
 
+var original_storage_path := ""
+
 func run() -> void:
+	original_storage_path = Preferences.storage_path
 	Preferences.storage_path = "user://requiem-menu-test-%s.cfg" % OS.get_process_id()
 	Preferences.load_preferences()
 	# Keep the runner alive while exercising the real scene replacement.
@@ -155,4 +158,6 @@ func run() -> void:
 func finish() -> void:
 	print("[Menu flow tests] %d/%d passed" % [checks - failures, checks])
 	DirAccess.remove_absolute(Preferences.storage_path)
+	Preferences.storage_path = original_storage_path
+	Preferences.load_preferences()
 	get_tree().quit(0 if failures == 0 else 1)

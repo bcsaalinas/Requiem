@@ -1,23 +1,60 @@
 class_name LegacyUi
 extends RefCounted
-## The legacy UIs were laid out on a 1280x720 canvas that canvas_items stretch scaled by 1.5 to 1080p.
-## With viewport stretch that scaling is gone, so each legacy UI gets its 1280x720 canvas back and is
-## scaled explicitly. UI drawn later at 960x540 uses the same pattern with a scale of 2.
+## The legacy UIs were laid out on a 1280x720 canvas. They are drawn natively at the window's
+## real resolution: the canvas is scaled by the UI factor and centred (PixelDisplay.layout), and
+## refitted whenever the window or display mode changes. UI drawn later at 960x540 would use the
+## same pattern with its own canvas size.
 
-const CANVAS := Vector2(1280, 720)
-const SCALE := 1.5
+static var _roots: Array[Control] = []
+static var _layers: Array[CanvasLayer] = []
+static var _connected := false
 
 
-## For full-screen roots: anchors resolve against the viewport and ignore a CanvasLayer scale, so the
-## root itself is resized and scaled.
+## For full-screen roots: anchors resolve against the window and ignore a CanvasLayer scale, so the
+## root itself is resized, scaled and placed.
 static func fit_root(root: Control) -> void:
 	root.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	root.position = Vector2.ZERO
-	root.size = CANVAS
-	root.scale = Vector2.ONE * SCALE
+	root.size = PixelDisplay.UI_CANVAS
 	root.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_roots.append(root)
+	_track()
+	_place(root)
 
 
 ## For layers whose children use fixed 1280x720 positions and no full-screen root.
 static func fit_layer(layer: CanvasLayer) -> void:
-	layer.scale = Vector2.ONE * SCALE
+	_layers.append(layer)
+	_track()
+	_place_layer(layer)
+
+
+## Window pixels to the 1280x720 UI canvas.
+static func to_ui(window_point: Vector2) -> Vector2:
+	return PixelDisplay.to_ui(window_point)
+
+
+static func _track() -> void:
+	if not _connected:
+		_connected = true
+		PixelDisplay.layout_changed.connect(_refit)
+
+
+static func _refit() -> void:
+	_roots.assign(_roots.filter(func(node: Object) -> bool: return is_instance_valid(node)))
+	_layers.assign(_layers.filter(func(node: Object) -> bool: return is_instance_valid(node)))
+	for root in _roots:
+		_place(root)
+	for layer in _layers:
+		_place_layer(layer)
+
+
+static func _place(root: Control) -> void:
+	var current := PixelDisplay.layout()
+	root.position = current["ui_origin"]
+	root.scale = Vector2.ONE * float(current["ui_scale"])
+
+
+static func _place_layer(layer: CanvasLayer) -> void:
+	var current := PixelDisplay.layout()
+	layer.offset = current["ui_origin"]
+	layer.scale = Vector2.ONE * float(current["ui_scale"])

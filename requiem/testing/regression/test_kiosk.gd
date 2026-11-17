@@ -4,6 +4,7 @@ extends Node
 
 const World := preload("res://tutorial/world.gd")
 const Attract := preload("res://tutorial/attract_mode.gd")
+const PixelDisplayScript := preload("res://autoloads/pixel_display.gd")
 
 var checks := 0
 var failures := 0
@@ -85,12 +86,22 @@ func check_display_lock() -> void:
 		and ProjectSettings.get_setting("display/window/size/viewport_height") == 1080
 		and not ProjectSettings.get_setting("display/window/size/window_width_override", 0)
 		and not ProjectSettings.get_setting("display/window/size/window_height_override", 0), "The window opens at 1920x1080")
-	check(ProjectSettings.get_setting("display/window/stretch/mode") == "viewport"
-		and ProjectSettings.get_setting("display/window/stretch/scale_mode") == "integer"
+	check(ProjectSettings.get_setting("display/window/stretch/mode") == "disabled"
+		and PixelDisplay.WORLD_SIZE == Vector2i(1920, 1080)
 		and ProjectSettings.get_setting("rendering/textures/canvas_textures/default_texture_filter") == 0
-		and ProjectSettings.get_setting("rendering/2d/snap/snap_2d_transforms_to_pixel") == true, "The game renders a 1920x1080 viewport at integer scale, so 1 art px = 1 screen px")
+		and ProjectSettings.get_setting("rendering/2d/snap/snap_2d_transforms_to_pixel") == true, "The world renders at a fixed 1920x1080 and is scaled to the window by PixelDisplay")
 	check(not ProjectSettings.get_setting("display/window/size/resizable"), "The window cannot be resized")
-	check(get_window().content_scale_aspect == Window.CONTENT_SCALE_ASPECT_KEEP, "Other aspect ratios letterbox instead of showing more of the world")
+	var fit_1080 := PixelDisplayScript.layout_for(Vector2i(1920, 1080), false)
+	var fit_4k := PixelDisplayScript.layout_for(Vector2i(3840, 2160), false)
+	var ultrawide := PixelDisplayScript.layout_for(Vector2i(2560, 1080), false)
+	var taller := PixelDisplayScript.layout_for(Vector2i(2560, 1664), false)
+	var borders := PixelDisplayScript.layout_for(Vector2i(2560, 1440), true)
+	check(fit_1080["image_scale"] == 1.0 and fit_1080["image_rect"] == Rect2i(0, 0, 1920, 1080)
+		and fit_4k["image_scale"] == 2.0
+		and ultrawide["image_rect"] == Rect2i(320, 0, 1920, 1080)
+		and taller["image_rect"] == Rect2i(0, 112, 2560, 1440)
+		and borders["image_scale"] == 1.0 and borders["image_rect"] == Rect2i(320, 180, 1920, 1080),
+		"Other aspect ratios letterbox instead of showing more of the world")
 
 func check_input_filter() -> void:
 	Kiosk._idle_time = 10.0
