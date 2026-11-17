@@ -46,6 +46,7 @@ var _starting := false
 var _fullscreen: CheckButton
 var _display_mode: Button
 var _turn_mode: Button
+var _captions: Button
 var _pages: Dictionary = {}
 var _clock := 0.0
 var _flicker_target := 1.0
@@ -217,6 +218,8 @@ func _build_extra_pages() -> void:
 	Preferences.display_mode_changed.connect(_refresh_display_caption)
 	_turn_mode = _button(display, Preferences.turn_caption(), Preferences.toggle_turn_mode)
 	Preferences.turn_mode_changed.connect(_refresh_turn_caption)
+	_captions = _button(display, Preferences.captions_caption(), Preferences.toggle_captions)
+	Preferences.captions_changed.connect(func(): _captions.text = Preferences.captions_caption())
 	_button(display, "Back", _show_page.bind("settings"))
 
 	var quit := _page("quit")
