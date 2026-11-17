@@ -204,7 +204,9 @@ func _sync_blockers() -> void:
 	for occluder_name in ["Occluder", "OccluderLeaf"]:
 		var occluder := get_node_or_null(occluder_name) as LightOccluder2D
 		if occluder != null:
-			occluder.visible = not is_open
+			# FRONT doors keep the y -80 line off: it stopped her beam 57 px
+			# before the leaf; the jamb posts seal the sides now.
+			occluder.visible = false if occluder_name == "Occluder" 				and style == Style.FRONT else not is_open
 
 
 func _apply_swing() -> void:
