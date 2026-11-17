@@ -31,6 +31,7 @@ script = ExtResource("4_7d2fe")
 
 [node name="SkeletonLight" type="DirectionalLight2D" parent="."]
 range_item_cull_mask = 64
+energy = 0.15
 color = Color(0.443137, 0.533333, 0.607843, 1)
 
 [node name="TutorialAmbient" type="CanvasModulate" parent="." unique_id=1594022313]
