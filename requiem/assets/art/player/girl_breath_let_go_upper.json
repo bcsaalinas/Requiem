@@ -1,0 +1,76 @@
+{
+ "clip": "breath_let_go",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_breath_let_go_upper.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 460,
+ "clip_note": "she lets the breath out quietly: plays once, then the idle (frame 0 of every mood is her rest pose)",
+ "plays_over": "girl_stand_lower, girl_sneak_lower and girl_side_step_lower (the last two moved by their upper_offset)",
+ "loop": false,
+ "head": "no head sheet: draw a girl_head_poses frame moved by head_offset (frame 2, 0 deg, at [0, 0] is the idle head exactly)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 120,
+   "label": "out",
+   "head_offset": [
+    0,
+    0
+   ],
+   "anchors": {
+    "hand_left": [
+     108.0,
+     109.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 200,
+   "label": "slump",
+   "head_offset": [
+    0,
+    1
+   ],
+   "anchors": {
+    "hand_left": [
+     111.0,
+     112.0
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 140,
+   "label": "settle",
+   "head_offset": [
+    0,
+    0
+   ],
+   "anchors": {
+    "hand_left": [
+     110.0,
+     111.0
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,103 @@
+{
+ "clip": "pray_finish",
+ "part": "arm_right_off",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_finish_arm_right_off.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right",
+  "flashlight_held"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 920,
+ "clip_note": "she rises slowly from prayer: the old rig's exit (the kneel reversed), sampled knees up / lift / fold / rise. The joined hands part (open hands apart on knees up and lift) and the right hand goes back to its rest pose in each state: from fold on, off holds the low torch, none is the empty hand, on is the raised arm and torch, as in the idle. Plays once, then switch to the idle.",
+ "plays_over": "girl_pray_finish_lower only (its own boots, which fold back under her)",
+ "starts_from": "pray_loop_calm frame 0 (held) or pray_kneel frame 3 (settle): the same pose",
+ "next_clip": "the idle (rest pose); the rise frame is 1 px of chest / shoulders and 2 px of head from it",
+ "loop": false,
+ "sound_frames": [
+  0
+ ],
+ "sound_note": "frame 0: the knees leave the floor",
+ "pray_rules": "Beti PRAY RULES: joined hands part; in off and on the torch leaves the palms with the right hand (one look for both until fold, where each state's idle torch is back); boots option B.",
+ "state": "flashlight low, off",
+ "light_note": "frames 0-1 draw the same torch in off and on (leaving the palms with the right hand); from frame 2 each state's idle torch (off low, on raised). flashlight_tip is at the lens on every frame.",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 240,
+   "label": "knees up",
+   "anchors": {
+    "hand_right": [
+     65.0,
+     120.5
+    ],
+    "flashlight_tip": [
+     64.5,
+     139.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 200,
+   "label": "lift",
+   "anchors": {
+    "hand_right": [
+     60.0,
+     115.5
+    ],
+    "flashlight_tip": [
+     56.5,
+     133.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 220,
+   "label": "fold",
+   "anchors": {
+    "hand_right": [
+     50.0,
+     113.0
+    ],
+    "flashlight_tip": [
+     48.5,
+     126.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 260,
+   "label": "rise",
+   "anchors": {
+    "hand_right": [
+     50.0,
+     111.0
+    ],
+    "flashlight_tip": [
+     48.5,
+     124.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  }
+ ]
+}

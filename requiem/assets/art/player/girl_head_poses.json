@@ -1,0 +1,81 @@
+{
+ "clip": "head_poses",
+ "kind": "pose set, not a clip: the game shows one frame, chosen by the head's turn against the upper body",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_head_poses.png",
+  "hframes": 5,
+  "vframes": 1
+ },
+ "layer": "head (drawn above torso, arms and held items)",
+ "turn_sign": "degrees; positive turns the face from south toward west = clockwise on screen (Godot rotation sign)",
+ "frames": [
+  {
+   "frame": 0,
+   "head_turn_deg": 70,
+   "ms": 100,
+   "anchors": {
+    "head_center": [
+     66.37,
+     84.96
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "head_turn_deg": 35,
+   "ms": 100,
+   "anchors": {
+    "head_center": [
+     71.68,
+     91.88
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "head_turn_deg": 0,
+   "ms": 100,
+   "anchors": {
+    "head_center": [
+     80.0,
+     94.5
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "head_turn_deg": -35,
+   "ms": 100,
+   "anchors": {
+    "head_center": [
+     88.32,
+     91.88
+    ]
+   }
+  },
+  {
+   "frame": 4,
+   "head_turn_deg": -70,
+   "ms": 100,
+   "anchors": {
+    "head_center": [
+     93.63,
+     84.96
+    ]
+   }
+  }
+ ],
+ "ms_note": "poses hold as long as the game keeps the turn; 100 ms is the Aseprite frame duration, not timing",
+ "anchors_note": "head_center only; hand_right, hand_left, flashlight_tip and hip_center live on the body sheets",
+ "sound_frames": []
+}

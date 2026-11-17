@@ -1,0 +1,140 @@
+{
+ "clip": "sneak",
+ "part": "lower",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_sneak_lower.png",
+  "hframes": 8,
+  "vframes": 1
+ },
+ "layers": [
+  "leg_far",
+  "leg_near"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 1400,
+ "sound_frames": [
+  0,
+  4
+ ],
+ "speed_u_s": 2.5,
+ "notes": [
+  "sneak reversed: the same clip played backwards at 75 % speed",
+  "upper body: the game's hold-breath clip moved by upper_offset (the 1 px sway, x toward the stance boot); the head pose moves by head_offset (= upper_offset)"
+ ],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 260,
+   "label": "contact L",
+   "upper_offset": [
+    0,
+    0
+   ],
+   "head_offset": [
+    0,
+    0
+   ]
+  },
+  {
+   "frame": 1,
+   "ms": 150,
+   "label": "",
+   "upper_offset": [
+    1,
+    0
+   ],
+   "head_offset": [
+    1,
+    0
+   ]
+  },
+  {
+   "frame": 2,
+   "ms": 140,
+   "label": "passing",
+   "upper_offset": [
+    1,
+    0
+   ],
+   "head_offset": [
+    1,
+    0
+   ]
+  },
+  {
+   "frame": 3,
+   "ms": 150,
+   "label": "",
+   "upper_offset": [
+    1,
+    0
+   ],
+   "head_offset": [
+    1,
+    0
+   ]
+  },
+  {
+   "frame": 4,
+   "ms": 260,
+   "label": "contact R",
+   "upper_offset": [
+    0,
+    0
+   ],
+   "head_offset": [
+    0,
+    0
+   ]
+  },
+  {
+   "frame": 5,
+   "ms": 150,
+   "label": "",
+   "upper_offset": [
+    -1,
+    0
+   ],
+   "head_offset": [
+    -1,
+    0
+   ]
+  },
+  {
+   "frame": 6,
+   "ms": 140,
+   "label": "passing",
+   "upper_offset": [
+    -1,
+    0
+   ],
+   "head_offset": [
+    -1,
+    0
+   ]
+  },
+  {
+   "frame": 7,
+   "ms": 150,
+   "label": "",
+   "upper_offset": [
+    -1,
+    0
+   ],
+   "head_offset": [
+    -1,
+    0
+   ]
+  }
+ ]
+}

@@ -1,6 +1,10 @@
 extends Node
 ## User preferences, shared by the main menu and pause menu.
 signal display_mode_changed
+signal turn_mode_changed
+
+const TURN_FREE := "free"
+const TURN_STEPS := "steps"
 
 const DISPLAY_FILL := "fill"
 const DISPLAY_PIXEL_PERFECT := "pixel_perfect"
@@ -9,6 +13,7 @@ var config := ConfigFile.new()
 var storage_path := "user://preferences.cfg"
 var fullscreen := false
 var display_mode := DISPLAY_FILL
+var turn_mode := TURN_FREE
 
 func _ready() -> void:
 	load_preferences()
@@ -20,6 +25,9 @@ func load_preferences() -> void:
 	display_mode = str(config.get_value("display", "mode", DISPLAY_FILL))
 	if display_mode != DISPLAY_PIXEL_PERFECT:
 		display_mode = DISPLAY_FILL
+	turn_mode = str(config.get_value("display", "turn_mode", TURN_FREE))
+	if turn_mode != TURN_STEPS:
+		turn_mode = TURN_FREE
 	for index in AudioServer.bus_count:
 		var bus_name := AudioServer.get_bus_name(index)
 		var volume := clampf(float(config.get_value("audio", bus_name, 1.0)), 0.0, 1.0)
@@ -50,6 +58,18 @@ func set_display_mode(mode: String) -> void:
 	config.set_value("display", "mode", mode)
 	_save()
 	display_mode_changed.emit()
+
+func set_turn_mode(mode: String) -> void:
+	turn_mode = mode
+	config.set_value("display", "turn_mode", mode)
+	_save()
+	turn_mode_changed.emit()
+
+func toggle_turn_mode() -> void:
+	set_turn_mode(TURN_FREE if turn_mode == TURN_STEPS else TURN_STEPS)
+
+func turn_caption() -> String:
+	return "Turning · 22.5° steps" if turn_mode == TURN_STEPS else "Turning · Free"
 
 func toggle_display_mode() -> void:
 	set_display_mode(DISPLAY_FILL if display_mode == DISPLAY_PIXEL_PERFECT else DISPLAY_PIXEL_PERFECT)

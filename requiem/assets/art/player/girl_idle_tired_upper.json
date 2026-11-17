@@ -1,0 +1,92 @@
+{
+ "clip": "idle_tired",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_idle_tired_upper.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 1450,
+ "mood": "tired",
+ "mood_note": "after a sprint: B, the shoulders, collar and arms rise 1-2 px (the hem, the hands and the flashlight stay), the head a frame later",
+ "plays_over": "girl_stand_lower, and girl_side_step_lower moved by its upper_offset (both sides)",
+ "switch_note": "calm by default; tired / exhausted after a sprint (MOVEMENT_PLAN 4). Switch at a frame boundary: frame 0 of every mood is her rest pose (exhausted's head 1 px forward)",
+ "head": "no head sheet: draw a girl_head_poses frame moved by head_offset (frame 2, 0 deg, at [0, 0] is the idle head exactly)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 500,
+   "label": "rest",
+   "head_offset": [
+    0,
+    0
+   ],
+   "anchors": {
+    "hand_left": [
+     110,
+     108
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 250,
+   "label": "in",
+   "head_offset": [
+    0,
+    -1
+   ],
+   "anchors": {
+    "hand_left": [
+     110,
+     108
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 400,
+   "label": "full",
+   "head_offset": [
+    0,
+    -2
+   ],
+   "anchors": {
+    "hand_left": [
+     110,
+     108
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 300,
+   "label": "out",
+   "head_offset": [
+    0,
+    -1
+   ],
+   "anchors": {
+    "hand_left": [
+     110,
+     108
+    ]
+   }
+  }
+ ]
+}

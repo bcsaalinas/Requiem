@@ -1,0 +1,127 @@
+{
+ "clip": "pray_loop_calm",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_loop_calm_upper.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 2200,
+ "plays_over": "girl_pray_loop_lower only (she is still: kneeling never plays over another lower)",
+ "loop": true,
+ "sound_frames": [],
+ "pray_rules": "Beti PRAY RULES: hands joined palm to palm in front of her chest, just ahead of the head; in off and on the torch is pinched between them pointing at the floor ahead (one look for both); in none the hands are joined with no torch; kneel boots option B.",
+ "next_clips_note": "bead step / finish / abort start from the loop frames (calm frame 0 = the settle)",
+ "clip_note": "calm prayer: a slow 1 px breath (held / inhale: shoulders and head back 1 / exhale: shoulders and chest 1 forward / sink: the head follows 1 px late). Frame 0 is the kneel's settle frame exactly (0 px), so girl_pray_kneel -> pray_loop_calm never pops.",
+ "lower": "girl_pray_loop_lower.png (frame 0, every frame)",
+ "head": "no head sheet: draw girl_head_poses frame 2 (0 deg, the idle head) moved by head_offset (the bow, the breath and the tremor)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 500,
+   "label": "held",
+   "head_offset": [
+    0,
+    10
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     129.5
+    ],
+    "head_center": [
+     80.0,
+     104.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 700,
+   "label": "inhale",
+   "head_offset": [
+    0,
+    9
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     128.5
+    ],
+    "head_center": [
+     80.0,
+     103.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 550,
+   "label": "exhale",
+   "head_offset": [
+    0,
+    10
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     129.5
+    ],
+    "head_center": [
+     80.0,
+     104.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 450,
+   "label": "sink",
+   "head_offset": [
+    0,
+    11
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     130.5
+    ],
+    "head_center": [
+     80.0,
+     105.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "clip": "pray_bead_step",
+ "part": "arm_right_none",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_bead_step_arm_right_none.png",
+  "hframes": 2,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_empty"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 380,
+ "plays_over": "girl_pray_loop_lower only (frame 0; she is still, the boots don't move, so there is no bead lower)",
+ "lower": "girl_pray_loop_lower.png (frame 0, every frame)",
+ "loop": false,
+ "sound_frames": [
+  1
+ ],
+ "sound_note": "frame 1 (click) is the bead click",
+ "trigger_note": "start only from pray_loop_calm frame 0 (held) and return to it: both bead frames are built on it (everything above row 128 = held). Not from mid-breath calm frames or pray_loop_afraid (a pop).",
+ "clip_note": "bead step (option B2): draw = the joined hands and the pinched torch draw back 1 px (one finger row fewer shows under the head); click = they push 1 px forward and her thumb (2 px #7a5c3a) slides out on the palm seam with 2 seam px ahead of it. Cuffs, torso, head and boots = the held frame.",
+ "pray_rules": "Beti PRAY RULES: hands joined palm to palm in front of her chest, just ahead of the head; in off and on the torch is pinched between them pointing at the floor ahead (one look for both); in none the hands are joined with no torch; kneel boots option B.",
+ "state": "no flashlight",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 160,
+   "label": "draw",
+   "anchors": {
+    "hand_right": [
+     77.5,
+     128.5
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 220,
+   "label": "click",
+   "anchors": {
+    "hand_right": [
+     77.5,
+     130.5
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,128 @@
+{
+ "clip": "arm_right_equip",
+ "part": "arm_right",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_arm_right_equip.png",
+  "hframes": 6,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_raised",
+  "flashlight_raised"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 410,
+ "plays_over": "the rest upper body (girl_idle_* frame 0, or girl_walk_upper / sneak / side-step, whose right arm is steady) on any lower; during the sprint, swap the arm state directly",
+ "hold_note": "while it plays, hold the idle on its frame 0 so the shoulder matches the rest arm",
+ "flashlight_note": "flashlight_tip / flashlight_angle_deg are the drawn values (deg out from straight ahead)",
+ "clip_note": "the flashlight comes up from the low carry (frame 0 = girl_*_arm_right_off's rest arm) to the raised aim (frame 5 = girl_*_arm_right_on's rest arm). Play it backwards to lower the light; switch the arm state at the end of the clip",
+ "sound_frames": [],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 70,
+   "label": "low",
+   "anchors": {
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 50,
+   "label": "lift",
+   "anchors": {
+    "hand_right": [
+     48.8,
+     115.5
+    ],
+    "flashlight_tip": [
+     47.5,
+     129.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 50,
+   "label": "swing",
+   "anchors": {
+    "hand_right": [
+     47.4,
+     122.0
+    ],
+    "flashlight_tip": [
+     46.2,
+     136.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 50,
+   "label": "reach",
+   "anchors": {
+    "hand_right": [
+     46.5,
+     126.6
+    ],
+    "flashlight_tip": [
+     45.2,
+     140.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 70,
+   "label": "overshoot",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     129.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     143.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 120,
+   "label": "raised",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  }
+ ]
+}
