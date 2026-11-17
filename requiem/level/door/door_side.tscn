@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="1_0e2un"]
 [ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav" id="2_2lsu5"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="4_glow"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 
 [ext_resource type="Texture2D" path="res://assets/art/props/door_frame.png" id="frame_tex"]
 [ext_resource type="Texture2D" path="res://assets/art/props/door_leaf_closed.png" id="leaf_tex"]
@@ -48,10 +49,9 @@ color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("4_glow")
-texture_scale = 0.85
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.2
 
 [node name="LightEast" type="PointLight2D" parent="Glow" unique_id=1730492214]
 position = Vector2(28, -32)
@@ -59,10 +59,9 @@ color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("4_glow")
-texture_scale = 0.85
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.2
 
 [node name="Blocker" type="StaticBody2D" parent="." unique_id=884835333]
 

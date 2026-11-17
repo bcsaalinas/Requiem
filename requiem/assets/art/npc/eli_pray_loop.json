@@ -1,0 +1,151 @@
+{
+ "clip": "pray_loop",
+ "character": "eli",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "eli_pray_loop.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left",
+  "arm_right",
+  "head"
+ ],
+ "lower": {
+  "file": "../player/girl_pray_loop_lower.png",
+  "frame": 0,
+  "note": "Viv's exported pray-loop boots (1 frame, = the kneel settle boots), under every frame"
+ },
+ "draw_order": "lower (girl_pray_loop_lower frame 0), then this sheet. Starts from eli_pray_kneel's last frame (frame 0 here is the same picture, 0 px) and loops while he prays",
+ "state": "no flashlight (one carry state: hands joined)",
+ "mood": "calm (Viv's girl_pray_loop calm 4; the brief gives Eli one pray loop)",
+ "build": "ws03_characters/_tools/eli_pray_loop_build.py (Eli's kneel settle moved in whole px by Viv's calm loop deltas)",
+ "loop": true,
+ "loop_ms": 2200,
+ "sound_frames": [],
+ "frames": [
+  {
+   "frame": 0,
+   "label": "held",
+   "ms": 500,
+   "head_offset": [
+    0,
+    10
+   ],
+   "anchors": {
+    "hand_right": [
+     77.5,
+     124.5
+    ],
+    "hand_left": [
+     82.5,
+     124.5
+    ],
+    "head_center": [
+     80,
+     105.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   },
+   "hands_joined": true
+  },
+  {
+   "frame": 1,
+   "label": "inhale",
+   "ms": 700,
+   "head_offset": [
+    0,
+    9
+   ],
+   "anchors": {
+    "hand_right": [
+     77.5,
+     123.5
+    ],
+    "hand_left": [
+     82.5,
+     123.5
+    ],
+    "head_center": [
+     80,
+     104.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   },
+   "hands_joined": true
+  },
+  {
+   "frame": 2,
+   "label": "exhale",
+   "ms": 550,
+   "head_offset": [
+    0,
+    10
+   ],
+   "anchors": {
+    "hand_right": [
+     77.5,
+     124.5
+    ],
+    "hand_left": [
+     82.5,
+     124.5
+    ],
+    "head_center": [
+     80,
+     105.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   },
+   "hands_joined": true
+  },
+  {
+   "frame": 3,
+   "label": "sink",
+   "ms": 450,
+   "head_offset": [
+    0,
+    11
+   ],
+   "anchors": {
+    "hand_right": [
+     77.5,
+     125.5
+    ],
+    "hand_left": [
+     82.5,
+     125.5
+    ],
+    "head_center": [
+     80,
+     106.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   },
+   "hands_joined": true
+  }
+ ]
+}

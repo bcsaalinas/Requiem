@@ -126,7 +126,7 @@ var _ear_count := 0
 
 func _ready() -> void:
 	_entity = get_parent()
-	scale = Vector2(0.5, 0.5)
+	scale = Vector2(0.4, 0.4)
 	z_index = 1
 	_scream_back = _sprite("ScreamBack", true)
 	_body = _sprite("Body", false)
@@ -265,7 +265,7 @@ func _show_head(sheet: String, frame: int, offset := Vector2.ZERO, roll_deg := 0
 		_set_sheet(_head, sheet)
 	head_frame = frame
 	_head.frame = frame
-	# Offsets are art pixels; the rig is scaled 0.5, so its local space is art pixels.
+	# Offsets are art pixels; the rig is scaled 0.4, so its local space is art pixels.
 	_head.position = offset
 	_head.rotation_degrees = roll_deg
 

@@ -60,6 +60,7 @@ func _hear(at: Vector2, radius: float, source: int, _duration: float) -> void:
 	_stone_target = source == NoiseManager.SourceType.THROW and at.distance_to(home) >= 75.0
 	if _stone_target: lesson_waiting = false
 	facing = global_position.direction_to(at)
+	$Appearance.heard_noise()
 	wait_left = 0.6
 	travel_time = 0.0
 
@@ -80,7 +81,9 @@ func _physics_process(delta: float) -> void:
 	if active and NavigationServer2D.map_get_iteration_id(agent.get_navigation_map()) > 0:
 		var sees := can_see_player()
 		if sees:
-			if not chasing: spotted.emit()
+			if not chasing:
+				spotted.emit()
+				$Appearance.noticed()
 			chasing = true
 			distracted = false
 			_stone_target = false
@@ -122,8 +125,7 @@ func _physics_process(delta: float) -> void:
 	if moving:
 		facing = velocity.normalized()
 		gait_phase = fmod(gait_phase + velocity.length() * delta / 64.0,1.0)
-	$Appearance.actor_is_moving = moving
-	$Appearance.set_actor_gait(gait_phase,moving,facing,false,delta)
+	$Appearance.present(delta)
 
 func _next_patrol() -> void:
 	if lesson_waiting:

@@ -2,7 +2,6 @@ extends Node2D
 ## Exercise accepted altar rituals, their presentation, and shared rig attachment.
 ## The altar remains the only clock for costs, progress, hearing and completion.
 
-const RigLayers := preload("res://player/character_rig_layers.gd")
 const AltarScene := preload("res://altar/altar.tscn")
 const GRIP_LENS := Vector2(16, 34)
 const DIRECTIONS := [&"e", &"se", &"s", &"sw", &"w", &"nw", &"n", &"ne"]
@@ -151,12 +150,12 @@ func _ready() -> void:
 	await check_interruptions()
 	await check_owner_and_eligibility()
 	await check_mechanic_parity()
-	await check_prayer_shapes()
+	check_prayer_shapes()
 	check(completed_scenarios == 9, "Every prayer integration scenario reaches its final assertions")
 	check(_minimum_boot_spacing >= 9.05 and _minimum_lane_clearance > 0.0,
 		"Kneeling feet keep separate anatomical lanes (%.3f px spacing; %.3f px lane clearance)" % [_minimum_boot_spacing, _minimum_lane_clearance])
-	check(_minimum_rearward_distance > -6.0 and _kneel_samples > 0,
-		"Every held kneel keeps both boot centroids at the hip line or behind it, hip_center y 81 (%.3f art px minimum; the art is level, not clearly behind)" % _minimum_rearward_distance)
+	check(_minimum_rearward_distance > 0.0 and _kneel_samples > 0,
+		"Every held kneel puts both boot centroids behind the hips, north of hip_center y 81 (%.3f art px minimum)" % _minimum_rearward_distance)
 	check(_maximum_leg_reach <= 30.01,
 		"Kneeling keeps each hip-to-ankle attachment inside the established leg envelope (%.3f px)" % _maximum_leg_reach)
 	check(_lens_error <= 0.51, "Every equipped prayer pose keeps the beam at its painted lens (%.5f px)" % _lens_error)
@@ -501,7 +500,7 @@ func observe_kneeling_legs(track: String) -> void:
 		var hip_y: float = rig.to_local(rig.anchor_global("hip_center")).y / Units.ART_SCALE if rig.has_anchor("hip_center") else 1.0
 		for side in ["left", "right"]:
 			var boot_y: float = rig.to_local(appearance.to_global(appearance.get_actor_boot_position(side))).y / Units.ART_SCALE
-			_minimum_rearward_distance = minf(_minimum_rearward_distance, boot_y - hip_y)
+			_minimum_rearward_distance = minf(_minimum_rearward_distance, hip_y - boot_y)
 		_kneel_samples += 1
 
 

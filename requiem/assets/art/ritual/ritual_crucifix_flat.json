@@ -1,0 +1,37 @@
+{
+  "name": "ritual_crucifix_flat",
+  "description": "a dark-wood Latin crucifix lying flat on the altar cloth, seen from straight above: long axis E-W, head W, crossbar N-S; a pale corpus face up (the chest the one highlight). Not a pickup (no glint).",
+  "file": "ritual_crucifix_flat.png",
+  "canvas": [
+    36,
+    24
+  ],
+  "pivot": [
+    18,
+    12
+  ],
+  "bbox": {
+    "x": 1,
+    "y": 1,
+    "w": 34,
+    "h": 22
+  },
+  "altar_slot": "crucifix",
+  "altar_slot_note": "ritual_altar.json slot `crucifix`: frame centre (120, 70) on level 1 (the middle level), 36 x 24. Place it unrotated (head W).",
+  "anchors": {
+    "crossing": [
+      11.5,
+      11.5
+    ],
+    "head_end": [
+      1,
+      11.5
+    ],
+    "foot_end": [
+      35,
+      11.5
+    ]
+  },
+  "facing_note": "drawn head W. Turned so the foot points N (screen up) it reads as an inverted cross: if Godot ever rotates it, keep the head W or N.",
+  "sound_frames": []
+}

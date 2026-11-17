@@ -83,7 +83,7 @@ func set_cursor(angle: float, radius := 500.0) -> void:
 
 func check_sheets() -> void:
 	var broken := 0
-	var dir := DirAccess.open(CharacterClips.DIRECTORY)
+	var dir := DirAccess.open(CharacterClips.DIRECTORIES[0])
 	for file in dir.get_files():
 		if file.begins_with("girl_") and file.ends_with(".json"):
 			var clip := CharacterClips.get_clip(file)

@@ -1,0 +1,59 @@
+{
+ "clip": "stand",
+ "character": "eli",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "eli_stand.png",
+  "hframes": 1,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left",
+  "arm_right",
+  "head"
+ ],
+ "lower": {
+  "file": "../player/girl_stand_lower.png",
+  "note": "Viv's exported stand boots, drawn under him"
+ },
+ "draw_order": "draw order: lower (girl_stand_lower), then this sheet (torso, left arm, right arm, head). The whole sprite turns as one (MOVEMENT_PLAN 1)",
+ "state": "no flashlight (one carry state: empty hands)",
+ "loop_ms": 100,
+ "kind": "pose: one frame (standing)",
+ "sound_frames": [],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 100,
+   "anchors": {
+    "hand_right": [
+     49,
+     108
+    ],
+    "hand_left": [
+     110,
+     108
+    ],
+    "head_center": [
+     80,
+     95.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  }
+ ],
+ "build": "ws03_characters/_tools/eli3_build.py (hoodie, option B mid charcoal)"
+}

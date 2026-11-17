@@ -281,7 +281,7 @@ func check_prayer_studio(lab: Node) -> void:
 		await frames(4)
 		var expected := heading * PI / 4.0
 		check(studio.heading_selector.selected == heading
-			and studio.player.global_position.distance_to(studio.ALTAR_POSITION - Vector2.from_angle(expected) * 66.0) < 0.01
+			and studio.player.global_position.distance_to(studio.ALTAR_POSITION - Vector2.from_angle(expected) * studio.standoff(Vector2.from_angle(expected))) < 0.01
 			and absf(angle_difference(aim.pose_body_angle, expected)) < 0.01
 			and studio.altar.jugador_cerca and not GameState.is_praying,
 			"Prayer heading preset %d repositions and faces the real player within altar range" % heading)

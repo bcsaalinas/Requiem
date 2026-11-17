@@ -1,0 +1,172 @@
+{
+  "name": "ritual_altar",
+  "description": "the empty ofrenda base seen from straight above: three stepped levels against the N wall (a pyramid: each level narrower, all sharing the N edge), top level lightest, white cloth with a scalloped lace edge on S / E / W. No objects baked in: Godot places the pieces on the slots.",
+  "file": "ritual_altar.png",
+  "canvas": [
+    240,
+    160
+  ],
+  "pivot": [
+    120,
+    80
+  ],
+  "bbox": {
+    "x": 0,
+    "y": 0,
+    "w": 240,
+    "h": 159
+  },
+  "wall_side": "N",
+  "levels": [
+    {
+      "level": 0,
+      "face": {
+        "x": 8,
+        "y": 1,
+        "w": 224,
+        "h": 148
+      },
+      "lace_sides": "SEW",
+      "cloth": "#605551"
+    },
+    {
+      "level": 1,
+      "face": {
+        "x": 30,
+        "y": 1,
+        "w": 180,
+        "h": 92
+      },
+      "lace_sides": "SEW",
+      "cloth": "#766a65"
+    },
+    {
+      "level": 2,
+      "face": {
+        "x": 76,
+        "y": 1,
+        "w": 88,
+        "h": 44
+      },
+      "lace_sides": "SEW",
+      "cloth": "#8d817b"
+    }
+  ],
+  "slots": {
+    "statue": {
+      "x": 120,
+      "y": 22,
+      "w": 40,
+      "h": 40,
+      "level": 2
+    },
+    "crucifix": {
+      "x": 120,
+      "y": 70,
+      "w": 36,
+      "h": 24,
+      "level": 1
+    },
+    "copal_burner": {
+      "x": 120,
+      "y": 126,
+      "w": 24,
+      "h": 24,
+      "level": 0
+    },
+    "memory_1": {
+      "x": 54,
+      "y": 72,
+      "w": 32,
+      "h": 32,
+      "level": 1
+    },
+    "memory_2": {
+      "x": 86,
+      "y": 72,
+      "w": 32,
+      "h": 32,
+      "level": 1
+    },
+    "memory_3": {
+      "x": 154,
+      "y": 72,
+      "w": 32,
+      "h": 32,
+      "level": 1
+    },
+    "memory_4": {
+      "x": 186,
+      "y": 72,
+      "w": 32,
+      "h": 32,
+      "level": 1
+    },
+    "candle_1": {
+      "x": 88,
+      "y": 24,
+      "w": 22,
+      "h": 22,
+      "level": 2
+    },
+    "candle_2": {
+      "x": 152,
+      "y": 24,
+      "w": 22,
+      "h": 22,
+      "level": 2
+    },
+    "candle_3": {
+      "x": 49,
+      "y": 26,
+      "w": 22,
+      "h": 22,
+      "level": 1
+    },
+    "candle_4": {
+      "x": 191,
+      "y": 26,
+      "w": 22,
+      "h": 22,
+      "level": 1
+    },
+    "candle_5": {
+      "x": 32,
+      "y": 124,
+      "w": 22,
+      "h": 22,
+      "level": 0
+    },
+    "candle_6": {
+      "x": 208,
+      "y": 124,
+      "w": 22,
+      "h": 22,
+      "level": 0
+    },
+    "candle_7": {
+      "x": 68,
+      "y": 128,
+      "w": 22,
+      "h": 22,
+      "level": 0
+    },
+    "candle_8": {
+      "x": 172,
+      "y": 128,
+      "w": 22,
+      "h": 22,
+      "level": 0
+    }
+  },
+  "slot_note": "Slot points are the centre of each piece's frame, in px-edge coordinates from the altar's top-left (a 32 x 32 frame's top-left = point - 16). Level 0 = bottom / front (S), 2 = top / back (N, against the wall). Candle slots fit the 22 px veladora jar (ritual_veladora.json jar_bbox); put each veladora's Godot light on its own anchors.wick.",
+  "memory_fill_order": [
+    "memory_2",
+    "memory_3",
+    "memory_1",
+    "memory_4"
+  ],
+  "memory_fill_note": "my suggestion, for Beti / the game: the inner two first, so a partial altar stays balanced about the centre line",
+  "scale_note": "1 unit = 80 art px = 32 world px, so this sprite is 96 x 64 world px at scale 0.4. The tutorial scene's collision (level/props/altar.tscn) is 124 x 68 world px: one of the two must change (NEEDS_BETI).",
+  "sound_frames": []
+}

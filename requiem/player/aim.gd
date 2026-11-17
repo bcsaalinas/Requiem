@@ -7,8 +7,6 @@ extends Node
 @export_range(15.0, 45.0) var turn_threshold_degrees := 30.0
 @export var cursor_deadzone_u := 0.75
 
-const LegPose := preload("res://player/leg_pose.gd")
-const RigLayers := preload("res://player/character_rig_layers.gd")
 
 const DIRECTIONS := ["e", "se", "s", "sw", "w", "nw", "n", "ne"]
 const POSE_STEP := PI / 4.0
@@ -35,8 +33,6 @@ var _arm_angle := PI / 2.0
 var _arm_step := 0
 var _wrist_correction := 0.0
 var _unarmed_action_facing := false
-var _legs := LegPose.new()
-var _leg_layers := RigLayers.new()
 
 
 func _ready() -> void:
@@ -72,8 +68,6 @@ func reset_pose() -> void:
 	_unarmed_action_facing = false
 	has_valid_target = false
 	clear_target()
-	_legs.reset(body_angle)
-	_update_lower_pose(0.0)
 	_apply_pose()
 
 
@@ -125,7 +119,6 @@ func _physics_process(delta: float) -> void:
 		has_valid_target = to_target.length() >= Units.to_px(cursor_deadzone_u)
 		if has_valid_target:
 			_update_aim(to_target.angle(), target, delta)
-	_update_lower_pose(delta)
 	_apply_pose()
 
 
@@ -198,11 +191,3 @@ func get_muzzle_global_position() -> Vector2:
 
 func get_beam_global_position() -> Vector2:
 	return flashlight.global_position
-
-
-func _update_lower_pose(delta: float) -> void:
-	var state := String(appearance.actor_animation).get_slice("_", 0)
-	var lower := _legs.advance(delta, state, appearance.actor_frame, appearance.actor_is_moving,
-		_travel_angle, pose_body_angle, appearance.global_position, appearance.actor_ground_offset,
-		appearance.actor_frame_scale, _leg_layers)
-	appearance.set_actor_lower_pose(lower)

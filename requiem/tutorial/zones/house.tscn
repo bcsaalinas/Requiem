@@ -26,6 +26,10 @@
 [ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="21_5l22i"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="25_7kgsy"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="26_g6mak"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_veladora.png" id="light_vel"]
+
+[ext_resource type="Script" path="res://tutorial/friend_visual.gd" id="friend_visual"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_seswp"]
 shader = ExtResource("10_dkkgd")
@@ -259,10 +263,8 @@ kind = "candle"
 [node name="friend" type="Node2D" parent="Props" unique_id=1052530478]
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_p7tau")
 position = Vector2(1008, 318)
-script = ExtResource("11_5l22i")
-kind = "friend"
+script = ExtResource("friend_visual")
 metadata/interaction_id = "friend"
 metadata/interaction_label = "Speak to your friend"
 metadata/interaction_offset = Vector2(0, 35)
@@ -277,7 +279,7 @@ z_index = 1
 texture_filter = 2
 material = ExtResource("16_vgpbg")
 position = Vector2(676, 612)
-scale = Vector2(0.5, 0.5)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("17_2v7cn")
 centered = false
 offset = Vector2(-48.8, -83.8)
@@ -336,8 +338,8 @@ color = Color(0.94, 0.77, 0.54, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-texture = ExtResource("17_80joc")
-texture_scale = 0.55
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="RouteVeladora1" type="Node2D" parent="Props" unique_id=1086629292]
 position = Vector2(700, 470)
@@ -350,8 +352,8 @@ color = Color(0.94, 0.77, 0.54, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-texture = ExtResource("17_80joc")
-texture_scale = 0.55
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="RouteVeladora2" type="Node2D" parent="Props" unique_id=819752352]
 position = Vector2(875, 430)
@@ -364,8 +366,8 @@ color = Color(0.94, 0.77, 0.54, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-texture = ExtResource("17_80joc")
-texture_scale = 0.55
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="RouteVeladora3" type="Node2D" parent="Props" unique_id=1931067657]
 position = Vector2(990, 330)
@@ -378,8 +380,8 @@ color = Color(0.94, 0.77, 0.54, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-texture = ExtResource("17_80joc")
-texture_scale = 0.55
+texture = ExtResource("light_pool")
+texture_scale = 0.8
 
 [node name="Lights" type="Node2D" parent="." unique_id=962909668]
 
@@ -389,10 +391,9 @@ color = Color(0.9372549, 0.7764706, 0.54901963, 1)
 energy = 1.1
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("17_80joc")
-texture_scale = 1.5
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 2.0
 metadata/rest_energy = 1.1
 metadata/rest_color = "#efc68c"
 
@@ -401,10 +402,9 @@ position = Vector2(938, 236)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("17_80joc")
-texture_scale = 1.05
+shadow_filter = 0
+texture = ExtResource("light_vel")
+texture_scale = 1.2
 metadata/rest_energy = 1
 metadata/rest_color = "#f0c48a"
 
@@ -413,10 +413,9 @@ position = Vector2(1078, 236)
 color = Color(0.9411765, 0.76862746, 0.5411765, 1)
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("17_80joc")
-texture_scale = 1.05
+shadow_filter = 0
+texture = ExtResource("light_vel")
+texture_scale = 1.2
 metadata/rest_energy = 1
 metadata/rest_color = "#f0c48a"
 
@@ -426,10 +425,9 @@ color = Color(0.9372549, 0.7764706, 0.54901963, 1)
 energy = 1.25
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("17_80joc")
-texture_scale = 1.6
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 2.0
 metadata/lighting_role = "recovery"
 
 [node name="WindowGlow" type="PointLight2D" parent="Lights" unique_id=1092692053]
@@ -438,10 +436,9 @@ color = Color(0.9098039, 0.72156864, 0.47058824, 1)
 energy = 1.05
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
-texture = ExtResource("17_80joc")
-texture_scale = 1.5
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 2.0
 
 [node name="Rooms" type="Node2D" parent="." unique_id=966338201]
 script = ExtResource("18_3fn32")

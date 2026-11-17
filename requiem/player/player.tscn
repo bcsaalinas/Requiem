@@ -8,7 +8,6 @@
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="5_8t03j"]
 [ext_resource type="AudioStream" uid="uid://cu1jy0cecuw54" path="res://assets/audio/hold_breath.wav" id="7_hold"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
-[ext_resource type="Texture2D" uid="uid://dgqcswjb0xvcv" path="res://assets/Textures/prop_radius_0.png" id="8_yllr7"]
 [ext_resource type="Script" uid="uid://b3kkiai512s0v" path="res://player/flashlight.gd" id="9_kb6p2"]
 [ext_resource type="Script" uid="uid://ciu6hs02vimpr" path="res://player/player_motion.gd" id="10_motion"]
 [ext_resource type="AudioStream" uid="uid://ydi3tbv8mgoc" path="res://assets/audio/629008__realgtro__flashlight-click.wav" id="11_click"]
@@ -21,7 +20,6 @@
 [ext_resource type="Script" uid="uid://cpgi4i32bkc3u" path="res://player/sprint_dust.gd" id="17_sprint_dust"]
 [ext_resource type="Script" uid="uid://1ykujjgcevm8" path="res://player/footstep_audio.gd" id="18_step_audio"]
 [ext_resource type="Script" uid="uid://81smuji6omv8" path="res://player/viv_appearance.gd" id="19_2uvqg"]
-[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="21_b8hi5"]
 [ext_resource type="Script" uid="uid://dh0foh4ql8mf5" path="res://player/viv_animator.gd" id="31_1s1yo"]
 [ext_resource type="AudioStream" uid="uid://cbg5c8japhqh5" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
 [ext_resource type="AudioStream" uid="uid://dcowx5kfeasrk" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
@@ -31,6 +29,9 @@
 [ext_resource type="AudioStream" uid="uid://b8d7ectfh4j43" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
 [ext_resource type="AudioStream" uid="uid://c71m11vomxou3" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
 [ext_resource type="AudioStream" uid="uid://bqymjmvxgjtkk" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
+
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_presence.png" id="light_presence"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_flashlight_cone.png" id="light_cone"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -97,22 +98,20 @@ color = Color(0.7882353, 0.7647059, 0.69411767, 1)
 energy = 0.6
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
+shadow_filter = 0
 shadow_item_cull_mask = 3
-texture = ExtResource("21_b8hi5")
-texture_scale = 1.25
+texture = ExtResource("light_presence")
+texture_scale = 1.6
 
 [node name="flashlight" type="PointLight2D" parent="." unique_id=303225094]
 enabled = false
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.5
+shadow_filter = 0
 shadow_item_cull_mask = 3
-texture = ExtResource("8_yllr7")
-offset = Vector2(207.99998, 0)
-texture_scale = 2.1554403
+texture = ExtResource("light_cone")
+offset = Vector2(195.2, 0)
+texture_scale = 1.6
 script = ExtResource("9_kb6p2")
 click_clips = Array[AudioStream]([ExtResource("11_click")])
 

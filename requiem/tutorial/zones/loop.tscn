@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="16_g1mo8"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="19_iday8"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="20_2egko"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ttq1y"]
 size = Vector2(32, 128)
@@ -168,20 +169,18 @@ position = Vector2(320, 324)
 color = Color(0.49019608, 0.5764706, 0.65882355, 1)
 energy = 0.7
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_ywrpn")
-texture_scale = 0.42
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 0.4
 
 [node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
 position = Vector2(672, 324)
 color = Color(0.49019608, 0.5764706, 0.65882355, 1)
 energy = 0.7
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_ywrpn")
-texture_scale = 0.42
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 0.4
 
 [node name="Markers" type="Node2D" parent="." unique_id=1798031245]
 

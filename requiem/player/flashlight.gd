@@ -26,7 +26,7 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 ## Largo del cono en unidades (1 u = el ancho del jugador).
 @export var beam_length_u: float = 13.0
 ## The cone's painted tip is inset in prop_radius_0.png, not at its left edge.
-@export var beam_tip_pixels := Vector2(24.0, 78.5)
+@export var beam_tip_pixels := Vector2(6.0, 64.0)
 ## Brillo del haz con la bateria llena.
 @export var beam_energy: float = 1.0
 ## Si es false el cono se queda quieto en su rotacion actual (para depurar).
@@ -212,7 +212,7 @@ func _refresh_light() -> void:
 func _apply_beam_length() -> void:
 	if texture == null:
 		return
-	texture_scale = beam_length_u * PX_PER_UNIT / float(texture.get_width())
+	texture_scale = maxf(roundf(beam_length_u * PX_PER_UNIT / float(texture.get_width()) / Units.ART_SCALE), 1.0) * Units.ART_SCALE
 	offset = (texture.get_size() * 0.5 - beam_tip_pixels) * texture_scale
 
 
