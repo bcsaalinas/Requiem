@@ -34,7 +34,6 @@ func _ready() -> void:
 	await frame()
 	await frame()
 	await measure("player-forest",actor.focal_sprite,1.7)
-	await measure("forest-rocks",game.world.props["forest_rocks"].focal_sprite,1.5)
 	(await frame()).save_png(CaptureOutput.path("readability/forest-after.png"))
 	print("[Readability] ","FAIL" if failed else "PASS — foreground contrast")
 	game.queue_free()

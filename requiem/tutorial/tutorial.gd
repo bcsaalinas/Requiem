@@ -609,9 +609,9 @@ func collect(id: String) -> void:
 func _animate_rocks(pile: Vector2) -> void:
 	var hands := player.global_position+Vector2(0,-12)
 	for index in range(3):
-		var pebble := Polygon2D.new()
-		pebble.polygon = PackedVector2Array([Vector2(-4,-2),Vector2(-1,-5),Vector2(4,-3),Vector2(5,2),Vector2(0,4),Vector2(-4,2)])
-		pebble.color = Color(0.62,0.6,0.55)
+		var pebble := Sprite2D.new()
+		pebble.texture = load("res://assets/art/items/item_pebble_%s.png" % ["a","b","c"][index])
+		pebble.scale = Vector2.ONE * Units.ART_SCALE
 		pebble.z_index = 5
 		world.add_child(pebble)
 		var start := pile+Vector2(randf_range(-10,10),randf_range(-6,4))
@@ -621,7 +621,6 @@ func _animate_rocks(pile: Vector2) -> void:
 		tween.tween_property(pebble,"global_position",start.lerp(hands,0.5)+Vector2(0,-22),0.14) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_property(pebble,"global_position",hands,0.14).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-		tween.parallel().tween_property(pebble,"scale",Vector2(0.5,0.5),0.14)
 		tween.tween_callback(pebble.queue_free)
 	hud.pulse_slot("rocks")
 

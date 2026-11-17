@@ -30,6 +30,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/lights/light_veladora.png" id="light_vel"]
 
 [ext_resource type="Script" path="res://tutorial/friend_visual.gd" id="friend_visual"]
+[ext_resource type="PackedScene" path="res://level/props/pebble_pile.tscn" id="pebble_pile"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_seswp"]
 shader = ExtResource("10_dkkgd")
@@ -284,14 +285,8 @@ texture = ExtResource("17_2v7cn")
 centered = false
 offset = Vector2(-48.8, -83.8)
 
-[node name="porch_rocks" type="Node2D" parent="Props" unique_id=847716000]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_kiov0")
+[node name="porch_rocks" parent="Props" unique_id=847716000 instance=ExtResource("pebble_pile")]
 position = Vector2(300, 812)
-script = ExtResource("11_5l22i")
-kind = "rocks"
 metadata/interaction_id = "porch_rocks"
 metadata/interaction_label = "Collect three rocks"
 

@@ -1,0 +1,48 @@
+{
+  "name": "item_pebble_a",
+  "description": "a throwable pebble (survival item; the tutorial teaches throwing one at the ranger): a broken rock chip seen from straight above, variant a of 3 (a squat chip / b taller wedge / c wide slab with a knob); the glint sits on its crest. Use any variant; pick at random.",
+  "variants": [
+    "item_pebble_a",
+    "item_pebble_b",
+    "item_pebble_c"
+  ],
+  "canvas": [
+    12,
+    12
+  ],
+  "pivot": [
+    6,
+    6
+  ],
+  "bbox": {
+    "x": 1,
+    "y": 3,
+    "w": 9,
+    "h": 7
+  },
+  "item": {
+    "file": "item_pebble_a.png",
+    "frames": 1
+  },
+  "glint": {
+    "file": "item_pebble_a_glint.png",
+    "frame_size": [
+      12,
+      12
+    ],
+    "frames": 2,
+    "durations_ms": [
+      160,
+      480
+    ],
+    "loop": true,
+    "tag": "glint",
+    "center": [
+      5.0,
+      6.0
+    ],
+    "note": "draw over the item; show only while the item is lit (frame 0 = #bab4aa plus over the crest, frame 1 = empty)"
+  },
+  "held_note": "in the hand / in flight the pebble is the girl's pebble_held (a 2 x 2 #8d817b, ws03 throw)",
+  "sound_frames": []
+}
