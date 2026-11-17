@@ -1,0 +1,1713 @@
+{
+  "tile_size": [
+    80,
+    80
+  ],
+  "roof_bounds_units": [
+    20,
+    12
+  ],
+  "footprint": "20x7 main block plus 7x5 southwest wing",
+  "assembly": "Whole exported PNGs only; rotate clockwise as recorded; fields first, eave overlays second. No resampling or retouch.",
+  "primary_pieces": [
+    "roof_slope_a",
+    "roof_slope_b",
+    "roof_slope_c",
+    "roof_ridge",
+    "roof_outer_corner",
+    "roof_inner_corner",
+    "roof_ridge_end",
+    "roof_eave_edge"
+  ],
+  "auxiliary_piece": "roof_ridge_junction: required at the hip/valley/two-ridge meeting in the L wing",
+  "atlas": {
+    "file": "roof_kit_atlas.png",
+    "columns": 9,
+    "order": [
+      "roof_slope_a",
+      "roof_slope_b",
+      "roof_slope_c",
+      "roof_ridge",
+      "roof_outer_corner",
+      "roof_inner_corner",
+      "roof_ridge_end",
+      "roof_ridge_junction",
+      "roof_eave_edge"
+    ]
+  },
+  "placements": [
+    {
+      "x": 0,
+      "y": 0,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 0,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 0,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 1,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 1,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 1,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 1,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 1,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 1,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 1,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 1,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 2,
+      "piece": "roof_slope_b",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 2,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 2,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 2,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 2,
+      "piece": "roof_slope_b",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 2,
+      "piece": "roof_slope_c",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 2,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 2,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 3,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "piece": "roof_slope_b",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "piece": "roof_ridge_junction",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 3,
+      "piece": "roof_ridge",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 3,
+      "piece": "roof_ridge_end",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 3,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 3,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 3,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "piece": "roof_ridge",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 4,
+      "piece": "roof_inner_corner",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 4,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 4,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 4,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 4,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 4,
+      "piece": "roof_slope_c",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "piece": "roof_slope_c",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 5,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "piece": "roof_slope_c",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "piece": "roof_ridge",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 5,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 5,
+      "piece": "roof_inner_corner",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 5,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 5,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 5,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 5,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 5,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 5,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 5,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 5,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 5,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 5,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 5,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 5,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 5,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 5,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "piece": "roof_slope_b",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "piece": "roof_ridge",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 6,
+      "piece": "roof_slope_c",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 6,
+      "piece": "roof_inner_corner",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 7,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 8,
+      "y": 6,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 9,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 11,
+      "y": 6,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 12,
+      "y": 6,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 13,
+      "y": 6,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 14,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 15,
+      "y": 6,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 17,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 18,
+      "y": 6,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "piece": "roof_slope_b",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 7,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "piece": "roof_ridge",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 7,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "piece": "roof_slope_c",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 8,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "piece": "roof_ridge_end",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 8,
+      "piece": "roof_slope_c",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 8,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 8,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "piece": "roof_slope_c",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 9,
+      "piece": "roof_slope_a",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 9,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 9,
+      "piece": "roof_slope_b",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "piece": "roof_slope_c",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "piece": "roof_slope_b",
+      "rotation_cw": 90,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 10,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 10,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 10,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 10,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 10,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 10,
+      "piece": "roof_slope_a",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 270,
+      "layer": "field"
+    },
+    {
+      "x": 1,
+      "y": 11,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 3,
+      "y": 11,
+      "piece": "roof_slope_a",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "piece": "roof_slope_b",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 5,
+      "y": 11,
+      "piece": "roof_slope_c",
+      "rotation_cw": 0,
+      "layer": "field"
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "piece": "roof_outer_corner",
+      "rotation_cw": 180,
+      "layer": "field"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 2,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 3,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 4,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 5,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 7,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 8,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 9,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 10,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 0,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 90,
+      "layer": "eave"
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 1,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 2,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 3,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 3,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 4,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 4,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 5,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 5,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 7,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 8,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 9,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 10,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 6,
+      "y": 11,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 7,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 7,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 8,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 8,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 9,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 9,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 10,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 10,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 11,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 11,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 12,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 12,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 13,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 13,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 14,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 14,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 15,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 15,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 16,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 16,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 17,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 17,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 18,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 18,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 180,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 0,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 1,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 2,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 3,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 4,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 5,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 0,
+      "layer": "eave"
+    },
+    {
+      "x": 19,
+      "y": 6,
+      "piece": "roof_eave_edge",
+      "rotation_cw": 270,
+      "layer": "eave"
+    }
+  ]
+}

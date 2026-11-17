@@ -185,6 +185,9 @@ func _ready() -> void:
 		thrower.piedra_clips.clear()
 		flashlight.click_clips.clear()
 	NoiseManager.noise_emitted.connect(_on_noise)
+	for room in world.rooms("house").get_rooms():
+		room.player_entered.connect(func(_room): _sync_roof())
+		room.player_exited.connect(func(_room): _sync_roof())
 	for id in ZONE_DOORS:
 		var door := world.interactables[id]["node"] as Door
 		door.get_node("Doorway").body_entered.connect(_on_zone_doorway.bind(id))
@@ -245,6 +248,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	var rooms: RoomVisibility = world.rooms(zone)
 	if rooms != null:
 		rooms.sync_to(player.position)
+	_sync_roof()
 	if arrival_door != "":
 		_close_behind(world.interactables[arrival_door]["node"])
 	player.get_node("PlayerMotion").reset_pose()
@@ -775,6 +779,12 @@ func _begin_attack() -> void:
 			previous=_attack_candle_time(index)
 		tween.tween_callback(scrape.queue_free)
 	caption("[Something drags across the floor]")
+
+func _sync_roof() -> void:
+	var current: Room = world.rooms("house").current
+	var roof_on := current == null or current.name == "Porch"
+	for id in ["ArtRoof", "ArtRoofEaves", "ArtRoofEaveCorners", "RoofMoon"]:
+		world.zones["house"].get_node(id).visible = roof_on
 
 func _attack_candle_time(index: int) -> float:
 	var last: int=World.ATTACK_CANDLES.size()-1
