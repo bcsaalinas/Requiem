@@ -11,6 +11,7 @@ extends Node2D
 @export var half_width := 30.0
 ## The light under the door.
 @export var glow: PointLight2D
+@export var danger_color := Color(1.0, 0.4, 0.22)
 
 ## 0..1 after a warning: the shadows stop while the parent listens.
 var alert := 0.0
@@ -20,10 +21,18 @@ var danger := 0.0
 var stir := 0.0
 var _clock := 0.0
 var _drag_clock := 0.0
+var _glow_energy := 0.0
+var _glow_color := Color.WHITE
 
 @onready var _left_foot := get_node_or_null("LeftFoot") as Node2D
 @onready var _right_foot := get_node_or_null("RightFoot") as Node2D
 @onready var _drag := get_node_or_null("Drag") as Node2D
+
+
+func _ready() -> void:
+	if glow != null:
+		_glow_energy = glow.energy
+		_glow_color = glow.color
 
 
 ## True when a noise of `radius` px made at `point` (global) reaches this door.
@@ -44,6 +53,9 @@ func _process(delta: float) -> void:
 	_clock += delta
 	alert = maxf(0.0, alert - delta * 0.35)
 	stir = move_toward(stir, danger, delta * 2.5)
+	if glow != null:
+		glow.energy = _glow_energy * (1.0 + 1.1 * stir + 1.2 * alert)
+		glow.color = _glow_color.lerp(danger_color, maxf(stir * 0.75, alert))
 	var tension := maxf(alert, stir)
 	var shift := sin(_clock * 0.65) * 8.0 * (1.0 - tension)
 	if _left_foot != null:

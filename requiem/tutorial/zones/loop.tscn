@@ -166,15 +166,17 @@ script = ExtResource("12_syqel")
 
 [node name="Listeners" type="Node2D" parent="." unique_id=1407489905]
 
-[node name="WallListenerA" type="Node2D" parent="Listeners" unique_id=1885139926]
+[node name="WallListenerA" type="Node2D" parent="Listeners" unique_id=1885139926 node_paths=PackedStringArray("glow")]
 z_index = 1
 position = Vector2(320, 320)
 script = ExtResource("12_2egko")
+glow = NodePath("../DoorGlowA")
 
-[node name="WallListenerB" type="Node2D" parent="Listeners" unique_id=1706915271]
+[node name="WallListenerB" type="Node2D" parent="Listeners" unique_id=1706915271 node_paths=PackedStringArray("glow")]
 z_index = 1
 position = Vector2(672, 320)
 script = ExtResource("12_2egko")
+glow = NodePath("../DoorGlowB")
 
 [node name="JambLeft" type="LightOccluder2D" parent="Listeners/WallListenerA"]
 occluder = SubResource("OccluderPolygon2D_jamb_l")
@@ -192,13 +194,13 @@ occluder_light_mask = 16
 [node name="DoorGlowA" type="PointLight2D" parent="Listeners" unique_id=1237831859]
 position = Vector2(320, 268)
 color = Color(0.49019608, 0.5764706, 0.65882355, 1)
-energy = 0.7
+energy = 1.25
 shadow_enabled = true
 shadow_filter = 0
 shadow_item_cull_mask = 16
 texture = ExtResource("light_pool")
 offset = Vector2(0, 52)
-texture_scale = 0.4
+texture_scale = 0.8
 
 [node name="JambLeft" type="LightOccluder2D" parent="Listeners/WallListenerB"]
 occluder = SubResource("OccluderPolygon2D_jamb_l")
@@ -216,13 +218,13 @@ occluder_light_mask = 16
 [node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
 position = Vector2(672, 268)
 color = Color(0.49019608, 0.5764706, 0.65882355, 1)
-energy = 0.7
+energy = 1.25
 shadow_enabled = true
 shadow_filter = 0
 shadow_item_cull_mask = 16
 texture = ExtResource("light_pool")
 offset = Vector2(0, 52)
-texture_scale = 0.4
+texture_scale = 0.8
 
 [node name="Markers" type="Node2D" parent="." unique_id=1798031245]
 
