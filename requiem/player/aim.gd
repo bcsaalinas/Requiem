@@ -166,7 +166,7 @@ func _apply_pose() -> void:
 	# The hand may extend beyond the collision footprint. Keep the light source
 	# on the player's side of a wall instead of leaking through that wall.
 	if player.is_inside_tree() and player.get_world_2d() != null:
-		var query := PhysicsRayQueryParameters2D.create(player.global_position, muzzle, player.collision_mask, [player.get_rid()])
+		var query := PhysicsRayQueryParameters2D.create(player.global_position, muzzle, 1, [player.get_rid()])
 		var hit := player.get_world_2d().direct_space_state.intersect_ray(query)
 		if not hit.is_empty():
 			origin = hit.position + (player.global_position - muzzle).normalized() * 1.5

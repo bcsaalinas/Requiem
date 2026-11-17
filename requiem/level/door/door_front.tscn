@@ -28,6 +28,9 @@ polygon = PackedVector2Array(31, -96, 33, -96, 33, -22.8, 31, -22.8)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ya7gp"]
 size = Vector2(56, 124)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_leafbody"]
+size = Vector2(13.6, 64)
+
 [node name="Door" type="Node2D" unique_id=1999569606]
 script = ExtResource("1_ya7gp")
 creak = ExtResource("2_lifiy")
@@ -79,6 +82,14 @@ occluder = SubResource("OccluderPolygon2D_post_l")
 
 [node name="OccluderPostR" type="LightOccluder2D" parent="."]
 occluder = SubResource("OccluderPolygon2D_post_r")
+
+[node name="LeafBody" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="LeafBody"]
+shape = SubResource("RectangleShape2D_leafbody")
+disabled = true
 
 [node name="Doorway" type="Area2D" parent="." unique_id=1461647427]
 monitorable = false
