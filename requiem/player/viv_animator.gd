@@ -17,6 +17,10 @@ const TIRED_BELOW := 72.0
 const AFRAID_PRESSURE := 0.5
 const WINDUP_SECONDS := 0.5
 const MAX_HEAD_DEGREES := 70.0
+
+## Off: the head stays on the 0° pose, aligned with the body (Beti's call). On: it picks one of
+## the five head poses by the angle between the body and the aim, so the head leads turns.
+@export var head_follows_aim := false
 const BEAD_SECONDS := 3.0
 
 @onready var player: CharacterBody2D = get_parent()
@@ -200,6 +204,9 @@ func _update_facing(delta: float, action: StringName) -> void:
 
 
 func _update_head() -> void:
+	if not head_follows_aim:
+		_rig.set_head_turn(0.0)
+		return
 	var look: float = aim.aim_angle if actions.has_flashlight else facing
 	_rig.set_head_turn(clampf(rad_to_deg(angle_difference(facing, look)), -MAX_HEAD_DEGREES, MAX_HEAD_DEGREES))
 
