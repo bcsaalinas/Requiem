@@ -268,6 +268,7 @@ tile_map_data = PackedByteArray("AAACAAQAAAAHAAUAAAADAAQAAAAGAAYAAAAEAAQAAAAGAAU
 tile_set = ExtResource("18_i7gi3")
 
 [node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=984543906 node_paths=PackedStringArray("source")]
+light_mask = 65
 z_index = 41
 scale = Vector2(0.4, 0.4)
 script = ExtResource("19_4vynj")
