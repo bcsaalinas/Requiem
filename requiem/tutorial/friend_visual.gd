@@ -14,8 +14,8 @@ func _ready() -> void:
 	rig.hide_head()
 	rig.set_facing(-PI / 2.0)
 	rig.clip_finished.connect(_on_clip_finished)
-	rig.play(&"upper", "eli_pray_kneel", {"loop": false, "hold_last": true})
-	rig.play(&"lower", "girl_pray_kneel_lower", {"loop": false, "hold_last": true})
+	rig.play(&"upper", "eli_pray_loop")
+	rig.play(&"lower", "girl_pray_loop_lower")
 
 
 func _process(_delta: float) -> void:
@@ -26,6 +26,18 @@ func _process(_delta: float) -> void:
 
 func set_focused(_value: bool) -> void:
 	pass
+
+
+func face_and_stand(target: Vector2) -> void:
+	rig.set_facing((target - global_position).angle())
+	rig.play(&"upper", "eli_stand", {"loop": false, "hold_last": true})
+	rig.play(&"lower", "girl_stand_lower")
+
+
+func kneel() -> void:
+	rig.set_facing(-PI / 2.0)
+	rig.play(&"upper", "eli_pray_kneel", {"loop": false, "hold_last": true, "restart": true})
+	rig.play(&"lower", "girl_pray_kneel_lower", {"loop": false, "hold_last": true, "restart": true})
 
 
 func _on_clip_finished(part: StringName, clip: StringName) -> void:
