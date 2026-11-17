@@ -46,6 +46,8 @@ const PLAYER_SOUNDS := [NoiseManager.SourceType.FOOTSTEP, NoiseManager.SourceTyp
 	NoiseManager.SourceType.DOOR]
 ## Seconds a warned parent keeps listening before settling again.
 const PARENT_LISTEN_TIME := 3.5
+const PARENT_FILL_MASK := 128
+const PARENT_FILL_ENERGY := 1.0
 ## A parent door starts to stir when her next step falls short of it by less than this fraction of
 ## the step's reach (walking 3 u: 72 px; held 1 u: 24 px), so holding the breath visibly settles it.
 const HALL_STIR_MARGIN := 0.75
@@ -966,7 +968,21 @@ func _parent_doorway_notice(listener: ParentListener) -> void:
 		if blocker != null: blockers.append(blocker)
 	var tab := world.zones["hallway"].get_node_or_null("Rooms/ParentRoom%s/DoorTab" % String(closest_door.name).trim_prefix("ParentDoor")) as CanvasItem
 	if tab != null: blockers.append(tab)
+	for path in ["LeftFoot", "RightFoot"]:
+		var foot := listener.get_node_or_null(path) as CanvasItem
+		if foot != null: blockers.append(foot)
+	if listener.glow != null: blockers.append(listener.glow)
 	for blocker in blockers: blocker.visible = false
+	for layer in notice.get_children():
+		if layer is CanvasItem: layer.light_mask = PARENT_FILL_MASK
+	var fill := PointLight2D.new()
+	fill.texture = preload("res://assets/art/lights/light_lamp_pool.png")
+	fill.texture_scale = 0.4
+	fill.color = Color("e9b77a")
+	fill.energy = PARENT_FILL_ENERGY
+	fill.range_item_cull_mask = PARENT_FILL_MASK
+	world.zones["hallway"].add_child(fill)
+	fill.global_position = notice.global_position
 	var spill := PointLight2D.new()
 	spill.texture = preload("res://assets/art/lights/light_door_spill.png")
 	spill.texture_scale = 0.4
@@ -977,6 +993,7 @@ func _parent_doorway_notice(listener: ParentListener) -> void:
 	GameState.state_reset.connect(func():
 		notice.queue_free()
 		spill.queue_free()
+		fill.queue_free()
 		for blocker in blockers: blocker.visible = true
 		closest_door.swing = 1.0 if closest_door.is_open else 0.0, CONNECT_ONE_SHOT)
 
