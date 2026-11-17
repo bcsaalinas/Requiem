@@ -1,6 +1,5 @@
 [gd_scene format=4 uid="uid://dr74sv1m43cak"]
 
-[ext_resource type="Texture2D" uid="uid://cnatnjlqotr5w" path="res://assets/level/rug_runner.png" id="2_oru21"]
 [ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_fi18d"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_2yo68"]
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="5_dw150"]
@@ -22,6 +21,7 @@
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="20_vsnya"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="21_ineoj"]
 [ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+[ext_resource type="Texture2D" uid="uid://d068jrsh0dgqu" path="res://assets/art/props/deco_rug_runner.png" id="rug_new"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jamb_l"]
 closed = false
@@ -54,20 +54,22 @@ y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(32, 32, 896, 544)])
 
 [node name="Rugs" type="Node2D" parent="." unique_id=1221057086]
-visible = false
 z_index = -9
 
 [node name="RunnerWest" type="Sprite2D" parent="Rugs" unique_id=562240918]
 position = Vector2(236, 368)
+rotation = 1.5707964
 scale = Vector2(0.4, 0.4)
-texture = ExtResource("2_oru21")
+texture = ExtResource("rug_new")
 
 [node name="RunnerEast" type="Sprite2D" parent="Rugs" unique_id=1819893685]
 position = Vector2(668, 368)
+rotation = 1.5707964
 scale = Vector2(0.4, 0.4)
-texture = ExtResource("2_oru21")
+texture = ExtResource("rug_new")
 
 [node name="RefugeMat" type="Sprite2D" parent="Rugs" unique_id=1115579449]
+visible = false
 position = Vector2(480, 488)
 scale = Vector2(0.23, 0.23)
 texture = ExtResource("3_fi18d")
