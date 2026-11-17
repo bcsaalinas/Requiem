@@ -1,0 +1,31 @@
+{
+  "name": "deco_coat_rack",
+  "description": "Seen from straight above: the wall rail is a thin strip along the north edge (y=6..15) with 4 iron hooks, and each coat below it is a pair of left and right shoulders flanking the dark open collar hole at the hook: base + top.",
+  "file": "deco_coat_rack.png",
+  "canvas": [
+    226,
+    60
+  ],
+  "frame_size": [
+    226,
+    60
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    113,
+    30
+  ],
+  "layers": {
+    "base": "deco_coat_rack_base.png",
+    "top": "deco_coat_rack_top.png",
+    "composite": "deco_coat_rack.png"
+  },
+  "height_effect": true,
+  "height_factor": 0.006,
+  "collision_world_px": [
+    90,
+    24
+  ],
+  "sound_frames": []
+}
