@@ -80,7 +80,6 @@ var dialogue_done: Callable
 var subtitle_time := 0.0
 var banner_time := 0.0
 var encounter_grace := 0.0
-var entity_scream_staged := false
 var resetting := false
 var sequence := ""
 var sequence_time := 0.0
@@ -264,7 +263,6 @@ func _configure_entity() -> void:
 		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
 		entity.show()
 		encounter_grace=5.0
-		entity_scream_staged=false
 
 func _process(delta: float) -> void:
 	if _paused: return
@@ -290,10 +288,9 @@ func _process(delta: float) -> void:
 	if sequence!="": _tick_sequence(delta)
 	if encounter_grace>0:
 		encounter_grace-=delta
-		if encounter_grace<=entity.hunt_start_hold and not complete and entity.visible and not entity_scream_staged:
-			entity_scream_staged=true
-			entity.stage_scream()
-		if encounter_grace<=0 and not complete and entity.visible: entity.active=true
+		if encounter_grace<=0 and not complete and entity.visible:
+			entity.active=true
+			entity.notice(friend_home)
 	if zone=="hallway": _tick_hallway(delta)
 	if zone=="forest" and not forest_cued and player.position.x>3500:
 		forest_cued=true
