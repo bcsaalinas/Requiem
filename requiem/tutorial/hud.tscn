@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://k7narjpvx3pe" path="res://tutorial/hud.gd" id="1_xqdwv"]
 [ext_resource type="Texture2D" uid="uid://fkll4swrubgh" path="res://tutorial/assets/art/details_atlas.png" id="2_w8sm5"]
 [ext_resource type="Script" uid="uid://bm28acd0c7jac" path="res://tutorial/vital_meters.gd" id="3_w8sm5"]
+[ext_resource type="Theme" path="res://tutorial/ui_text_theme.tres" id="ui_text_theme"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hna5b"]
 atlas = ExtResource("2_w8sm5")
@@ -62,6 +63,7 @@ layer = 20
 script = ExtResource("1_xqdwv")
 
 [node name="Screen" type="Control" parent="." unique_id=2070659366]
+theme = ExtResource("ui_text_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
