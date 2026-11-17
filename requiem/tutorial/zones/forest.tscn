@@ -187,19 +187,19 @@ metadata/interaction_label = "Follow the path to the house"
 position = Vector2(700, 470)
 script = ExtResource("8_326u6")
 energy = 1.15
-reach = 1.5
+reach = 1.6
 
 [node name="RestLamp" type="Node2D" parent="Props" unique_id=1714719389 instance=ExtResource("7_drsj5")]
 position = Vector2(1000, 520)
 script = ExtResource("8_326u6")
 energy = 1.05
-reach = 1.35
+reach = 1.2
 
 [node name="ExitLamp" type="Node2D" parent="Props" unique_id=2131959633 instance=ExtResource("7_drsj5")]
 position = Vector2(1290, 510)
 script = ExtResource("8_326u6")
 energy = 1.15
-reach = 1.4
+reach = 1.2
 
 [node name="Tree0" type="Node2D" parent="Props" unique_id=1837041621 instance=ExtResource("8_ocbwq")]
 position = Vector2(451, 717.2)
@@ -355,7 +355,7 @@ position = Vector2(1364.3, 162.2)
 position = Vector2(880, 440)
 script = ExtResource("8_326u6")
 energy = 1.2
-reach = 1.65
+reach = 1.6
 
 [node name="early_rocks" parent="Props" unique_id=295402807 instance=ExtResource("pebble_pile")]
 position = Vector2(300, 540)
@@ -366,7 +366,7 @@ metadata/interaction_label = "Pick up stones"
 position = Vector2(330, 570)
 script = ExtResource("8_326u6")
 energy = 0.85
-reach = 1.1
+reach = 1.2
 
 [node name="Lights" type="Node2D" parent="." unique_id=265186936]
 
