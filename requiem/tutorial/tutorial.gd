@@ -838,10 +838,26 @@ func _parent_doorway_notice(listener: ParentListener) -> void:
 	world.zones["hallway"].add_child(notice)
 	var cut_x := 88.0
 	notice.global_position = closest_door.global_position + Vector2(32.0 - (cut_x - 80.0) * Units.ART_SCALE, -48.0)
-	notice.play(&"upper", "parent_doorway_notice", {"loop": false, "hold_last": true})
-	create_tween().tween_property(closest_door, "swing", 1.0, closest_door.swing_time)
+	notice.play(&"upper", "parent_doorway_notice", {"loop": false, "hold_last": true, "rate": 1.6})
+	create_tween().tween_property(closest_door, "swing", 1.0, minf(closest_door.swing_time, 0.3))
+	var blockers: Array[CanvasItem] = []
+	for path in ["Occluder", "OccluderLeaf"]:
+		var blocker := closest_door.get_node_or_null(path) as CanvasItem
+		if blocker != null: blockers.append(blocker)
+	var tab := world.zones["hallway"].get_node_or_null("Rooms/ParentRoom%s/DoorTab" % String(closest_door.name).trim_prefix("ParentDoor")) as CanvasItem
+	if tab != null: blockers.append(tab)
+	for blocker in blockers: blocker.visible = false
+	var spill := PointLight2D.new()
+	spill.texture = preload("res://assets/art/lights/light_door_spill.png")
+	spill.texture_scale = 0.4
+	spill.color = Color("e9b77a")
+	spill.energy = 1.25
+	world.zones["hallway"].add_child(spill)
+	spill.global_position = closest_door.global_position + Vector2(0.0, 29.2)
 	GameState.state_reset.connect(func():
 		notice.queue_free()
+		spill.queue_free()
+		for blocker in blockers: blocker.visible = true
 		closest_door.swing = 1.0 if closest_door.is_open else 0.0, CONNECT_ONE_SHOT)
 
 func _noise_name(source: int) -> String:
@@ -964,13 +980,18 @@ func request_reset(message: String, bedroom := false) -> void:
 	world.landmarks["reveal"].hide()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
-	hud.shade.color=Color(0,0,0,.82)
+	if not bedroom: hud.shade.color=Color(0,0,0,.82)
 	say(message,4)
 	play_sound("parent" if bedroom else "presence",player.position)
 	_restore_after_delay(bedroom)
 
 func _restore_after_delay(bedroom: bool) -> void:
-	await get_tree().create_timer(.7 if not test_mode else .01).timeout
+	if bedroom and not test_mode:
+		await get_tree().create_timer(.6).timeout
+		hud.shade.color=Color.BLACK
+		await get_tree().create_timer(.1).timeout
+	else:
+		await get_tree().create_timer(.7 if not test_mode else .01).timeout
 	restore_checkpoint(bedroom)
 
 func restore_checkpoint(bedroom := false) -> void:
