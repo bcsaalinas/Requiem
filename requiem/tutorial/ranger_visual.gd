@@ -8,6 +8,7 @@ const WALK_SPEED_U := 3.2
 const NOTICE_SECONDS := 0.66
 
 var rig: CharacterSprite
+var torch: PointLight2D
 var _body_facing := 0.0
 var _turning_to_noise := false
 var _notice_left := 0.0
@@ -21,6 +22,16 @@ func _ready() -> void:
 	rig.hide_head()
 	_body_facing = ranger.facing.angle()
 	rig.set_facing(_body_facing)
+	torch = PointLight2D.new()
+	torch.name = "Torch"
+	torch.texture = preload("res://assets/art/lights/light_flashlight_cone.png")
+	torch.range_item_cull_mask = 5
+	torch.shadow_enabled = true
+	torch.shadow_filter = Light2D.SHADOW_FILTER_NONE
+	torch.shadow_item_cull_mask = 3
+	torch.texture_scale = 1.2
+	torch.offset = Vector2(146.4, 0)
+	add_child(torch)
 
 
 func heard_noise() -> void:
@@ -65,6 +76,8 @@ func present(delta: float) -> void:
 	else:
 		rig.play(&"upper", "ranger_sweep")
 		rig.play(&"lower", "girl_stand_lower")
+	torch.global_position = rig.anchor_global("flashlight_tip")
+	torch.global_rotation = rig.flashlight_angle_global()
 
 
 ## Clips whose frames each name their own lower frame (turn and notice).

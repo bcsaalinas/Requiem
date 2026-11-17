@@ -140,8 +140,10 @@ func flashlight_tip_global() -> Vector2:
 ## Direction of the beam in global radians: the art's flashlight angle (degrees out from straight
 ## ahead, which is south in the art) rotated by the node.
 func flashlight_angle_global() -> float:
-	var frame := _frame_data(&"arm_right")
-	var degrees: float = frame.get("anchors", {}).get("flashlight_angle_deg", 0.0)
+	var anchors: Dictionary = _frame_data(&"arm_right").get("anchors", {})
+	if not anchors.has("flashlight_angle_deg"):
+		anchors = _frame_data(&"upper").get("anchors", {})
+	var degrees: float = anchors.get("flashlight_angle_deg", 0.0)
 	if mirror:
 		degrees = -degrees
 	return global_rotation + PI / 2.0 + deg_to_rad(degrees)
