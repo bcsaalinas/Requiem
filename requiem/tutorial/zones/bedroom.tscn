@@ -50,6 +50,7 @@ y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(64, 64, 832, 512)])
 
 [node name="Rugs" type="Node2D" parent="." unique_id=1731969846]
+visible = false
 z_index = -9
 
 [node name="BedRug" type="Sprite2D" parent="Rugs" unique_id=2018847941]
