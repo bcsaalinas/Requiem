@@ -614,7 +614,7 @@ func _animate_rocks(pile: Vector2) -> void:
 		var pebble := Sprite2D.new()
 		pebble.texture = load("res://assets/art/items/item_pebble_%s.png" % ["a","b","c"][index])
 		pebble.scale = Vector2.ONE * Units.ART_SCALE
-		pebble.z_index = 5
+		pebble.z_index = 44
 		world.add_child(pebble)
 		var start := pile+Vector2(randf_range(-10,10),randf_range(-6,4))
 		pebble.global_position = start

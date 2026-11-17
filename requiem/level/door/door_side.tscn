@@ -36,7 +36,8 @@ texture = ExtResource("frame_tex")
 [node name="Hinge" type="Node2D" parent="Assembly"]
 
 [node name="Leaf" type="Sprite2D" parent="Assembly/Hinge"]
-z_index = 2
+z_as_relative = false
+z_index = 42
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("leaf_tex")
 centered = false

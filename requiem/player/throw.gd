@@ -285,7 +285,7 @@ func _release_object() -> void:
 	sprite.kind = _pending_kind
 	sprite.size = projectile_size
 	sprite.color = _color_for(_pending_kind)
-	sprite.z_index = 2
+	sprite.z_index = 41
 	player.get_parent().add_child(sprite)
 	sprite.global_position = origin
 
