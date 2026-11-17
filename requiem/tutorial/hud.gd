@@ -19,28 +19,17 @@ signal fullscreen_requested
 @onready var alert: VBoxContainer = $Screen/Alert
 var _slots: Dictionary = {}
 var _counts: Dictionary = {}
-var _breath_fill: StyleBoxFlat
-var _effort_fill: StyleBoxFlat
 var _alert_tween: Tween
 
 func _ready() -> void:
 	LegacyUi.fit_root(root)
-	# Each HUD owns these styles; warning pulses cannot leak into other scenes.
-	_breath_fill = breath.get_theme_stylebox("fill").duplicate()
-	_effort_fill = effort.get_theme_stylebox("fill").duplicate()
-	breath.add_theme_stylebox_override("fill", _breath_fill)
-	effort.add_theme_stylebox_override("fill", _effort_fill)
 	for kind in ["flashlight", "battery", "rocks"]:
 		var slot := inventory.get_node(String(kind).capitalize())
 		_slots[kind] = slot
 		_counts[kind] = slot.get_node("Count")
 
-func update_breath_feedback(feedback: Node) -> void:
-	_breath_fill.bg_color = feedback.get_meter_color()
-	_effort_fill.bg_color = feedback.get_meter_color(true)
-	var caption: Label = $Screen/Vitals/Breath/Caption
-	caption.text = feedback.get_meter_caption()
-	caption.modulate = Color.WHITE.lerp(Color("f2c3a3"), feedback.lung_pressure * feedback.pulse * 0.35)
+func update_breath_feedback(_feedback: Node) -> void:
+	pass
 
 
 ## A large centred call to action that fades out on its own (the first parent warning).

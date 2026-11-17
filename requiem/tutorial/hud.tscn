@@ -159,6 +159,7 @@ script = ExtResource("3_w8sm5")
 layout_mode = 2
 
 [node name="Caption" type="Label" parent="Screen/Vitals/Breath" unique_id=770395067]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7647059, 0.76862746, 0.6666667, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
@@ -178,6 +179,7 @@ show_percentage = false
 layout_mode = 2
 
 [node name="Caption" type="Label" parent="Screen/Vitals/Exertion" unique_id=770620539]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.80784315, 0.6745098, 0.47058824, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
@@ -198,6 +200,7 @@ visible = false
 layout_mode = 2
 
 [node name="Caption" type="Label" parent="Screen/Vitals/Battery" unique_id=118392215]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65882355, 0.6784314, 0.60784316, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)

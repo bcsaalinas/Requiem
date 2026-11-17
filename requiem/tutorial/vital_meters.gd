@@ -10,8 +10,8 @@ extends HBoxContainer
 ## State comes from ActionState.get_action(), per its own header: "presentation
 ## reads this derived priority instead of maintaining another state."
 ##
-## The meters never auto-hide. Our Yomawari benchmark takeaway was to keep
-## breath on screen at all times so the tension never switches off.
+## Each column shows only while its bar says something: breath while held or not
+## full, exertion while above empty, battery when low or just refilled.
 
 @export_group("Sources")
 ## Player node. Left empty, it is found through the "player" group.
@@ -39,7 +39,18 @@ extends HBoxContainer
 ## Idle sway so the HUD breathes when nothing is happening.
 @export var idle_sway: float = 0.1
 
+const BREATH_FILL := Color("bab4aa")
+const EXERTION_FILL := Color("766a65")
+const BATTERY_FILL := Color("5d6a74")
+const TRACK := Color("272323")
+
 var _breath_bar: ProgressBar
+var _battery_bar: ProgressBar
+var _battery_last := 100.0
+var _breath_shown_for := 0.0
+var _exertion_shown_for := 0.0
+var _battery_shown_for := 0.0
+var _gasp_left := 0.0
 var _exertion_bar: ProgressBar
 var _breath_caption: Label
 var _exertion_caption: Label
@@ -65,15 +76,21 @@ func _ready() -> void:
 
 	# Each bar needs its own stylebox instance. hud.tscn authors the three bars
 	# against shared resources, so tinting breath would tint exertion too.
-	_breath_fill = UIPalette.flat(UIPalette.BONE)
-	_exertion_fill = UIPalette.flat(UIPalette.AMBER)
-	_breath_track = UIPalette.flat(UIPalette.TRACK)
+	_breath_fill = UIPalette.flat(BREATH_FILL)
+	_exertion_fill = UIPalette.flat(EXERTION_FILL)
+	_breath_track = UIPalette.flat(TRACK)
+	_battery_bar = get_node_or_null("Battery/Meter")
 
 	if _breath_bar:
 		_breath_bar.add_theme_stylebox_override("fill", _breath_fill)
 		_breath_bar.add_theme_stylebox_override("background", _breath_track)
 	if _exertion_bar:
 		_exertion_bar.add_theme_stylebox_override("fill", _exertion_fill)
+		_exertion_bar.add_theme_stylebox_override("background", UIPalette.flat(TRACK))
+	if _battery_bar:
+		_battery_bar.add_theme_stylebox_override("fill", UIPalette.flat(BATTERY_FILL))
+		_battery_bar.add_theme_stylebox_override("background", UIPalette.flat(TRACK))
+		_battery_last = _battery_bar.value
 
 	_home = position
 	_resolve_player()
@@ -98,9 +115,27 @@ func _process(delta: float) -> void:
 	_clock += delta
 	var action: StringName = _actions.get_action() if _actions != null else &"idle"
 
+	_gasp_left = maxf(0.0, _gasp_left - delta)
 	_drive_breath(delta, action)
 	_drive_exertion(delta, action)
 	_check_gasp(action)
+	_show_columns(delta, action)
+
+
+func _show_columns(delta: float, action: StringName) -> void:
+	if _breath_bar:
+		_breath_shown_for = 1.0 if action == &"hold_breath" or _breath_bar.value < 99.5 else maxf(0.0, _breath_shown_for - delta)
+		(_breath_bar.get_parent() as CanvasItem).modulate.a = 1.0 if _breath_shown_for > 0.0 else 0.0
+	if _exertion_bar:
+		_exertion_shown_for = 1.0 if _exertion_bar.value > 1.0 else maxf(0.0, _exertion_shown_for - delta)
+		(_exertion_bar.get_parent() as CanvasItem).modulate.a = 1.0 if _exertion_shown_for > 0.0 else 0.0
+	if _battery_bar:
+		if _battery_bar.value > _battery_last + 0.5:
+			_battery_shown_for = 2.0
+		_battery_last = _battery_bar.value
+		_battery_shown_for = maxf(0.0, _battery_shown_for - delta)
+		var shown := _battery_bar.value <= 25.0 or _battery_shown_for > 0.0
+		(_battery_bar.get_parent() as CanvasItem).modulate.a = 1.0 if shown else 0.0
 
 
 ## The breath bar beats, and the rate rises as the lung empties — the player
@@ -122,24 +157,18 @@ func _drive_breath(delta: float, action: StringName) -> void:
 	if lung < breath_warn:
 		urgency = clampf((breath_warn - lung) / maxf(breath_warn, 0.001), 0.0, 1.0)
 
-	var target := UIPalette.BONE
-	if lung < breath_critical:
-		target = UIPalette.BONE.lerp(UIPalette.ALARM, urgency)
+	var target := BREATH_FILL
 
 	if held:
 		# Held: the track darkens, as if under pressure, and everything freezes.
 		_beat_phase = 0.0
 		_breath_bar.scale.y = 1.0
 		_breath_bar.modulate.a = 1.0
-		_breath_track.bg_color = _breath_track.bg_color.lerp(
-			UIPalette.TRACK.darkened(0.35), clampf(colour_speed * delta, 0.0, 1.0)
-		)
+		_breath_track.bg_color = TRACK
 		if _breath_caption:
 			_breath_caption.modulate.a = lerpf(_breath_caption.modulate.a, 0.65, delta * 6.0)
 	else:
-		_breath_track.bg_color = _breath_track.bg_color.lerp(
-			UIPalette.TRACK, clampf(colour_speed * delta, 0.0, 1.0)
-		)
+		_breath_track.bg_color = TRACK
 		if urgency > 0.0:
 			_beat_phase += delta * lerpf(0.8, beat_rate_max, urgency) * TAU
 			# Sharp attack, slow release — a pulse, not a sine wave.
@@ -155,7 +184,7 @@ func _drive_breath(delta: float, action: StringName) -> void:
 			if _breath_caption:
 				_breath_caption.modulate.a = 1.0
 
-	_breath_fill.bg_color = _breath_fill.bg_color.lerp(target, clampf(colour_speed * delta, 0.0, 1.0))
+	_breath_fill.bg_color = target
 
 
 ## Exertion runs the other way: it fills, and the closer it gets to the forced
@@ -170,9 +199,7 @@ func _drive_exertion(delta: float, action: StringName) -> void:
 		var span: float = maxf(100.0 - exertion_warn, 0.001)
 		urgency = clampf((effort - exertion_warn) / span, 0.0, 1.0)
 
-	var target := UIPalette.AMBER
-	if effort > exertion_critical:
-		target = UIPalette.AMBER.lerp(UIPalette.ALARM, urgency)
+	var target := BREATH_FILL if _gasp_left > 0.0 else EXERTION_FILL
 
 	if urgency > 0.0:
 		var rate: float = lerpf(5.0, 13.0, urgency)
@@ -191,7 +218,7 @@ func _drive_exertion(delta: float, action: StringName) -> void:
 		if _exertion_caption:
 			_exertion_caption.modulate.a = 1.0
 
-	_exertion_fill.bg_color = _exertion_fill.bg_color.lerp(target, clampf(colour_speed * delta, 0.0, 1.0))
+	_exertion_fill.bg_color = target
 
 
 ## The forced gasp is the one moment both meters agree. One frame of agreement
@@ -199,10 +226,5 @@ func _drive_exertion(delta: float, action: StringName) -> void:
 func _check_gasp(action: StringName) -> void:
 	var gasping: bool = action == &"forced_gasp"
 	if gasping and not _was_gasping:
-		for bar in [_breath_bar, _exertion_bar]:
-			if bar == null:
-				continue
-			bar.modulate = Color(1.6, 1.4, 1.3)
-			var tween := create_tween()
-			tween.tween_property(bar, "modulate", Color.WHITE, 0.45)
+		_gasp_left = 0.45
 	_was_gasping = gasping
