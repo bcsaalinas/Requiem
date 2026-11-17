@@ -7,9 +7,6 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vhvmi"]
 size = Vector2(22, 14)
 
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_k2mls"]
-polygon = PackedVector2Array(-9, -8, -5, -15, 5, -15, 9, -8, 5, -1, -5, -1)
-
 [node name="Tree" type="Node2D" unique_id=1837041621]
 script = ExtResource("1_tree")
 
@@ -31,5 +28,3 @@ texture = ExtResource("3_canopy")
 position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_vhvmi")
 
-[node name="Occluder" type="LightOccluder2D" parent="." unique_id=1174436959]
-occluder = SubResource("OccluderPolygon2D_k2mls")
