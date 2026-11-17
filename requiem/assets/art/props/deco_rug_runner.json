@@ -1,0 +1,15 @@
+{
+  "name": "deco_rug_runner",
+  "description": "Pasillo hallway woven runner rug (2 x 5 units), straight down: frayed north/south fringe, dark wool border, three stepped Zapotec diamond medallions with a single upper-middle focal area and a worn footpath down the lower half and ends. Floor-level decoration: one layer, no rim, no top.",
+  "file": "deco_rug_runner.png",
+  "canvas": [160, 400],
+  "frame_size": [160, 400],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [80, 200],
+  "layers": {
+    "rug": "deco_rug_runner.png"
+  },
+  "scale_note": "2 x 5 units at 80 art px per unit = 160 x 400 px. Symmetrical overhead falloff with no rim so Godot can rotate or flip by 90 deg steps.",
+  "sound_frames": []
+}
