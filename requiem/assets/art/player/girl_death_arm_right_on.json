@@ -1,0 +1,126 @@
+{
+ "clip": "death",
+ "part": "arm_right_on",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_death_arm_right_on.png",
+  "hframes": 6,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_raised",
+  "flashlight_raised"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 770,
+ "clip_note": "the entity catches her: she jolts (shoulders up, head still), clenches the free hand into a fist and pulls it up, is yanked forward, then crumples: the head drops forward past the shoulders, the free hand goes limp. Plays once; hold the last frame. The entity's catch (catch.json) hides her sprite from its hide_player key (740 ms), so the clip is mostly covered from there.",
+ "plays_over": "girl_stand_lower only (the catch locks her: she never plays it while moving)",
+ "loop": false,
+ "sound_frames": [
+  0
+ ],
+ "hold_last_frame": true,
+ "state": "flashlight raised, on",
+ "light_note": "the flashlight arm moves as in the idle (VIV_HANDOFF safest choice): on the jolt the hand and light stay; in the crumple they slide forward with the shoulder",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 50,
+   "anchors": {
+    "hand_right": [
+     48.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     47.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 120,
+   "anchors": {
+    "hand_right": [
+     48.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     47.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 50,
+   "anchors": {
+    "hand_right": [
+     47.1,
+     130.4
+    ],
+    "flashlight_tip": [
+     46.2,
+     144.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 110,
+   "anchors": {
+    "hand_right": [
+     48.1,
+     131.4
+    ],
+    "flashlight_tip": [
+     47.2,
+     145.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 140,
+   "anchors": {
+    "hand_right": [
+     48.1,
+     132.4
+    ],
+    "flashlight_tip": [
+     47.2,
+     146.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 300,
+   "anchors": {
+    "hand_right": [
+     48.1,
+     132.4
+    ],
+    "flashlight_tip": [
+     47.2,
+     146.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  }
+ ]
+}

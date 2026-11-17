@@ -1,0 +1,82 @@
+{
+ "clip": "arm_right_click",
+ "part": "arm_right",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_arm_right_click.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_raised",
+  "flashlight_raised"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 240,
+ "plays_over": "the rest upper body (girl_idle_* frame 0, or girl_walk_upper / sneak / side-step, whose right arm is steady) on any lower; during the sprint, swap the arm state directly",
+ "hold_note": "while it plays, hold the idle on its frame 0 so the shoulder matches the rest arm",
+ "flashlight_note": "flashlight_tip / flashlight_angle_deg are the drawn values (deg out from straight ahead)",
+ "clip_note": "the thumb clicks the switch in the raised pose (frame 2 = the raised rest). Play it on every on / off toggle; the beam changes on frame 0, with the press",
+ "sound_frames": [
+  0
+ ],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 60,
+   "label": "press",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     127.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     141.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 70,
+   "label": "click",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     127.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     141.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 110,
+   "label": "release",
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  }
+ ]
+}

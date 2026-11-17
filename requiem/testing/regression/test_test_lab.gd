@@ -49,7 +49,7 @@ func _ready() -> void:
 	await check_prayer_studio(lab)
 	await check_sprint_studio(lab)
 	await lab.show_menu()
-	check(not GameState.is_dead and not GameState.is_praying and GameOverUi.label.text == "", "Scenario exit clears shared death and prayer state")
+	check(not GameState.is_dead and not GameState.is_praying and GameOverUi.screen == null, "Scenario exit clears shared death and prayer state")
 	check(not lab.noise.enabled and not lab.noise.is_processing_unhandled_input(), "Debug keyboard handling is disabled in the menu")
 	lab.queue_free()
 	await frames(3)

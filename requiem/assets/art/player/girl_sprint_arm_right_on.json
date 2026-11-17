@@ -1,0 +1,149 @@
+{
+ "clip": "sprint",
+ "part": "arm_right_on",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_sprint_arm_right_on.png",
+  "hframes": 8,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_raised",
+  "flashlight_raised"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 600,
+ "state": "flashlight raised, on",
+ "flashlight_note": "flashlight_tip / flashlight_angle_deg are the drawn values (deg out from straight ahead). Beti: the game's beam follows the arm at half strength and is smoothed, so the light sways about +-3 deg, not +-6.",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 70,
+   "anchors": {
+    "hand_right": [
+     51.7,
+     137.7
+    ],
+    "flashlight_tip": [
+     53.2,
+     151.0
+    ],
+    "flashlight_angle_deg": -6.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 85,
+   "anchors": {
+    "hand_right": [
+     51.0,
+     136.6
+    ],
+    "flashlight_tip": [
+     51.2,
+     150.0
+    ],
+    "flashlight_angle_deg": -4.3
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 75,
+   "anchors": {
+    "hand_right": [
+     47.1,
+     132.4
+    ],
+    "flashlight_tip": [
+     46.2,
+     146.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 70,
+   "anchors": {
+    "hand_right": [
+     43.4,
+     129.0
+    ],
+    "flashlight_tip": [
+     41.2,
+     143.0
+    ],
+    "flashlight_angle_deg": 4.3
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 70,
+   "anchors": {
+    "hand_right": [
+     41.0,
+     128.5
+    ],
+    "flashlight_tip": [
+     38.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 6.0
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 85,
+   "anchors": {
+    "hand_right": [
+     41.4,
+     130.0
+    ],
+    "flashlight_tip": [
+     39.2,
+     144.0
+    ],
+    "flashlight_angle_deg": 4.3
+   }
+  },
+  {
+   "frame": 6,
+   "ms": 75,
+   "anchors": {
+    "hand_right": [
+     45.1,
+     132.4
+    ],
+    "flashlight_tip": [
+     44.2,
+     146.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 7,
+   "ms": 70,
+   "anchors": {
+    "hand_right": [
+     49.0,
+     135.6
+    ],
+    "flashlight_tip": [
+     49.2,
+     149.0
+    ],
+    "flashlight_angle_deg": -4.3
+   }
+  }
+ ]
+}

@@ -1,0 +1,71 @@
+{
+ "clip": "idle_exhausted",
+ "part": "arm_right_none",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_idle_exhausted_arm_right_none.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_empty"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 780,
+ "mood": "exhausted",
+ "mood_note": "after a long sprint: B as tired, faster, and the head bows 1 px forward on the out-breath",
+ "plays_over": "girl_stand_lower, and girl_side_step_lower moved by its upper_offset (both sides)",
+ "switch_note": "calm by default; tired / exhausted after a sprint (MOVEMENT_PLAN 4). Switch at a frame boundary: frame 0 of every mood is her rest pose (exhausted's head 1 px forward)",
+ "state": "no flashlight",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 260,
+   "anchors": {
+    "hand_right": [
+     49,
+     108
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 120,
+   "anchors": {
+    "hand_right": [
+     49,
+     108
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 240,
+   "anchors": {
+    "hand_right": [
+     49,
+     108
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 160,
+   "anchors": {
+    "hand_right": [
+     49,
+     108
+    ]
+   }
+  }
+ ]
+}

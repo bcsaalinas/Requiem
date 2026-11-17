@@ -1,0 +1,127 @@
+{
+ "clip": "breath_forced_gasp",
+ "part": "arm_right_off",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_breath_forced_gasp_arm_right_off.png",
+  "hframes": 5,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right",
+  "flashlight_held"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 1050,
+ "clip_note": "the breath runs out: she bursts, gasps with her hand over her mouth, heaves and recovers; plays once, then the idle (tired)",
+ "plays_over": "girl_stand_lower, girl_sneak_lower and girl_side_step_lower (the last two moved by their upper_offset)",
+ "loop": false,
+ "state": "flashlight low, off",
+ "flashlight_note": "flashlight_tip / flashlight_angle_deg are the drawn values (deg out from straight ahead)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 80,
+   "anchors": {
+    "hand_left": [
+     92.0,
+     117.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 120,
+   "anchors": {
+    "hand_left": [
+     85.0,
+     121.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 300,
+   "anchors": {
+    "hand_left": [
+     85.0,
+     121.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 250,
+   "anchors": {
+    "hand_left": [
+     85.0,
+     121.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 300,
+   "anchors": {
+    "hand_left": [
+     101.0,
+     113.5
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  }
+ ]
+}

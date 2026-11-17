@@ -1,0 +1,79 @@
+{
+ "clip": "pray_kneel",
+ "part": "arm_right_none",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_kneel_arm_right_none.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_empty"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 750,
+ "clip_note": "she kneels to pray: folds, the knees reach the floor (frame 1), sinks and settles into the held bow. Both hands meet palm to palm in front of her chest, just ahead of the bowed head (they join on settle; apart on the way in). In off and on the torch is pinched between the joined hands, pointing at the floor ahead (one look for both states); in none the hands are joined with no torch. Plays once; hold the last frame (the pray loop's rest).",
+ "plays_over": "girl_pray_kneel_lower only (she is still: kneeling never plays over another lower)",
+ "loop": false,
+ "sound_frames": [
+  1
+ ],
+ "hold_last_frame": true,
+ "next_clips_note": "the pray loop / bead step / finish / abort start from the settle frame (frame 3): its hands, torch and boots",
+ "state": "no flashlight",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 120,
+   "label": "fold",
+   "anchors": {
+    "hand_right": [
+     49.0,
+     113.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 150,
+   "label": "knees down",
+   "anchors": {
+    "hand_right": [
+     65.0,
+     120.5
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 180,
+   "label": "sink",
+   "anchors": {
+    "hand_right": [
+     75.0,
+     127.5
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 300,
+   "label": "settle",
+   "anchors": {
+    "hand_right": [
+     77.5,
+     129.5
+    ]
+   }
+  }
+ ]
+}

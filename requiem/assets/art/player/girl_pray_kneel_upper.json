@@ -1,0 +1,128 @@
+{
+ "clip": "pray_kneel",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_kneel_upper.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 750,
+ "clip_note": "she kneels to pray: folds, the knees reach the floor (frame 1), sinks and settles into the held bow. Both hands meet palm to palm in front of her chest, just ahead of the bowed head (they join on settle; apart on the way in). In off and on the torch is pinched between the joined hands, pointing at the floor ahead (one look for both states); in none the hands are joined with no torch. Plays once; hold the last frame (the pray loop's rest).",
+ "plays_over": "girl_pray_kneel_lower only (she is still: kneeling never plays over another lower)",
+ "loop": false,
+ "sound_frames": [
+  1
+ ],
+ "hold_last_frame": true,
+ "next_clips_note": "the pray loop / bead step / finish / abort start from the settle frame (frame 3): its hands, torch and boots",
+ "head": "no head sheet: draw girl_head_poses frame 2 (0 deg, the idle head) moved by head_offset (the bow)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 120,
+   "label": "fold",
+   "head_offset": [
+    0,
+    4
+   ],
+   "anchors": {
+    "hand_left": [
+     106.8,
+     111.9
+    ],
+    "head_center": [
+     80.0,
+     98.5
+    ],
+    "hip_center": [
+     80.0,
+     82.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 150,
+   "label": "knees down",
+   "head_offset": [
+    0,
+    8
+   ],
+   "anchors": {
+    "hand_left": [
+     92.0,
+     120.5
+    ],
+    "head_center": [
+     80.0,
+     102.5
+    ],
+    "hip_center": [
+     80.0,
+     83.1
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 180,
+   "label": "sink",
+   "head_offset": [
+    0,
+    9
+   ],
+   "anchors": {
+    "hand_left": [
+     84.0,
+     128.5
+    ],
+    "head_center": [
+     80.0,
+     103.5
+    ],
+    "hip_center": [
+     80.0,
+     83.5
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 300,
+   "label": "settle",
+   "head_offset": [
+    0,
+    10
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     129.5
+    ],
+    "head_center": [
+     80.0,
+     104.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  }
+ ]
+}

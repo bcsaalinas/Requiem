@@ -103,7 +103,7 @@ func clear_scene() -> void:
 		await get_tree().process_frame
 	active_scene = null
 	GameState.reset()
-	GameOverUi.label.text = ""
+	GameOverUi._reset()
 	noise.enabled = false
 	noise._noises.clear()
 	noise._legend_layer.hide()

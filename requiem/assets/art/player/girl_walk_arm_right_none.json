@@ -1,0 +1,107 @@
+{
+ "clip": "walk",
+ "part": "arm_right_none",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_walk_arm_right_none.png",
+  "hframes": 8,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_empty"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 900,
+ "state": "no flashlight",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 140,
+   "anchors": {
+    "hand_right": [
+     49.0,
+     114.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 100,
+   "anchors": {
+    "hand_right": [
+     50.0,
+     112.0
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 110,
+   "anchors": {
+    "hand_right": [
+     50.0,
+     108.0
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 100,
+   "anchors": {
+    "hand_right": [
+     50.0,
+     104.0
+    ]
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 140,
+   "anchors": {
+    "hand_right": [
+     49.0,
+     104.0
+    ]
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 100,
+   "anchors": {
+    "hand_right": [
+     48.0,
+     104.0
+    ]
+   }
+  },
+  {
+   "frame": 6,
+   "ms": 110,
+   "anchors": {
+    "hand_right": [
+     48.0,
+     108.0
+    ]
+   }
+  },
+  {
+   "frame": 7,
+   "ms": 100,
+   "anchors": {
+    "hand_right": [
+     48.0,
+     112.0
+    ]
+   }
+  }
+ ]
+}

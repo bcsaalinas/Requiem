@@ -141,6 +141,9 @@ func _build_main() -> Control:
 	var display_mode := _menu_button(Preferences.display_caption(), Preferences.toggle_display_mode)
 	Preferences.display_mode_changed.connect(func(): display_mode.text = Preferences.display_caption())
 	box.add_child(display_mode)
+	var turn_mode := _menu_button(Preferences.turn_caption(), Preferences.toggle_turn_mode)
+	Preferences.turn_mode_changed.connect(func(): turn_mode.text = Preferences.turn_caption())
+	box.add_child(turn_mode)
 	box.add_child(_menu_button("Quit to desktop", func():
 		quit_pressed.emit()
 		get_tree().quit()

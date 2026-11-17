@@ -1,0 +1,116 @@
+{
+ "clip": "caught",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_caught_upper.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 520,
+ "clip_note": "a parent or the ranger notices her: the shoulders jump up, the hands jerk into fists and the head snaps toward the light; the game holds the last frame ~1 s, then fades",
+ "plays_over": "girl_stand_lower, girl_sneak_lower and girl_side_step_lower (the last two moved by their upper_offset); the body turns as one toward the aim (MOVEMENT_PLAN)",
+ "loop": false,
+ "sound_frames": [
+  0
+ ],
+ "hold_last_frame_ms": 1000,
+ "head": "no head sheet: draw a girl_head_poses frame moved by head_offset (frame 2, 0 deg, at [0, 0] is the idle head exactly)",
+ "head_turn": "head_pose_deg 35: draw girl_head_poses frame 1 (+35) or frame 3 (-35), whichever turns her face toward the light, at head_offset (mirror head_offset's x for -35)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 50,
+   "label": "flinch",
+   "head_offset": [
+    0,
+    -2
+   ],
+   "head_pose_deg": 0,
+   "anchors": {
+    "hand_left": [
+     106.0,
+     104.0
+    ],
+    "head_center": [
+     80.0,
+     92.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 70,
+   "label": "snap",
+   "head_offset": [
+    0,
+    -3
+   ],
+   "head_pose_deg": 35,
+   "anchors": {
+    "hand_left": [
+     105.0,
+     104.0
+    ],
+    "head_center": [
+     71.68,
+     88.88
+    ],
+    "hip_center": [
+     80,
+     81
+    ],
+    "head_center_minus35": [
+     88.32,
+     88.88
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 400,
+   "label": "freeze",
+   "head_offset": [
+    0,
+    -3
+   ],
+   "head_pose_deg": 35,
+   "anchors": {
+    "hand_left": [
+     105.0,
+     104.0
+    ],
+    "head_center": [
+     71.68,
+     88.88
+    ],
+    "hip_center": [
+     80,
+     81
+    ],
+    "head_center_minus35": [
+     88.32,
+     88.88
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,173 @@
+{
+ "clip": "death",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_death_upper.png",
+  "hframes": 6,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 770,
+ "clip_note": "the entity catches her: she jolts (shoulders up, head still), clenches the free hand into a fist and pulls it up, is yanked forward, then crumples: the head drops forward past the shoulders, the free hand goes limp. Plays once; hold the last frame. The entity's catch (catch.json) hides her sprite from its hide_player key (740 ms), so the clip is mostly covered from there.",
+ "plays_over": "girl_stand_lower only (the catch locks her: she never plays it while moving)",
+ "loop": false,
+ "sound_frames": [
+  0
+ ],
+ "hold_last_frame": true,
+ "head": "no head sheet: draw a girl_head_poses frame moved by head_offset (frame 2, 0 deg, at [0, 0] is the idle head exactly)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 50,
+   "label": "jolt",
+   "head_offset": [
+    0,
+    0
+   ],
+   "anchors": {
+    "hand_left": [
+     104.0,
+     104.0
+    ],
+    "head_center": [
+     80.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 120,
+   "label": "clench",
+   "head_offset": [
+    0,
+    1
+   ],
+   "anchors": {
+    "hand_left": [
+     100.0,
+     99.0
+    ],
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 50,
+   "label": "pulled",
+   "head_offset": [
+    0,
+    4
+   ],
+   "anchors": {
+    "hand_left": [
+     103.0,
+     108.0
+    ],
+    "head_center": [
+     80.0,
+     98.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 110,
+   "label": "buckle",
+   "head_offset": [
+    0,
+    8
+   ],
+   "anchors": {
+    "hand_left": [
+     105.0,
+     116.0
+    ],
+    "head_center": [
+     80.0,
+     102.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 140,
+   "label": "slump",
+   "head_offset": [
+    0,
+    11
+   ],
+   "anchors": {
+    "hand_left": [
+     104.0,
+     119.0
+    ],
+    "head_center": [
+     80.0,
+     105.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 300,
+   "label": "still",
+   "head_offset": [
+    0,
+    12
+   ],
+   "anchors": {
+    "hand_left": [
+     104.0,
+     120.0
+    ],
+    "head_center": [
+     80.0,
+     106.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  }
+ ]
+}
