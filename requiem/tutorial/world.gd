@@ -89,7 +89,7 @@ func set_candle_out(candle_id: String, out: bool) -> void:
 	elif props.has(candle_id):
 		light = props[candle_id].get_node_or_null("WarmPool") as PointLight2D
 	if light != null:
-		light.energy = 0.12 if out else float(light.get_meta("rest_energy"))
+		light.energy = 0.0 if out else float(light.get_meta("rest_energy"))
 		light.color = Color("71889b") if out else Color(light.get_meta("rest_color"))
 	if props.has(candle_id):
 		props[candle_id].extinguished = out

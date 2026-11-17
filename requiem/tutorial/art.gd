@@ -10,6 +10,7 @@ extends Node2D
 @export_group("Actor animation")
 const Materials := preload("res://tutorial/materials.gd")
 const VELADORA := preload("res://assets/art/ritual/ritual_veladora.png")
+const VELADORA_UNLIT := preload("res://assets/art/ritual/ritual_veladora_unlit.png")
 const VELADORA_FLICKER_MS := [260.0, 180.0, 140.0]
 const VELADORA_FRAME := 32.0
 const DETAILS := preload("res://tutorial/assets/art/details_atlas.png")
@@ -76,9 +77,17 @@ func _draw_veladora() -> void:
 	draw_texture_rect_region(VELADORA, Rect2(-half, half * 2.0), Rect2(frame * VELADORA_FRAME, 0.0, VELADORA_FRAME, VELADORA_FRAME))
 
 
+func _draw_veladora_unlit() -> void:
+	var half := Vector2.ONE * VELADORA_FRAME * 0.5 * Units.ART_SCALE
+	draw_texture_rect_region(VELADORA_UNLIT, Rect2(-half, half * 2.0), Rect2(0.0, 0.0, VELADORA_FRAME, VELADORA_FRAME))
+
+
 func _draw_detail() -> void:
-	if kind == "candle" and not extinguished:
-		_draw_veladora()
+	if kind == "candle":
+		if extinguished:
+			_draw_veladora_unlit()
+		else:
+			_draw_veladora()
 		return
 	var region: Rect2 = DETAIL_REGIONS[kind]
 	region.position *= DETAILS.get_size()
@@ -93,10 +102,6 @@ func _draw_detail() -> void:
 		"marker": size=Vector2(40,55)
 		"candle": size=Vector2(25,27)
 	var bottom := 12.0
-	if kind == "candle" and extinguished:
-		region.position.y += region.size.y*.27
-		region.size.y *= .73
-		size.y *= .73
 	paint_sprite(DETAILS,Rect2(Vector2(-size.x*.5,bottom-size.y-lift),size),region)
 
 func set_focused(value: bool) -> void:
