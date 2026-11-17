@@ -9,7 +9,6 @@
 [ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="7_drsj5"]
 [ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="8_326u6"]
 [ext_resource type="PackedScene" uid="uid://jc1e2w437hfj" path="res://level/props/tree.tscn" id="8_ocbwq"]
-[ext_resource type="PackedScene" uid="uid://divkq7aknh84x" path="res://level/props/spruce.tscn" id="9_326u6"]
 [ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="10_hvswp"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="14_hvswp"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="15_rq8ch"]
@@ -228,7 +227,7 @@ position = Vector2(201.8, 742.5)
 [node name="Tree13" type="Node2D" parent="Props" unique_id=907754041 instance=ExtResource("8_ocbwq")]
 position = Vector2(528, 751.5)
 
-[node name="Tree14S" type="Node2D" parent="Props" unique_id=182172005 instance=ExtResource("9_326u6")]
+[node name="Tree14S" type="Node2D" parent="Props" unique_id=182172005 instance=ExtResource("8_ocbwq")]
 position = Vector2(253.1, 276.9)
 
 [node name="Tree16" type="Node2D" parent="Props" unique_id=505990659 instance=ExtResource("8_ocbwq")]
@@ -243,25 +242,25 @@ position = Vector2(128.5, 363.1)
 [node name="Tree22" type="Node2D" parent="Props" unique_id=1640201569 instance=ExtResource("8_ocbwq")]
 position = Vector2(1058.6, 392.2)
 
-[node name="Tree24S" type="Node2D" parent="Props" unique_id=577395358 instance=ExtResource("9_326u6")]
+[node name="Tree24S" type="Node2D" parent="Props" unique_id=577395358 instance=ExtResource("8_ocbwq")]
 position = Vector2(628.4, 169.6)
 
-[node name="Tree25S" type="Node2D" parent="Props" unique_id=1482751060 instance=ExtResource("9_326u6")]
+[node name="Tree25S" type="Node2D" parent="Props" unique_id=1482751060 instance=ExtResource("8_ocbwq")]
 position = Vector2(1243.4, 249.4)
 
-[node name="Tree26S" type="Node2D" parent="Props" unique_id=222271465 instance=ExtResource("9_326u6")]
+[node name="Tree26S" type="Node2D" parent="Props" unique_id=222271465 instance=ExtResource("8_ocbwq")]
 position = Vector2(1159.4, 128.9)
 
 [node name="Tree27" type="Node2D" parent="Props" unique_id=1117162915 instance=ExtResource("8_ocbwq")]
 position = Vector2(620.3, 153)
 
-[node name="Tree28S" type="Node2D" parent="Props" unique_id=102274528 instance=ExtResource("9_326u6")]
+[node name="Tree28S" type="Node2D" parent="Props" unique_id=102274528 instance=ExtResource("8_ocbwq")]
 position = Vector2(220.9, 723.9)
 
 [node name="Tree29" type="Node2D" parent="Props" unique_id=63215608 instance=ExtResource("8_ocbwq")]
 position = Vector2(1374.3, 414.8)
 
-[node name="Tree30S" type="Node2D" parent="Props" unique_id=1296619758 instance=ExtResource("9_326u6")]
+[node name="Tree30S" type="Node2D" parent="Props" unique_id=1296619758 instance=ExtResource("8_ocbwq")]
 position = Vector2(370.5, 753.2)
 
 [node name="Tree31" type="Node2D" parent="Props" unique_id=585534522 instance=ExtResource("8_ocbwq")]
@@ -270,19 +269,19 @@ position = Vector2(226, 365)
 [node name="Tree36" type="Node2D" parent="Props" unique_id=1780117208 instance=ExtResource("8_ocbwq")]
 position = Vector2(1095.6, 183.8)
 
-[node name="Tree37S" type="Node2D" parent="Props" unique_id=2124333207 instance=ExtResource("9_326u6")]
+[node name="Tree37S" type="Node2D" parent="Props" unique_id=2124333207 instance=ExtResource("8_ocbwq")]
 position = Vector2(1039.6, 397.2)
 
-[node name="Tree39S" type="Node2D" parent="Props" unique_id=570532456 instance=ExtResource("9_326u6")]
+[node name="Tree39S" type="Node2D" parent="Props" unique_id=570532456 instance=ExtResource("8_ocbwq")]
 position = Vector2(166.9, 735.6)
 
-[node name="Tree40S" type="Node2D" parent="Props" unique_id=474041206 instance=ExtResource("9_326u6")]
+[node name="Tree40S" type="Node2D" parent="Props" unique_id=474041206 instance=ExtResource("8_ocbwq")]
 position = Vector2(1150.1, 402)
 
 [node name="Tree41" type="Node2D" parent="Props" unique_id=1787901973 instance=ExtResource("8_ocbwq")]
 position = Vector2(434.2, 94.6)
 
-[node name="Tree42S" type="Node2D" parent="Props" unique_id=1846224636 instance=ExtResource("9_326u6")]
+[node name="Tree42S" type="Node2D" parent="Props" unique_id=1846224636 instance=ExtResource("8_ocbwq")]
 position = Vector2(1135.8, 274.8)
 
 [node name="Tree44" type="Node2D" parent="Props" unique_id=497519393 instance=ExtResource("8_ocbwq")]
@@ -309,7 +308,7 @@ position = Vector2(740.4, 717.9)
 [node name="Tree56" type="Node2D" parent="Props" unique_id=811204509 instance=ExtResource("8_ocbwq")]
 position = Vector2(92, 348.6)
 
-[node name="Tree58S" type="Node2D" parent="Props" unique_id=388932063 instance=ExtResource("9_326u6")]
+[node name="Tree58S" type="Node2D" parent="Props" unique_id=388932063 instance=ExtResource("8_ocbwq")]
 position = Vector2(490.2, 255.2)
 
 [node name="Tree59" type="Node2D" parent="Props" unique_id=1415758846 instance=ExtResource("8_ocbwq")]
@@ -324,7 +323,7 @@ position = Vector2(501.2, 146.3)
 [node name="Tree62" type="Node2D" parent="Props" unique_id=524835166 instance=ExtResource("8_ocbwq")]
 position = Vector2(372.6, 212.9)
 
-[node name="Tree63S" type="Node2D" parent="Props" unique_id=482363676 instance=ExtResource("9_326u6")]
+[node name="Tree63S" type="Node2D" parent="Props" unique_id=482363676 instance=ExtResource("8_ocbwq")]
 position = Vector2(730.9, 748.6)
 
 [node name="Tree66" type="Node2D" parent="Props" unique_id=1385075142 instance=ExtResource("8_ocbwq")]
@@ -336,13 +335,13 @@ position = Vector2(516, 527.2)
 [node name="Tree69" type="Node2D" parent="Props" unique_id=76352064 instance=ExtResource("8_ocbwq")]
 position = Vector2(485.9, 547.5)
 
-[node name="Tree70S" type="Node2D" parent="Props" unique_id=1838356761 instance=ExtResource("9_326u6")]
+[node name="Tree70S" type="Node2D" parent="Props" unique_id=1838356761 instance=ExtResource("8_ocbwq")]
 position = Vector2(472.4, 131.3)
 
-[node name="Tree71S" type="Node2D" parent="Props" unique_id=599873325 instance=ExtResource("9_326u6")]
+[node name="Tree71S" type="Node2D" parent="Props" unique_id=599873325 instance=ExtResource("8_ocbwq")]
 position = Vector2(1243.3, 163.4)
 
-[node name="Tree72S" type="Node2D" parent="Props" unique_id=1545300885 instance=ExtResource("9_326u6")]
+[node name="Tree72S" type="Node2D" parent="Props" unique_id=1545300885 instance=ExtResource("8_ocbwq")]
 position = Vector2(781, 716.2)
 
 [node name="Tree74" type="Node2D" parent="Props" unique_id=2064939680 instance=ExtResource("8_ocbwq")]
