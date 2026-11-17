@@ -736,7 +736,7 @@ func _tick_sequence(delta: float) -> void:
 			hud.end_title.show()
 		if sequence_time>=9.0 and sequence_step==2:
 			sequence_step=3
-			Kiosk.go_to_title()
+			Kiosk.go_to_title.call_deferred()
 		return
 	if sequence!="attack": return
 	if sequence_time>=0.9 and sequence_step==0:
