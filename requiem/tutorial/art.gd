@@ -15,16 +15,32 @@ const VELADORA_FLICKER_MS := [260.0, 180.0, 140.0]
 const VELADORA_FRAME := 32.0
 const DETAILS := preload("res://tutorial/assets/art/details_atlas.png")
 const DETAIL_REGIONS := {
- "flashlight":Rect2(.025,.08,.205,.35), "battery":Rect2(.325,.09,.10,.34),
- "phone":Rect2(.545,.09,.175,.37), "rocks":Rect2(.788,.115,.177,.315),
+ "rocks":Rect2(.788,.115,.177,.315),
  "marker":Rect2(.55,.50,.18,.455), "candle":Rect2(.787,.54,.19,.37),
 }
+const ITEMS := {
+ "flashlight":preload("res://assets/art/items/item_flashlight.png"),
+ "battery":preload("res://assets/art/items/item_battery.png"),
+ "phone":preload("res://assets/art/items/item_phone.png"),
+}
+const ITEM_GLINTS := {
+ "flashlight":preload("res://assets/art/items/item_flashlight_glint.png"),
+ "battery":preload("res://assets/art/items/item_battery_glint.png"),
+ "phone":preload("res://assets/art/items/item_phone_glint.png"),
+}
+const PHONE_LIT := preload("res://assets/art/items/item_phone_lit.png")
+# durations_ms copied from the item JSONs; every glint loops the same two numbers.
+const GLINT_MS := [160.0, 480.0]
+const PHONE_LIT_MS := [360.0, 360.0]
 const SPRITES := preload("res://tutorial/assets/art/props_atlas.png")
 var focused := false
 var threat_pressure := 0.0
 var focal_sprite: Sprite2D
 var rim_sprite: Sprite2D
+var glint: Sprite2D
 var extinguished := false
+## The phone's incoming-message screen stays lit until the first read.
+var screen_lit := true
 var clock := 0.0
 ## Painted body pose; contact shadows and the physical player stay fixed.
 
@@ -33,9 +49,17 @@ func _ready() -> void:
 	z_index = 1
 	# One light layer: every light reaches every receiver; walls, doors and tall props occlude.
 	light_mask = 1
-	if kind != "candle":
+	if kind != "candle" and not ITEMS.has(kind):
 		material = Materials.scenery_material()
-	if kind in ["flashlight","battery","phone","rocks","marker"]:
+	if ITEMS.has(kind):
+		glint = Sprite2D.new()
+		glint.name = "Glint"
+		glint.texture = ITEM_GLINTS[kind]
+		glint.hframes = 2
+		glint.scale = Vector2.ONE * Units.ART_SCALE
+		glint.position = Vector2(0.0, -lift)
+		add_child(glint,false,Node.INTERNAL_MODE_BACK)
+	if kind in ["rocks","marker"]:
 		focal_sprite = Sprite2D.new()
 		focal_sprite.name = "ReadabilitySprite"
 		focal_sprite.light_mask = light_mask
@@ -57,12 +81,35 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	clock += delta
+	if is_instance_valid(glint):
+		glint.frame = _cycle_frame(GLINT_MS)
 	if kind in ["candle", "phone"]:
 		queue_redraw()
 
 func _draw() -> void:
+	if ITEMS.has(kind):
+		var texture: Texture2D = ITEMS[kind]
+		if kind == "phone" and screen_lit:
+			var lit_size := Vector2(PHONE_LIT.get_width() / 2.0, PHONE_LIT.get_height()) * Units.ART_SCALE
+			var lit_rect := Rect2(Vector2(0.0, -lift) - lit_size * 0.5, lit_size)
+			draw_texture_rect_region(PHONE_LIT, lit_rect, Rect2(_cycle_frame(PHONE_LIT_MS) * PHONE_LIT.get_width() / 2.0, 0.0, PHONE_LIT.get_width() / 2.0, PHONE_LIT.get_height()))
+		else:
+			var size := texture.get_size() * Units.ART_SCALE
+			draw_texture_rect(texture, Rect2(Vector2(0.0, -lift) - size * 0.5, size), false)
+		return
 	if DETAIL_REGIONS.has(kind):
 		_draw_detail()
+
+func _cycle_frame(durations: Array) -> int:
+	var cycle_ms := 0.0
+	for duration: float in durations:
+		cycle_ms += duration
+	var time_ms := fposmod(clock * 1000.0, cycle_ms)
+	var frame := 0
+	while time_ms >= durations[frame]:
+		time_ms -= durations[frame]
+		frame += 1
+	return frame
 
 func _draw_veladora() -> void:
 	var cycle_ms := 0.0
@@ -95,9 +142,6 @@ func _draw_detail() -> void:
 	var size := Vector2(32,32)
 	# Pickups at real scale next to the 58 px girl; the focus rim keeps them readable.
 	match kind:
-		"flashlight": size=Vector2(24,20)
-		"battery": size=Vector2(10,17)
-		"phone": size=Vector2(16,19)
 		"rocks": size=Vector2(30,23)
 		"marker": size=Vector2(40,55)
 		"candle": size=Vector2(25,27)
@@ -143,7 +187,7 @@ func paint_sprite(atlas: Texture2D, target: Rect2, source: Rect2, albedo := Colo
 	style.set_shader_parameter("value_floor",floor_value)
 	style.set_shader_parameter("value_range",value_range)
 	style.set_shader_parameter("rim_strength",rim)
-	style.set_shader_parameter("color_mix",.55 if kind in ["marker","battery","flashlight","rocks","phone"] else .18)
+	style.set_shader_parameter("color_mix",.55 if kind in ["marker","rocks"] else .18)
 
 	# Reuse the same atlas crop for a subtle contour, never an unlit sprite body.
 	rim_sprite.texture = focal_sprite.texture

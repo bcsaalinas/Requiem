@@ -1,0 +1,41 @@
+{
+  "name": "item_flashlight",
+  "description": "Viv's metal flashlight pickup lying on its side, straight down, Cold steel barrel + worn brass switch & bezel.",
+  "canvas": [
+    32,
+    16
+  ],
+  "pivot": [
+    16,
+    8
+  ],
+  "bbox": {
+    "x": 2,
+    "y": 2,
+    "w": 27,
+    "h": 11
+  },
+  "item": {
+    "file": "item_flashlight.png",
+    "frames": 1
+  },
+  "glint": {
+    "file": "item_flashlight_glint.png",
+    "frame_size": [
+      32,
+      16
+    ],
+    "frames": 2,
+    "durations_ms": [
+      160,
+      480
+    ],
+    "loop": true,
+    "tag": "glint",
+    "center": [
+      21.0,
+      6.0
+    ]
+  },
+  "sound_frames": []
+}

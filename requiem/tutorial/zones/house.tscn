@@ -34,20 +34,6 @@
 [ext_resource type="Texture2D" uid="uid://d068jrsh0dgqu" path="res://assets/art/props/deco_rug_runner.png" id="rug_new"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_roof.tres" id="tileset_roof"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_vgpbg"]
-shader = ExtResource("10_dkkgd")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_3giw8"]
-shader = ExtResource("10_dkkgd")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dkkgd"]
 shader = ExtResource("10_dkkgd")
 shader_parameter/saturation = 0.5
@@ -215,11 +201,10 @@ kind = "candle"
 light_mask = 2
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_vgpbg")
 position = Vector2(262, 302)
 script = ExtResource("11_5l22i")
 kind = "battery"
-lift = 45.6
+lift = 70.4
 metadata/interaction_id = "house_battery"
 metadata/interaction_label = "Take"
 
@@ -277,7 +262,6 @@ metadata/interaction_label = "Take"
 light_mask = 2
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_3giw8")
 position = Vector2(900, 830)
 script = ExtResource("11_5l22i")
 kind = "battery"
