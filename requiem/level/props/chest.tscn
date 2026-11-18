@@ -1,29 +1,20 @@
 [gd_scene format=3 uid="uid://carenk35ti2lg"]
 
-[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_quj25"]
-[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_63480"]
-[ext_resource type="Texture2D" uid="uid://bjqtyxyqa3sy3" path="res://level/props/textures/chest.tres" id="3_tbfy5"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_chest.png" id="1_chest"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7kdhv"]
 size = Vector2(76, 40)
 
-[node name="Chest" type="Node2D" unique_id=2095263743]
+[node name="Chest" type="Node2D"]
 
-[node name="Shadow" type="Sprite2D" parent="." unique_id=293300730]
-z_index = -1
-position = Vector2(0, -12)
-scale = Vector2(0.72, 0.55)
-texture = ExtResource("1_quj25")
-
-[node name="Sprite" type="Sprite2D" parent="." unique_id=939646855]
-material = ExtResource("2_63480")
-position = Vector2(-41, -66)
-scale = Vector2(0.315, 0.315)
-texture = ExtResource("3_tbfy5")
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(-38, -40)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_chest")
 centered = false
 
-[node name="Body" type="StaticBody2D" parent="." unique_id=283094607]
+[node name="Body" type="StaticBody2D" parent="."]
 
-[node name="Shape" type="CollisionShape2D" parent="Body" unique_id=497854118]
+[node name="Shape" type="CollisionShape2D" parent="Body"]
 position = Vector2(0, -20)
 shape = SubResource("RectangleShape2D_7kdhv")

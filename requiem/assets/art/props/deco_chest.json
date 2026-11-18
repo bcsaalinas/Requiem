@@ -1,0 +1,28 @@
+{
+  "name": "deco_chest",
+  "description": "Old wooden trunk/chest with two iron straps and central lock hasp, straight down, no rim.",
+  "file": "deco_chest.png",
+  "canvas": [
+    190,
+    100
+  ],
+  "frame_size": [
+    190,
+    100
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    95,
+    50
+  ],
+  "layers": {
+    "art": "deco_chest.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    76,
+    40
+  ],
+  "sound_frames": []
+}

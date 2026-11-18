@@ -1,0 +1,28 @@
+{
+  "name": "deco_bed",
+  "description": "Unmade bed (pillow askew, blanket, sheet wedge, wood headboard & rails), straight down, no rim.",
+  "file": "deco_bed.png",
+  "canvas": [
+    210,
+    340
+  ],
+  "frame_size": [
+    210,
+    340
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    105,
+    170
+  ],
+  "layers": {
+    "bed": "deco_bed.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    84,
+    136
+  ],
+  "sound_frames": []
+}

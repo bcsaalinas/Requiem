@@ -1,0 +1,28 @@
+{
+  "name": "deco_armchair",
+  "description": "Worn fabric armchair with wooden arm knuckles and one plain seat cushion, straight down, no rim.",
+  "file": "deco_armchair.png",
+  "canvas": [
+    166,
+    120
+  ],
+  "frame_size": [
+    166,
+    120
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    83,
+    60
+  ],
+  "layers": {
+    "art": "deco_armchair.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    66,
+    48
+  ],
+  "sound_frames": []
+}

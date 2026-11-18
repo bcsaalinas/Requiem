@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://dcvofc14fr660"]
 
-[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_3aqkw"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="3_3aqkw"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_vg152"]
 [ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="5_1icfp"]
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="5_4xqdr"]
@@ -68,9 +68,8 @@ scale = Vector2(0.4, 0.4)
 texture = ExtResource("rug_new")
 
 [node name="RefugeMat" type="Sprite2D" parent="Rugs" unique_id=1115579449]
-visible = false
 position = Vector2(480, 488)
-scale = Vector2(0.23, 0.23)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_3aqkw")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=753767168 groups=["loop_nav"]]

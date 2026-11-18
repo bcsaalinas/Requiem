@@ -7,7 +7,7 @@
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="5_ber70"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="6_gscj6"]
 [ext_resource type="Script" uid="uid://bjt3j5vnduckf" path="res://level/props/pebble_pile.gd" id="6_ocbwq"]
-[ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="7_drsj5"]
+[ext_resource type="PackedScene" path="res://level/props/outdoor_lantern.tscn" id="7_drsj5"]
 [ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="8_326u6"]
 [ext_resource type="PackedScene" uid="uid://jc1e2w437hfj" path="res://level/props/tree.tscn" id="8_ocbwq"]
 [ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="12_326u6"]

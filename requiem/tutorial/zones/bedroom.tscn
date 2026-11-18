@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://dhipp84jv3cct"]
 
-[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="2_qcv8i"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="2_qcv8i"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="3_a5faa"]
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="4_42sbo"]
 [ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="4_sp84h"]
@@ -80,12 +80,11 @@ y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(64, 64, 832, 512)])
 
 [node name="Rugs" type="Node2D" parent="." unique_id=1731969846]
-visible = false
 z_index = -9
 
 [node name="BedRug" type="Sprite2D" parent="Rugs" unique_id=2018847941]
 position = Vector2(470, 390)
-scale = Vector2(0.42, 0.42)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("2_qcv8i")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=67038285]
@@ -142,7 +141,7 @@ material = SubResource("ShaderMaterial_qcv8i")
 position = Vector2(176, 422)
 script = ExtResource("12_48vr2")
 kind = "phone"
-lift = 44.0
+lift = 24.4
 metadata/interaction_id = "phone"
 metadata/interaction_label = "Read"
 
@@ -153,7 +152,7 @@ material = SubResource("ShaderMaterial_a5faa")
 position = Vector2(690, 263)
 script = ExtResource("12_48vr2")
 kind = "flashlight"
-lift = 84.0
+lift = 30.0
 metadata/interaction_id = "flashlight"
 metadata/interaction_label = "Take"
 

@@ -1,0 +1,42 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_6wgvo"]
+[ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="1_sskwk"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_sskwk"]
+[ext_resource type="Texture2D" uid="uid://l1q845u3lb46" path="res://level/props/textures/lantern.tres" id="3_ar68v"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m54j7"]
+size = Vector2(14, 8)
+
+[node name="OutdoorLantern" type="Node2D"]
+script = ExtResource("1_sskwk")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(0, -3)
+scale = Vector2(0.22, 0.2)
+texture = ExtResource("1_6wgvo")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+material = ExtResource("2_sskwk")
+position = Vector2(-13, -75)
+scale = Vector2(0.2857, 0.2857)
+texture = ExtResource("3_ar68v")
+centered = false
+
+[node name="Light" type="PointLight2D" parent="."]
+position = Vector2(0, -8)
+color = Color(0.9098039, 0.7529412, 0.53333336, 1)
+energy = 1.1
+range_item_cull_mask = 5
+shadow_enabled = true
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.6
+
+[node name="Body" type="StaticBody2D" parent="."]
+
+[node name="Shape" type="CollisionShape2D" parent="Body"]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_m54j7")
