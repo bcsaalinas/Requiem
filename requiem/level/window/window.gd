@@ -34,6 +34,12 @@ const BOX_FILLER := preload("res://assets/art/tiles/wall_top_window_box_filler.p
 		room_side = value
 		_place_shards()
 		_redraw_box()
+## Draw the box above the porch roof layers so the inner sill and curtain tops stay readable.
+@export var over_roof := false:
+	set(value):
+		over_roof = value
+		if _box != null:
+			_box.z_index = 47 if over_roof else 41
 ## Wall cells the window opening is cut through; more than one adds filler copies between halves.
 @export_range(1, 4) var wall_depth := 1:
 	set(value):
@@ -157,7 +163,7 @@ func _build_box() -> void:
 	_box.name = "BoxArt"
 	_box.scale = Vector2.ONE * Units.ART_SCALE
 	_box.z_as_relative = false
-	_box.z_index = 41
+	_box.z_index = 47 if over_roof else 41
 	_box.centered = false
 	add_child(_box)
 	_redraw_box()
