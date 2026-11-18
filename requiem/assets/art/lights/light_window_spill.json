@@ -1,0 +1,19 @@
+{
+  "name": "light_window_spill",
+  "kind": "light texture (PointLight2D): lamp light from inside falling out through a window onto the ground (card T31, D15)",
+  "canvas": [
+    160,
+    192
+  ],
+  "file": "light_window_spill.png",
+  "scale": 1,
+  "anchor_row0": "row 0 = the window's outer edge; light falls toward +y (bottom). Centre is x=80.",
+  "mullion_bar": "not painted in the texture; the engine cuts the mullion shadow with a LightOccluder2D (ART_REQUEST_WINDOW.md)",
+  "bands_window_to_ground": [
+    "#bab4aa",
+    "#8d817b",
+    "#473e3c"
+  ],
+  "outside": "transparent (alpha 0)",
+  "filter": "nearest"
+}

@@ -628,6 +628,7 @@ func interact(id: String) -> void:
 				var front_door: Door = world.interactables["front_door"]["node"]
 				front_door.locked=false
 				front_door.open()
+				(world.interactables["window"]["node"] as WallWindow).unlatched=true
 				caption("[Latch clicks]")
 			else: say("The latch is behind the glass.",6)
 		"front_door":

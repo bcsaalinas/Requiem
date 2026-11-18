@@ -5,17 +5,25 @@ extends Node2D
 ## but lets light through its glass: only the frame posts occlude. The origin is the floor line
 ## below the wall face, like Door, so both y-sort with the wall.
 ##
-## The window art is two (or more) cells of the zone's ArtWallTops layer, placed by the zone art
-## baker and listed in the `art_cells` metadata. Breaking swaps those cells through the three
-## breaking frames and drops the glass shards on the room side.
+## The window art is the 2-unit box window cutaway from art-lab (wall_top_window_box*.png), drawn
+## shifted away from the screen centre like the wall tops around it. For walls deeper than one
+## cell the canvas is split at split_y_px and the floor-of-opening filler piece is inserted
+## between the outer and inner halves. Breaking swaps the composed art to the broken state and
+## drops the glass shards on the room side; "Unlatch" swaps to the swung pane.
 
 signal broken_changed(is_broken: bool)
 
-const BREAKING_FIRST := Vector2i(4, 7)
-const BROKEN_FRAME := 2
-const FRAME_SECONDS := 0.09
+const BOX_CANVAS := Vector2i(160, 120)
+## Centre of the 2x1 wall cells inside the canvas (art px); the sill overhangs sit outside it.
+const BOX_ANCHOR_PX := Vector2(80, 56)
+const BOX_SPLIT_Y_PX := 56
 const SHARD_X_ART_PX := 18.0
 const SHARD_HEIGHT_ART_PX := 24.0
+
+const BOX_INTACT := preload("res://assets/art/tiles/wall_top_window_box.png")
+const BOX_BROKEN := preload("res://assets/art/tiles/wall_top_window_box_broken.png")
+const BOX_UNLATCHED := preload("res://assets/art/tiles/wall_top_window_box_unlatched.png")
+const BOX_FILLER := preload("res://assets/art/tiles/wall_top_window_box_filler.png")
 
 ## Exterior windows show the cracked pane (the breakable one); interior ones the plain window.
 @export var exterior := false
@@ -24,6 +32,12 @@ const SHARD_HEIGHT_ART_PX := 24.0
 	set(value):
 		room_side = value
 		_place_shards()
+		_redraw_box()
+## Wall cells the window opening is cut through; more than one adds filler copies between halves.
+@export_range(1, 4) var wall_depth := 1:
+	set(value):
+		wall_depth = value
+		_redraw_box()
 @export var broken := false:
 	set(value):
 		var changed := value != broken
@@ -33,15 +47,32 @@ const SHARD_HEIGHT_ART_PX := 24.0
 		_refresh(changed and not Engine.is_editor_hint())
 		if changed and not Engine.is_editor_hint():
 			broken_changed.emit(broken)
+## The pane has been reached through and swung open after the break.
+var unlatched := false:
+	set(value):
+		unlatched = value
+		_redraw_box()
 
-var _tween: Tween
-## Each art cell's intact tile (atlas coords, alternative), so unbreaking restores it exactly.
-var _intact: Dictionary = {}
+var _box: Sprite2D
+var _last_view_origin := Vector2(INF, INF)
 
 
 func _ready() -> void:
 	_place_shards()
+	_build_box()
 	_refresh(false)
+
+
+func _process(_delta: float) -> void:
+	if Engine.is_editor_hint() or _box == null:
+		return
+	var display := get_tree().root.get_node_or_null("PixelDisplay")
+	if display == null or display.world_view == null:
+		return
+	var origin: Vector2 = display.world_view.canvas_transform.origin
+	if origin != _last_view_origin:
+		_last_view_origin = origin
+		_apply_shift()
 
 
 ## Windows can be interaction targets (the tutorial's latch); the art itself does not react.
@@ -72,50 +103,86 @@ func _tops_layer() -> TileMapLayer:
 	return null
 
 
-func _refresh(animate: bool) -> void:
+func _refresh(_animate: bool) -> void:
 	var shards := get_node_or_null("Shards") as CanvasItem
 	if shards != null:
 		shards.visible = broken
-	if _tween != null:
-		_tween.kill()
-	if not broken:
-		_restore_intact()
+	_redraw_box()
+
+
+# --- Box window art ----------------------------------------------------------
+
+func _state_texture() -> Texture2D:
+	if unlatched:
+		return BOX_UNLATCHED
+	if broken:
+		return BOX_BROKEN
+	return BOX_INTACT
+
+
+func _build_box() -> void:
+	if Engine.is_editor_hint():
 		return
-	if animate:
-		_tween = create_tween()
-		for frame in BROKEN_FRAME + 1:
-			_tween.tween_callback(_set_frame.bind(frame))
-			_tween.tween_interval(FRAME_SECONDS)
-	else:
-		_set_frame(BROKEN_FRAME)
-
-
-func _set_frame(frame: int) -> void:
+	# The box piece replaces the old window cells on the wall-top layer.
 	var layer := _tops_layer()
-	if layer == null:
+	if layer != null:
+		for cell in get_art_cells():
+			layer.erase_cell(cell)
+		var shifted := layer.get_parent().get_node_or_null("ArtWallTopsShifted")
+		if shifted != null and shifted.has_method("refresh"):
+			shifted.refresh()
+	_box = Sprite2D.new()
+	_box.name = "BoxArt"
+	_box.scale = Vector2.ONE * Units.ART_SCALE
+	_box.z_as_relative = false
+	_box.z_index = 41
+	_box.centered = false
+	add_child(_box)
+	_redraw_box()
+
+
+func _redraw_box() -> void:
+	if _box == null:
 		return
-	for cell in get_art_cells():
-		if not _intact.has(cell):
-			_intact[cell] = [layer.get_cell_atlas_coords(cell), layer.get_cell_alternative_tile(cell)]
-		# Keep the cell's flip/transpose alternative: the pane faces the same way as the intact one.
-		layer.set_cell(cell, 0, BREAKING_FIRST + Vector2i(frame, 0), _intact[cell][1])
-	_refresh_drawn_tops(layer)
+	_box.texture = _compose(_state_texture())
+	# The anchor sits at the centre of the two wall cells, at the bottom of the outer half.
+	# With the piece flipped for a north-side room the same point is mirrored inside the canvas.
+	var anchor := BOX_ANCHOR_PX if room_side == 1 else Vector2(BOX_ANCHOR_PX.x, _box.texture.get_height() - BOX_ANCHOR_PX.y)
+	_box.position = Vector2(0, -Units.TILE_PX * 0.5) - anchor * Units.ART_SCALE
+	_apply_shift()
 
 
-func _restore_intact() -> void:
-	var layer := _tops_layer()
-	if layer == null:
+func _apply_shift() -> void:
+	if _box == null:
 		return
-	for cell: Vector2i in _intact:
-		layer.set_cell(cell, 0, _intact[cell][0], _intact[cell][1])
-	_intact.clear()
-	_refresh_drawn_tops(layer)
+	var centre := _box.position + _box.texture.get_size() * Units.ART_SCALE * 0.5
+	_box.offset = HeightShift.offset_for(global_position + centre)
 
 
-func _refresh_drawn_tops(layer: TileMapLayer) -> void:
-	var shifted := layer.get_parent().get_node_or_null("ArtWallTopsShifted")
-	if shifted != null and shifted.has_method("refresh"):
-		shifted.refresh()
+## Assembles the drawn piece: whole canvas for a one-cell wall; outer half, one filler per extra
+## cell, then inner half for deeper walls. Mirrored vertically when the room is on the north side.
+func _compose(texture: Texture2D) -> ImageTexture:
+	var src := texture.get_image()
+	if wall_depth <= 1:
+		return ImageTexture.create_from_image(src)
+	var outer := src.get_region(Rect2i(0, 0, BOX_CANVAS.x, BOX_SPLIT_Y_PX))
+	var inner := src.get_region(Rect2i(0, BOX_SPLIT_Y_PX, BOX_CANVAS.x, BOX_CANVAS.y - BOX_SPLIT_Y_PX))
+	var filler := BOX_FILLER.get_image()
+	var out := Image.create(BOX_CANVAS.x, BOX_CANVAS.y + (wall_depth - 1) * filler.get_height(), false, Image.FORMAT_RGBA8)
+	var y := 0
+	for piece: Image in [inner, filler, outer] if room_side == -1 else [outer, filler, inner]:
+		if room_side == -1:
+			piece.flip_y()
+		out.blit_rect(piece, Rect2i(Vector2i.ZERO, piece.get_size()), Vector2i(0, y))
+		y += piece.get_height()
+		for extra in (wall_depth - 2):
+			if piece == filler:
+				var copy := filler.duplicate() as Image
+				if room_side == -1:
+					copy.flip_y()
+				out.blit_rect(copy, Rect2i(Vector2i.ZERO, copy.get_size()), Vector2i(0, y))
+				y += copy.get_height()
+	return ImageTexture.create_from_image(out)
 
 
 ## Shards lie on the room-side floor cells next to the wall: the decal's wall edge touches the wall
