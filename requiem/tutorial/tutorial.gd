@@ -273,6 +273,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 			prayer_captioned=true
 			caption("[Low praying]")
 	_configure_entity()
+	_sync_altar_door_glow()
 	world.zones["forest"].get_node("Ranger").active = zone == "forest"
 	if zone == "forest":
 		world.zones["forest"].get_node("Ranger").reset_patrol()
@@ -800,6 +801,12 @@ func _sync_roof() -> void:
 	for id in ["ArtRoof", "ArtRoofEaves", "ArtRoofEaveCorners"]:
 		world.zones["house"].get_node(id).visible = roof_on
 
+## The altar doorway's own lights stay dark for the quiet beat after the last
+## flame; the doorway itself still answers the flashlight and other real light.
+func _sync_altar_door_glow() -> void:
+	var altar_door: Door = world.interactables["altar_door"]["node"]
+	altar_door.decorative_glow_off = zone=="house" and attack_finished and encounter_grace>0.0
+
 func _attack_candle_time(index: int) -> float:
 	var last: int=World.ATTACK_CANDLES.size()-1
 	return 0.9+ATTACK_CANDLE_STEP*mini(index,last-1)+(ATTACK_LAST_PAUSE if index==last else 0.0)
@@ -846,6 +853,7 @@ func _tick_arrival(delta: float) -> void:
 	entity.active=true
 	entity.notice(arrival_target)
 	arrival_place=Vector2.INF
+	world.interactables["altar_door"]["node"].decorative_glow_off = false
 
 func _in_beam(at: Vector2) -> bool:
 	if not flashlight.enabled or flashlight.texture == null: return false
@@ -895,6 +903,7 @@ func _tick_sequence(delta: float) -> void:
 	if sequence_step==last_candle and sequence_time>=last_candle_time:
 		sequence_step+=1
 		world.set_candle_out(World.ATTACK_CANDLES[last_candle],true)
+		world.interactables["altar_door"]["node"].decorative_glow_off = true
 		world.props["friend"].hide()
 		world.props["friend"].fallen=true
 		play_sound("thud",friend_home,-2)

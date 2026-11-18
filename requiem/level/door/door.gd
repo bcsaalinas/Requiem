@@ -176,11 +176,18 @@ func set_focused(value: bool) -> void:
 	_update_light()
 
 
+## Decorative doorway lights forced off (story beats); real lights still reach the door.
+var decorative_glow_off := false:
+	set(value):
+		decorative_glow_off = value
+		_update_light()
+
+
 func _update_light() -> void:
 	var glow := get_node_or_null("Glow")
 	if glow == null:
 		return
-	var energy := locked_light_energy if locked else light_energy
+	var energy := 0.0 if decorative_glow_off else (locked_light_energy if locked else light_energy)
 	if focused:
 		energy *= focused_light_boost
 	for light in glow.get_children():
