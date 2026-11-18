@@ -1,0 +1,21 @@
+{
+ "name": "light_ranger_beam_solid",
+ "kind": "light texture (PointLight2D), the ranger's torch beam as one flat band",
+ "canvas": [
+  256,
+  256
+ ],
+ "file": "light_ranger_beam_solid.png",
+ "tip_px": [
+  6.0,
+  128.0
+ ],
+ "direction": "+x; symmetric about y = 128",
+ "half_angle_deg": 24.0,
+ "length_px": 237.0,
+ "fill": "#bab4aa",
+ "opaque_px": 23854,
+ "outside": "transparent (alpha 0): no light",
+ "design": "the same flat band as light_flashlight_beam_solid, opened to 24 degrees each side: the beam is the ranger's sight cone, so what it lights is what he sees",
+ "stand_in": "drawn by the integration session; an art export with the same canvas, tip, half angle and length can replace this file without code changes"
+}

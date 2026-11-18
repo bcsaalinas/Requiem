@@ -119,7 +119,7 @@ func _ready() -> void:
 	await frames(2)
 	check(game.player.process_mode==Node.PROCESS_MODE_INHERIT and game.hud.key_hint.text.contains("Throw"),"First stones fill her pockets and put the throw key under her")
 	var _r=game.world.zones["forest"].get_node("Ranger")
-	check(_r.home.distance_to(_r.global_position)<2.0 and not _r.chasing,"The first stones leave the ranger waiting at his post")
+	check(not _r.chasing and not _r.investigating,"Picking up the first stones does not draw the ranger off his beat")
 	game.advance_dialogue()
 	check(game.player.process_mode==Node.PROCESS_MODE_INHERIT,"Continue leaves the player and camera free")
 	at_interaction("forest_rocks")
@@ -151,7 +151,7 @@ func _ready() -> void:
 	check(game.window_broken,"Rock flight and impact break the sidelight")
 	var side_light: WallWindow = game.world.interactables["window"]["node"]
 	check(side_light.broken and side_light.get_node("Shards").visible,"Window impact breaks the glass and drops shards on the porch")
-	check(not game.world.landmarks["reveal"].visible and not game.entity.visible,"Window impact keeps the entity unseen until the altar")
+	check(not game.entity.visible,"Window impact keeps the entity unseen until the altar")
 	await frames(150)
 	check(game.sequence=="","Window reveal finishes without trapping interactions")
 	var front_door: Door = game.world.interactables["front_door"]["node"]
@@ -166,6 +166,16 @@ func _ready() -> void:
 	await frames(30)
 	check(game.player.position.y<front_door.global_position.y-96,"The unlocked front door permits entry on foot")
 	check(front_door.visible and not front_door.is_open,"The entrance stays a visible door and shuts behind the player")
+	# Trunks reward looking around; the one under the burning candle keeps shut for now.
+	var key_trunk: Node2D = game.world.interactables["chest_vestibule"]["node"]
+	at_interaction("chest_vestibule",Vector2(0,70))
+	check(not key_trunk.is_open and not game.has_key,"The trunk under the burning candle does not open before the blackout")
+	var spares_before: int = game.batteries
+	at_interaction("chest_altar",Vector2(0,70))
+	check(game.world.interactables["chest_altar"]["node"].is_open and game.batteries==spares_before+1,"A trunk opens and gives its battery")
+	check(not game.interaction_available("chest_altar"),"An opened trunk offers nothing more")
+	at_interaction("chest_altar_corner",Vector2(0,-50))
+	check(game.world.interactables["chest_altar_corner"]["node"].is_open and game.batteries==spares_before+1,"Some trunks are empty")
 	var altar_energy: float=game.world.landmarks["AltarLeftLight"].energy
 	at_interaction("friend")
 	check(not game.dialogue.is_empty(),"Friend dialogue precedes attack")
@@ -177,7 +187,18 @@ func _ready() -> void:
 	game._input(help_key)
 	check(not get_tree().paused and game.player.process_mode==Node.PROCESS_MODE_DISABLED,"Closing help preserves the dialogue input lock")
 	while not game.dialogue.is_empty(): game.advance_dialogue()
-	await frames(400)
+	# The last flame takes every light with it, hers included: Eli goes in total dark.
+	var ring: PointLight2D = game.player.get_node("LocalLight")
+	var lit_when_gone := false
+	var dark_frames := 0
+	for tick in range(520):
+		await frames(1)
+		if game.attack_finished: break
+		if not game.world.props["friend"].visible:
+			if game.flashlight.enabled or ring.enabled: lit_when_gone = lit_when_gone or dark_frames == 0
+			else: dark_frames += 1
+	check(not lit_when_gone and dark_frames>=int(game.BLACKOUT_SECONDS*60.0)-2,"The last candle puts out her flashlight and ring before Eli is gone, and holds the dark")
+	check(ring.enabled and game.flashlight.is_on==(game.flashlight.battery_percent>0.0),"Her light comes back by itself once the dark has done its work")
 	check(game.attack_finished and game.world.props["friend"].fallen and not game.world.props["friend"].visible,"Attack leaves friend hidden and fallen")
 	check(game.player.process_mode!=Node.PROCESS_MODE_DISABLED,"Story releases player input")
 	check(game.stage=="ketsu","Aftermath starts the integration stage")
@@ -187,16 +208,59 @@ func _ready() -> void:
 	for tick in range(400):
 		if not game.resetting: break
 		await frames(1)
-	# Keep the heard-only phase from arriving mid-check; finishing it here would
-	# mean a catch, since she is standing at the friend's place.
-	game.encounter_grace=999
 	game.entity.active=false
 	check(game.attack_finished and game.friend_met and game.world.props["friend"].fallen and not game.world.props["friend"].visible,"House retry preserves completed story (friend still hidden and fallen)")
 	check(game.world.landmarks["AltarLeftLight"].energy<altar_energy,"House retry preserves the changed lighting")
 	at_interaction("friend")
 	check(game.dialogue.is_empty(),"Completed dialogue cannot replay")
+	# After the blackout: the way out has shut itself, and the house is only sound.
+	check(front_door.locked and not front_door.is_open,"The front door locks itself in the blackout")
+	check(game.in_unease() and game.encounter_grace<=0.0 and not game.entity.visible and not game.entity.active,"Nothing is in the house yet: only its noises")
 	at_interaction("front_door",Vector2(0,-55))
 	await frames(2)
+	check(game.zone=="house" and front_door.locked and game.interaction_label("front_door")=="Try the door","Without the key the front door only rattles")
+	var heard_before: int = game.unease_count
+	for tick in range(240):
+		await frames(1)
+		if game.unease_count>heard_before: break
+	var house_origin: Vector2 = game.world.zones["house"].global_position
+	var vestibule := Rect2(house_origin+Vector2(400,128),Vector2(416,512))
+	check(game.unease_count>heard_before and game.unease_last==game.UNEASE_KNOCK,"The house answers a rattled door with a knock")
+	check(not vestibule.has_point(game.unease_last_at),"House sounds come from a room she is not in")
+	for tick in range(900):
+		await frames(1)
+		if game.unease_count>=heard_before+3: break
+	check(game.unease_count>=heard_before+3 and not game.entity.visible and game.encounter_grace<=0.0,"The house keeps making sounds while she searches, and nothing appears")
+	check(game.unease_last_at.distance_to(game.player.global_position)<=game.UNEASE_BEHIND_DISTANCE+1.0,"Every third sound is a board right behind her")
+	# A page tells her where the key is; the key trunk starts the next stage.
+	at_interaction("chest_kitchen",Vector2(0,-50))
+	check(not game.dialogue.is_empty() and game.dialogue[0].contains("spare key"),"A trunk can hold a page that points to the key")
+	while not game.dialogue.is_empty(): game.advance_dialogue()
+	var candle_rest: Vector2 = game.world.props["vestibule_candle"].global_position
+	at_interaction("chest_vestibule",Vector2(0,70))
+	check(key_trunk.is_open and game.has_key and not game.in_unease(),"After the blackout the trunk gives up the key")
+	check(game.in_presence() and game.encounter_grace>0.0 and not game.entity.visible,"Taking the key starts its own sounds, with nothing to see yet")
+	await frames(30)
+	check(game.world.props["vestibule_candle"].global_position.distance_to(candle_rest)>15.0 and game.key_noise_at!=Vector2.INF,"Lifting the lid tips the dead candle onto the floor")
+	check(game.hud._slots.has("key") and game.hud._slots.key.visible,"The key shows in the inventory")
+	at_interaction("front_door",Vector2(0,-55))
+	await frames(2)
+	check(game.zone=="house" and front_door.locked and not game.key_used,"While it is coming in, the front door is not a way out")
+	# Run the heard phase out: it drags in from the door, breathes, and only then stands there.
+	game.flashlight.is_on=false
+	game.encounter_grace=0.05
+	for tick in range(240):
+		await frames(1)
+		if game.entity.visible: break
+	check(game.heard_step==game.PRESENCE_PATH.size(),"Its sounds walk the whole path in from the front door")
+	check(game.entity.visible and game.entity.active and not game.in_presence(),"Only after its sounds does it appear")
+	check(game.entity.global_position.distance_to(house_origin+game.PRESENCE_PATH[-1]["spot"])<48.0,"It stands up where it was last heard")
+	game.entity.active=false
+	game.flashlight.is_on=game.flashlight.battery_percent>0.0
+	at_interaction("front_door",Vector2(0,-55))
+	check(game.key_used and not front_door.locked and front_door.is_open,"With it inside, the key opens the front door")
+	await frames(2)
+	check(not game.hud._slots.key.visible,"A used key leaves the inventory")
 	game.interact("front_door")
 	await frames(4)
 	check(game.zone=="loop","Return doorway leads to the impossible room")
@@ -213,33 +277,83 @@ func _ready() -> void:
 
 func complete_sound_lesson() -> void:
 	var ranger = game.world.zones["forest"].get_node("Ranger")
-	var home: Vector2 = ranger.global_position
-	await frames(180)
-	check(ranger.global_position.distance_to(home)<2.0 and ranger.facing==Vector2.RIGHT,"First encounter waits with its back toward the approach")
+	var forest_origin: Vector2 = game.world.zones["forest"].global_position
+	var beat: Node2D = game.world.zones["forest"].get_node("RangerBeat")
+	var east_post: Vector2 = beat.get_child(beat.get_child_count()-1).global_position
+	# His beat: from the lantern post down the trail to the east post and back, the same way every time.
+	ranger.reset_patrol()
+	ranger.active = true
+	game.player.position = forest_origin + Vector2(700,400)
+	var home: Vector2 = ranger.home
+	await frames(30)
+	check(ranger.global_position.distance_to(home)<2.0 and ranger.facing.x>0.5,"The beat starts at the lantern post, looking down the trail")
+	var reached_east := false
+	var returned := false
+	var seen_waiting := false
+	var beam_swept_her := false
+	for tick in range(1800):
+		await frames(1)
+		seen_waiting = seen_waiting or ranger.chasing
+		beam_swept_her = beam_swept_her or ranger.in_beam(game.player.global_position)
+		if not reached_east: reached_east = ranger.global_position.distance_to(east_post)<40.0 and ranger.wait_left>0.0
+		elif ranger.global_position.distance_to(home)<30.0 and ranger.wait_left>0.0:
+			returned = true
+			break
+	check(reached_east,"The ranger walks his beat out to the east post and stops to look")
+	check(returned,"The beat brings him back to the lantern post")
+	check(not seen_waiting,"Standing still at the checkpoint spot through a whole beat is never spotted")
+	check(beam_swept_her,"His turning beam does pass over the checkpoint spot, too briefly to be sure")
+	ranger.chasing = true
 	at_interaction("forest_exit")
-	check(game.zone=="forest","Ranger must be distracted before leaving")
+	check(game.zone=="forest","The way on stays shut while the ranger is on her heels")
 	ranger.active = false
 	ranger.reset_patrol()
-	game.player.position = ranger.home + Vector2(0,80)
-	await frames(2)
-	ranger.facing = Vector2.DOWN
-	check(ranger.can_see_player(),"Ranger sees a player in front on a clear path")
-	ranger.facing = Vector2.UP
+	# What his beam lights is what he sees: range, cone and a clear line. Each case is judged the
+	# moment she is placed, so his sweeping torch cannot move between placing and looking. The
+	# lantern beside his post hides a sliver of the trail at one end of the sweep, so wait for
+	# the torch to come back to the middle first.
+	for tick in range(300):
+		await frames(1)
+		if absf(rad_to_deg(ranger.beam_direction().angle_to(ranger.facing))) < 3.0: break
+	var ahead: Vector2 = ranger.beam_direction()
+	var beam_start: Vector2 = ranger.beam_origin()
+	game.player.global_position = beam_start + ahead * (ranger.sight_range - 20.0)
+	check(ranger.in_beam(game.player.global_position) and ranger.can_see_player(),"A player near the far end of the beam is seen")
+	game.player.global_position = beam_start + ahead * (ranger.sight_range + 30.0)
+	check(not ranger.can_see_player(),"Past the end of the beam she is not seen")
+	game.player.global_position = beam_start + ahead.rotated(deg_to_rad(ranger.sight_half_angle + 8.0)) * 160.0
+	check(not ranger.can_see_player(),"Beside the beam she is not seen, however close to its edge")
+	game.player.global_position = beam_start + ahead.rotated(-deg_to_rad(ranger.sight_half_angle - 6.0)) * 160.0
+	check(ranger.can_see_player(),"Inside the edge of the beam she is seen")
+	game.player.global_position = ranger.global_position - ahead * 60.0
 	check(not ranger.can_see_player(),"Player behind the ranger is outside his vision")
 	ranger.facing = Vector2.DOWN
+	ranger.get_node("Appearance").snap_to_facing()
+	await frames(4)
+	game.player.global_position = ranger.beam_origin() + ranger.beam_direction() * 110.0
+	check(ranger.can_see_player(),"Ranger sees a player in front on a clear path")
+	await frames(2)
 	var blocker := StaticBody2D.new()
 	var shape := CollisionShape2D.new()
 	var rectangle := RectangleShape2D.new()
 	rectangle.size = Vector2(60,12)
 	shape.shape = rectangle
 	blocker.add_child(shape)
-	blocker.position = ranger.home + Vector2(0,40)
+	blocker.position = ranger.global_position.lerp(game.player.global_position,0.5)
+	blocker.rotation = ranger.global_position.angle_to_point(game.player.global_position) + PI*0.5
 	game.add_child(blocker)
 	await frames(2)
-	check(not ranger.can_see_player(),"Opaque collision geometry blocks the ranger's sight")
+	check(ranger.in_beam(game.player.global_position) and not ranger.can_see_player(),"Opaque collision geometry blocks the ranger's sight")
 	blocker.queue_free()
 	await frames(2)
+	# A glimpse at the far end takes a moment to register; then he comes.
+	game.player.global_position = ranger.beam_origin() + ranger.beam_direction() * (ranger.sight_range - 20.0)
 	ranger.active = true
+	await frames(6)
+	check(not ranger.chasing and ranger.suspicion>0.0,"A glimpse at the end of the beam is not yet a sighting")
+	await frames(40)
+	check(ranger.chasing,"Staying in the beam starts pursuit")
+	game.player.position = ranger.global_position + ranger.beam_direction() * 80.0
 	await frames(2)
 	check(ranger.chasing,"Seeing the player starts pursuit")
 	game.player.position = ranger.home + Vector2(-500,0)
@@ -257,7 +371,7 @@ func complete_sound_lesson() -> void:
 	game.player.position = game.world.zones["forest"].global_position + Vector2(700,400)
 	await frames(2)
 	check(game.player.global_position.distance_to(game.world.zones["forest"].global_position+Vector2(700,400))<1.0,"Approach checkpoint places her at the clear throw spot")
-	check(ranger.active,"The checkpoint wakes the ranger for the throw lesson")
+	check(ranger.active and ranger.global_position.distance_to(ranger.home)<2.0,"The checkpoint leaves the ranger on his beat instead of jumping him back to his post")
 	check(game.world.zones["forest"].get_node("ThrowTarget").visible,"Lit target marks where the first stone should land")
 	check(game.checkpoint.position.is_equal_approx(game.player.position),"Checkpoint saves the safe throw position")
 	game.advance_dialogue()
@@ -287,5 +401,5 @@ func complete_sound_lesson() -> void:
 		if absf(direction.y)>6.0: Input.action_press("move_down" if direction.y>0 else "move_up")
 		await frames(1)
 	for action in ["move_left","move_right","move_up","move_down"]: Input.action_release(action)
-	check(game.player.global_position.distance_to(destination)<60.0 and not ranger.chasing,"Player can physically cross the forest after distracting the ranger")
+	check(game.player.global_position.distance_to(destination)<60.0 and not ranger.chasing and not game.resetting,"Player can walk the trail past the ranger while the stone has his attention")
 	check(not game.entity.visible and not game.entity.active,"Entity is absent throughout the ranger encounter")

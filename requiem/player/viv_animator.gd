@@ -22,6 +22,26 @@ const MAX_HEAD_DEGREES := 70.0
 ## the five head poses by the angle between the body and the aim, so the head leads turns.
 @export var head_follows_aim := false
 const BEAD_SECONDS := 3.0
+## Beam presentation. The drawn sprint arm swings +-6 degrees; the light reads it a little wider.
+const SPRINT_SWAY_GAIN := 1.5
+## Reach left when the pumping hand is fully back by the hip (the torch tips at the ground).
+const SPRINT_REACH_BACK := 0.7
+const SPRINT_LANDING_DIP := 0.08
+const SPRINT_LANDING_SECONDS := 0.14
+## flashlight_tip y of girl_sprint_arm_right_on at the back and the front of the swing (art px).
+const ARM_TIP_BACK_Y := 142.0
+const ARM_TIP_FRONT_Y := 151.0
+const STRAIN_TREMOR_DEGREES := 1.5
+const GASP_REACH := 0.34
+const GASP_HEAVE_DEGREES := 3.0
+const BEAM_FOLLOW_RATE := 20.0
+## How far the torch arm turns at the shoulder to follow the cursor before the body has to: out to
+## her right, and across her chest (less: the forearm would cross her face).
+const ARM_SWING_OUT := deg_to_rad(60.0)
+const ARM_SWING_IN := deg_to_rad(48.0)
+## Seconds for the arm to take up or give back its swing when a clip of its own starts or ends.
+const ARM_SWING_BLEND_SECONDS := 0.12
+const MAX_BEAM_OFFSET := deg_to_rad(12.0)
 
 @onready var player: CharacterBody2D = get_parent()
 @onready var appearance: Node2D = player.get_node("Appearance")
@@ -52,6 +72,11 @@ var _bead_pending := false
 var _bead_active := false
 var _last_quarter := 0
 var _beam_offset := 0.0
+var _beam_reach := 1.0
+var _beam_jolt := 0.0
+var _beam_clock := 0.0
+var _beam_stride_frame := -1
+var _arm_swing_weight := 0.0
 var _written_facing: StringName = &"s"
 
 
@@ -75,6 +100,12 @@ func reset() -> void:
 	_arm_sequence.clear()
 	_shuffling = false
 	_hold_phase = ""
+	_beam_offset = 0.0
+	_beam_reach = 1.0
+	_beam_jolt = 0.0
+	_arm_swing_weight = 0.0
+	_rig.arm_swing = 0.0
+	flashlight.reach_ratio = 1.0
 	_carry = _carry_state()
 	_rig.set_facing(facing)
 
@@ -121,7 +152,8 @@ func _physics_process(delta: float) -> void:
 	if disabled:
 		action = &"idle"
 	_present(action)
-	_follow_sprint_arm(delta, action)
+	_swing_arm(delta, action)
+	_drive_beam(delta, action)
 	if disabled:
 		_lower_standing()
 	_was_action = action
@@ -131,13 +163,62 @@ func _physics_process(delta: float) -> void:
 	appearance.actor_frame = _rig.frame_of(&"lower")
 
 
-## While sprinting the beam follows the swinging arm's flashlight tip at half strength, smoothed.
-func _follow_sprint_arm(delta: float, action: StringName) -> void:
-	var wanted := 0.0
-	if action == &"sprint" and actions.has_flashlight and _rig.has_anchor("flashlight_tip"):
-		wanted = clampf(angle_difference(aim.aim_angle, _rig.flashlight_angle_global()) * 0.5, -deg_to_rad(3.0), deg_to_rad(3.0))
-	_beam_offset = move_toward(_beam_offset, wanted, deg_to_rad(30.0) * delta)
-	if not is_zero_approx(_beam_offset):
+## The hand follows the cursor, not only the light. PlayerAim turns the body in whole steps and
+## only once the aim is well off it, so between those turns the raised torch arm swings at the
+## shoulder to the aim heading. Clips that move the arm themselves (the sprint pump, a throw, the
+## gasp, a pickup, the switch click) keep it: the swing blends out for them and back in after.
+func _swing_arm(delta: float, action: StringName) -> void:
+	var praying: bool = prayer_feedback != null and prayer_feedback.phase != &"idle"
+	var free: bool = _carry == "on" and action in [&"idle", &"walk", &"hold_breath"] and not praying \
+		and _sequence.is_empty() and _arm_sequence.is_empty() and _rig.has_anchor("flashlight_tip")
+	_arm_swing_weight = move_toward(_arm_swing_weight, 1.0 if free else 0.0, delta / ARM_SWING_BLEND_SECONDS)
+	var swing := 0.0
+	if _arm_swing_weight > 0.0:
+		var heading := _rig.global_rotation + PI / 2.0
+		swing = clampf(angle_difference(heading, aim.get_arm_heading()), -ARM_SWING_IN, ARM_SWING_OUT) * _arm_swing_weight
+	if is_equal_approx(swing, _rig.arm_swing):
+		return
+	_rig.arm_swing = swing
+	# The muzzle moved with the hand: the light starts from where it is drawn now.
+	aim.refresh_beam_origin()
+
+
+## What her body does to the beam. PlayerAim owns where the torch points; this adds only what the
+## arm holding it is going through, and never more than MAX_BEAM_OFFSET off that heading.
+##   Sprint: the arm pumps. The beam swings with the drawn arm and shortens as the hand drops back
+##     toward the hip (the torch tips at the ground), with a small jolt on each landing.
+##   Held breath running short: the hand trembles.
+##   Forced gasp: she folds over, so the beam falls to her feet and heaves until she recovers.
+func _drive_beam(delta: float, action: StringName) -> void:
+	var equipped: bool = actions.has_flashlight and _rig.has_anchor("flashlight_tip")
+	var offset := 0.0
+	var reach := 1.0
+	_beam_clock += delta
+	if equipped and action == &"sprint":
+		var body_heading := _rig.global_rotation + PI / 2.0
+		offset = angle_difference(body_heading, _rig.flashlight_angle_global()) * SPRINT_SWAY_GAIN
+		var tip := _rig.anchor_art("flashlight_tip")
+		var forward := clampf(inverse_lerp(ARM_TIP_BACK_Y, ARM_TIP_FRONT_Y, tip.y), 0.0, 1.0) if tip.is_finite() else 1.0
+		var frame: int = _rig.frame_of(&"lower")
+		if frame != _beam_stride_frame and frame in CharacterClips.get_clip("girl_sprint_lower").get("sound_frames", []):
+			_beam_jolt = 1.0
+		_beam_stride_frame = frame
+		reach = lerpf(SPRINT_REACH_BACK, 1.0, forward) - SPRINT_LANDING_DIP * _beam_jolt
+	elif equipped and action == &"forced_gasp" and breath_feedback != null:
+		var recovered: float = smoothstep(0.35, 1.0, breath_feedback.recovery_fraction)
+		reach = lerpf(GASP_REACH, 1.0, recovered)
+		offset = sin(_beam_clock * 9.0) * deg_to_rad(GASP_HEAVE_DEGREES) * (1.0 - recovered)
+	elif equipped and action == &"hold_breath" and breath_feedback != null:
+		var shake := (sin(_beam_clock * 37.0) + 0.6 * sin(_beam_clock * 61.0 + 1.3)) / 1.6
+		offset = shake * deg_to_rad(STRAIN_TREMOR_DEGREES) * breath_feedback.strain
+	_beam_jolt = move_toward(_beam_jolt, 0.0, delta / SPRINT_LANDING_SECONDS)
+	var blend := 1.0 - exp(-delta * BEAM_FOLLOW_RATE)
+	_beam_offset = lerpf(_beam_offset, clampf(offset, -MAX_BEAM_OFFSET, MAX_BEAM_OFFSET), blend)
+	_beam_reach = lerpf(_beam_reach, reach, blend)
+	if absf(_beam_offset) < deg_to_rad(0.02): _beam_offset = 0.0
+	if absf(_beam_reach - 1.0) < 0.002: _beam_reach = 1.0
+	flashlight.reach_ratio = _beam_reach
+	if _beam_offset != 0.0:
 		flashlight.global_rotation = aim.aim_angle + _beam_offset
 
 

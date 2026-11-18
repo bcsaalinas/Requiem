@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://v4clsmmkalqe" path="res://level/window/window.tscn" id="5_xgi6i"]
 [ext_resource type="PackedScene" uid="uid://cvcmvkyrrja0n" path="res://level/props/bed.tscn" id="6_eo07y"]
 [ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="7_42sbo"]
+[ext_resource type="Script" path="res://tutorial/chest.gd" id="chest_script"]
 [ext_resource type="Script" uid="uid://eksfuysx17fu" path="res://level/window/window.gd" id="7_062qy"]
 [ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="8_bobs7"]
 [ext_resource type="PackedScene" uid="uid://cqdd5x3ovgcv1" path="res://level/props/desk.tscn" id="9_062qy"]
@@ -102,6 +103,11 @@ position = Vector2(176, 330)
 
 [node name="Chest" type="Node2D" parent="Props" unique_id=2095263743 instance=ExtResource("7_42sbo")]
 position = Vector2(176, 421)
+script = ExtResource("chest_script")
+loot = "battery"
+metadata/interaction_id = "chest_bedroom"
+metadata/interaction_label = "Open"
+metadata/interaction_offset = Vector2(0, -20)
 
 [node name="Wardrobe" type="Node2D" parent="Props" unique_id=2070999330 instance=ExtResource("8_bobs7")]
 position = Vector2(336, 216)
@@ -118,32 +124,34 @@ texture_filter = 1
 position = Vector2(176, 422)
 script = ExtResource("12_48vr2")
 kind = "phone"
-lift = 41.6
+lift = 21.2
 metadata/interaction_id = "phone"
 metadata/interaction_label = "Read"
 
 [node name="flashlight" type="Node2D" parent="Props" unique_id=1421340781]
 z_index = 1
 texture_filter = 1
-position = Vector2(690, 263)
+position = Vector2(686, 263)
 script = ExtResource("12_48vr2")
 kind = "flashlight"
-lift = 82.2
+lift = 16.6
 metadata/interaction_id = "flashlight"
 metadata/interaction_label = "Take"
 
 [node name="battery" type="Node2D" parent="Props" unique_id=1306387376]
 z_index = 1
 texture_filter = 1
-position = Vector2(262, 300)
+position = Vector2(757.2, 263)
 script = ExtResource("12_48vr2")
 kind = "battery"
+lift = 17.8
 metadata/interaction_id = "battery"
 metadata/interaction_label = "Take"
 
 [node name="AbuelaNote" type="Node2D" parent="Props" unique_id=2093974020]
-position = Vector2(735, 263)
+position = Vector2(722, 263)
 script = ExtResource("note_highlight")
+lift = 15.8
 metadata/interaction_id = "abuela_note"
 metadata/interaction_label = "Read"
 

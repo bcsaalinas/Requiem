@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="9_3giw8"]
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="10_dkkgd"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="11_5l22i"]
+[ext_resource type="Script" path="res://tutorial/chest.gd" id="chest_script"]
 [ext_resource type="Script" uid="uid://xi165ea7y0li" path="res://level/props/height_prop.gd" id="11_gwjha"]
 [ext_resource type="PackedScene" path="res://level/props/kitchen_shelf.tscn" id="12_7kgsy"]
 [ext_resource type="PackedScene" path="res://level/props/kitchen_table.tscn" id="13_g6mak"]
@@ -75,8 +76,8 @@ size = Vector2(32, 224)
 size = Vector2(1280, 32)
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_qf4s4"]
-vertices = PackedVector2Array(369, 143, 369, 463, 353, 315, 353, 217, 1085, 251, 1085, 153, 1169, 143, 1169, 497, 847, 143, 931, 153, 931, 251, 1080, 497, 847, 463, 431, 463, 431, 165, 536, 165, 536, 143, 691, 143, 691, 191, 785, 191, 785, 463, 431, 497, 1080, 575, 1169, 575, 1169, 625, 847, 625, 847, 497, 785, 497, 785, 625, 431, 625, 369, 497, 369, 625, 111, 625, 111, 211, 219, 315, 217, 145, 111, 145, 111, 143, 219, 217, 217, 211)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7), PackedInt32Array(8, 6, 5, 9), PackedInt32Array(10, 4, 7, 11, 12), PackedInt32Array(12, 8, 9, 10), PackedInt32Array(13, 14, 15), PackedInt32Array(15, 16, 17, 18), PackedInt32Array(18, 19, 20, 21), PackedInt32Array(22, 23, 24, 25), PackedInt32Array(22, 25, 26, 11), PackedInt32Array(12, 11, 26, 20), PackedInt32Array(20, 26, 27), PackedInt32Array(27, 28, 29, 21), PackedInt32Array(20, 27, 21), PackedInt32Array(15, 18, 21, 13), PackedInt32Array(1, 13, 21, 30), PackedInt32Array(30, 31, 32, 33), PackedInt32Array(1, 30, 33, 34), PackedInt32Array(35, 36, 37, 0), PackedInt32Array(35, 0, 3, 38, 39), PackedInt32Array(34, 2, 1), PackedInt32Array(34, 33, 39, 38)])
+vertices = PackedVector2Array(369, 143, 369, 463, 353, 315, 353, 217, 1071, 251, 1081, 199, 1169, 199, 1169, 497, 1080, 497, 1071, 157, 1081, 143, 847, 143, 945, 157, 847, 463, 945, 251, 785, 497, 431, 463, 431, 164.60156, 536, 164.60156, 691, 191, 785, 463, 536, 143, 691, 143, 785, 191, 1080, 575, 1169, 575, 1169, 625, 913, 625, 913, 579, 847, 579, 847, 497, 785, 625, 431, 625, 431, 497, 369, 497, 369, 625, 205, 625, 205, 579, 219, 315, 111, 579, 111, 211, 217, 211, 219, 217, 217, 145, 111, 145, 111, 143)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7, 8), PackedInt32Array(5, 4, 9, 10), PackedInt32Array(11, 10, 9, 12), PackedInt32Array(13, 11, 12, 14), PackedInt32Array(15, 16, 17, 18, 19, 20), PackedInt32Array(18, 21, 22, 19), PackedInt32Array(19, 23, 20), PackedInt32Array(24, 25, 26, 27, 28), PackedInt32Array(28, 29, 30), PackedInt32Array(15, 31, 32, 33), PackedInt32Array(34, 35, 36, 37, 38, 2), PackedInt32Array(37, 39, 40, 41, 42, 38), PackedInt32Array(43, 44, 45, 0), PackedInt32Array(43, 0, 3, 42, 41), PackedInt32Array(34, 2, 1), PackedInt32Array(34, 1, 16, 33), PackedInt32Array(15, 33, 16), PackedInt32Array(15, 20, 13, 30), PackedInt32Array(8, 24, 28, 30, 13, 14, 4)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(96, 96, 1184, 96, 1184, 640, 96, 640)])
 parsed_geometry_type = 1
 source_geometry_mode = 1
@@ -195,6 +196,11 @@ script = ExtResource("11_gwjha")
 
 [node name="VestibuleChest" type="Node2D" parent="Props" unique_id=2095263743 instance=ExtResource("9_3giw8")]
 position = Vector2(744, 176)
+script = ExtResource("chest_script")
+loot = "key"
+metadata/interaction_id = "chest_vestibule"
+metadata/interaction_label = "Open"
+metadata/interaction_offset = Vector2(0, -20)
 
 [node name="vestibule_candle" type="Node2D" parent="Props" unique_id=1767122190]
 light_mask = 2
@@ -222,10 +228,10 @@ kind = "candle"
 light_mask = 2
 z_index = 1
 texture_filter = 1
-position = Vector2(262, 302)
+position = Vector2(288, 302)
 script = ExtResource("11_5l22i")
 kind = "battery"
-lift = 70.4
+lift = 20.0
 metadata/interaction_id = "house_battery"
 metadata/interaction_label = "Take"
 
@@ -281,6 +287,35 @@ metadata/interaction_label = "Take"
 
 [node name="PorchCrate" type="Node2D" parent="Props" unique_id=530448000 instance=ExtResource("9_3giw8")]
 position = Vector2(176, 800)
+script = ExtResource("chest_script")
+loot = "stones"
+metadata/interaction_id = "chest_porch"
+metadata/interaction_label = "Open"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="KitchenChest" type="Node2D" parent="Props" instance=ExtResource("9_3giw8")]
+position = Vector2(152, 634)
+script = ExtResource("chest_script")
+loot = "note"
+note_text = "A page in Tía Rosa's hand: \"If the front door sticks again, the spare key is in the trunk by the entrance, under the Virgin's candle. Never move that candle while it burns.\""
+metadata/interaction_id = "chest_kitchen"
+metadata/interaction_label = "Open"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="AltarChest" type="Node2D" parent="Props" instance=ExtResource("9_3giw8")]
+position = Vector2(1134, 184)
+script = ExtResource("chest_script")
+loot = "battery"
+metadata/interaction_id = "chest_altar"
+metadata/interaction_label = "Open"
+metadata/interaction_offset = Vector2(0, -20)
+
+[node name="AltarCornerChest" type="Node2D" parent="Props" instance=ExtResource("9_3giw8")]
+position = Vector2(860, 634)
+script = ExtResource("chest_script")
+metadata/interaction_id = "chest_altar_corner"
+metadata/interaction_label = "Open"
+metadata/interaction_offset = Vector2(0, -20)
 
 [node name="PorchLamp" type="Node2D" parent="Props" unique_id=476799547 instance=ExtResource("trail_lantern")]
 position = Vector2(608, 800)

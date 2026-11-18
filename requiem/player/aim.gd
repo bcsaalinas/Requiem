@@ -1,9 +1,14 @@
 extends Node
 ## A continuous control response selects sparse body/arm poses. The wrist and
 ## beam share one heading and socket; this controller never advances the gait.
+## The heading follows the cursor, except in a sprint, where it follows the run.
+## VivAnimator swings the drawn torch arm to get_arm_heading(), so the hand goes
+## where the cursor goes and the body only turns once the arm runs out of reach.
 
 @export_range(30.0, 720.0) var body_turn_speed_degrees := 240.0
 @export_range(30.0, 1080.0) var aim_turn_speed_degrees := 540.0
+## Body turn while sprinting: the same rate VivAnimator turns the running body.
+@export_range(30.0, 1080.0) var sprint_turn_speed_degrees := 540.0
 @export_range(15.0, 45.0) var turn_threshold_degrees := 30.0
 @export var cursor_deadzone_u := 0.75
 
@@ -113,6 +118,12 @@ func _physics_process(delta: float) -> void:
 		_wrist_correction = 0.0
 		_turning = false
 		has_valid_target = false
+	elif player.is_sprinting and actions.can_aim():
+		# Running: the torch arm pumps with the stride, so it cannot also track the
+		# cursor. The beam points where she runs; the cursor takes over when she slows.
+		has_valid_target = true
+		_update_aim(_travel_angle, player.global_position + Vector2.from_angle(_travel_angle) * 2048.0, delta,
+			deg_to_rad(sprint_turn_speed_degrees))
 	elif actions.can_aim() and (flashlight.follow_mouse or _target.is_finite()):
 		var target := get_target_position()
 		var to_target := target - player.global_position
@@ -179,6 +190,17 @@ func _update_actor_pose() -> void:
 	var relative := _travel_angle - (pose_body_angle - PI / 2.0)
 	var direction: String = DIRECTIONS[posmod(roundi(relative / POSE_STEP), 8)]
 	appearance.set_actor_pose(pose_body_angle, aim_angle, direction, actions.has_flashlight, _arm_step)
+
+
+## Where the torch arm points: the root-to-cursor heading the arm has turned to so far. It never
+## reads the hand back, so drawing the arm along it cannot feed the aim.
+func get_arm_heading() -> float:
+	return _arm_angle
+
+
+## Places the light again after the presentation has moved the hand this frame.
+func refresh_beam_origin() -> void:
+	_apply_pose()
 
 
 func get_hand_global_position() -> Vector2:

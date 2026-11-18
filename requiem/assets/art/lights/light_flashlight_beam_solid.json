@@ -1,0 +1,21 @@
+{
+ "name": "light_flashlight_beam_solid",
+ "kind": "light texture (PointLight2D), the flashlight beam as one flat band",
+ "canvas": [
+  256,
+  128
+ ],
+ "file": "light_flashlight_beam_solid.png",
+ "tip_px": [
+  6.0,
+  64.0
+ ],
+ "direction": "+x; symmetric about y = 64",
+ "half_angle_deg": 13.5,
+ "length_px": 238.0,
+ "fill": "#bab4aa",
+ "opaque_px": 14040,
+ "outside": "transparent (alpha 0): no light",
+ "design": "the cone edges of light_flashlight_cone.png filled with its core band and closed by one clean arc 238 px from the tip, so the beam holds one value from the lens to its far end (same reading as light_step_circle)",
+ "stand_in": "flattened from light_flashlight_cone.png by the integration session; an art export with the same canvas and tip can replace this file without code changes"
+}
