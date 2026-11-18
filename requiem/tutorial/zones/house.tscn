@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://rxh1jsprxf5i"]
 
-[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_vgpbg"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="3_vgpbg"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_2v7cn"]
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="5_kiov0"]
 [ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="5_uqkfb"]
@@ -13,11 +13,11 @@
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="10_dkkgd"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="11_5l22i"]
 [ext_resource type="Script" uid="uid://xi165ea7y0li" path="res://level/props/height_prop.gd" id="11_gwjha"]
-[ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="12_7kgsy"]
-[ext_resource type="PackedScene" uid="uid://cqdd5x3ovgcv1" path="res://level/props/desk.tscn" id="13_g6mak"]
+[ext_resource type="PackedScene" path="res://level/props/kitchen_shelf.tscn" id="12_7kgsy"]
+[ext_resource type="PackedScene" path="res://level/props/kitchen_table.tscn" id="13_g6mak"]
 [ext_resource type="PackedScene" uid="uid://cvvblqnpihcrk" path="res://level/props/altar.tscn" id="14_gwjha"]
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="15_xml7o"]
-[ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="16_uevcv"]
+[ext_resource type="PackedScene" path="res://level/props/outdoor_lantern.tscn" id="16_uevcv"]
 [ext_resource type="Material" uid="uid://b7avlt81d8aq" path="res://tutorial/entity_lit_material.tres" id="16_vgpbg"]
 [ext_resource type="Texture2D" uid="uid://bwok0rd0ngs8r" path="res://tutorial/assets/art/entity/amortajada_full.png" id="17_2v7cn"]
 [ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="18_3fn32"]
@@ -111,15 +111,13 @@ scale = Vector2(0.4, 0.4)
 texture = ExtResource("rug_new")
 
 [node name="AltarRug" type="Sprite2D" parent="Rugs" unique_id=663867512]
-visible = false
 position = Vector2(1008, 390)
-scale = Vector2(0.5, 0.5)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_vgpbg")
 
 [node name="KitchenMat" type="Sprite2D" parent="Rugs" unique_id=15786786]
-visible = false
 position = Vector2(240, 430)
-scale = Vector2(0.3, 0.3)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_vgpbg")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=2055138484 groups=["house_nav"]]
@@ -221,7 +219,7 @@ material = SubResource("ShaderMaterial_vgpbg")
 position = Vector2(262, 302)
 script = ExtResource("11_5l22i")
 kind = "battery"
-lift = 74.0
+lift = 45.6
 metadata/interaction_id = "house_battery"
 metadata/interaction_label = "Take"
 

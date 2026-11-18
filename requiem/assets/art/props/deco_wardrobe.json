@@ -1,0 +1,31 @@
+{
+  "name": "deco_wardrobe",
+  "description": "Tall wooden wardrobe against the wall: base (plinth) + top (overhanging crown cornice & dusty top panel).",
+  "file": "deco_wardrobe.png",
+  "canvas": [
+    250,
+    90
+  ],
+  "frame_size": [
+    250,
+    90
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    125,
+    45
+  ],
+  "layers": {
+    "base": "deco_wardrobe_base.png",
+    "top": "deco_wardrobe_top.png",
+    "composite": "deco_wardrobe.png"
+  },
+  "height_effect": true,
+  "height_factor": 0.008,
+  "collision_world_px": [
+    100,
+    36
+  ],
+  "sound_frames": []
+}

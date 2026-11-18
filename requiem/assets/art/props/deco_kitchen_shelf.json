@@ -1,0 +1,31 @@
+{
+  "name": "deco_kitchen_shelf",
+  "description": "Kitchen trastero (open dish shelf) against the wall: base (lower counter + bowls) + top (circular stacked plates, small circular bottles, and clay jars seen from straight above).",
+  "file": "deco_kitchen_shelf.png",
+  "canvas": [
+    250,
+    90
+  ],
+  "frame_size": [
+    250,
+    90
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    125,
+    45
+  ],
+  "layers": {
+    "base": "deco_kitchen_shelf_base.png",
+    "top": "deco_kitchen_shelf_top.png",
+    "composite": "deco_kitchen_shelf.png"
+  },
+  "height_effect": true,
+  "height_factor": 0.008,
+  "collision_world_px": [
+    100,
+    36
+  ],
+  "sound_frames": []
+}

@@ -1,0 +1,28 @@
+{
+  "name": "deco_rug_room",
+  "description": "Sage/Moss woven bedroom/house rug (4x3 units) with stepped border, central medallion, and worn path, no rim.",
+  "file": "deco_rug_room.png",
+  "canvas": [
+    320,
+    240
+  ],
+  "frame_size": [
+    320,
+    240
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    160,
+    120
+  ],
+  "layers": {
+    "rug": "deco_rug_room.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    128,
+    96
+  ],
+  "sound_frames": []
+}
