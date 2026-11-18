@@ -1,0 +1,24 @@
+{
+  "name": "wall_top_window_box_unlatched",
+  "state": "unlatched",
+  "target_pane": "west (left pane x=30..75, y=30..35; east pane x=84..129 remains intact)",
+  "canvas": [
+    160,
+    120
+  ],
+  "footprint_cells": [
+    2,
+    1
+  ],
+  "anchor_px": [
+    80,
+    56
+  ],
+  "split_y_px": 56,
+  "files": {
+    "with_curtains": "wall_top_window_box_unlatched.png",
+    "no_curtains": "wall_top_window_box_unlatched_no_curtains.png",
+    "frame_layer": "wall_top_window_box_unlatched_frame.png",
+    "glass_layer": "wall_top_window_box_unlatched_glass.png"
+  }
+}

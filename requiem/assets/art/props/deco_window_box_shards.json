@@ -1,0 +1,19 @@
+{
+  "name": "deco_window_box_shards",
+  "description": "Glass shard floor decal for the 2-unit box window (can also pair with existing deco_glass_shards_a/_b).",
+  "canvas": [
+    80,
+    48
+  ],
+  "frame_size": [
+    80,
+    48
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    40,
+    24
+  ],
+  "collision": false
+}

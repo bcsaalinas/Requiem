@@ -1,0 +1,18 @@
+{
+  "name": "light_moon_window",
+  "kind": "light texture (PointLight2D): cold moonlight falling through the bedroom window onto the floor (card T13 step 6)",
+  "canvas": [
+    192,
+    256
+  ],
+  "file": "light_moon_window.png",
+  "anchor_row0": "row 0 = the window's inner edge; light falls toward +y. Centre is x=96.",
+  "mullion_bar": "not painted in the texture; the engine cuts the mullion shadow with a LightOccluder2D (Beti 2026-11-17)",
+  "bands_window_to_floor": [
+    "#5d6a74",
+    "#3e4952",
+    "#29313a"
+  ],
+  "outside": "transparent (alpha 0)",
+  "filter": "nearest"
+}

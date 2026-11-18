@@ -17,6 +17,7 @@
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="18_i7gi3"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="19_4vynj"]
 [ext_resource type="Texture2D" uid="uid://c3v364isndjuk" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_moon_window.png" id="light_moon_window"]
 [ext_resource type="Script" uid="uid://b1a78v681ok8r" path="res://tutorial/note_highlight.gd" id="note_highlight"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qcv8i"]
@@ -52,24 +53,24 @@ fill_to = Vector2(1, 0.5)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_wall_l"]
 closed = false
-polygon = PackedVector2Array(-120, 20, -32, 20)
+polygon = PackedVector2Array(-120, 0, -32, 0)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_wall_r"]
 closed = false
-polygon = PackedVector2Array(32, 20, 120, 20)
+polygon = PackedVector2Array(32, 0, 120, 0)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_back"]
 closed = false
-polygon = PackedVector2Array(-120, -4, 120, -4)
+polygon = PackedVector2Array(-120, -32, 120, -32)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_post_l"]
-polygon = PackedVector2Array(-32.8, 12, -31.2, 12, -31.2, 20, -32.8, 20)
+polygon = PackedVector2Array(-23.2, 2, -20, 2, -20, 10, -23.2, 10)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_post_r"]
-polygon = PackedVector2Array(31.2, 12, 32.8, 12, 32.8, 20, 31.2, 20)
+polygon = PackedVector2Array(20, 2, 23.2, 2, 23.2, 10, 20, 10)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_moon_mullion"]
-polygon = PackedVector2Array(-0.8, 12, 0.8, 12, 0.8, 20, -0.8, 20)
+polygon = PackedVector2Array(-1.6, 2, 1.6, 2, 1.6, 10, -1.6, 10)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3d2uc"]
 size = Vector2(32, 96)
@@ -186,20 +187,21 @@ metadata/lighting_role = "recovery"
 [node name="MoonLight" type="PointLight2D" parent="Lights" unique_id=1655640566]
 position = Vector2(410, -250)
 color = Color(0.5411765, 0.627451, 0.7058824, 1)
-energy = 1.15
+energy = 0.1
 shadow_enabled = true
 texture = SubResource("GradientTexture_moon_flat")
 texture_scale = 60.0
 
 [node name="MoonSpill" type="PointLight2D" parent="Lights" unique_id=200204808]
-position = Vector2(512, 140)
+position = Vector2(512, 160)
 color = Color(0.5411765, 0.627451, 0.7058824, 1)
-energy = 0.8
+energy = 1.2
 range_item_cull_mask = 20
 shadow_enabled = true
 shadow_item_cull_mask = 16
-texture = ExtResource("light_pool")
-texture_scale = 0.8
+texture = ExtResource("light_moon_window")
+texture_scale = 0.4
+offset = Vector2(0, 51.2)
 
 [node name="WallLeft" type="LightOccluder2D" parent="Lights/MoonSpill" unique_id=1449620404]
 occluder = SubResource("OccluderPolygon2D_moon_wall_l")
