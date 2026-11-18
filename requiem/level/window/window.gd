@@ -17,6 +17,7 @@ const BOX_CANVAS := Vector2i(160, 120)
 ## Centre of the 2x1 wall cells inside the canvas (art px); the sill overhangs sit outside it.
 const BOX_ANCHOR_PX := Vector2(80, 56)
 const BOX_SPLIT_Y_PX := 56
+const BURST_MS := [90, 95, 105, 110]
 const SHARD_X_ART_PX := 18.0
 const SHARD_HEIGHT_ART_PX := 24.0
 
@@ -53,6 +54,7 @@ var unlatched := false:
 		unlatched = value
 		_redraw_box()
 
+var _tween: Tween
 var _box: Sprite2D
 var _last_view_origin := Vector2(INF, INF)
 
@@ -103,11 +105,31 @@ func _tops_layer() -> TileMapLayer:
 	return null
 
 
-func _refresh(_animate: bool) -> void:
+func _refresh(animate: bool) -> void:
 	var shards := get_node_or_null("Shards") as CanvasItem
 	if shards != null:
 		shards.visible = broken
+	var burst := get_node_or_null("Burst") as Sprite2D
+	if burst != null:
+		burst.visible = false
+	if _tween != null:
+		_tween.kill()
 	_redraw_box()
+	if broken and animate:
+		_play_burst()
+
+
+func _play_burst() -> void:
+	var burst := get_node_or_null("Burst") as Sprite2D
+	if burst == null:
+		return
+	burst.frame = 0
+	burst.visible = true
+	_tween = create_tween()
+	for frame in burst.hframes:
+		_tween.tween_callback(burst.set_frame.bind(frame))
+		_tween.tween_interval(BURST_MS[mini(frame, BURST_MS.size() - 1)] / 1000.0)
+	_tween.tween_callback(burst.hide)
 
 
 # --- Box window art ----------------------------------------------------------
