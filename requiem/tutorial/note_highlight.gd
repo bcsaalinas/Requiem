@@ -13,9 +13,10 @@ func _ready() -> void:
 	glint.texture = NOTE_GLINT
 	glint.hframes = 2
 	glint.scale = Vector2.ONE * Units.ART_SCALE
-	glint.position = Vector2(0.2, -85.0)
+	glint.position = Vector2(0.0, -lift)
 	add_child(glint,false,Node.INTERNAL_MODE_BACK)
+	_add_pickup_cues(NOTE)
 
 func _draw() -> void:
 	var size := NOTE.get_size() * Units.ART_SCALE
-	draw_texture_rect(NOTE, Rect2(Vector2(0.2, -85.0) - size * 0.5, size), false)
+	draw_texture_rect(NOTE, Rect2(Vector2(0.0, -lift) - size * 0.5, size), false)

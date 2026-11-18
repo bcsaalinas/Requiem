@@ -2,10 +2,11 @@ extends PointLight2D
 
 # Flashlight (linterna de mano del jugador)
 #
-# Es un PointLight2D con textura de cono (prop_radius_0.png): la punta del cono
-# esta cerca del borde IZQUIERDO de la imagen y es la zona mas brillante; hacia el
-# extremo opuesto la luz se apaga sola. Por eso el haz "decae con la distancia"
-# de forma natural: es la propia textura, no hace falta shader.
+# Es un PointLight2D con textura de cono (light_flashlight_beam_solid.png): una
+# sola banda plana desde la lente hasta el final, con borde duro. El haz NO decae
+# con la distancia: o algo esta dentro del haz o esta a oscuras. Es la luz mas
+# intensa que lleva la jugadora; el anillo de pasos (LocalLight) queda muy por
+# debajo y solo sirve de ultimo recurso.
 #
 # Este script se encarga de:
 #   - Apuntar el cono hacia el cursor (rota el nodo; el pivote es su origen,
@@ -14,8 +15,10 @@ extends PointLight2D
 #   - Gastar bateria mientras esta encendida; al llegar a 0 se apaga sola y no
 #     se puede volver a prender.
 #   - Atenuar y hacer parpadear el haz cuando la bateria esta baja.
-#   - Estrechar el cono mientras el jugador aguanta la respiracion (costo de
-#     percepcion: el ancho pasa de 100% a 45%).
+#   - Estrechar el cono mientras el jugador aguanta la respiracion (cierra la
+#     mano sobre la lente: el ancho pasa de 100% a 60%).
+#   - Acortar el alcance cuando la presentacion lo pide (`reach_ratio`): el
+#     brazo que baja al correr o el cuerpo que se dobla en el jadeo forzado.
 #
 # UNIDADES: 1 u = 32 px. El alcance del haz se exporta en
 # unidades y se traduce a texture_scale con el ancho real de la textura, asi
@@ -23,12 +26,15 @@ extends PointLight2D
 const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 @export_group("Haz")
-## Largo del cono en unidades (1 u = el ancho del jugador).
-@export var beam_length_u: float = 13.0
+## Largo del cono en unidades (1 u = el ancho del jugador). El alcance real va en
+## saltos de pixel de arte (texture_scale multiplo de 0.4): 9.5 u da 1.2, unos
+## 286 px de haz; el anterior (13 u, 1.6) llegaba a 381 px y dejaba ver demasiado.
+@export var beam_length_u: float = 9.5
 ## The cone's painted tip is inset in prop_radius_0.png, not at its left edge.
 @export var beam_tip_pixels := Vector2(6.0, 64.0)
-## Brillo del haz con la bateria llena.
-@export var beam_energy: float = 1.0
+## Brillo del haz con la bateria llena. Muy por encima del anillo de pasos
+## (LocalLight, 0.6): el haz es la unica luz en la que se puede confiar.
+@export var beam_energy: float = 1.45
 ## Si es false el cono se queda quieto en su rotacion actual (para depurar).
 @export var follow_mouse: bool = true
 ## Empieza encendida al cargar el nivel.
@@ -36,14 +42,13 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 @export_group("Costo de aguantar la respiracion")
 ## Mientras el jugador aguanta la respiracion, el cono se estrecha a esta
-## fraccion de su ancho normal (spec: 100% -> 45%). SOLO afecta scale.y (ancho
-## perpendicular); scale.x (alcance) no se toca, asi se lee como "apuntar mas
-## fino", no como "linterna mas chica".
-@export_range(0.1, 1.0) var held_cone_width_ratio: float = 0.45
-## Velocidad del easing del ancho del cono (mas alto = mas rapido). ~8 deja un
-## ritmo parecido a los lerp de aceleracion/friccion de player.gd: se asienta
-## en menos de un segundo.
-@export var cone_ease_speed: float = 8.0
+## fraccion de su ancho normal. SOLO afecta scale.y (ancho perpendicular), asi
+## se lee como "apuntar mas fino", no como "linterna mas chica". La vision de
+## tunel de BreathVfx ya cobra la percepcion; a 45% el haz parecia un fallo.
+@export_range(0.1, 1.0) var held_cone_width_ratio: float = 0.6
+## Velocidad del easing del ancho del cono (mas alto = mas rapido). ~14 lo
+## asienta dentro de la inhalacion dibujada (girl_breath_hold_in, 280 ms).
+@export var cone_ease_speed: float = 14.0
 
 @export_group("Bateria")
 ## Cuanta bateria (en %) se gasta por segundo.
@@ -72,6 +77,9 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 
 var battery_percent: float = 100.0
 var is_on: bool = false
+## Presentation only: fraction of the full reach the beam covers right now.
+## VivAnimator lowers it while the arm pumps in a sprint and during a gasp.
+var reach_ratio: float = 1.0
 
 var _audio_player: AudioStreamPlayer2D
 ## Se compara contra el token vigente antes de cortar: si hubo un click mas
@@ -82,6 +90,10 @@ var _flicker: float = 1.0
 @onready var aim_controller: Node = get_parent().get_node_or_null("PlayerAim")
 ## Ancho "100%" del cono: el scale.y con el que arranca el nodo (Inspector o 1).
 var _full_cone_width: float = 1.0
+## Alcance "100%": el scale.x con el que arranca el nodo.
+var _full_reach: float = 1.0
+## Ancho actual del cono antes de aplicar `reach_ratio`.
+var _cone_width: float = 1.0
 
 # --- Barra de bateria en pantalla (mismo patron que HoldBreath) ---
 var _bar_layer: CanvasLayer
@@ -109,6 +121,8 @@ func _ready() -> void:
 
 	_apply_beam_length()
 	_full_cone_width = scale.y
+	_cone_width = scale.y
+	_full_reach = scale.x
 	is_on = start_on and battery_percent > 0.0
 	_refresh_light()
 	_update_bar()
@@ -149,6 +163,22 @@ func toggle() -> void:
 	_update_bar()
 
 
+## The light dies on its own (story blackout): no click, no noise, no battery cost.
+func snuff() -> void:
+	is_on = false
+	_refresh_light()
+	_update_bar()
+
+
+## Comes back without the player's hand on the switch. Does nothing on an empty battery.
+func relight() -> void:
+	if battery_percent <= 0.0 or (actions != null and not actions.has_flashlight):
+		return
+	is_on = true
+	_refresh_light()
+	_update_bar()
+
+
 func _aim_at_mouse() -> void:
 	var to_mouse := get_global_mouse_position() - global_position
 	if to_mouse.length_squared() > 1.0:
@@ -156,16 +186,19 @@ func _aim_at_mouse() -> void:
 
 
 ## Estrecha el cono mientras se aguanta la respiracion y lo devuelve a su ancho
-## normal al soltar, con easing (no salta). Solo cambia scale.y; scale.x queda
-## intacto para que se lea como "haz mas fino", no como "linterna mas chica".
+## normal al soltar, con easing (no salta). scale.x solo sigue `reach_ratio`.
 ##
 ## Read the shared actual breath state, including forced release during gasp.
 func _tick_cone_width(delta: float) -> void:
 	var breath := get_parent().get_node_or_null("HoldBreath")
 	var held: bool = actions.is_holding_breath() if actions != null else (breath != null and breath.is_holding)
 	var target_y := _full_cone_width * (held_cone_width_ratio if held else 1.0)
-	var eased_y := lerpf(scale.y, target_y, clampf(cone_ease_speed * delta, 0.0, 1.0))
-	scale = Vector2(scale.x, eased_y)
+	var eased_y := lerpf(_cone_width, target_y, clampf(cone_ease_speed * delta, 0.0, 1.0))
+	_cone_width = eased_y
+	# A torch tipped at the ground lights a shorter patch of the same angle, so the
+	# reach scales the whole cone, not only its length.
+	var reach := clampf(reach_ratio, 0.05, 1.0)
+	scale = Vector2(_full_reach * reach, _cone_width * reach)
 
 
 func _tick_battery(delta: float) -> void:

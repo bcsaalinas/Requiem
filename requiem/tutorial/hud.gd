@@ -19,6 +19,9 @@ signal fullscreen_requested
 var _slots: Dictionary = {}
 var _counts: Dictionary = {}
 var _alert_tween: Tween
+## UI px between a pickup and the baseline of its prompt.
+const PICKUP_PROMPT_GAP := 12.0
+const KEY_ICON := preload("res://assets/art/items/item_key.png")
 
 func _ready() -> void:
 	LegacyUi.fit_root(root)
@@ -68,6 +71,19 @@ func update_inventory(equipped: bool, spares: int, rocks: int) -> void:
 	_counts.rocks.text = str(rocks)
 	battery.get_parent().visible = equipped
 
+## The key has no count and comes late, so its slot is made the first time she holds one:
+## a copy of the flashlight slot with the key's picture.
+func set_key(held: bool) -> void:
+	if not _slots.has("key"):
+		if not held:
+			return
+		var slot: Control = _slots.flashlight.duplicate()
+		slot.name = "Key"
+		(slot.get_node("Icon") as TextureRect).texture = KEY_ICON
+		inventory.add_child(slot)
+		_slots["key"] = slot
+	_slots.key.visible = held
+
 ## A short pop of an inventory slot when something lands in it.
 func pulse_slot(kind: String) -> void:
 	var slot: Control = _slots.get(kind)
@@ -86,12 +102,15 @@ func show_key_hint(text: String, at: Vector2) -> void:
 	at = LegacyUi.to_ui(at)
 	key_hint.position = Vector2(at.x - key_hint.size.x * .5, at.y + 34)
 
-func place_prompt(at: Vector2, in_dialogue := false) -> void:
+## `above` sits the prompt just over a small pickup (the label is bottom-aligned for it), so the
+## text touches the thing it names; everything else keeps its prompt below.
+func place_prompt(at: Vector2, in_dialogue := false, above := false) -> void:
 	at = LegacyUi.to_ui(at)
 	var viewport_size := root.size
+	prompt.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM if above and not in_dialogue else VERTICAL_ALIGNMENT_TOP
 	if in_dialogue:
 		prompt.position = Vector2((viewport_size.x-prompt.size.x)*.5,viewport_size.y-69)
 	else:
 		prompt.position = Vector2(
 			clampf(at.x-prompt.size.x*.5,24,viewport_size.x-prompt.size.x-24),
-			clampf(at.y+34,78,viewport_size.y-215))
+			clampf(at.y-PICKUP_PROMPT_GAP-prompt.size.y if above else at.y+34,78,viewport_size.y-215))

@@ -449,9 +449,6 @@ position = Vector2(32, 400)
 [node name="SpruceB3" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
 position = Vector2(576, 40)
 
-[node name="SpruceB4" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
-position = Vector2(32, 544)
-
 [node name="SpruceB5" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
 position = Vector2(1432, 416)
 
@@ -613,9 +610,27 @@ texture = ExtResource("pt_a")
 [node name="ForestNavigation" type="NavigationRegion2D" parent="." unique_id=1705343690]
 navigation_polygon = SubResource("NavigationPolygon_84x7g")
 
+[node name="RangerBeat" type="Node2D" parent="."]
+
+[node name="LanternPost" type="Marker2D" parent="RangerBeat"]
+position = Vector2(850, 400)
+rotation = 0.5235988
+gizmo_extents = 24.0
+metadata/pause = 2.8
+
+[node name="TrailBend" type="Marker2D" parent="RangerBeat"]
+position = Vector2(850, 550)
+gizmo_extents = 24.0
+
+[node name="EastPost" type="Marker2D" parent="RangerBeat"]
+position = Vector2(1150, 550)
+gizmo_extents = 24.0
+metadata/pause = 2.8
+
 [node name="Ranger" type="CharacterBody2D" parent="." unique_id=491480390]
 position = Vector2(850, 400)
 script = ExtResource("ranger")
+patrol_path = NodePath("../RangerBeat")
 metadata/interaction_id = "ranger"
 metadata/interaction_label = "Talk"
 
@@ -632,7 +647,7 @@ script = ExtResource("ranger_visual")
 [node name="ThrowTarget" type="Node2D" parent="." unique_id=632276324]
 visible = false
 z_index = 42
-position = Vector2(815, 540)
+position = Vector2(800, 556)
 
 [node name="Pool" type="PointLight2D" parent="ThrowTarget" unique_id=1697274704]
 color = Color(1, 0.78, 0.42, 1)

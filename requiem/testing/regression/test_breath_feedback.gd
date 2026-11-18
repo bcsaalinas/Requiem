@@ -151,9 +151,9 @@ func check_hold_and_release() -> void:
 	await frames(12)
 	check(feedback.phase == &"strain" and feedback.strain > 0.2 and feedback.lung_pressure > 0.2,
 		"Low actual air drives tension and the strain pose")
-	check(feedback._vfx._edge.material.get_shader_parameter("strength") > 0.0
-		and feedback._vfx._edge.material.get_shader_parameter("strength") <= 0.17,
-		"Low-air edge shading is present and remains within the restrained opacity cap")
+	check(feedback._vfx._edge.material.get_shader_parameter("amount") > 0.9
+		and feedback._vfx._edge.material.get_shader_parameter("radius") < feedback._vfx.RADIUS_HELD,
+		"Held breath closes the view into a tunnel that tightens as the air runs low")
 	Input.action_release("hold_breath")
 	await frames(2)
 	check(feedback.phase == &"release" and feedback.cue == &"release" and not breath.is_holding,

@@ -30,7 +30,7 @@
 [ext_resource type="AudioStream" uid="uid://c71m11vomxou3" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
 [ext_resource type="AudioStream" uid="uid://bqymjmvxgjtkk" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
 
-[ext_resource type="Texture2D" path="res://assets/art/lights/light_flashlight_cone.png" id="light_cone"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_flashlight_beam_solid.png" id="light_cone"]
 [ext_resource type="Texture2D" path="res://assets/art/lights/light_step_circle.png" id="light_step_circle"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
@@ -96,7 +96,7 @@ script = ExtResource("10_motion")
 
 [node name="LocalLight" type="PointLight2D" parent="." unique_id=341006500]
 color = Color(0.7882353, 0.7647059, 0.69411767, 1)
-energy = 1.85
+energy = 0.6
 range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 0
@@ -111,8 +111,8 @@ shadow_enabled = true
 shadow_filter = 0
 shadow_item_cull_mask = 3
 texture = ExtResource("light_cone")
-offset = Vector2(195.2, 0)
-texture_scale = 1.6
+offset = Vector2(146.4, 0)
+texture_scale = 1.2
 script = ExtResource("9_kb6p2")
 click_clips = Array[AudioStream]([ExtResource("11_click")])
 

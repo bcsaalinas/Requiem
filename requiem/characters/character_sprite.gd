@@ -14,12 +14,22 @@ const PIVOT := Vector2(80, 80)
 const HEAD_POSE_DEGREES := [70.0, 35.0, 0.0, -35.0, -70.0]
 const HEAD_POSES_CLIP := "girl_head_poses"
 const STEP_RADIANS := PI / 8.0
+## Where the right arm hangs from the torso, in art px of the 160x160 frame.
+const ARM_SHOULDER := Vector2(49, 90)
 
 ## Displayed rotation snaps to 22.5 degrees when true (gameplay facing is unchanged).
 var steps_mode := false
 var facing := PI / 2.0
 var head_turn_deg := 0.0
 var mirror := false
+## Turns the right arm about its shoulder (radians, clockwise on screen), on top of whatever clip
+## it plays: the hand can point where the body has not turned yet. Its anchors turn with it.
+var arm_swing := 0.0:
+	set(value):
+		if is_equal_approx(arm_swing, value):
+			return
+		arm_swing = value
+		_refresh_layout()
 var _mirror_parts: Array = PARTS
 
 var _layers := {}
@@ -148,7 +158,17 @@ func flashlight_angle_global() -> float:
 	var degrees: float = anchors.get("flashlight_angle_deg", 0.0)
 	if _part_mirrored(&"arm_right"):
 		degrees = -degrees
-	return global_rotation + PI / 2.0 + deg_to_rad(degrees)
+	return global_rotation + PI / 2.0 + deg_to_rad(degrees) + _arm_swing_local()
+
+
+## The drawn anchor in art pixels of the 160x160 frame (before pivot, mirror and scale), for
+## presentation that reads how far a limb has travelled. Vector2.INF when no layer has it.
+func anchor_art(anchor: String) -> Vector2:
+	for part in [&"arm_right", &"upper", &"lower", &"head"]:
+		var anchors: Dictionary = _frame_data(part).get("anchors", {})
+		if anchors.has(anchor):
+			return Vector2(anchors[anchor][0], anchors[anchor][1])
+	return Vector2.INF
 
 
 func has_anchor(anchor: String) -> bool:
@@ -176,12 +196,24 @@ func _anchor_local(anchor: String) -> Vector2:
 			var point := Vector2(anchors[anchor][0], anchors[anchor][1])
 			if part == &"upper" or part == &"arm_right":
 				point += _frame_data(&"upper").get("upper_offset", Vector2.ZERO) if part == &"arm_right" else Vector2.ZERO
-			return _art_to_local(point, part)
+			var local := _art_to_local(point, part)
+			if part == &"arm_right" and arm_swing != 0.0:
+				var shoulder := _shoulder_local()
+				local = shoulder + (local - shoulder).rotated(_arm_swing_local())
+			return local
 	if anchor == "head_center" and _head_pose_clip.has("frames"):
 		var anchors: Dictionary = _head_pose_clip["frames"][_head_frame()].get("anchors", {})
 		if anchors.has("head_center"):
 			return _art_to_local(Vector2(anchors["head_center"][0], anchors["head_center"][1]) + _head_offset(), &"head")
 	return Vector2.ZERO
+
+
+func _shoulder_local() -> Vector2:
+	return _art_to_local(ARM_SHOULDER + _frame_data(&"upper").get("upper_offset", Vector2.ZERO), &"arm_right")
+
+
+func _arm_swing_local() -> float:
+	return -arm_swing if _part_mirrored(&"arm_right") else arm_swing
 
 
 func _art_to_local(art_point: Vector2, part: StringName = &"lower") -> Vector2:
@@ -264,6 +296,12 @@ func _refresh_layout() -> void:
 		sprite.frame = state["frame"]
 		var offset := upper_offset if part == &"upper" or part == &"arm_right" else Vector2.ZERO
 		sprite.offset = _mirrored(offset, part)
+		if part == &"arm_right":
+			# The layer turns about the shoulder, so the shoulder itself stays where the torso has it.
+			var shoulder := _shoulder_local()
+			var swing := _arm_swing_local()
+			sprite.rotation = swing
+			sprite.position = shoulder - shoulder.rotated(swing)
 
 
 func _refresh_head(sprite: Sprite2D, upper_data: Dictionary) -> void:

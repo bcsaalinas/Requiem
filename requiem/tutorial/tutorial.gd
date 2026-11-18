@@ -4,11 +4,59 @@ signal stage_changed(stage: String)
 signal tutorial_completed
 const World := preload("res://tutorial/world.gd")
 const Art := preload("res://tutorial/art.gd")
+const HintBeacon := preload("res://tutorial/hint_beacon.gd")
+const Chest := preload("res://tutorial/chest.gd")
+const KEY_ART := preload("res://assets/art/items/item_key.png")
+const NOTE_ART := preload("res://assets/art/items/item_note.png")
 const ATTACK_CANDLE_STEP := 0.6
 const ATTACK_LAST_PAUSE := 1.0
+## Total dark after the last flame, long enough to doubt the light is coming back.
+const BLACKOUT_SECONDS := 1.5
+## Her light stutters back by itself: seconds after the dark at which it flips, starting with on.
+const RELIGHT_STUTTER: Array[float] = [0.0, 0.07, 0.22, 0.27, 0.5]
+## Control returns this long after the dark ends, with the light already steady.
+const RELIGHT_SECONDS := 0.75
 const HEARD_PHASE := 20.0
 const HEARD_PHASE_RETRY := 8.0
 const HEARD_BEAM_WAIT := 3.0
+## After the blackout the house is only sound, in three stages. Unease: the house itself, from
+## rooms she is not in, for as long as she searches. Presence (the heard phase above): the thing
+## in it, from the moment she lifts the key out of its trunk. Then, at last, something to see.
+const UNEASE_SOUNDS: Array[Dictionary] = [
+	{"clip": "res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav", "caption": "[A floorboard creaks]", "volume": -6.0},
+	{"clip": "res://assets/audio/horror-jam-kit 2/WAV/Foley/door_knock_01.wav", "caption": "[Knocking, somewhere in the house]", "volume": -5.0},
+	{"clip": "res://tutorial/assets/audio/chair_scrape.wav", "caption": "[A chair drags]", "volume": -7.0},
+	{"clip": "res://assets/audio/horror-jam-kit 2/WAV/Foley/metal_scrape_01.wav", "caption": "[Metal scrapes]", "volume": -10.0},
+	{"clip": "res://tutorial/assets/audio/behind_wall.wav", "caption": "[Something moves behind the wall]", "volume": -8.0},
+	{"clip": "res://assets/audio/horror-jam-kit 2/WAV/Impact/deep_impact_02.wav", "caption": "[A heavy knock under the floor]", "volume": -9.0},
+	{"clip": "res://assets/audio/horror-jam-kit 2/WAV/Tonal/eerie_music_box_02.wav", "caption": "[A music box, far off]", "volume": -15.0},
+]
+const UNEASE_CREAK := 0
+const UNEASE_KNOCK := 1
+## Places a sound can come from, per room (house px). Never the room she stands in.
+const UNEASE_SPOTS := {
+	"Kitchen": [Vector2(240,300), Vector2(150,560), Vector2(330,200)],
+	"Vestibule": [Vector2(608,200), Vector2(470,330), Vector2(700,600)],
+	"AltarRoom": [Vector2(1008,250), Vector2(1100,560), Vector2(880,330)],
+}
+## Seconds before the first sound, then the gap between sounds: wide at first, tight after a minute.
+const UNEASE_FIRST := 3.5
+const UNEASE_GAP := Vector2(5.0, 9.0)
+const UNEASE_GAP_LATE := Vector2(2.5, 5.0)
+const UNEASE_RAMP := 60.0
+## Every third sound is a board right behind her, out of the beam.
+const UNEASE_BEHIND_EVERY := 3
+const UNEASE_BEHIND_DISTANCE := 120.0
+## A trunk lid or a rattled door gets an answer from another room after this long.
+const UNEASE_REPLY := 1.1
+## Where its own sounds come from once she has the key: in at the front door and up the vestibule
+## toward the trunk, so it stands between her and the way out (house px, heard-phase seconds).
+const PRESENCE_PATH: Array[Dictionary] = [
+	{"at": 3.0, "spot": Vector2(544,650), "caption": "[Something drags itself in by the front door]"},
+	{"at": 8.0, "spot": Vector2(608,560), "caption": "[Dragging, closer]"},
+	{"at": 13.0, "spot": Vector2(608,470), "caption": "[Wet breathing]", "breathing": true},
+	{"at": 17.0, "spot": Vector2(660,380), "caption": "", "carried": true},
+]
 ## Pista de ambiente real por zona (reemplaza el placeholder corto
 ## room.wav/forest.wav de tutorial/assets/audio). bedroom es la unica que se
 ## queda tranquila; hallway usa viento (corriente de aire, inquieta antes de
@@ -76,9 +124,31 @@ var has_flashlight: bool:
 		if is_instance_valid(player): player.get_node("ActionState").has_flashlight = value
 var batteries := 0
 var window_broken := false
+## She has been pointed at the side window (the locked door, or a look at the glass): from here
+## the glass twinkles and the throw key shows while she stands on the porch with a stone.
+var window_hinted := false
+var window_beacon: Sprite2D
+## A cold glint on the porch side of the sidelight once the door has pointed at it: in a dark
+## porch a star alone was missed, so the glass itself catches light until the latch is open.
+var window_glint: PointLight2D
+const WINDOW_GLINT_ENERGY := Vector2(0.5, 1.7)
 var door_unlocked := false
+## The front door locks itself in the blackout; the key from the vestibule trunk opens it again.
+var has_key := false
+var key_used := false
+var unease_time := 0.0
+var unease_next := UNEASE_FIRST
+var unease_count := 0
+var unease_last := -1
+## The next sound is an answer to something she just did (-1: none): which sound it is.
+var unease_reply := -1
+## Where the last house sound came from (for the tests and the review harness).
+var unease_last_at := Vector2.INF
+## Where the key's candle hit the floor: the noise the thing comes to look at.
+var key_noise_at := Vector2.INF
 var friend_met := false
 var attack_finished := false
+var relight_step := 0
 var complete := false
 var collected: Dictionary = {}
 var checkpoint: Dictionary = {}
@@ -190,9 +260,24 @@ func _ready() -> void:
 	NoiseManager.noise_emitted.connect(_on_noise)
 	var window_mullion: Node2D = world.zones["house"].get_node("Lights/WindowSpill/Mullion")
 	(world.interactables["window"]["node"] as WallWindow).broken_changed.connect(func(is_broken: bool): window_mullion.visible = not is_broken)
+	window_beacon = HintBeacon.new()
+	window_beacon.name = "HintBeacon"
+	window_beacon.position = Vector2(0,-48)
+	window_beacon.z_as_relative = false
+	window_beacon.z_index = 48
+	window_beacon.period = 1.6
+	window_beacon.shining = false
+	world.interactables["window"]["node"].add_child(window_beacon)
+	window_glint = world.lamp(world.to_local(world.interactables["window"]["node"].global_position+Vector2(0,-36)),Color("9cc6ff"),0.8,0.0)
+	window_glint.name = "WindowGlint"
+	# It sits on the glass, inside the wall's own shadow caster: unshadowed, or the wall eats it.
+	window_glint.shadow_enabled = false
 	for room in world.rooms("house").get_rooms():
 		room.player_entered.connect(func(_room): _sync_roof())
 		room.player_exited.connect(func(_room): _sync_roof())
+	for id in world.interactables:
+		var chest: Node = world.interactables[id]["node"]
+		if chest.get_script() == Chest: chest.opened.connect(_on_chest_opened.bind(id))
 	for id in ZONE_DOORS:
 		var door := world.interactables[id]["node"] as Door
 		door.get_node("Doorway").body_entered.connect(_on_zone_doorway.bind(id))
@@ -305,11 +390,86 @@ func _configure_entity() -> void:
 		entity.reset_encounter(world.marker("house","EntityArrive"),points)
 		entity.set_breathing(false)
 		entity.get_node("CollisionShape2D").set_deferred("disabled",true)
-		encounter_grace=HEARD_PHASE_RETRY if heard_phase_seen else HEARD_PHASE
-		heard_length=encounter_grace
-		heard_phase_seen=true
 		heard_step=0
 		heard_at=Vector2.INF
+		unease_time=0.0
+		unease_next=UNEASE_FIRST
+		unease_reply=-1
+		# With the key already in her pocket (a retry) it is on its way at once.
+		if has_key: _begin_presence()
+
+## Its own sounds start: the heard phase, which ends with it standing in the house.
+func _begin_presence() -> void:
+	encounter_grace=HEARD_PHASE_RETRY if heard_phase_seen else HEARD_PHASE
+	heard_length=encounter_grace
+	heard_phase_seen=true
+	heard_step=0
+	heard_at=Vector2.INF
+
+## True while the house is only making its own noises: after the blackout, before the key.
+func in_unease() -> bool:
+	return zone=="house" and attack_finished and not has_key and not complete and not resetting
+
+## True while the thing is heard and not yet seen (from the key until it stands in the house).
+func in_presence() -> bool:
+	return zone=="house" and (encounter_grace>0 or arrival_place!=Vector2.INF)
+
+func _play_stream(stream: AudioStream, at: Vector2, volume: float) -> void:
+	if test_mode or stream == null: return
+	var audio := AudioStreamPlayer2D.new()
+	audio.position=at
+	audio.bus="SFX"
+	audio.stream=stream
+	audio.volume_db=volume
+	audio.pitch_scale=randf_range(0.92,1.06)
+	add_child(audio)
+	audio.add_to_group("tutorial_audio")
+	audio.finished.connect(audio.queue_free)
+	audio.play()
+
+## The house, heard and never seen. Sounds come from rooms she is not in, a little oftener as
+## the search goes on; now and then a board gives right behind her, where the beam is not.
+## Nothing here can hurt her: it only tells her she is not alone before anything proves it.
+func _tick_unease(delta: float) -> void:
+	unease_time+=delta
+	if unease_time<unease_next: return
+	var sound := unease_reply
+	var behind := sound<0 and unease_count%UNEASE_BEHIND_EVERY==UNEASE_BEHIND_EVERY-1
+	if sound<0:
+		sound=UNEASE_CREAK if behind else randi()%UNEASE_SOUNDS.size()
+		if sound==unease_last and not behind: sound=(sound+1)%UNEASE_SOUNDS.size()
+	var at := _unease_spot(behind)
+	unease_reply=-1
+	unease_last=sound
+	unease_last_at=at
+	unease_count+=1
+	var entry: Dictionary = UNEASE_SOUNDS[sound]
+	_play_stream(load(entry["clip"]) as AudioStream,at,entry["volume"])
+	caption("[A board creaks right behind you]" if behind else entry["caption"])
+	var pace := clampf(unease_time/UNEASE_RAMP,0.0,1.0)
+	var gap := UNEASE_GAP.lerp(UNEASE_GAP_LATE,pace)
+	unease_next=unease_time+randf_range(gap.x,gap.y)
+
+## A spot in a room she is not in; or, for the close one, just behind her back.
+func _unease_spot(behind: bool) -> Vector2:
+	var house: Vector2=world.zones["house"].global_position
+	if behind:
+		var facing := Vector2.from_angle(flashlight.global_rotation) if flashlight.enabled else Vector2.DOWN
+		return player.global_position-facing*UNEASE_BEHIND_DISTANCE
+	var current: Room = world.rooms("house").current
+	var here := String(current.name) if current != null else ""
+	var choices: Array[Vector2] = []
+	for room: String in UNEASE_SPOTS:
+		if room==here: continue
+		for spot: Vector2 in UNEASE_SPOTS[room]:
+			if house+spot!=unease_last_at: choices.append(house+spot)
+	return choices[randi()%choices.size()]
+
+## Something she did was loud enough to be answered: the next sound comes soon, and is a knock.
+func _house_answers() -> void:
+	if not in_unease(): return
+	unease_reply=UNEASE_KNOCK
+	unease_next=minf(unease_next,unease_time+UNEASE_REPLY)
 
 func _process(delta: float) -> void:
 	if _paused: return
@@ -331,6 +491,7 @@ func _process(delta: float) -> void:
 	hud.update_breath_feedback(player.get_node("BreathFeedback"))
 	hud.battery.value=flashlight.battery_percent
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
+	hud.set_key(has_key and not key_used)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
 	if not dialogue.is_empty() or resetting: return
 	if zone == "forest":
@@ -338,6 +499,7 @@ func _process(delta: float) -> void:
 		if not dialogue.is_empty(): return
 	if sequence!="": _tick_sequence(delta)
 	if encounter_grace>0: _tick_heard_phase(delta)
+	elif in_unease(): _tick_unease(delta)
 	if arrival_place!=Vector2.INF: _tick_arrival(delta)
 	if zone=="hallway": _tick_hallway(delta)
 	if zone=="forest" and not forest_cued and player.position.x>3500:
@@ -352,6 +514,11 @@ func _process(delta: float) -> void:
 	if zone=="house" and door_unlocked and not attack_finished and player.position.y<660 and checkpoint.get("position",Vector2.ZERO).y>704:
 		save_checkpoint()
 	if zone=="house": _shut_front_door_behind()
+	window_beacon.shining = zone=="house" and window_hinted and not door_unlocked
+	var glint_pulse: float = 0.5+0.5*sin(Time.get_ticks_msec()*0.0035)
+	window_glint.energy = move_toward(window_glint.energy,
+		lerpf(WINDOW_GLINT_ENERGY.x,WINDOW_GLINT_ENERGY.y,glint_pulse) if window_beacon.shining else 0.0,delta*4.0)
+	window_glint.visible = window_glint.energy>0.0
 	_update_threat_presentation()
 	_tick_battery(delta)
 	_find_interaction()
@@ -367,10 +534,16 @@ func _update_key_hint(delta: float) -> void:
 	var text := ""
 	if space_hint and zone=="hallway": text="SPACE · Hold breath"
 	elif has_flashlight and batteries>0 and flashlight.battery_percent<=flashlight.low_battery_threshold: text="B · Battery"
+	elif _window_throw_ready(): text="Q · Throw at the window"
 	elif thrower.rocks>0 and not has_thrown: text="Q · Throw"
 	elif zone=="forest" and not has_sprinted and sprint_hint_time>0: text="SHIFT · Sprint"
 	elif flash_hint_time>0: text="F · Light"
 	hud.show_key_hint(text, get_canvas_transform()*player.global_position)
+
+## On the porch, pointed at the window, a stone in hand, the glass still whole.
+func _window_throw_ready() -> bool:
+	return zone=="house" and window_hinted and not window_broken and thrower.rocks>0 \
+		and player.position.y>world.interactables["window"]["node"].global_position.y
 
 func _tick_hallway(delta: float) -> void:
 	hall_audio_clock -= delta
@@ -534,7 +707,13 @@ func _find_interaction() -> void:
 		if prop_node.has_method("set_focused"):
 			prop_node.set_focused(id==nearest)
 	hud.prompt.text="" if nearest=="" else (interaction_label(nearest) if _prompt_without_key(nearest) else "E · "+interaction_label(nearest))
-	if nearest!="": hud.place_prompt(get_canvas_transform()*world.interactables[nearest]["position"])
+	if nearest!="":
+		var target: Node2D = world.interactables[nearest]["node"]
+		# Anything she takes carries its prompt right above it; the key hint keeps the space under her.
+		var drawn_pickup: bool = target.has_method("is_pickup") and target.is_pickup()
+		var pickup: bool = drawn_pickup or interaction_label(nearest)=="Take"
+		var anchor: Vector2 = target.get_prompt_anchor() if drawn_pickup else world.interactables[nearest]["position"]
+		hud.place_prompt(get_canvas_transform()*anchor,false,pickup)
 
 func _prompt_without_key(id: String) -> bool:
 	var node: Node = world.interactables[id]["node"]
@@ -549,7 +728,8 @@ func interaction_available(id: String) -> bool:
 	return true
 
 func interaction_label(id: String) -> String:
-	if id=="window" and window_broken: return "Unlatch"
+	if id=="window" and window_broken: return "Reach in for the latch"
+	if id=="front_door" and attack_finished and not key_used: return "Unlock" if has_key else "Try the door"
 	if id=="front_door" and door_unlocked: return "Open"
 	var node: Node = world.interactables[id]["node"]
 	if node is Door and node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go"
@@ -561,6 +741,10 @@ func interact(id: String) -> void:
 	# Distance validation is shared by normal input and tests; no remote interactions.
 	if player.position.distance_to(world.interactables[id]["position"])>85: return
 	_player_visual("play_pickup")
+	var target: Node = world.interactables[id]["node"]
+	if target.get_script() == Chest:
+		_open_chest(id,target)
+		return
 	match id:
 		"abuela_note":
 			show_dialogue(["My dear, I left the flashlight beside this note. Remember to turn it off when you do not need it. — Abuela"] )
@@ -610,8 +794,9 @@ func interact(id: String) -> void:
 			stone_hint_seen = true
 		"forest_exit":
 			var ranger = world.zones["forest"].get_node("Ranger")
-			if not ranger.stone_distraction_completed or ranger.chasing:
-				say("He's watching the trail.", 6.0)
+			# A stone or good timing both get her here; only a ranger on her heels shuts the way.
+			if ranger.chasing:
+				say("Not with him right behind me.", 4.0)
 				return
 			enter_zone("house")
 		"ranger":
@@ -628,13 +813,33 @@ func interact(id: String) -> void:
 				front_door.open()
 				(world.interactables["window"]["node"] as WallWindow).unlatched=true
 				caption("[Latch clicks]")
-			else: say("The latch is behind the glass.",6)
+			else:
+				window_hinted=true
+				if thrower.rocks>0: say("The latch is right behind the glass. A stone would break it.",6)
+				else: say("The latch is right behind the glass. I need something to throw.",6)
 		"front_door":
 			var front_door: Door = world.interactables[id]["node"]
 			if not door_unlocked:
-				say("Locked.",5)
+				# The door itself points at the way in: players read "locked" as a dead end.
+				window_hinted=true
+				if window_broken: say("Locked. I can reach the latch through the broken window.",6)
+				else: say("Locked. The latch is on the inside, by that window.",6)
 				play_sound("door",player.position)
 				caption("[Door rattles]")
+			elif attack_finished and not has_key:
+				say("It won't open. It has locked itself... there must be a key in this house.",6)
+				play_sound("door",player.position)
+				caption("[Door rattles]")
+				_house_answers()
+			elif attack_finished and in_presence():
+				# It is coming in through this door: she has to let it pass before she can use it.
+				say("Not yet. It's right there, between me and the door. Hide.",6)
+			elif attack_finished and not key_used:
+				key_used=true
+				front_door.locked=false
+				play_sound("switch",player.position)
+				caption("[Key turns]")
+				front_door.open(breath.is_holding)
 			elif attack_finished and front_door.is_open:
 				_go_through(id)
 			else:
@@ -664,6 +869,79 @@ func interact(id: String) -> void:
 				sequence="ending"
 				sequence_time=0
 				sequence_step=0
+
+## Trunks: a lid, a creak that can be heard, and something inside (or nothing).
+func _open_chest(id: String, chest: Node2D) -> void:
+	if id=="chest_vestibule" and not attack_finished:
+		say("Not while the candle is burning on it.",5)
+		return
+	collected[id]=true
+	chest.open(breath.is_holding)
+
+func _on_chest_opened(loot: String, id: String) -> void:
+	var chest: Node2D = world.interactables[id]["node"]
+	var from: Vector2 = chest.get_loot_origin()
+	match loot:
+		"battery":
+			batteries+=1
+			_pop_loot(from,Art.ITEMS["battery"],"battery")
+			if has_flashlight and flashlight.battery_percent<=0: insert_battery()
+		"stones":
+			thrower.rocks=mini(3,thrower.rocks+3)
+			stone_hint_seen=true
+			play_sound("pickup",player.position)
+			_animate_rocks(from)
+		"note":
+			_pop_loot(from,NOTE_ART,"")
+			show_dialogue([chest.note_text])
+		"key":
+			has_key=true
+			_pop_loot(from,KEY_ART,"key")
+			say("A key.",4)
+			_key_candle_falls()
+		_:
+			say("Empty.",3)
+			caption("[Hollow wood]")
+	_house_answers()
+
+## What a trunk gives rises out of it, hangs for a beat so it can be read in the dark (it is
+## drawn unlit, like the pickup stars), then goes to her hands and its inventory slot pops.
+func _pop_loot(from: Vector2, texture: Texture2D, slot: String) -> void:
+	play_sound("pickup",player.position)
+	var item := Sprite2D.new()
+	item.texture = texture
+	item.scale = Vector2.ONE * Units.ART_SCALE
+	item.z_index = 44
+	var unlit := CanvasItemMaterial.new()
+	unlit.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
+	item.material = unlit
+	world.add_child(item)
+	item.global_position = from
+	var tween := item.create_tween()
+	tween.tween_property(item,"global_position",from+Vector2(0,-16),0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_interval(0.4)
+	tween.tween_property(item,"global_position",player.global_position+Vector2(0,-12),0.22) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(item,"scale",Vector2.ONE*Units.ART_SCALE*0.4,0.22)
+	tween.tween_callback(item.queue_free)
+	if slot != "": tween.tween_callback(hud.pulse_slot.bind(slot))
+
+## The key trunk sits under the vestibule candle. Lifting the lid tips the dead jar onto the
+## boards: the loudest thing she does in this house, and what the thing in it comes to look at.
+func _key_candle_falls() -> void:
+	var candle: Node2D = world.props["vestibule_candle"]
+	var rest := candle.global_position
+	key_noise_at = rest+Vector2(22,16)
+	var tween := candle.create_tween()
+	tween.tween_property(candle,"global_position",rest.lerp(key_noise_at,0.5)+Vector2(0,-8),0.12)
+	tween.tween_property(candle,"global_position",key_noise_at,0.14).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(candle,"rotation",PI*0.5,0.26)
+	tween.tween_callback(func():
+		play_sound("thud",key_noise_at,-6)
+		caption("[The candle jar hits the floor]")
+		NoiseManager.emit_noise(key_noise_at,256,NoiseManager.SourceType.ENVIRONMENT))
+	save_checkpoint()
+	_begin_presence()
 
 func collect(id: String) -> void:
 	collected[id]=true
@@ -733,8 +1011,14 @@ func _tick_battery(delta: float) -> void:
 func _on_rock_landed(at: Vector2) -> void:
 	if zone!="house" or window_broken: return
 	var side_light: WallWindow = world.interactables["window"]["node"]
-	if at.distance_to(side_light.global_position+Vector2(0,-48))>59: return
+	var miss := at.distance_to(side_light.global_position+Vector2(0,-48))
+	if miss>59:
+		# A stone that lands near the glass says so: the idea was right, the aim was off.
+		if window_hinted and miss<170: say("Missed the glass.",3)
+		return
 	window_broken=true
+	window_hinted=true
+	say("That did it. Now I can reach the latch.",6)
 	side_light.broken=true
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
@@ -813,28 +1097,25 @@ func _tick_heard_phase(delta: float) -> void:
 	var elapsed: float=heard_length-encounter_grace
 	var beat: float=heard_length/HEARD_PHASE
 	var house: Vector2=world.zones["house"].global_position
-	if heard_step==0 and elapsed>=5.0*beat:
-		heard_step=1
-		heard_at=house+Vector2(544,690)
-		play_sound("presence",heard_at)
-	if heard_step==1 and elapsed>=9.0*beat:
-		heard_step=2
-		heard_at=house+Vector2(700,470)
-		play_sound("presence",heard_at)
-	if heard_step==2 and elapsed>=13.0*beat:
-		heard_step=3
-		heard_at=house+Vector2(832,512)
-		entity.global_position=heard_at
-		entity.set_breathing(true)
-		if not breathing_captioned:
-			breathing_captioned=true
-			caption("[Wet breathing]")
-	if heard_step==3 and elapsed>=17.0*beat:
-		heard_step=4
-		heard_at=world.marker("house","EntityArrive")
-		entity.global_position=heard_at
+	while heard_step<PRESENCE_PATH.size() and elapsed>=float(PRESENCE_PATH[heard_step]["at"])*beat:
+		var step: Dictionary=PRESENCE_PATH[heard_step]
+		heard_step+=1
+		heard_at=house+step["spot"]
+		if step.get("breathing",false):
+			entity.global_position=heard_at
+			entity.set_breathing(true)
+			if not breathing_captioned:
+				breathing_captioned=true
+				caption(step["caption"])
+		else:
+			# Once it breathes, the breathing is what moves; before that each step is a drag.
+			entity.global_position=heard_at
+			if not step.get("carried",false): play_sound("presence",heard_at)
+			if step["caption"]!="": caption(step["caption"])
 	if encounter_grace<=0 and not complete:
-		_arrive(world.marker("house","EntityArrive"),friend_home)
+		# It stands up where it was last heard and goes to look at what fell.
+		var from: Vector2=heard_at if heard_at!=Vector2.INF else world.marker("house","EntityArrive")
+		_arrive(from,key_noise_at if key_noise_at!=Vector2.INF else friend_home)
 
 func _arrive(place: Vector2, target: Vector2) -> void:
 	arrival_place=NavigationServer2D.map_get_closest_point(world.landmarks["HouseNavigation"].get_navigation_map(),place)
@@ -893,16 +1174,27 @@ func _tick_sequence(delta: float) -> void:
 		sequence_step+=1
 		world.set_candle_out(World.ATTACK_CANDLES[last_candle],true)
 		world.interactables["altar_door"]["node"].decorative_glow_off = true
+		# Every light dies with the last flame, hers included: Eli goes in the dark,
+		# never out of a lit beam.
+		_set_carried_light(false)
+		relight_step=0
 		world.props["friend"].hide()
 		world.props["friend"].fallen=true
 		play_sound("thud",friend_home,-2)
 		NoiseManager.emit_noise(friend_home,256,NoiseManager.SourceType.ENVIRONMENT)
 		caption("[A gasp. Something heavy falls.]")
-	if sequence_step==last_candle+1 and sequence_time>=last_candle_time+1.3:
+	if sequence_step==last_candle+1:
+		_tick_relight(sequence_time-last_candle_time-BLACKOUT_SECONDS)
+	if sequence_step==last_candle+1 and sequence_time>=last_candle_time+BLACKOUT_SECONDS+RELIGHT_SECONDS:
 		sequence_step+=1
+		_set_carried_light(true)
 		world.props["friend"].fallen=true
 		prayer_audio.stop()
 		attack_finished=true
+		# The way out shuts with the lights: from here the house has to be searched.
+		var way_out: Door = world.interactables["front_door"]["node"]
+		way_out.snap(false)
+		way_out.locked=true
 		stage="ketsu"
 		stage_changed.emit(stage)
 		player.process_mode=Node.PROCESS_MODE_INHERIT
@@ -911,6 +1203,21 @@ func _tick_sequence(delta: float) -> void:
 		save_checkpoint()
 		say("Eli…?",6)
 		sequence=""
+
+## The flashlight and the step ring together: everything she carries that makes light.
+## Coming back, the flashlight relights itself if it has charge; the ring always returns.
+func _set_carried_light(lit: bool) -> void:
+	player.get_node("LocalLight").enabled=lit
+	if lit: flashlight.relight()
+	else: flashlight.snuff()
+
+func _tick_relight(since_dark: float) -> void:
+	var flips := 0
+	for at in RELIGHT_STUTTER:
+		if since_dark>=at: flips+=1
+	if flips==relight_step: return
+	relight_step=flips
+	_set_carried_light(flips%2==1)
 
 func _on_noise(at: Vector2, radius: float, source: int, _duration: float) -> void:
 	if encounter_grace>0 and zone=="house" and not resetting and source in PLAYER_SOUNDS:
@@ -1168,6 +1475,7 @@ func restore_checkpoint(bedroom := false) -> void:
 	thrower.rocks=maxi(thrower.rocks,int(checkpoint.get("rocks",0)))
 	if has_flashlight and flashlight.battery_percent>0: flashlight.is_on=true
 	flashlight._refresh_light()
+	player.get_node("LocalLight").enabled=true
 	thrower.available=true
 	player.process_mode=Node.PROCESS_MODE_INHERIT
 	resetting=false
@@ -1227,6 +1535,6 @@ func _tick_ranger_checkpoint() -> void:
 	player.velocity = Vector2.ZERO
 	player.get_node("FootstepNoise").reset_steps()
 	save_checkpoint()
-	ranger.reset_patrol()
+	# He keeps walking his beat: putting him back at his post here would jump his light.
 	ranger.active = true
 	forest.get_node("ThrowTarget").show()
