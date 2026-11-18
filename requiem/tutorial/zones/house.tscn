@@ -33,6 +33,9 @@
 [ext_resource type="PackedScene" path="res://level/props/pebble_pile.tscn" id="pebble_pile"]
 [ext_resource type="Texture2D" uid="uid://d068jrsh0dgqu" path="res://assets/art/props/deco_rug_runner.png" id="rug_new"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_roof.tres" id="tileset_roof"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_petals_a.png" id="pt_a"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_petals_b.png" id="pt_b"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_petals_c.png" id="pt_c"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dkkgd"]
 shader = ExtResource("10_dkkgd")
@@ -86,6 +89,24 @@ light_mode = 1
 [node name="House" type="Node2D" unique_id=771048110]
 y_sort_enabled = true
 metadata/art_floor_rects = Array[Rect2]([Rect2(64, 32, 1152, 640), Rect2(32, 672, 1216, 256)])
+
+[node name="PorchPetals" type="Node2D" parent="."]
+z_index = -9
+
+[node name="PetalB" type="Sprite2D" parent="PorchPetals"]
+position = Vector2(1182, 850)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="PetalC" type="Sprite2D" parent="PorchPetals"]
+position = Vector2(1210, 842)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="PetalA" type="Sprite2D" parent="PorchPetals"]
+position = Vector2(1236, 848)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
 
 [node name="Rugs" type="Node2D" parent="." unique_id=1414101452]
 z_index = -9
@@ -278,16 +299,25 @@ energy = 1.2
 reach = 2.0
 
 [node name="house_back" type="Node2D" parent="Props" unique_id=1344128710]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_dkkgd")
+z_index = -10
 position = Vector2(1150, 846)
-script = ExtResource("11_5l22i")
-kind = "marker"
-dimensions = Vector2(32, 32)
 metadata/interaction_id = "house_back"
 metadata/interaction_label = "Go back"
+
+[node name="PetalA" type="Sprite2D" parent="Props/house_back"]
+position = Vector2(-6, -4)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="PetalB" type="Sprite2D" parent="Props/house_back"]
+position = Vector2(4, 2)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="PetalC" type="Sprite2D" parent="Props/house_back"]
+position = Vector2(-2, 8)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
 
 [node name="RouteVeladora0" type="Node2D" parent="Props" unique_id=75144861]
 position = Vector2(570, 600)

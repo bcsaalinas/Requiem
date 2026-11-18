@@ -16,7 +16,7 @@ const VELADORA_FRAME := 32.0
 const DETAILS := preload("res://tutorial/assets/art/details_atlas.png")
 const DETAIL_REGIONS := {
  "rocks":Rect2(.788,.115,.177,.315),
- "marker":Rect2(.55,.50,.18,.455), "candle":Rect2(.787,.54,.19,.37),
+ "candle":Rect2(.787,.54,.19,.37),
 }
 const ITEMS := {
  "flashlight":preload("res://assets/art/items/item_flashlight.png"),
@@ -59,7 +59,7 @@ func _ready() -> void:
 		glint.scale = Vector2.ONE * Units.ART_SCALE
 		glint.position = Vector2(0.0, -lift)
 		add_child(glint,false,Node.INTERNAL_MODE_BACK)
-	if kind in ["rocks","marker"]:
+	if kind in ["rocks"]:
 		focal_sprite = Sprite2D.new()
 		focal_sprite.name = "ReadabilitySprite"
 		focal_sprite.light_mask = light_mask
@@ -143,7 +143,6 @@ func _draw_detail() -> void:
 	# Pickups at real scale next to the 58 px girl; the focus rim keeps them readable.
 	match kind:
 		"rocks": size=Vector2(30,23)
-		"marker": size=Vector2(40,55)
 		"candle": size=Vector2(25,27)
 	var bottom := 12.0
 	paint_sprite(DETAILS,Rect2(Vector2(-size.x*.5,bottom-size.y-lift),size),region)
@@ -181,13 +180,11 @@ func paint_sprite(atlas: Texture2D, target: Rect2, source: Rect2, albedo := Colo
 	var floor_value := .17
 	var value_range := .68
 	var rim := .28 if not focused else .65
-	if kind == "marker":
-		floor_value=.15; rim=.42
 	style.set_shader_parameter("accent",accent)
 	style.set_shader_parameter("value_floor",floor_value)
 	style.set_shader_parameter("value_range",value_range)
 	style.set_shader_parameter("rim_strength",rim)
-	style.set_shader_parameter("color_mix",.55 if kind in ["marker","rocks"] else .18)
+	style.set_shader_parameter("color_mix",.55 if kind in ["rocks"] else .18)
 
 	# Reuse the same atlas crop for a subtle contour, never an unlit sprite body.
 	rim_sprite.texture = focal_sprite.texture

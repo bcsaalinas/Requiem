@@ -16,6 +16,10 @@
 [ext_resource type="PackedScene" path="res://level/props/spruce_young.tscn" id="sp_y"]
 [ext_resource type="PackedScene" path="res://level/props/snag.tscn" id="sn_s"]
 [ext_resource type="PackedScene" path="res://level/props/fallen.tscn" id="fa_f"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_petals_a.png" id="pt_a"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_petals_b.png" id="pt_b"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_petals_c.png" id="pt_c"]
+
 
 [ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="12_326u6"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="14_hvswp"]
@@ -114,15 +118,26 @@ metadata/interaction_id = "forest_battery"
 metadata/interaction_label = "Take"
 
 [node name="forest_exit" type="Node2D" parent="Props" unique_id=1861059203]
-light_mask = 2
-z_index = 1
-texture_filter = 1
-material = SubResource("ShaderMaterial_rbatt")
+z_index = -10
 position = Vector2(1320, 540)
-script = ExtResource("6_gscj6")
-kind = "marker"
 metadata/interaction_id = "forest_exit"
 metadata/interaction_label = "Go on"
+
+[node name="PetalA" type="Sprite2D" parent="Props/forest_exit"]
+position = Vector2(-6, -4)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="PetalB" type="Sprite2D" parent="Props/forest_exit"]
+position = Vector2(4, 2)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="PetalC" type="Sprite2D" parent="Props/forest_exit"]
+position = Vector2(-2, 8)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
 
 [node name="ExitLamp" type="Node2D" parent="Props" unique_id=2131959633 instance=ExtResource("trail_lantern")]
 position = Vector2(1290, 510)
@@ -472,6 +487,128 @@ position = Vector2(1100, 770)
 
 [node name="Fallen2" type="Node2D" parent="Props" instance=ExtResource("fa_f")]
 position = Vector2(1300, 40)
+
+[node name="PetalTrail" type="Node2D" parent="." unique_id=770000001]
+z_index = -9
+
+[node name="Petal0" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(190, 530)
+flip_h = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal1" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(254, 550)
+flip_h = true
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal2" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(366, 498)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal3" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(390, 436)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal4" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(458, 340)
+flip_h = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal5" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(522, 352)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal6" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(586, 356)
+flip_h = true
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal7" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(650, 348)
+flip_h = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="Petal8" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(714, 356)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal9" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(774, 360)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal10" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(820, 406)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal11" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(820, 464)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal12" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(868, 512)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="Petal13" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(920, 538)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal14" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(984, 546)
+flip_h = true
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="Petal15" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(1048, 538)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
+
+[node name="Petal16" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(1112, 542)
+flip_h = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal17" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(1176, 546)
+flip_h = true
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_b")
+
+[node name="Petal18" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(1240, 546)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_c")
+
+[node name="Petal19" type="Sprite2D" parent="PetalTrail"]
+position = Vector2(1368, 538)
+flip_v = true
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("pt_a")
 
 [node name="ForestNavigation" type="NavigationRegion2D" parent="." unique_id=1705343690]
 navigation_polygon = SubResource("NavigationPolygon_84x7g")

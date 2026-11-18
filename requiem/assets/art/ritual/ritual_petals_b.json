@@ -1,0 +1,21 @@
+{
+  "name": "ritual_petals_b",
+  "description": "Cempasuchil (marigold) petal trail decal variant B, straight down, no rim, no collision.",
+  "canvas": [
+    40,
+    40
+  ],
+  "frame_size": [
+    40,
+    40
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    20,
+    20
+  ],
+  "layer": "art",
+  "collision": false,
+  "allow_flame_gold": true
+}
