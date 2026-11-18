@@ -110,3 +110,6 @@ func set_house_danger(danger: bool) -> void:
 	# The kitchen candle stays lit: the recovery light survives the attack.
 	for id in ATTACK_CANDLES:
 		set_candle_out(id, danger)
+	# The petals leading away from the porch are gone once the house has turned.
+	if landmarks.has("PorchPetals"):
+		landmarks["PorchPetals"].visible = not danger
