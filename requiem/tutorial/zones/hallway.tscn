@@ -11,16 +11,16 @@
 [ext_resource type="Texture2D" uid="uid://bg5emi24nm3g" path="res://assets/art/props/door_leaf_b_closed.png" id="8_nunbk"]
 [ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="9_nunbk"]
 [ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="10_a7x8u"]
+[ext_resource type="Script" uid="uid://xi165ea7y0li" path="res://level/props/height_prop.gd" id="10_qo5fo"]
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="11_vsnya"]
 [ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="12_a7x8u"]
 [ext_resource type="Script" uid="uid://bw8b2k03vifxn" path="res://tutorial/hallway/parent_listener.gd" id="12_ineoj"]
-[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="13_d0uwm"]
 [ext_resource type="Script" uid="uid://cswitug7og38f" path="res://tutorial/hallway/safe_light.gd" id="14_aqal4"]
 [ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="15_q3b6f"]
 [ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="16_2x0rn"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="20_vsnya"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="21_ineoj"]
-[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+[ext_resource type="Texture2D" uid="uid://c3v364isndjuk" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 [ext_resource type="Texture2D" uid="uid://d068jrsh0dgqu" path="res://assets/art/props/deco_rug_runner.png" id="rug_new"]
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jamb_l"]
@@ -100,20 +100,20 @@ metadata/interaction_offset = Vector2(0, -32)
 position = Vector2(320, 320)
 script = ExtResource("5_dw150")
 locked = true
-locked_light_energy = 0.0
 swing_side = -1
 leaf_texture = ExtResource("8_nunbk")
 creak = ExtResource("6_qo5fo")
+locked_light_energy = 0.0
 locked_label = "Mum and Dad"
 
 [node name="ParentDoorB" type="Node2D" parent="Doors" unique_id=1027334891 instance=ExtResource("6_dw150")]
 position = Vector2(672, 320)
 script = ExtResource("5_dw150")
 locked = true
-locked_light_energy = 0.0
 swing_side = -1
 leaf_texture = ExtResource("8_nunbk")
 creak = ExtResource("6_qo5fo")
+locked_light_energy = 0.0
 locked_label = "Grandma's old room"
 
 [node name="BackDoor" type="Node2D" parent="Doors" unique_id=1194472358 instance=ExtResource("5_lc55d")]
@@ -134,6 +134,7 @@ y_sort_enabled = true
 
 [node name="CoatRack" type="Node2D" parent="Props" unique_id=697432684 instance=ExtResource("7_qo5fo")]
 position = Vector2(150, 329.6)
+script = ExtResource("10_qo5fo")
 
 [node name="RefugeChest" type="Node2D" parent="Props" unique_id=2095263743 instance=ExtResource("8_leac8")]
 position = Vector2(504, 544)
@@ -172,26 +173,44 @@ position = Vector2(320, 320)
 script = ExtResource("12_ineoj")
 glow = NodePath("../DoorGlowA")
 
+[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1200570556]
+occluder = SubResource("OccluderPolygon2D_jamb_l")
+occluder_light_mask = 16
+
+[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1796375050]
+occluder = SubResource("OccluderPolygon2D_jamb_r")
+occluder_light_mask = 16
+
+[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1605182044]
+position = Vector2(-12, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
+[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1010234049]
+position = Vector2(10, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
 [node name="ParentListenerB" type="Node2D" parent="Listeners" unique_id=1706915271 node_paths=PackedStringArray("glow")]
 z_index = 1
 position = Vector2(672, 320)
 script = ExtResource("12_ineoj")
 glow = NodePath("../DoorGlowB")
 
-[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=1583872744]
 occluder = SubResource("OccluderPolygon2D_jamb_l")
 occluder_light_mask = 16
 
-[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=148474832]
 occluder = SubResource("OccluderPolygon2D_jamb_r")
 occluder_light_mask = 16
 
-[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=164004579]
 position = Vector2(-12, -14)
 occluder = SubResource("OccluderPolygon2D_foot")
 occluder_light_mask = 16
 
-[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA"]
+[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=1653439561]
 position = Vector2(10, -14)
 occluder = SubResource("OccluderPolygon2D_foot")
 occluder_light_mask = 16
@@ -201,36 +220,16 @@ position = Vector2(320, 268)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
-shadow_filter = 0
 shadow_item_cull_mask = 16
 texture = ExtResource("light_pool")
 offset = Vector2(0, 52)
 texture_scale = 0.8
-
-[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
-occluder = SubResource("OccluderPolygon2D_jamb_l")
-occluder_light_mask = 16
-
-[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
-occluder = SubResource("OccluderPolygon2D_jamb_r")
-occluder_light_mask = 16
-
-[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
-position = Vector2(-12, -14)
-occluder = SubResource("OccluderPolygon2D_foot")
-occluder_light_mask = 16
-
-[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB"]
-position = Vector2(10, -14)
-occluder = SubResource("OccluderPolygon2D_foot")
-occluder_light_mask = 16
 
 [node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
 position = Vector2(672, 268)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
-shadow_filter = 0
 shadow_item_cull_mask = 16
 texture = ExtResource("light_pool")
 offset = Vector2(0, 52)
@@ -295,7 +294,7 @@ z_index = 40
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(160, 40, 480, 40, 480, 224, 160, 224)
 
-[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomA"]
+[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomA" unique_id=182461319]
 light_mask = 0
 z_index = 40
 color = Color(0, 0, 0, 1)
@@ -315,7 +314,7 @@ z_index = 40
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(512, 40, 832, 40, 832, 224, 512, 224)
 
-[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomB"]
+[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomB" unique_id=1383237282]
 light_mask = 0
 z_index = 40
 color = Color(0, 0, 0, 1)
@@ -332,39 +331,39 @@ position = Vector2(944, 352)
 shape = SubResource("RectangleShape2D_oru21")
 
 [node name="FinalDoorPool" type="PointLight2D" parent="." unique_id=1818344250]
-enabled = false
 position = Vector2(875, 365)
+enabled = false
 color = Color(0.94, 0.77, 0.54, 1)
 energy = 1.1
 shadow_enabled = true
 texture = ExtResource("light_pool")
 texture_scale = 1.6
 
-[node name="ArtFloor" type="TileMapLayer" parent="." unique_id=660460144]
+[node name="ArtFloor" type="TileMapLayer" parent="." unique_id=1623986253]
 light_mask = 17
 z_index = -10
 scale = Vector2(0.4, 0.4)
 tile_map_data = PackedByteArray("AAAJAAcAAAACAAAAAAAKAAcAAAAAAAAAAAAUAAcAAAACAAAAAAAVAAcAAAABAAAAAAAJAAgAAAABAAAAAAAKAAgAAAABAAAAAAAUAAgAAAAAAAAAAAAVAAgAAAABAAAAAAAJAAkAAAACAAAAAAAKAAkAAAAAAAAAAAAUAAkAAAACAAAAAAAVAAkAAAACAAAAAAABAAoAAAAAAAAAAAACAAoAAAAAAAAAAAADAAoAAAAAAAAAAAAEAAoAAAAAAAAAAAAFAAoAAAAAAAAAAAAGAAoAAAAAAAAAAAAHAAoAAAAAAAAAAAAIAAoAAAADAAAAAAAJAAoAAAABAAAAAAAKAAoAAAADAAAAAAALAAoAAAAAAAAAAAAMAAoAAAABAAAAAAANAAoAAAAAAAAAAAAOAAoAAAABAAAAAAAPAAoAAAACAAAAAAAQAAoAAAABAAAAAAARAAoAAAACAAAAAAASAAoAAAACAAAAAAATAAoAAAACAAAAAAAUAAoAAAACAAAAAAAVAAoAAAAAAAAAAAAWAAoAAAACAAAAAAAXAAoAAAACAAAAAAAYAAoAAAADAAAAAAAZAAoAAAACAAAAAAAaAAoAAAAAAAAAAAAbAAoAAAABAAAAAAAcAAoAAAACAAAAAAABAAsAAAAAAAAAAAACAAsAAAABAAAAAAADAAsAAAACAAAAAAAEAAsAAAACAAAAAAAFAAsAAAAAAAAAAAAGAAsAAAACAAAAAAAHAAsAAAACAAAAAAAIAAsAAAAAAAAAAAAJAAsAAAADAAAAAAAKAAsAAAACAAAAAAALAAsAAAACAAAAAAAMAAsAAAAAAAAAAAANAAsAAAAAAAAAAAAOAAsAAAACAAAAAAAPAAsAAAAAAAAAAAAQAAsAAAAAAAAAAAARAAsAAAAAAAAAAAASAAsAAAABAAAAAAATAAsAAAABAAAAAAAUAAsAAAABAAAAAAAVAAsAAAAAAAAAAAAWAAsAAAACAAAAAAAXAAsAAAAAAAAAAAAYAAsAAAACAAAAAAAZAAsAAAAAAAAAAAAaAAsAAAAAAAAAAAAbAAsAAAAAAAAAAAAcAAsAAAAAAAAAAAACAAwAAAAAAAAAAAADAAwAAAACAAAAAAAEAAwAAAAAAAAAAAAFAAwAAAAAAAAAAAAGAAwAAAACAAAAAAAHAAwAAAAAAAAAAAAIAAwAAAAAAAAAAAAJAAwAAAABAAAAAAAKAAwAAAABAAAAAAALAAwAAAAAAAAAAAAMAAwAAAACAAAAAAANAAwAAAABAAAAAAAOAAwAAAABAAAAAAAPAAwAAAADAAAAAAAQAAwAAAAAAAAAAAARAAwAAAABAAAAAAASAAwAAAACAAAAAAATAAwAAAACAAAAAAAUAAwAAAAAAAAAAAAVAAwAAAABAAAAAAAWAAwAAAABAAAAAAAXAAwAAAACAAAAAAAYAAwAAAABAAAAAAAZAAwAAAACAAAAAAAaAAwAAAAAAAAAAAAbAAwAAAACAAAAAAANAA0AAAAAAAAAAAAOAA0AAAABAAAAAAAPAA0AAAAAAAAAAAAQAA0AAAACAAAAAAANAA4AAAAAAAAAAAAOAA4AAAAAAAAAAAAPAA4AAAABAAAAAAAQAA4AAAABAAAAAAANAA8AAAACAAAAAAAOAA8AAAAAAAAAAAAPAA8AAAAAAAAAAAAQAA8AAAACAAAAAAANABAAAAABAAAAAAAOABAAAAABAAAAAAAPABAAAAACAAAAAAAQABAAAAACAAAAAAA=")
 tile_set = ExtResource("20_vsnya")
 
-[node name="ArtWallBase" type="TileMapLayer" parent="." unique_id=32126251]
+[node name="ArtWallBase" type="TileMapLayer" parent="." unique_id=1583441268]
 scale = Vector2(0.4, 0.4)
 tile_map_data = PackedByteArray("AAAIAAcAAAAGAAMABAALAAcAAAAGAAMABQAMAAcAAAAGAAMAAAANAAcAAAAGAAMAAAAOAAcAAAAGAAMAAAAPAAcAAAAGAAMAAAAQAAcAAAAGAAMAAAARAAcAAAAGAAMAAAASAAcAAAAGAAMAAAATAAcAAAAGAAMABAAWAAcAAAAGAAMABQAIAAgAAAAGAAMABAALAAgAAAAGAAMABQAMAAgAAAAGAAMAAAANAAgAAAAGAAMAAAAOAAgAAAAGAAMAAAAPAAgAAAAGAAMAAAAQAAgAAAAGAAMAAAARAAgAAAAGAAMAAAASAAgAAAAGAAMAAAATAAgAAAAGAAMABAAWAAgAAAAGAAMABQABAAkAAAAGAAMAAAACAAkAAAAGAAMAAAADAAkAAAAGAAMAAAAEAAkAAAAGAAMAAAAFAAkAAAAGAAMAAAAGAAkAAAAGAAMAAAAHAAkAAAAGAAMAAAAIAAkAAAAIAAMAAAALAAkAAAAIAAMAAQAMAAkAAAAGAAMAAAANAAkAAAAGAAMAAAAOAAkAAAAGAAMAAAAPAAkAAAAGAAMAAAAQAAkAAAAGAAMAAAARAAkAAAAGAAMAAAASAAkAAAAGAAMAAAATAAkAAAAIAAMAAAAWAAkAAAAIAAMAAQAXAAkAAAAGAAMAAAAYAAkAAAAGAAMAAAAZAAkAAAAGAAMAAAAaAAkAAAAGAAMAAAAbAAkAAAAGAAMAAAAcAAkAAAAGAAMAAAABAAwAAAAIAAMAAgAcAAwAAAAIAAMAAwABAA0AAAAHAAMAAgACAA0AAAAGAAMAAgADAA0AAAAGAAMAAgAEAA0AAAAGAAMAAgAFAA0AAAAGAAMAAgAGAA0AAAAGAAMAAgAHAA0AAAAGAAMAAgAIAA0AAAAGAAMAAgAJAA0AAAAGAAMAAgAKAA0AAAAGAAMAAgALAA0AAAAGAAMAAgAMAA0AAAAIAAMAAgARAA0AAAAIAAMAAwASAA0AAAAGAAMAAgATAA0AAAAGAAMAAgAUAA0AAAAGAAMAAgAVAA0AAAAGAAMAAgAWAA0AAAAGAAMAAgAXAA0AAAAGAAMAAgAYAA0AAAAGAAMAAgAZAA0AAAAGAAMAAgAaAA0AAAAGAAMAAgAbAA0AAAAGAAMAAgAcAA0AAAAHAAMAAwAMAA4AAAAGAAMABAARAA4AAAAGAAMABQAMAA8AAAAGAAMABAARAA8AAAAGAAMABQAMABAAAAAGAAMABAARABAAAAAGAAMABQAMABEAAAAHAAMAAgANABEAAAAGAAMAAgAOABEAAAAGAAMAAgAPABEAAAAGAAMAAgAQABEAAAAGAAMAAgARABEAAAAHAAMAAwA=")
 tile_set = ExtResource("20_vsnya")
 
-[node name="ArtWallInnerFace" type="TileMapLayer" parent="." unique_id=1771751217]
+[node name="ArtWallInnerFace" type="TileMapLayer" parent="." unique_id=1240474598]
 scale = Vector2(0.4, 0.4)
 tile_map_data = PackedByteArray("AAAIAAcAAAAGAAQABAALAAcAAAAGAAQABQATAAcAAAAGAAQABAAWAAcAAAAGAAQABQAIAAgAAAAGAAQABAALAAgAAAAGAAQABQATAAgAAAAGAAQABAAWAAgAAAAGAAQABQABAAkAAAAGAAQAAAACAAkAAAAGAAQAAAADAAkAAAAGAAQAAAAEAAkAAAAGAAQAAAAFAAkAAAAGAAQAAAAGAAkAAAAGAAQAAAAHAAkAAAAGAAQAAAAIAAkAAAAIAAQAAAALAAkAAAAIAAQAAQAMAAkAAAAGAAQAAAANAAkAAAAGAAQAAAAOAAkAAAAGAAQAAAAPAAkAAAAGAAQAAAAQAAkAAAAGAAQAAAARAAkAAAAGAAQAAAASAAkAAAAGAAQAAAATAAkAAAAIAAQAAAAWAAkAAAAIAAQAAQAXAAkAAAAGAAQAAAAYAAkAAAAGAAQAAAAZAAkAAAAGAAQAAAAaAAkAAAAGAAQAAAAbAAkAAAAGAAQAAAAcAAkAAAAGAAQAAAABAAwAAAAIAAQAAgAcAAwAAAAIAAQAAwABAA0AAAAHAAQAAgACAA0AAAAGAAQAAgADAA0AAAAGAAQAAgAEAA0AAAAGAAQAAgAFAA0AAAAGAAQAAgAGAA0AAAAGAAQAAgAHAA0AAAAGAAQAAgAIAA0AAAAGAAQAAgAJAA0AAAAGAAQAAgAKAA0AAAAGAAQAAgALAA0AAAAGAAQAAgAMAA0AAAAIAAQAAgARAA0AAAAIAAQAAwASAA0AAAAGAAQAAgATAA0AAAAGAAQAAgAUAA0AAAAGAAQAAgAVAA0AAAAGAAQAAgAWAA0AAAAGAAQAAgAXAA0AAAAGAAQAAgAYAA0AAAAGAAQAAgAZAA0AAAAGAAQAAgAaAA0AAAAGAAQAAgAbAA0AAAAGAAQAAgAcAA0AAAAHAAQAAwAMAA4AAAAGAAQABAARAA4AAAAGAAQABQAMAA8AAAAGAAQABAARAA8AAAAGAAQABQAMABAAAAAGAAQABAARABAAAAAGAAQABQAMABEAAAAHAAQAAgANABEAAAAGAAQAAgAOABEAAAAGAAQAAgAPABEAAAAGAAQAAgAQABEAAAAGAAQAAgARABEAAAAHAAQAAwA=")
 tile_set = ExtResource("20_vsnya")
 
-[node name="ArtWallTops" type="TileMapLayer" parent="." unique_id=2113966451]
+[node name="ArtWallTops" type="TileMapLayer" parent="." unique_id=1736864454]
 visible = false
 z_index = 2
 scale = Vector2(0.4, 0.4)
-tile_map_data = PackedByteArray("AAAIAAcAAAAGAAUABAALAAcAAAAGAAUABQAMAAcAAAAGAAUAAAANAAcAAAAAAAcAAAAOAAcAAAAHAAYAAAAPAAcAAAAIAAYAAAAQAAcAAAAGAAUAAAARAAcAAAAGAAUAAAASAAcAAAAGAAUAAAATAAcAAAAHAAYABAAWAAcAAAAHAAYABQAIAAgAAAAGAAUABAALAAgAAAAGAAUABQAMAAgAAAAGAAUAAAANAAgAAAAGAAUAAAAOAAgAAAAAAAcAAAAPAAgAAAAGAAUAAAAQAAgAAAAAAAcAAAARAAgAAAAIAAYAAAASAAgAAAAHAAYAAAATAAgAAAAHAAYABAAWAAgAAAAGAAUABQABAAkAAAAGAAUAAAACAAkAAAAGAAUAAAADAAkAAAAHAAYAAAAEAAkAAAAGAAUAAAAFAAkAAAAGAAUAAAAGAAkAAAAGAAUAAAAHAAkAAAAHAAYAAAAIAAkAAAAIAAUAAAALAAkAAAAIAAUAAQAMAAkAAAAGAAUAAAANAAkAAAAAAAcAAAAOAAkAAAAAAAcAAAAPAAkAAAAGAAUAAAAQAAkAAAAHAAYAAAARAAkAAAAGAAUAAAASAAkAAAAGAAUAAAATAAkAAAAIAAUAAAAWAAkAAAAIAAUAAQAXAAkAAAAGAAUAAAAYAAkAAAAGAAUAAAAZAAkAAAAGAAUAAAAaAAkAAAAHAAYAAAAbAAkAAAAAAAcAAAAcAAkAAAAGAAUAAAABAAwAAAAIAAUAAgAcAAwAAAAIAAUAAwABAA0AAAAHAAUAAgACAA0AAAAGAAYAAgADAA0AAAAGAAUAAgAEAA0AAAAHAAYAAgAFAA0AAAAGAAUAAgAGAA0AAAAGAAUAAgAHAA0AAAAIAAYAAgAIAA0AAAAIAAYAAgAJAA0AAAAGAAUAAgAKAA0AAAAIAAYAAgALAA0AAAAGAAUAAgAMAA0AAAAIAAUAAgARAA0AAAAIAAUAAwASAA0AAAAGAAYAAgATAA0AAAAGAAUAAgAUAA0AAAAGAAUAAgAVAA0AAAAGAAUAAgAWAA0AAAAGAAUAAgAXAA0AAAAIAAYAAgAYAA0AAAAGAAUAAgAZAA0AAAAGAAUAAgAaAA0AAAAGAAUAAgAbAA0AAAAGAAUAAgAcAA0AAAAHAAUAAwAMAA4AAAAGAAUABAARAA4AAAAIAAYABQAMAA8AAAAIAAYABAARAA8AAAAGAAUABQAMABAAAAAAAAcABAARABAAAAAGAAUABQAMABEAAAAHAAUAAgANABEAAAAGAAUAAgAOABEAAAAIAAYAAgAPABEAAAAHAAYAAgAQABEAAAAIAAYAAgARABEAAAAHAAUAAwA=")
+tile_map_data = PackedByteArray("AAAIAAcAAAAGAAUABAALAAcAAAAGAAUABQAMAAcAAAAAAAgAAAANAAcAAAAAAAgAAAAOAAcAAAAAAAgAAAAPAAcAAAAAAAgAAAAQAAcAAAAAAAgAAAARAAcAAAAAAAgAAAASAAcAAAAAAAgAAAATAAcAAAAGAAUABAAWAAcAAAAAAAcABQAIAAgAAAAHAAYABAALAAgAAAAIAAYABQAMAAgAAAAAAAgAAAANAAgAAAAAAAgAAAAOAAgAAAAAAAgAAAAPAAgAAAAAAAgAAAAQAAgAAAAAAAgAAAARAAgAAAAAAAgAAAASAAgAAAAAAAgAAAATAAgAAAAGAAUABAAWAAgAAAAGAAUABQABAAkAAAAGAAUAAAACAAkAAAAHAAYAAAADAAkAAAAHAAYAAAAEAAkAAAAGAAUAAAAFAAkAAAAGAAUAAAAGAAkAAAAGAAUAAAAHAAkAAAAGAAUAAAAIAAkAAAAIAAUAAAALAAkAAAAIAAUAAQAMAAkAAAAAAAcAAAANAAkAAAAGAAUAAAAOAAkAAAAAAAcAAAAPAAkAAAAIAAYAAAAQAAkAAAAHAAYAAAARAAkAAAAHAAYAAAASAAkAAAAGAAUAAAATAAkAAAAIAAUAAAAWAAkAAAAIAAUAAQAXAAkAAAAGAAUAAAAYAAkAAAAGAAUAAAAZAAkAAAAHAAYAAAAaAAkAAAAGAAUAAAAbAAkAAAAGAAUAAAAcAAkAAAAGAAUAAAABAAwAAAAIAAUAAgAcAAwAAAAIAAUAAwABAA0AAAAHAAUAAgACAA0AAAAHAAYAAgADAA0AAAAGAAUAAgAEAA0AAAAAAAcAAgAFAA0AAAAAAAcAAgAGAA0AAAAGAAUAAgAHAA0AAAAHAAYAAgAIAA0AAAAGAAUAAgAJAA0AAAAGAAUAAgAKAA0AAAAGAAUAAgALAA0AAAAGAAUAAgAMAA0AAAAIAAUAAgARAA0AAAAIAAUAAwASAA0AAAAGAAUAAgATAA0AAAAHAAYAAgAUAA0AAAAAAAcAAgAVAA0AAAAGAAUAAgAWAA0AAAAGAAYAAgAXAA0AAAAGAAUAAgAYAA0AAAAHAAYAAgAZAA0AAAAGAAUAAgAaAA0AAAAGAAUAAgAbAA0AAAAIAAYAAgAcAA0AAAAHAAUAAwAMAA4AAAAIAAYABAARAA4AAAAGAAUABQAMAA8AAAAIAAYABAARAA8AAAAGAAUABQAMABAAAAAGAAYABAARABAAAAAGAAUABQAMABEAAAAHAAUAAgANABEAAAAGAAUAAgAOABEAAAAGAAUAAgAPABEAAAAGAAUAAgAQABEAAAAIAAYAAgARABEAAAAHAAUAAwA=")
 tile_set = ExtResource("20_vsnya")
 
-[node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=1019581163 node_paths=PackedStringArray("source")]
+[node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=773437103 node_paths=PackedStringArray("source")]
 z_index = 41
 scale = Vector2(0.4, 0.4)
 script = ExtResource("21_ineoj")

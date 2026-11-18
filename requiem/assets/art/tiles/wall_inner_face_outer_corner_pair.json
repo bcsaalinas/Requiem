@@ -1,0 +1,17 @@
+{
+  "name": "wall_inner_face_outer_corner_pair",
+  "description": "Wall inner_face layer for a cell with floor at two diagonally opposite corners (NW and SE).",
+  "canvas": [
+    80,
+    80
+  ],
+  "pivot": [
+    40,
+    40
+  ],
+  "layer": "inner_face",
+  "drawn_floor_mask": [
+    "NW",
+    "SE"
+  ]
+}

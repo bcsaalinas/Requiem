@@ -1,0 +1,14 @@
+{
+  "name": "wall_top_fill",
+  "description": "A wall top with no lip: the pilot top texture only, for filler wall cells with wall on all four sides (inside thick walls).",
+  "canvas": [
+    80,
+    80
+  ],
+  "pivot": [
+    40,
+    40
+  ],
+  "layer": "top",
+  "floor_neighbours": []
+}
