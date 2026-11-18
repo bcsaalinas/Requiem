@@ -12,34 +12,12 @@
 [ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="8_bobs7"]
 [ext_resource type="PackedScene" uid="uid://cqdd5x3ovgcv1" path="res://level/props/desk.tscn" id="9_062qy"]
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="10_i7gi3"]
-[ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="11_4vynj"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="12_48vr2"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="18_i7gi3"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="19_4vynj"]
 [ext_resource type="Texture2D" uid="uid://cki5rip6be6yl" path="res://assets/art/lights/light_moon_window.png" id="light_moon_window"]
 [ext_resource type="Texture2D" uid="uid://c3v364isndjuk" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 [ext_resource type="Script" uid="uid://b1a78v681ok8r" path="res://tutorial/note_highlight.gd" id="note_highlight"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_qcv8i"]
-shader = ExtResource("11_4vynj")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_a5faa"]
-shader = ExtResource("11_4vynj")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sp84h"]
-shader = ExtResource("11_4vynj")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
 
 [sub_resource type="Gradient" id="Gradient_moon_flat"]
 offsets = PackedFloat32Array(0, 0.82, 1)
@@ -137,29 +115,26 @@ position = Vector2(300, 500)
 [node name="phone" type="Node2D" parent="Props" unique_id=72331656]
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_qcv8i")
 position = Vector2(176, 422)
 script = ExtResource("12_48vr2")
 kind = "phone"
-lift = 24.4
+lift = 41.6
 metadata/interaction_id = "phone"
 metadata/interaction_label = "Read"
 
 [node name="flashlight" type="Node2D" parent="Props" unique_id=1421340781]
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_a5faa")
 position = Vector2(690, 263)
 script = ExtResource("12_48vr2")
 kind = "flashlight"
-lift = 30.0
+lift = 82.2
 metadata/interaction_id = "flashlight"
 metadata/interaction_label = "Take"
 
 [node name="battery" type="Node2D" parent="Props" unique_id=1306387376]
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_sp84h")
 position = Vector2(262, 300)
 script = ExtResource("12_48vr2")
 kind = "battery"

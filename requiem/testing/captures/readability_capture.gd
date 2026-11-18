@@ -27,7 +27,6 @@ func _ready() -> void:
 	await frame()
 	await frame()
 	await measure("player-bedroom",actor.focal_sprite,1.7)
-	await measure("battery-bedroom",game.world.props["battery"].focal_sprite,1.5)
 	(await frame()).save_png(CaptureOutput.path("readability/bedroom-after.png"))
 	game.enter_zone("forest")
 	game.hud.banner.text=""

@@ -568,6 +568,7 @@ func interact(id: String) -> void:
 		"abuela_note":
 			show_dialogue(["My dear, I left the flashlight beside this note. Remember to turn it off when you do not need it. — Abuela"] )
 		"phone":
+			world.interactables["phone"]["node"].screen_lit = false
 			show_dialogue(["ELI: I'm at my aunt's old house. Follow the trail. Bring a light.",
 				"ELI: And be quiet leaving. Your parents are still awake."])
 		"flashlight":

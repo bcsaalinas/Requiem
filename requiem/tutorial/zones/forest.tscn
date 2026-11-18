@@ -18,13 +18,6 @@
 [ext_resource type="Script" uid="uid://25fqe5y1jpyt" path="res://tutorial/forest_ranger.gd" id="ranger"]
 [ext_resource type="Script" uid="uid://dxlh8t5p0ngba" path="res://tutorial/ranger_visual.gd" id="ranger_visual"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_ytm85"]
-shader = ExtResource("5_ber70")
-shader_parameter/saturation = 0.5
-shader_parameter/contrast = 1.0
-shader_parameter/gain = 1.0
-shader_parameter/detail_radius = 0.0
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rbatt"]
 shader = ExtResource("5_ber70")
 shader_parameter/saturation = 0.5
@@ -95,7 +88,6 @@ metadata/interaction_label = "Take"
 light_mask = 2
 z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_ytm85")
 position = Vector2(650, 460)
 script = ExtResource("6_gscj6")
 kind = "battery"

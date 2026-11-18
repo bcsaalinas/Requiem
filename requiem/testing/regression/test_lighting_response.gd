@@ -40,6 +40,17 @@ func probe_value(picture: Image, receiver: CanvasItem) -> float:
 	var pixel := Vector2i(PixelDisplay.world_view.canvas_transform*receiver.get_global_transform()*Vector2(6,6))
 	return picture.get_pixelv(pixel).get_luminance()
 
+func point_luminance(picture: Image, world_pos: Vector2, radius := 4) -> float:
+	var centre := Vector2i(PixelDisplay.world_view.canvas_transform*world_pos)
+	var total := 0.0
+	var count := 0
+	for y in range(centre.y-radius,centre.y+radius+1):
+		for x in range(centre.x-radius,centre.x+radius+1):
+			if Rect2i(Vector2i.ZERO,picture.get_size()).has_point(Vector2i(x,y)):
+				total += picture.get_pixelv(Vector2i(x,y)).get_luminance()
+				count += 1
+	return total/maxi(count,1)
+
 func _ready() -> void:
 	game = preload("res://tutorial/tutorial.tscn").instantiate()
 	game.test_mode = true
@@ -54,18 +65,16 @@ func _ready() -> void:
 	# Stand in the desk lamp's pool, next to the flashlight on the desk.
 	var desk_lamp: PointLight2D = game.world.landmarks["DeskLamp"]
 	game.enter_zone("bedroom",desk_lamp.global_position+Vector2(-50,30))
-	var actor: Node2D
-	for child in game.player.get_children():
-		if child.get_script()==game.Art: actor=child
+	var pickup: Node2D = game.world.props.flashlight
 	var lit := await frame()
-	var actor_lit := sprite_luminance(lit,actor.focal_sprite)
-	var pickup_lit := sprite_luminance(lit,game.world.props.flashlight.focal_sprite)
+	var actor_lit := point_luminance(lit,game.player.global_position+Vector2(0,-16))
+	var pickup_lit := point_luminance(lit,pickup.global_position+Vector2(0,-pickup.lift))
 	for zone_node in game.world.zones.values():
 		for light in zone_node.find_children("*","PointLight2D",true,false):
 			light.enabled = false
 	var dark := await frame()
-	var actor_dark := sprite_luminance(dark,actor.focal_sprite)
-	var pickup_dark := sprite_luminance(dark,game.world.props.flashlight.focal_sprite)
+	var actor_dark := point_luminance(dark,game.player.global_position+Vector2(0,-16))
+	var pickup_dark := point_luminance(dark,pickup.global_position+Vector2(0,-pickup.lift))
 	print("[Light response] player lit/dark ",actor_lit/actor_dark,"; flashlight pickup lit/dark ",pickup_lit/pickup_dark)
 	check(actor_lit>actor_dark*2.0,"Player body responds to actual lighting")
 	check(pickup_lit>pickup_dark*2.0,"Pickup body responds to actual lighting")

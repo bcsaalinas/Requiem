@@ -1,0 +1,41 @@
+{
+  "name": "item_note",
+  "description": "Folded paper note pickup with centre crease, dog-eared corner, and 3 lines of handwriting suggestion.",
+  "canvas": [
+    32,
+    24
+  ],
+  "pivot": [
+    16,
+    12
+  ],
+  "bbox": {
+    "x": 4,
+    "y": 4,
+    "w": 24,
+    "h": 17
+  },
+  "item": {
+    "file": "item_note.png",
+    "frames": 1
+  },
+  "glint": {
+    "file": "item_note_glint.png",
+    "frame_size": [
+      32,
+      24
+    ],
+    "frames": 2,
+    "durations_ms": [
+      160,
+      480
+    ],
+    "loop": true,
+    "tag": "glint",
+    "center": [
+      14.0,
+      9.0
+    ]
+  },
+  "sound_frames": []
+}
