@@ -1,0 +1,25 @@
+{
+  "name": "tree_bare_b",
+  "description": "Outdoors bare tree B (4x4 u), straight down: asymmetric 4-limb wind-swept fork with fine twig lace and moss. Tall: trunk_base + canopy_top.",
+  "canvas": [
+    320,
+    320
+  ],
+  "frame_size": [
+    320,
+    320
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    160,
+    160
+  ],
+  "layers": {
+    "base": "tree_bare_b_trunk_base.png",
+    "top": "tree_bare_b_canopy_top.png"
+  },
+  "height_effect": true,
+  "scale_note": "Size 4 x 4 units = 320 x 320 art px. Collision 22 x 14 world px (55 x 35 art). Pivot is the canvas centre.",
+  "sound_frames": []
+}

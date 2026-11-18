@@ -1,0 +1,25 @@
+{
+  "name": "tree_bare_c",
+  "description": "Outdoors bare tree C (3x3 u), straight down: medium 3-forked bare crown with fine twig lace and moss. Tall: trunk_base + canopy_top.",
+  "canvas": [
+    240,
+    240
+  ],
+  "frame_size": [
+    240,
+    240
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    120,
+    120
+  ],
+  "layers": {
+    "base": "tree_bare_c_trunk_base.png",
+    "top": "tree_bare_c_canopy_top.png"
+  },
+  "height_effect": true,
+  "scale_note": "Size 3 x 3 units = 240 x 240 art px. Collision 20 x 14 world px (50 x 35 art). Pivot is the canvas centre.",
+  "sound_frames": []
+}
