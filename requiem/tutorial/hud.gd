@@ -10,7 +10,6 @@ signal fullscreen_requested
 @onready var breath: ProgressBar = $Screen/Vitals/Breath/Meter
 @onready var effort: ProgressBar = $Screen/Vitals/Exertion/Meter
 @onready var battery: ProgressBar = $Screen/Vitals/Battery/Meter
-@onready var banner: Label = $Screen/Banner
 @onready var shade: ColorRect = $Screen/StoryFade
 @onready var end_title: Label = $Screen/EndTitle
 @onready var help_panel: PanelContainer = $Screen/PauseMenu

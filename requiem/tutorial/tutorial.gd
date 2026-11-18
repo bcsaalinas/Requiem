@@ -159,7 +159,6 @@ func _ready() -> void:
 	breath=player.get_node("HoldBreath")
 	player.get_node("Sprite2D").hide()
 	breath._bar_layer.hide()
-	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
 	thrower.object_released.connect(func(): has_thrown=true)
 	MusicDirector.bind_gameplay(entity, breath)
@@ -326,9 +325,7 @@ func _process(delta: float) -> void:
 	var screaming: bool = entity.is_screaming()
 	if screaming and not entity_was_screaming: caption("[A deep scream]")
 	entity_was_screaming = screaming
-	if banner_time>0:
-		banner_time-=delta
-		if banner_time<=0: hud.banner.text=""
+
 	hud.breath.value=breath.lung_percent
 	hud.effort.value=breath.exertion_percent
 	hud.update_breath_feedback(player.get_node("BreathFeedback"))
@@ -741,8 +738,6 @@ func _on_rock_landed(at: Vector2) -> void:
 	side_light.broken=true
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
-	# Keep this an auditory presence. The first visual reveal belongs to the altar aftermath.
-	world.landmarks["reveal"].hide()
 	play_sound("presence", side_light.global_position)
 	caption("[Glass shatters]")
 	get_tree().create_timer(1.5,false).timeout.connect(func(): caption("[Something moves inside]"))
@@ -868,14 +863,6 @@ func _in_beam(at: Vector2) -> bool:
 
 func _tick_sequence(delta: float) -> void:
 	sequence_time+=delta
-	if sequence=="reveal":
-		if sequence_time>=1.15:
-			world.landmarks["reveal"].hide()
-			var light:=world.get_node_or_null("RevealLight")
-			if light!=null: light.queue_free()
-			sequence=""
-			say("",6)
-		return
 	if sequence=="ending":
 		if sequence_time>=4.0 and sequence_step==0:
 			sequence_step=1
@@ -1045,7 +1032,6 @@ func _noise_name(source: int) -> String:
 ## Opens or shuts a door; holding your breath eases it quietly.
 func _use_door(door: Door) -> void:
 	if door.locked:
-		say(door.locked_label,3)
 		return
 	if door.is_open: door.close(breath.is_holding)
 	else: door.open(breath.is_holding)
@@ -1101,9 +1087,6 @@ func _begin_game_over() -> void:
 	hud.dismiss_alert()
 	dialogue_done=Callable()
 	sequence=""
-	world.landmarks["reveal"].hide()
-	var reveal_light:=world.get_node_or_null("RevealLight")
-	if reveal_light!=null: reveal_light.queue_free()
 	play_sound("presence",player.position)
 	# The catch plays first: the arms snap shut, the shroud folds over her, a beat of stillness.
 	entity.sprite_rig.hide_player.connect(_hide_caught_player,CONNECT_ONE_SHOT)
@@ -1150,9 +1133,6 @@ func request_reset(message: String, bedroom := false) -> void:
 		friend_met=false
 		world.props["friend"].show()
 	sequence=""
-	world.landmarks["reveal"].hide()
-	var reveal_light:=world.get_node_or_null("RevealLight")
-	if reveal_light!=null: reveal_light.queue_free()
 	if not bedroom: hud.shade.color=Color(0,0,0,.82)
 	say(message,4)
 	play_sound("parent" if bedroom else "presence",player.position)

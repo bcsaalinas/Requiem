@@ -47,4 +47,3 @@ shape = SubResource("RectangleShape2D_6spdh")
 
 [node name="Occluder" type="LightOccluder2D" parent="." unique_id=807771161]
 occluder = SubResource("OccluderPolygon2D_7i2wx")
-metadata/interaction_label = "Take spare battery"

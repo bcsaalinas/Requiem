@@ -66,7 +66,6 @@ func nodes_in(zone: String, container: String) -> Array[Node]:
 	var parent: Node = zones[zone].get_node_or_null(container)
 	return parent.get_children() if parent != null else []
 
-## A temporary story light (the window reveal).
 func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength := 1.0) -> PointLight2D:
 	var light := PointLight2D.new()
 	light.position = at
