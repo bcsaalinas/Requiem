@@ -7,6 +7,10 @@ signal throw_cancelled
 signal presentation_reset
 
 const ThrowableVisual := preload("res://player/throwable_visual.gd")
+const TRAIL_TEXTURE := preload("res://assets/art/vfx/vfx_throw_trail.png")
+const TRAIL_MS: Array[int] = [70, 90, 90]
+const TRAIL_ANCHOR := Vector2(40, 12)
+const VfxSheet := preload("res://level/vfx_sheet.gd")
 
 # Throw (verbo secundario de la spec de Requiem)
 #
@@ -288,6 +292,10 @@ func _release_object() -> void:
 	sprite.z_index = 41
 	player.get_parent().add_child(sprite)
 	sprite.global_position = origin
+	var wake := VfxSheet.new()
+	sprite.add_child(wake)
+	wake.rotation = (_pending_landing - origin).angle() - sprite.global_rotation
+	wake.play(TRAIL_TEXTURE, 3, TRAIL_MS, TRAIL_ANCHOR, true)
 
 	_in_flight.append({
 		"node": sprite,

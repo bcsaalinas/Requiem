@@ -125,6 +125,7 @@ func open(quiet := false, silent := false) -> bool:
 	_animate(1.0)
 	if not silent:
 		_make_noise(quiet)
+	_spawn_hinge_dust()
 	opened.emit()
 	return true
 
@@ -138,6 +139,7 @@ func close(quiet := false, silent := false) -> bool:
 	_sync_blockers()
 	if not silent:
 		_make_noise(quiet)
+	_spawn_hinge_dust()
 	closed.emit()
 	return true
 
@@ -304,3 +306,23 @@ func _make_noise(quiet: bool) -> void:
 ## Centre of the doorway gap in global coordinates.
 func get_noise_origin() -> Vector2:
 	return to_global(Vector2(0.0, -48.0) if style == Style.FRONT else Vector2(0.0, -32.0))
+
+
+## Burst of plaster/wood dust out of the hinge side on every swing (vfx_door_dust sheet).
+func _spawn_hinge_dust() -> void:
+	var hinge := get_node_or_null("Assembly/Hinge") as Node2D
+	if hinge == null or Engine.is_editor_hint():
+		return
+	var dust := VfxSheet.new()
+	get_parent().add_child(dust)
+	dust.set_as_top_level(true)
+	dust.global_position = hinge.global_position
+	dust.z_index = 35
+	dust.play(DUST_TEXTURE, 3, DUST_MS, DUST_ANCHOR)
+
+
+const VfxSheet := preload("res://level/vfx_sheet.gd")
+const DUST_TEXTURE := preload("res://assets/art/vfx/vfx_door_dust.png")
+## vfx_door_dust.json: 90, 120, 130 ms; centred 80,24 of a 160x48 frame.
+const DUST_MS: Array[int] = [90, 120, 130]
+const DUST_ANCHOR := Vector2(80, 24)

@@ -1,0 +1,59 @@
+{
+  "name": "vfx_breath_puff",
+  "category": "vfx",
+  "description": "Cold night air breath puff on out-breaths, straight down: 4 frames spreading and thinning.",
+  "sheet": {
+    "file": "vfx_breath_puff.png",
+    "hframes": 4,
+    "vframes": 1
+  },
+  "canvas": [
+    128,
+    32
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 4,
+  "ms_per_frame": [
+    90,
+    130,
+    120,
+    100
+  ],
+  "durations_ms": [
+    90,
+    130,
+    120,
+    100
+  ],
+  "total_ms": 440,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 90
+    },
+    {
+      "frame": 1,
+      "ms": 130
+    },
+    {
+      "frame": 2,
+      "ms": 120
+    },
+    {
+      "frame": 3,
+      "ms": 100
+    }
+  ],
+  "pivot": [
+    16,
+    6
+  ],
+  "anchor": [
+    16,
+    6
+  ],
+  "loop": false
+}
