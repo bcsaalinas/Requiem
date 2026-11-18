@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c217af51cc033"]
+
+[ext_resource type="Texture2D" path="res://assets/art/props/tree_fallen.png" id="1_art"]
+
+[node name="Fallen" type="Node2D"]
+
+[node name="Art" type="Sprite2D" parent="."]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_art")

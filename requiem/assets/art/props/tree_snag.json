@@ -1,0 +1,25 @@
+{
+  "name": "tree_snag",
+  "description": "Dead standing trunk broken off low (2x2 u), straight down: weathered buttress roots, shattered hollow trunk collar, and crooked dead stubs, no crown.",
+  "canvas": [
+    160,
+    160
+  ],
+  "frame_size": [
+    160,
+    160
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    80,
+    80
+  ],
+  "layers": {
+    "base": "tree_snag_trunk_base.png",
+    "top": "tree_snag_canopy_top.png"
+  },
+  "height_effect": true,
+  "scale_note": "Size 2 x 2 units = 160 x 160 art px. Collision 16 x 12 world px (40 x 30 art). Pivot is the canvas centre.",
+  "sound_frames": []
+}

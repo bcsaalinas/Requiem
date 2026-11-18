@@ -1,0 +1,22 @@
+{
+  "name": "tree_fallen",
+  "description": "Fallen tree with its torn-up root plate and forked bare crown (5x2 u), straight down, floor level, one layer, no rim.",
+  "canvas": [
+    400,
+    160
+  ],
+  "frame_size": [
+    400,
+    160
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    200,
+    80
+  ],
+  "layer": "art",
+  "height_effect": false,
+  "scale_note": "Size 5 x 2 units = 400 x 160 art px. Floor-level obstacle / decoration, one layer.",
+  "sound_frames": []
+}

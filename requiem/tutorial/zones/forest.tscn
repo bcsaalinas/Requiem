@@ -9,6 +9,14 @@
 [ext_resource type="Script" uid="uid://bjt3j5vnduckf" path="res://level/props/pebble_pile.gd" id="6_ocbwq"]
 [ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="8_326u6"]
 [ext_resource type="PackedScene" uid="uid://jc1e2w437hfj" path="res://level/props/tree.tscn" id="8_ocbwq"]
+[ext_resource type="PackedScene" path="res://level/props/tree_bare_b.tscn" id="bb_b"]
+[ext_resource type="PackedScene" path="res://level/props/tree_bare_c.tscn" id="bb_c"]
+[ext_resource type="PackedScene" uid="uid://divkq7aknh84x" path="res://level/props/spruce.tscn" id="sp_a"]
+[ext_resource type="PackedScene" path="res://level/props/spruce_b.tscn" id="sp_b"]
+[ext_resource type="PackedScene" path="res://level/props/spruce_young.tscn" id="sp_y"]
+[ext_resource type="PackedScene" path="res://level/props/snag.tscn" id="sn_s"]
+[ext_resource type="PackedScene" path="res://level/props/fallen.tscn" id="fa_f"]
+
 [ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="12_326u6"]
 [ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="14_hvswp"]
 [ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="15_rq8ch"]
@@ -129,7 +137,7 @@ script = ExtResource("12_326u6")
 position = Vector2(549.6, 656.7)
 script = ExtResource("12_326u6")
 
-[node name="Tree4" type="Node2D" parent="Props" unique_id=1174201996 instance=ExtResource("8_ocbwq")]
+[node name="Tree4" type="Node2D" parent="Props" unique_id=1174201996 instance=ExtResource("bb_b")]
 position = Vector2(884.5, 111.4)
 script = ExtResource("12_326u6")
 
@@ -165,7 +173,7 @@ script = ExtResource("12_326u6")
 position = Vector2(218.2, 690.6)
 script = ExtResource("12_326u6")
 
-[node name="Tree17" type="Node2D" parent="Props" unique_id=1667715222 instance=ExtResource("8_ocbwq")]
+[node name="Tree17" type="Node2D" parent="Props" unique_id=1667715222 instance=ExtResource("bb_c")]
 position = Vector2(261, 196.4)
 script = ExtResource("12_326u6")
 
@@ -177,7 +185,7 @@ script = ExtResource("12_326u6")
 position = Vector2(1058.6, 392.2)
 script = ExtResource("12_326u6")
 
-[node name="Tree24S" type="Node2D" parent="Props" unique_id=577395358 instance=ExtResource("8_ocbwq")]
+[node name="Tree24S" type="Node2D" parent="Props" unique_id=577395358 instance=ExtResource("bb_b")]
 position = Vector2(628.4, 169.6)
 script = ExtResource("12_326u6")
 
@@ -213,7 +221,7 @@ script = ExtResource("12_326u6")
 position = Vector2(1095.6, 183.8)
 script = ExtResource("12_326u6")
 
-[node name="Tree37S" type="Node2D" parent="Props" unique_id=2124333207 instance=ExtResource("8_ocbwq")]
+[node name="Tree37S" type="Node2D" parent="Props" unique_id=2124333207 instance=ExtResource("bb_c")]
 position = Vector2(1039.6, 397.2)
 script = ExtResource("12_326u6")
 
@@ -237,7 +245,7 @@ script = ExtResource("12_326u6")
 position = Vector2(399.3, 129.4)
 script = ExtResource("12_326u6")
 
-[node name="Tree46" type="Node2D" parent="Props" unique_id=1033944148 instance=ExtResource("8_ocbwq")]
+[node name="Tree46" type="Node2D" parent="Props" unique_id=1033944148 instance=ExtResource("bb_b")]
 position = Vector2(693.8, 196.1)
 script = ExtResource("12_326u6")
 
@@ -261,7 +269,7 @@ script = ExtResource("12_326u6")
 position = Vector2(740.4, 717.9)
 script = ExtResource("12_326u6")
 
-[node name="Tree56" type="Node2D" parent="Props" unique_id=811204509 instance=ExtResource("8_ocbwq")]
+[node name="Tree56" type="Node2D" parent="Props" unique_id=811204509 instance=ExtResource("bb_c")]
 position = Vector2(92, 348.6)
 script = ExtResource("12_326u6")
 
@@ -404,6 +412,66 @@ position = Vector2(430, 285)
 
 [node name="ListenerB" type="Marker2D" parent="Markers" unique_id=1221774236]
 position = Vector2(810, 285)
+
+[node name="SpruceA1" type="Node2D" parent="Props" instance=ExtResource("sp_a")]
+position = Vector2(1168, 728)
+
+[node name="SpruceA2" type="Node2D" parent="Props" instance=ExtResource("sp_a")]
+position = Vector2(16, 136)
+
+[node name="SpruceA3" type="Node2D" parent="Props" instance=ExtResource("sp_a")]
+position = Vector2(1280, 24)
+
+[node name="SpruceA4" type="Node2D" parent="Props" instance=ExtResource("sp_a")]
+position = Vector2(1032, 32)
+
+[node name="SpruceB1" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
+position = Vector2(720, 32)
+
+[node name="SpruceB2" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
+position = Vector2(32, 400)
+
+[node name="SpruceB3" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
+position = Vector2(576, 40)
+
+[node name="SpruceB4" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
+position = Vector2(32, 544)
+
+[node name="SpruceB5" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
+position = Vector2(1432, 416)
+
+[node name="SpruceB6" type="Node2D" parent="Props" instance=ExtResource("sp_b")]
+position = Vector2(32, 776)
+
+[node name="SpruceY1" type="Node2D" parent="Props" instance=ExtResource("sp_y")]
+position = Vector2(336, 32)
+
+[node name="SpruceY2" type="Node2D" parent="Props" instance=ExtResource("sp_y")]
+position = Vector2(920, 776)
+
+[node name="SpruceY3" type="Node2D" parent="Props" instance=ExtResource("sp_y")]
+position = Vector2(1432, 752)
+
+[node name="SpruceY4" type="Node2D" parent="Props" instance=ExtResource("sp_y")]
+position = Vector2(1256, 296)
+
+[node name="SpruceY5" type="Node2D" parent="Props" instance=ExtResource("sp_y")]
+position = Vector2(408, 440)
+
+[node name="Snag1" type="Node2D" parent="Props" instance=ExtResource("sn_s")]
+position = Vector2(608, 784)
+
+[node name="Snag2" type="Node2D" parent="Props" instance=ExtResource("sn_s")]
+position = Vector2(592, 464)
+
+[node name="Snag3" type="Node2D" parent="Props" instance=ExtResource("sn_s")]
+position = Vector2(248, 784)
+
+[node name="Fallen1" type="Node2D" parent="Props" instance=ExtResource("fa_f")]
+position = Vector2(1100, 770)
+
+[node name="Fallen2" type="Node2D" parent="Props" instance=ExtResource("fa_f")]
+position = Vector2(1300, 40)
 
 [node name="ForestNavigation" type="NavigationRegion2D" parent="." unique_id=1705343690]
 navigation_polygon = SubResource("NavigationPolygon_84x7g")
