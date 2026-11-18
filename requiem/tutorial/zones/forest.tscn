@@ -7,7 +7,6 @@
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="5_ber70"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="6_gscj6"]
 [ext_resource type="Script" uid="uid://bjt3j5vnduckf" path="res://level/props/pebble_pile.gd" id="6_ocbwq"]
-[ext_resource type="PackedScene" path="res://level/props/outdoor_lantern.tscn" id="7_drsj5"]
 [ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="8_326u6"]
 [ext_resource type="PackedScene" uid="uid://jc1e2w437hfj" path="res://level/props/tree.tscn" id="8_ocbwq"]
 [ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="12_326u6"]
@@ -17,6 +16,18 @@
 [ext_resource type="PackedScene" path="res://level/props/pebble_pile.tscn" id="pebble_pile"]
 [ext_resource type="Script" uid="uid://25fqe5y1jpyt" path="res://tutorial/forest_ranger.gd" id="ranger"]
 [ext_resource type="Script" uid="uid://dxlh8t5p0ngba" path="res://tutorial/ranger_visual.gd" id="ranger_visual"]
+
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_fern_a.png" id="dec_fern_a"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_fern_b.png" id="dec_fern_b"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_bush_a.png" id="dec_bush_a"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_bush_b.png" id="dec_bush_b"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_stump.png" id="dec_stump"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_log.png" id="dec_log"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_roots_a.png" id="dec_roots_a"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_forest_roots_b.png" id="dec_roots_b"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_moon_dapple_a.png" id="dapple_a"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_moon_dapple_b.png" id="dapple_b"]
+[ext_resource type="PackedScene" path="res://level/props/trail_lantern.tscn" id="trail_lantern"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rbatt"]
 shader = ExtResource("5_ber70")
@@ -105,7 +116,7 @@ kind = "marker"
 metadata/interaction_id = "forest_exit"
 metadata/interaction_label = "Go on"
 
-[node name="ExitLamp" type="Node2D" parent="Props" unique_id=2131959633 instance=ExtResource("7_drsj5")]
+[node name="ExitLamp" type="Node2D" parent="Props" unique_id=2131959633 instance=ExtResource("trail_lantern")]
 position = Vector2(1290, 510)
 script = ExtResource("8_326u6")
 energy = 1.15
@@ -310,7 +321,7 @@ script = ExtResource("12_326u6")
 position = Vector2(1364.3, 162.2)
 script = ExtResource("12_326u6")
 
-[node name="RangerLantern" type="Node2D" parent="Props" unique_id=1170168673 instance=ExtResource("7_drsj5")]
+[node name="RangerLantern" type="Node2D" parent="Props" unique_id=1170168673 instance=ExtResource("trail_lantern")]
 position = Vector2(880, 440)
 script = ExtResource("8_326u6")
 energy = 1.2
@@ -323,7 +334,7 @@ script = ExtResource("6_ocbwq")
 metadata/interaction_id = "early_rocks"
 metadata/interaction_label = "Take"
 
-[node name="EarlyStonesLamp" type="Node2D" parent="Props" unique_id=848978029 instance=ExtResource("7_drsj5")]
+[node name="EarlyStonesLamp" type="Node2D" parent="Props" unique_id=848978029 instance=ExtResource("trail_lantern")]
 position = Vector2(330, 570)
 script = ExtResource("8_326u6")
 energy = 0.85
@@ -338,21 +349,33 @@ shadow_enabled = true
 texture = ExtResource("light_pool")
 texture_scale = 1.6
 
-[node name="CrossingFillA" type="PointLight2D" parent="Lights" unique_id=1104083568]
-position = Vector2(380, 350)
+[node name="MoonDappleA1" type="PointLight2D" parent="Lights"]
+position = Vector2(340, 330)
 color = Color(0.52156866, 0.5921569, 0.6901961, 1)
 energy = 0.35
-shadow_enabled = true
-texture = ExtResource("light_pool")
-texture_scale = 2.4
+texture = ExtResource("dapple_a")
+texture_scale = 0.4
 
-[node name="CrossingFillB" type="PointLight2D" parent="Lights" unique_id=720723075]
-position = Vector2(820, 350)
+[node name="MoonDappleA2" type="PointLight2D" parent="Lights"]
+position = Vector2(440, 390)
 color = Color(0.52156866, 0.5921569, 0.6901961, 1)
 energy = 0.35
-shadow_enabled = true
-texture = ExtResource("light_pool")
-texture_scale = 2.4
+texture = ExtResource("dapple_b")
+texture_scale = 0.4
+
+[node name="MoonDappleB1" type="PointLight2D" parent="Lights"]
+position = Vector2(780, 390)
+color = Color(0.52156866, 0.5921569, 0.6901961, 1)
+energy = 0.35
+texture = ExtResource("dapple_b")
+texture_scale = 0.4
+
+[node name="MoonDappleB2" type="PointLight2D" parent="Lights"]
+position = Vector2(860, 330)
+color = Color(0.52156866, 0.5921569, 0.6901961, 1)
+energy = 0.35
+texture = ExtResource("dapple_a")
+texture_scale = 0.4
 
 [node name="Edges" type="StaticBody2D" parent="." unique_id=137917084]
 
@@ -416,6 +439,51 @@ texture_scale = 0.8
 z_index = 1
 position = Vector2(1, 0)
 script = ExtResource("6_ocbwq")
+
+[node name="Undergrowth" type="Node2D" parent="."]
+z_index = -9
+
+[node name="Piece00" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(130, 120)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_stump")
+
+[node name="Piece01" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(500, 140)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_bush_a")
+
+[node name="Piece02" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(1050, 110)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_roots_a")
+
+[node name="Piece03" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(1390, 150)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_stump")
+flip_h = true
+
+[node name="Piece04" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(120, 700)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_fern_b")
+
+[node name="Piece05" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(490, 760)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_fern_a")
+
+[node name="Piece06" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(1060, 740)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_log")
+
+[node name="Piece07" type="Sprite2D" parent="Undergrowth"]
+position = Vector2(1380, 690)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("dec_log")
+flip_h = true
 
 [node name="ArtFloor" type="TileMapLayer" parent="." unique_id=1486252303]
 light_mask = 17

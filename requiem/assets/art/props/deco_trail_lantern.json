@@ -1,0 +1,29 @@
+{
+  "name": "deco_trail_lantern",
+  "description": "Outdoor oil lantern on a short timber post, straight down: base (post foot) + top (hood, 4 lit glass sides, #a8844f flame).",
+  "canvas": [
+    48,
+    48
+  ],
+  "frame_size": [
+    48,
+    48
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    24,
+    24
+  ],
+  "layers": {
+    "base": "deco_trail_lantern_base.png",
+    "top": "deco_trail_lantern_top.png"
+  },
+  "height_effect": true,
+  "height_factor": 0.006,
+  "footprint_world_px": [
+    14,
+    8
+  ],
+  "allow_flame_gold": true
+}
