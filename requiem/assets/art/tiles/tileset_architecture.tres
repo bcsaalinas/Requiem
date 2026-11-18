@@ -1,6 +1,10 @@
 [gd_resource type="TileSet" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/art/tiles/tileset_architecture.png" id="1_atlas"]
+[ext_resource type="Texture2D" path="res://assets/art/tiles/tile_floor_trail_bend_outer_a.png" id="bend_outer_a"]
+[ext_resource type="Texture2D" path="res://assets/art/tiles/tile_floor_trail_bend_outer_b.png" id="bend_outer_b"]
+[ext_resource type="Texture2D" path="res://assets/art/tiles/tile_floor_trail_bend_inner_a.png" id="bend_inner_a"]
+[ext_resource type="Texture2D" path="res://assets/art/tiles/tile_floor_trail_bend_inner_b.png" id="bend_inner_b"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1"]
 texture = ExtResource("1_atlas")
@@ -1312,6 +1316,154 @@ texture_region_size = Vector2i(80, 80)
 3:8/7/flip_v = true
 3:8/7/transpose = true
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bend_outer_a"]
+texture = ExtResource("bend_outer_a")
+texture_region_size = Vector2i(80, 80)
+0:0/next_alternative_id = 4
+0:0/0 = 0
+0:0/0/terrain_set = 0
+0:0/0/terrain = 0
+0:0/0/terrains_peering_bit/bottom_right_corner = 0
+0:0/0/terrains_peering_bit/bottom_left_corner = 0
+0:0/0/terrains_peering_bit/top_left_corner = 1
+0:0/0/terrains_peering_bit/top_right_corner = 0
+0:0/1 = 1
+0:0/1/flip_h = true
+0:0/1/terrain_set = 0
+0:0/1/terrain = 0
+0:0/1/terrains_peering_bit/bottom_right_corner = 0
+0:0/1/terrains_peering_bit/bottom_left_corner = 0
+0:0/1/terrains_peering_bit/top_left_corner = 0
+0:0/1/terrains_peering_bit/top_right_corner = 1
+0:0/2 = 2
+0:0/2/flip_v = true
+0:0/2/terrain_set = 0
+0:0/2/terrain = 0
+0:0/2/terrains_peering_bit/bottom_right_corner = 0
+0:0/2/terrains_peering_bit/bottom_left_corner = 1
+0:0/2/terrains_peering_bit/top_left_corner = 0
+0:0/2/terrains_peering_bit/top_right_corner = 0
+0:0/3 = 3
+0:0/3/flip_h = true
+0:0/3/flip_v = true
+0:0/3/terrain_set = 0
+0:0/3/terrain = 0
+0:0/3/terrains_peering_bit/bottom_right_corner = 1
+0:0/3/terrains_peering_bit/bottom_left_corner = 0
+0:0/3/terrains_peering_bit/top_left_corner = 0
+0:0/3/terrains_peering_bit/top_right_corner = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bend_outer_b"]
+texture = ExtResource("bend_outer_b")
+texture_region_size = Vector2i(80, 80)
+0:0/next_alternative_id = 4
+0:0/0 = 0
+0:0/0/terrain_set = 0
+0:0/0/terrain = 0
+0:0/0/terrains_peering_bit/bottom_right_corner = 0
+0:0/0/terrains_peering_bit/bottom_left_corner = 0
+0:0/0/terrains_peering_bit/top_left_corner = 1
+0:0/0/terrains_peering_bit/top_right_corner = 0
+0:0/1 = 1
+0:0/1/flip_h = true
+0:0/1/terrain_set = 0
+0:0/1/terrain = 0
+0:0/1/terrains_peering_bit/bottom_right_corner = 0
+0:0/1/terrains_peering_bit/bottom_left_corner = 0
+0:0/1/terrains_peering_bit/top_left_corner = 0
+0:0/1/terrains_peering_bit/top_right_corner = 1
+0:0/2 = 2
+0:0/2/flip_v = true
+0:0/2/terrain_set = 0
+0:0/2/terrain = 0
+0:0/2/terrains_peering_bit/bottom_right_corner = 0
+0:0/2/terrains_peering_bit/bottom_left_corner = 1
+0:0/2/terrains_peering_bit/top_left_corner = 0
+0:0/2/terrains_peering_bit/top_right_corner = 0
+0:0/3 = 3
+0:0/3/flip_h = true
+0:0/3/flip_v = true
+0:0/3/terrain_set = 0
+0:0/3/terrain = 0
+0:0/3/terrains_peering_bit/bottom_right_corner = 1
+0:0/3/terrains_peering_bit/bottom_left_corner = 0
+0:0/3/terrains_peering_bit/top_left_corner = 0
+0:0/3/terrains_peering_bit/top_right_corner = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bend_inner_a"]
+texture = ExtResource("bend_inner_a")
+texture_region_size = Vector2i(80, 80)
+0:0/next_alternative_id = 4
+0:0/0 = 0
+0:0/0/terrain_set = 0
+0:0/0/terrain = 1
+0:0/0/terrains_peering_bit/bottom_right_corner = 0
+0:0/0/terrains_peering_bit/bottom_left_corner = 1
+0:0/0/terrains_peering_bit/top_left_corner = 1
+0:0/0/terrains_peering_bit/top_right_corner = 1
+0:0/1 = 1
+0:0/1/flip_h = true
+0:0/1/terrain_set = 0
+0:0/1/terrain = 1
+0:0/1/terrains_peering_bit/bottom_right_corner = 1
+0:0/1/terrains_peering_bit/bottom_left_corner = 0
+0:0/1/terrains_peering_bit/top_left_corner = 1
+0:0/1/terrains_peering_bit/top_right_corner = 1
+0:0/2 = 2
+0:0/2/flip_v = true
+0:0/2/terrain_set = 0
+0:0/2/terrain = 1
+0:0/2/terrains_peering_bit/bottom_right_corner = 1
+0:0/2/terrains_peering_bit/bottom_left_corner = 1
+0:0/2/terrains_peering_bit/top_left_corner = 1
+0:0/2/terrains_peering_bit/top_right_corner = 0
+0:0/3 = 3
+0:0/3/flip_h = true
+0:0/3/flip_v = true
+0:0/3/terrain_set = 0
+0:0/3/terrain = 1
+0:0/3/terrains_peering_bit/bottom_right_corner = 1
+0:0/3/terrains_peering_bit/bottom_left_corner = 1
+0:0/3/terrains_peering_bit/top_left_corner = 0
+0:0/3/terrains_peering_bit/top_right_corner = 1
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bend_inner_b"]
+texture = ExtResource("bend_inner_b")
+texture_region_size = Vector2i(80, 80)
+0:0/next_alternative_id = 4
+0:0/0 = 0
+0:0/0/terrain_set = 0
+0:0/0/terrain = 1
+0:0/0/terrains_peering_bit/bottom_right_corner = 0
+0:0/0/terrains_peering_bit/bottom_left_corner = 1
+0:0/0/terrains_peering_bit/top_left_corner = 1
+0:0/0/terrains_peering_bit/top_right_corner = 1
+0:0/1 = 1
+0:0/1/flip_h = true
+0:0/1/terrain_set = 0
+0:0/1/terrain = 1
+0:0/1/terrains_peering_bit/bottom_right_corner = 1
+0:0/1/terrains_peering_bit/bottom_left_corner = 0
+0:0/1/terrains_peering_bit/top_left_corner = 1
+0:0/1/terrains_peering_bit/top_right_corner = 1
+0:0/2 = 2
+0:0/2/flip_v = true
+0:0/2/terrain_set = 0
+0:0/2/terrain = 1
+0:0/2/terrains_peering_bit/bottom_right_corner = 1
+0:0/2/terrains_peering_bit/bottom_left_corner = 1
+0:0/2/terrains_peering_bit/top_left_corner = 1
+0:0/2/terrains_peering_bit/top_right_corner = 0
+0:0/3 = 3
+0:0/3/flip_h = true
+0:0/3/flip_v = true
+0:0/3/terrain_set = 0
+0:0/3/terrain = 1
+0:0/3/terrains_peering_bit/bottom_right_corner = 1
+0:0/3/terrains_peering_bit/bottom_left_corner = 1
+0:0/3/terrains_peering_bit/top_left_corner = 0
+0:0/3/terrains_peering_bit/top_right_corner = 1
+
 [resource]
 tile_size = Vector2i(80, 80)
 terrain_set_0/mode = 1
@@ -1320,3 +1472,7 @@ terrain_set_0/terrain_0/color = Color(0.25, 0.3, 0.2, 1)
 terrain_set_0/terrain_1/name = "trail"
 terrain_set_0/terrain_1/color = Color(0.5, 0.42, 0.32, 1)
 sources/0 = SubResource("TileSetAtlasSource_1")
+sources/1 = SubResource("TileSetAtlasSource_bend_outer_a")
+sources/2 = SubResource("TileSetAtlasSource_bend_outer_b")
+sources/3 = SubResource("TileSetAtlasSource_bend_inner_a")
+sources/4 = SubResource("TileSetAtlasSource_bend_inner_b")
