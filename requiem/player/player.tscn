@@ -96,13 +96,13 @@ script = ExtResource("10_motion")
 
 [node name="LocalLight" type="PointLight2D" parent="." unique_id=341006500]
 color = Color(0.7882353, 0.7647059, 0.69411767, 1)
-energy = 3.0
+energy = 1.2
 range_item_cull_mask = 5
 shadow_enabled = true
 shadow_filter = 0
 shadow_item_cull_mask = 3
 texture = ExtResource("light_presence")
-texture_scale = 1.6
+texture_scale = 0.8
 
 [node name="flashlight" type="PointLight2D" parent="." unique_id=303225094]
 enabled = false
