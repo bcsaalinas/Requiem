@@ -25,17 +25,16 @@ func _update_label() -> void:
 	if _ammo_label != null: _ammo_label.hide()
 
 var aiming := false
-var aim_arc: Line2D
+var aim_wake: Node2D
 
 func _ready() -> void:
 	super._ready()
-	aim_arc = Line2D.new()
-	aim_arc.top_level = true
-	aim_arc.width = 1.5
-	aim_arc.default_color = Color(0.85,0.79,0.63,0.65)
-	aim_arc.z_index = 49
-	add_child(aim_arc)
-	aim_arc.hide()
+	aim_wake = VfxSheet.new()
+	aim_wake.top_level = true
+	aim_wake.z_index = 49
+	aim_wake.loops = true
+	add_child(aim_wake)
+	aim_wake.hide()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
@@ -49,16 +48,15 @@ func _unhandled_input(event: InputEvent) -> void:
 func _process(_delta: float) -> void:
 	if not can_throw() or not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		aiming = false
-	aim_arc.visible = aiming
+	aim_wake.visible = aiming
 	if not aiming: return
 	var landing := _compute_landing()
-	var points := PackedVector2Array()
-	for index in range(25):
-		var t := float(index) / 24.0
-		points.append(player.global_position.lerp(landing,t) + Vector2(0,-sin(t*PI)*28.0))
-	aim_arc.points = points
+	aim_wake.global_position = player.global_position
+	aim_wake.global_rotation = (landing - player.global_position).angle()
+	if aim_wake.frame_ms.is_empty():
+		aim_wake.play(TRAIL_TEXTURE, 3, TRAIL_MS, TRAIL_ANCHOR, true)
 
 func clear_pending() -> void:
 	aiming = false
-	if is_instance_valid(aim_arc): aim_arc.hide()
+	if is_instance_valid(aim_wake): aim_wake.hide()
 	super.clear_pending()

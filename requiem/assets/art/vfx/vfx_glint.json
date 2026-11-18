@@ -1,0 +1,47 @@
+{
+  "name": "vfx_glint",
+  "category": "vfx",
+  "description": "Shared 2-frame item glint star (#bab4aa / #8d817b / #605551).",
+  "sheet": {
+    "file": "vfx_glint.png",
+    "hframes": 2,
+    "vframes": 1
+  },
+  "canvas": [
+    32,
+    16
+  ],
+  "frame_size": [
+    16,
+    16
+  ],
+  "frame_count": 2,
+  "ms_per_frame": [
+    160,
+    480
+  ],
+  "durations_ms": [
+    160,
+    480
+  ],
+  "total_ms": 640,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 160
+    },
+    {
+      "frame": 1,
+      "ms": 480
+    }
+  ],
+  "pivot": [
+    8,
+    8
+  ],
+  "anchor": [
+    8,
+    8
+  ],
+  "loop": true
+}

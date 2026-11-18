@@ -1,0 +1,71 @@
+{
+  "name": "vfx_copal_smoke",
+  "category": "vfx",
+  "description": "Fragrant copal smoke rising from the altar burner, seen from straight above: 6 frames spreading radially and thinning.",
+  "sheet": {
+    "file": "vfx_copal_smoke.png",
+    "hframes": 6,
+    "vframes": 1
+  },
+  "canvas": [
+    384,
+    64
+  ],
+  "frame_size": [
+    64,
+    64
+  ],
+  "frame_count": 6,
+  "ms_per_frame": [
+    140,
+    150,
+    160,
+    170,
+    180,
+    200
+  ],
+  "durations_ms": [
+    140,
+    150,
+    160,
+    170,
+    180,
+    200
+  ],
+  "total_ms": 1000,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 140
+    },
+    {
+      "frame": 1,
+      "ms": 150
+    },
+    {
+      "frame": 2,
+      "ms": 160
+    },
+    {
+      "frame": 3,
+      "ms": 170
+    },
+    {
+      "frame": 4,
+      "ms": 180
+    },
+    {
+      "frame": 5,
+      "ms": 200
+    }
+  ],
+  "pivot": [
+    32,
+    32
+  ],
+  "anchor": [
+    32,
+    32
+  ],
+  "loop": true
+}
