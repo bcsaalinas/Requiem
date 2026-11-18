@@ -1,0 +1,32 @@
+{
+  "canvas": [
+    64,
+    64
+  ],
+  "centre_px": [
+    32.0,
+    32.0
+  ],
+  "design": "one flat disc, hard pixel edge: replaces the six-step grey gradient for the empty-battery footing light",
+  "file": "light_step_circle.png",
+  "fill": "#bab4aa",
+  "fill_rgb": [
+    186,
+    180,
+    170
+  ],
+  "filter": "nearest (project default_texture_filter 0), so the edge stays hard",
+  "footprint_world_px": "64 px diameter x 1.6 = 102.4 world px (radius 51.2)",
+  "intended_scale": 1.6,
+  "kind": "light texture (PointLight2D), Viv's next-step footing circle (player.tscn LocalLight)",
+  "name": "light_step_circle",
+  "opaque_bbox": [
+    0,
+    0,
+    62,
+    62
+  ],
+  "opaque_px": 3228,
+  "outside": "transparent (alpha 0): no light",
+  "stand_in": "drawn to the T74 spec by the integration worker; the art worker's export can replace this file without code changes"
+}
