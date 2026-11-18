@@ -1,0 +1,20 @@
+{
+  "name": "deco_forest_log",
+  "description": "Fallen rotted tree log (2x1 u), straight down, moss + hollow cavity, no rim, no collision.",
+  "canvas": [
+    160,
+    80
+  ],
+  "frame_size": [
+    160,
+    80
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    80,
+    40
+  ],
+  "layer": "art",
+  "collision": false
+}

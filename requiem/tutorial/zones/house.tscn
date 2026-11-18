@@ -17,7 +17,6 @@
 [ext_resource type="PackedScene" path="res://level/props/kitchen_table.tscn" id="13_g6mak"]
 [ext_resource type="PackedScene" uid="uid://cvvblqnpihcrk" path="res://level/props/altar.tscn" id="14_gwjha"]
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="15_xml7o"]
-[ext_resource type="PackedScene" path="res://level/props/outdoor_lantern.tscn" id="16_uevcv"]
 [ext_resource type="Material" uid="uid://b7avlt81d8aq" path="res://tutorial/entity_lit_material.tres" id="16_vgpbg"]
 [ext_resource type="Texture2D" uid="uid://bwok0rd0ngs8r" path="res://tutorial/assets/art/entity/amortajada_full.png" id="17_2v7cn"]
 [ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="18_3fn32"]
@@ -29,6 +28,7 @@
 [ext_resource type="Script" uid="uid://c6td3af1s802v" path="res://tutorial/friend_visual.gd" id="friend_visual"]
 [ext_resource type="Texture2D" uid="uid://c3v364isndjuk" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
 [ext_resource type="Texture2D" uid="uid://b2cnmqie4i4po" path="res://assets/art/lights/light_veladora.png" id="light_vel"]
+[ext_resource type="PackedScene" path="res://level/props/trail_lantern.tscn" id="trail_lantern"]
 [ext_resource type="Texture2D" uid="uid://bl1dtg4dpisjs" path="res://assets/art/lights/light_window_spill.png" id="light_window_spill"]
 [ext_resource type="PackedScene" path="res://level/props/pebble_pile.tscn" id="pebble_pile"]
 [ext_resource type="Texture2D" uid="uid://d068jrsh0dgqu" path="res://assets/art/props/deco_rug_runner.png" id="rug_new"]
@@ -271,7 +271,7 @@ metadata/interaction_label = "Take"
 [node name="PorchCrate" type="Node2D" parent="Props" unique_id=530448000 instance=ExtResource("9_3giw8")]
 position = Vector2(176, 800)
 
-[node name="PorchLamp" type="Node2D" parent="Props" unique_id=476799547 instance=ExtResource("16_uevcv")]
+[node name="PorchLamp" type="Node2D" parent="Props" unique_id=476799547 instance=ExtResource("trail_lantern")]
 position = Vector2(608, 800)
 script = ExtResource("21_5l22i")
 energy = 1.2

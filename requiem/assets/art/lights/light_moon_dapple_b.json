@@ -1,0 +1,26 @@
+{
+  "name": "light_moon_dapple_b",
+  "kind": "light texture (PointLight2D), moonlight broken by branches onto the forest trail (card T32 part B)",
+  "canvas": [
+    256,
+    256
+  ],
+  "file": "light_moon_dapple_b.png",
+  "centre_px": [
+    128.0,
+    128.0
+  ],
+  "opaque_bbox": [
+    45,
+    39,
+    172,
+    186
+  ],
+  "bands_core_to_spill": [
+    "#5d6a74",
+    "#3e4952"
+  ],
+  "outside": "transparent (alpha 0): no light between the patches",
+  "filter": "nearest",
+  "scale_note": "256 x 256 art px = ~3.2 x 3.2 u at scale 0.4."
+}
