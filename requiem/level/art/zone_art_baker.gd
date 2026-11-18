@@ -310,6 +310,9 @@ func _bake_zone(zone: String) -> void:
 			_filler += 1
 			base_layer.set_cell(cell, 0, coords(BASE_FIRST))
 			var plain_top: int = window_tops.get(cell, TOP_FILL)
+			# The pre-fill bake drew a straight-top variant here; keep consuming the draw so
+			# every later cell lands the same random pick it had before the fill existed.
+			_pick(rng, STRAIGHT_TOPS)
 			tops_layer.set_cell(cell, 0, coords(plain_top))
 			continue
 		var entry := _match(mask)
