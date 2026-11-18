@@ -34,7 +34,6 @@ const GLINT_MS := [160.0, 480.0]
 const PHONE_LIT_MS := [360.0, 360.0]
 const SPRITES := preload("res://tutorial/assets/art/props_atlas.png")
 var focused := false
-var threat_pressure := 0.0
 var focal_sprite: Sprite2D
 var rim_sprite: Sprite2D
 var glint: Sprite2D
@@ -150,11 +149,6 @@ func _draw_detail() -> void:
 func set_focused(value: bool) -> void:
 	if focused == value: return
 	focused = value
-	queue_redraw()
-
-func set_threat_pressure(value: float) -> void:
-	if is_equal_approx(value,threat_pressure): return
-	threat_pressure = value
 	queue_redraw()
 
 func paint_sprite(atlas: Texture2D, target: Rect2, source: Rect2, albedo := Color.WHITE) -> void:

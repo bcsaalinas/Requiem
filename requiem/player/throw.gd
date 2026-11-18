@@ -98,8 +98,7 @@ var _ringing: Array = []
 @onready var action_state: Node = player.get_node_or_null("ActionState")
 
 # --- Etiqueta de municion en pantalla ---
-var _bar_layer: CanvasLayer
-var _ammo_label: Label
+
 
 
 func _ready() -> void:
@@ -109,18 +108,7 @@ func _ready() -> void:
 	_audio_player = AudioStreamPlayer2D.new()
 	add_child(_audio_player)
 
-	_bar_layer = CanvasLayer.new()
-	LegacyUi.fit_layer(_bar_layer)
-	add_child(_bar_layer)
 
-	# Debajo de las barras de HoldBreath (y=20 pulmon, y=54 agotamiento)
-	# y de la bateria de Flashlight (y=88).
-	_ammo_label = Label.new()
-	_ammo_label.position = Vector2(20, 122)
-	_ammo_label.add_theme_font_size_override("font_size", 14)
-	_bar_layer.add_child(_ammo_label)
-
-	_update_label()
 
 
 func _physics_process(delta: float) -> void:
@@ -144,8 +132,6 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("throw") and can_throw():
 		_start_throw()
-
-	_update_label()
 
 
 func _tick_timers(delta: float) -> void:
@@ -390,23 +376,6 @@ func _color_for(kind: int) -> Color:
 
 func _clips_for(kind: int) -> Array[AudioStream]:
 	return despertador_clips if kind == Throwable.DESPERTADOR else piedra_clips
-
-
-func _update_label() -> void:
-	var ammo := "%d" % alarms_left if selected == Throwable.DESPERTADOR else "inf"
-	var state := ""
-
-	if is_throwing:
-		state = "  (lanzando)"
-	elif _cooldown_timer > 0.0:
-		state = "  (%.1fs)" % _cooldown_timer
-	elif not can_throw():
-		state = "  (sin municion)"
-
-	_ammo_label.text = "[Q] %s  x%s   [Tab] cambiar%s" % [
-		Throwable.keys()[selected].capitalize(), ammo, state
-	]
-	_ammo_label.modulate = Color(1, 1, 1, 0.85) if can_throw() else Color(1, 1, 1, 0.4)
 
 
 func get_alarms_left() -> int:

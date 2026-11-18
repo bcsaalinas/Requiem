@@ -103,7 +103,7 @@ swing_side = -1
 leaf_texture = ExtResource("8_nunbk")
 creak = ExtResource("6_qo5fo")
 locked_light_energy = 0.0
-locked_label = "Mum and Dad"
+
 
 [node name="ParentDoorB" type="Node2D" parent="Doors" unique_id=1027334891 instance=ExtResource("6_dw150")]
 position = Vector2(672, 320)
@@ -113,7 +113,7 @@ swing_side = -1
 leaf_texture = ExtResource("8_nunbk")
 creak = ExtResource("6_qo5fo")
 locked_light_energy = 0.0
-locked_label = "Grandma's old room"
+
 
 [node name="BackDoor" type="Node2D" parent="Doors" unique_id=1194472358 instance=ExtResource("5_lc55d")]
 position = Vector2(912, 384)

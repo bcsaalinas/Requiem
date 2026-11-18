@@ -12,7 +12,6 @@ func _ready() -> void:
 		game.enter_zone(zone)
 		game.encounter_grace=999
 		game.banner_time=0
-		game.hud.banner.text=""
 		if zone=="house": game.player.position=Vector2(5990,540)
 		game.player.get_node("Camera2D").reset_smoothing()
 		for i in range(5): await get_tree().process_frame

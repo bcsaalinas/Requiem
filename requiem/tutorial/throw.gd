@@ -21,8 +21,6 @@ func _impact(landing: Vector2, kind: int) -> void:
 	super._impact(landing, kind)
 	rock_landed.emit(landing)
 
-func _update_label() -> void:
-	if _ammo_label != null: _ammo_label.hide()
 
 var aiming := false
 var aim_wake: Node2D

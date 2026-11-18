@@ -15,7 +15,6 @@ const GASP_SECONDS := 0.28
 @onready var appearance: Node2D = player.get_node("Appearance")
 
 var phase: StringName = &"idle"
-var phase_name := "Relaxed"
 var pose_phase := 0.0
 var hold_focus := 0.0
 var strain := 0.0
@@ -54,7 +53,6 @@ func _ready() -> void:
 
 func reset_feedback() -> void:
 	phase = &"idle"
-	phase_name = "Relaxed"
 	pose_phase = 0.0
 	hold_focus = 0.0
 	strain = 0.0
@@ -116,20 +114,7 @@ func _physics_process(delta: float) -> void:
 		phase = &"idle"
 		pose_phase = 0.0
 	_was_locked = breath.is_locked
-	_update_label()
 	appearance.set_breath_pose(phase, pose_phase)
-
-
-func _update_label() -> void:
-	match phase:
-		&"inhale": phase_name = "Holding breath"
-		&"hold": phase_name = "Holding breath"
-		&"strain": phase_name = "Straining"
-		&"release": phase_name = "Controlled exhale"
-		&"release_loud": phase_name = "Loud exhale"
-		&"gasp": phase_name = "Forced gasp"
-		&"recovery": phase_name = "Recovering"
-		_: phase_name = "Release Space" if breath.needs_release else "Relaxed"
 
 
 func _on_hold_started() -> void:

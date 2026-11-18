@@ -23,13 +23,11 @@ func _ready() -> void:
 	for node in game.player.get_children():
 		if node.get_script()==game.Art: actor=node
 	actor.set_process(false)
-	game.hud.banner.text=""
 	await frame()
 	await frame()
 	await measure("player-bedroom",actor.focal_sprite,1.7)
 	(await frame()).save_png(CaptureOutput.path("readability/bedroom-after.png"))
 	game.enter_zone("forest")
-	game.hud.banner.text=""
 	await frame()
 	await frame()
 	await measure("player-forest",actor.focal_sprite,1.7)

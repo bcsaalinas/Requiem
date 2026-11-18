@@ -260,16 +260,6 @@ metadata/interaction_offset = Vector2(0, 35)
 [node name="AltarArmchair" type="Node2D" parent="Props" unique_id=1536587967 instance=ExtResource("15_xml7o")]
 position = Vector2(1128, 560)
 
-[node name="reveal" type="Sprite2D" parent="Props" unique_id=1080869032]
-visible = false
-light_mask = 8
-z_index = 1
-texture_filter = 2
-material = ExtResource("16_vgpbg")
-position = Vector2(676, 612)
-scale = Vector2(0.4, 0.4)
-texture = ExtResource("17_2v7cn")
-centered = false
 offset = Vector2(-48.8, -83.8)
 
 [node name="porch_rocks" type="Node2D" parent="Props" unique_id=847716000 instance=ExtResource("pebble_pile")]

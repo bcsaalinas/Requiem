@@ -262,15 +262,6 @@ theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Banner" type="Label" parent="Screen" unique_id=486676250]
-visible = false
-layout_mode = 0
-theme_override_colors/font_color = Color(0.9098039, 0.84313726, 0.6862745, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
-theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 28
-
 [node name="KeyHint" type="Label" parent="Screen"]
 visible = false
 layout_mode = 0
@@ -305,7 +296,6 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
 theme_override_font_sizes/font_size = 42
-text = "HOLD  SPACE"
 horizontal_alignment = 1
 
 [node name="Detail" type="Label" parent="Screen/Alert" unique_id=1460231781]
@@ -315,7 +305,6 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.95)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 24
-text = "Hold your breath and your steps go quiet."
 horizontal_alignment = 1
 
 [node name="StoryFade" type="ColorRect" parent="Screen" unique_id=1651583290]
