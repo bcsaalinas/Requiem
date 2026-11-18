@@ -149,6 +149,7 @@ script = ExtResource("8_dkkgd")
 exterior = true
 room_side = -1
 wall_depth = 3
+over_roof = true
 metadata/interaction_id = "window"
 metadata/interaction_label = "Look"
 metadata/interaction_offset = Vector2(0, -48)
