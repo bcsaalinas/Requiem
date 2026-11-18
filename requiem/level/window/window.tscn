@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://eksfuysx17fu" path="res://level/window/window.gd" id="1_vgjso"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_glass_shards_a.png" id="shards_a"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_glass_shards_b.png" id="shards_b"]
+[ext_resource type="Texture2D" path="res://assets/art/vfx/vfx_glass_break.png" id="burst"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c1ovo"]
 size = Vector2(64, 96)
@@ -41,3 +42,12 @@ occluder = SubResource("OccluderPolygon2D_uxxx0")
 
 [node name="PostRight" type="LightOccluder2D" parent="." unique_id=1846086390]
 occluder = SubResource("OccluderPolygon2D_3ikn8")
+
+[node name="Burst" type="Sprite2D" parent="."]
+z_as_relative = false
+z_index = 42
+position = Vector2(0, -9)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("burst")
+hframes = 4
+visible = false
