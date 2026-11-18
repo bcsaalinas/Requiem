@@ -43,9 +43,9 @@ const DIRECTIONS := {
 
 ## straight, outer_corner, inner_corner, inner_corner_room, t_junction, t_junction_room, end_cap,
 ## cross, straight_two_sided: the floor each piece is drawn facing.
-const PIECE_MASKS := [S, SE, S | E, S | E | NW, SW | SE, N | SW | SE, W | S | E, NE | SE | SW | NW, N | S]
+const PIECE_MASKS := [S, SE, S | E, S | E | NW, SW | SE, N | SW | SE, W | S | E, NE | SE | SW | NW, N | S, NW | SE]
 const PIECE_NAMES := ["straight", "outer_corner", "inner_corner", "inner_corner_room", "t_junction",
-	"t_junction_room", "end_cap", "cross", "straight_two_sided"]
+	"t_junction_room", "end_cap", "cross", "straight_two_sided", "outer_corner_pair"]
 
 const BASE_FIRST := 33
 const FACE_FIRST := 42
@@ -53,6 +53,11 @@ const TOP_FIRST := 51
 const STRAIGHT_TOPS := [51, 60, 61, 62, 63]
 const WINDOW_TOP := 64
 const WINDOW_CRACKED_TOP := 66
+const TOP_FILL := 72
+const PIECE_OUTER_CORNER_PAIR := 9
+const BASE_OUTER_CORNER_PAIR := 73
+const FACE_OUTER_CORNER_PAIR := 74
+const TOP_OUTER_CORNER_PAIR := 75
 const FLOOR_LIGHT_MASK := 1 | 16
 const FLOOR_FIRST := {"wood": 0, "pasta": 4, "cement": 8, "patio": 12, "bath": 16, "forest": 20, "trail": 24}
 const TRAIL_PIECES := {"edge": 28, "edge_b": 29, "corner_outer": 30, "corner_inner": 31, "diagonal": 32}
@@ -304,7 +309,7 @@ func _bake_zone(zone: String) -> void:
 		if is_filler or mask == 0:
 			_filler += 1
 			base_layer.set_cell(cell, 0, coords(BASE_FIRST))
-			var plain_top: int = window_tops.get(cell, _pick(rng, STRAIGHT_TOPS))
+			var plain_top: int = window_tops.get(cell, TOP_FILL)
 			tops_layer.set_cell(cell, 0, coords(plain_top))
 			continue
 		var entry := _match(mask)
@@ -312,10 +317,14 @@ func _bake_zone(zone: String) -> void:
 			_unmatched.append("%s %s mask=%s used=%s alt %d" % [zone, cell, _mask_text(mask), PIECE_NAMES[entry["piece"]], entry["alternative"]])
 		var piece: int = entry["piece"]
 		var alternative: int = entry["alternative"]
-		base_layer.set_cell(cell, 0, coords(BASE_FIRST + piece), _alternative_for(BASE_FIRST + piece, alternative))
-		face_layer.set_cell(cell, 0, coords(FACE_FIRST + piece), _alternative_for(FACE_FIRST + piece, alternative))
+		var base_index := BASE_OUTER_CORNER_PAIR if piece == PIECE_OUTER_CORNER_PAIR else BASE_FIRST + piece
+		var face_index := FACE_OUTER_CORNER_PAIR if piece == PIECE_OUTER_CORNER_PAIR else FACE_FIRST + piece
+		base_layer.set_cell(cell, 0, coords(base_index), _alternative_for(base_index, alternative))
+		face_layer.set_cell(cell, 0, coords(face_index), _alternative_for(face_index, alternative))
 		if window_tops.has(cell):
 			tops_layer.set_cell(cell, 0, coords(window_tops[cell]))
+		elif piece == PIECE_OUTER_CORNER_PAIR:
+			tops_layer.set_cell(cell, 0, coords(TOP_OUTER_CORNER_PAIR), _alternative_for(TOP_OUTER_CORNER_PAIR, alternative))
 		else:
 			var top_index := _pick(rng, STRAIGHT_TOPS) if piece == 0 else TOP_FIRST + piece
 			tops_layer.set_cell(cell, 0, coords(top_index), _alternative_for(top_index, alternative))
