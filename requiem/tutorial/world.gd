@@ -83,19 +83,28 @@ func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength :=
 	return light
 
 func set_candle_out(candle_id: String, out: bool) -> void:
-	var light: PointLight2D = null
-	if HOUSE_CANDLE_LIGHTS.has(candle_id):
-		light = landmarks.get(HOUSE_CANDLE_LIGHTS[candle_id]) as PointLight2D
-	elif props.has(candle_id):
-		light = props[candle_id].get_node_or_null("WarmPool") as PointLight2D
-	if light != null:
-		light.energy = 0.0 if out else float(light.get_meta("rest_energy"))
-		light.color = Color("71889b") if out else Color(light.get_meta("rest_color"))
 	if props.has(candle_id):
 		props[candle_id].extinguished = out
 		props[candle_id].queue_redraw()
+	var light: PointLight2D = null
+	var resolved_out := out
+	if HOUSE_CANDLE_LIGHTS.has(candle_id):
+		light = landmarks.get(HOUSE_CANDLE_LIGHTS[candle_id]) as PointLight2D
+		if candle_id.begins_with("altar_candle"):
+			resolved_out = _altar_lights_out()
+	elif props.has(candle_id):
+		light = props[candle_id].get_node_or_null("WarmPool") as PointLight2D
+	if light != null:
+		light.energy = 0.0 if resolved_out else float(light.get_meta("rest_energy"))
+		light.color = Color("71889b") if resolved_out else Color(light.get_meta("rest_color"))
 	if candle_id == "vestibule_candle":
 		zones["house"].get_node("Lights/WindowSpill").visible = not out
+
+## The altar jars share one light: it stays on while either jar is lit.
+func _altar_lights_out() -> bool:
+	var left = props.get("altar_candle_left")
+	var right = props.get("altar_candle_right")
+	return (left == null or left.extinguished) and (right == null or right.extinguished)
 
 func set_house_danger(danger: bool) -> void:
 	# The kitchen candle stays lit: the recovery light survives the attack.
