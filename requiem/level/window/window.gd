@@ -40,6 +40,7 @@ const BOX_FILLER := preload("res://assets/art/tiles/wall_top_window_box_filler.p
 		over_roof = value
 		if _box != null:
 			_box.z_index = 47 if over_roof else 41
+			_sync_burst_z()
 ## Wall cells the window opening is cut through; more than one adds filler copies between halves.
 @export_range(1, 4) var wall_depth := 1:
 	set(value):
@@ -166,7 +167,16 @@ func _build_box() -> void:
 	_box.z_index = 47 if over_roof else 41
 	_box.centered = false
 	add_child(_box)
+	_sync_burst_z()
 	_redraw_box()
+
+
+## The flying glass draws immediately above its own box, so the porch roof
+## order never swallows it.
+func _sync_burst_z() -> void:
+	var burst := get_node_or_null("Burst") as Sprite2D
+	if burst != null:
+		burst.z_index = _box.z_index + 1
 
 
 func _redraw_box() -> void:
