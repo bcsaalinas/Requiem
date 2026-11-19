@@ -526,14 +526,25 @@ static func chance_through(acoustic_u: float, limit_u: float, voice: bool) -> fl
 	return lerpf(span.y, span.x, clampf(inverse_lerp(settings.ring_near_u, limit_u, acoustic_u), 0.0, 1.0))
 
 
-## Where ring 1 ends for Viv right now, in units.
+## Where ring 1 ends for Viv right now, in units: further while she holds her breath to listen.
 func reach_limit_u() -> float:
-	return SoundSettings.current().ring_somewhere_u
+	var settings := SoundSettings.current()
+	return settings.ring_somewhere_u * lerpf(1.0, settings.listen_reach_factor, Acoustics.focus)
+
+
+## How much of a far-off position sound Viv's own movement covers right now, in dB (0 or
+## less). Only in ring 1; it sets in over the first stretch of the ring, so there is no step.
+func masked_db() -> float:
+	var settings := SoundSettings.current()
+	return Acoustics.mask_db * clampf(inverse_lerp(settings.ring_near_u, settings.ring_near_u + settings.mask_blend_u, heard_u), 0.0, 1.0)
 
 
 ## Rolls whether one position sound reaches Viv. One that does not is counted, never played.
 func _gets_through(set_id: String) -> bool:
 	var chance := chance_through(heard_u, reach_limit_u(), VOICE_SETS.has(set_id))
+	# While she holds her breath to listen, fewer of them are lost (never beyond ring 1).
+	if chance > 0.0:
+		chance = 1.0 - (1.0 - chance) * lerpf(1.0, SoundSettings.current().listen_gap_factor, Acoustics.focus)
 	if chance >= 1.0 or randf() < chance:
 		return true
 	gaps[set_id] = int(gaps.get(set_id, 0)) + 1
@@ -578,6 +589,8 @@ func _tick_reach(delta: float) -> void:
 	heard_ring = 0 if heard_u >= limit else Acoustics.ring_for(heard_u)
 	heard_clarity = Acoustics.clarity_for(heard_u)
 	_reach_db = position_db(heard_u, limit)
+	if _reach_db > GONE_DB:
+		_reach_db += masked_db()
 	_panning = position_panning(heard_u, limit)
 	Dread.report_presence(self, heard_clarity if audible and listening and not GameState.is_dead else 0.0)
 

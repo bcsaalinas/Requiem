@@ -22,6 +22,13 @@ const WALL_GROUP := &"sound_wall"
 ## A watched emitter was measured again.
 signal measured(emitter: Node2D, reading: AcousticReading)
 
+## How Viv is listening right now. Written by her body (player/body_audio.gd), read by
+## whatever she hears from far off (entities/entity_audio.gd). Nothing is measured from these.
+## 0..1: she holds her breath to listen.
+var focus := 0.0
+## dB (0 or less): her own movement covers far-off sounds.
+var mask_db := 0.0
+
 ## instance id -> { emitter: WeakRef, voice: WeakRef or null, reading: AcousticReading, wait: float }
 var _watched := {}
 var _listener_override: WeakRef

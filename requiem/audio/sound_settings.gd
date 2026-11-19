@@ -124,6 +124,46 @@ static func current() -> SoundSettings:
 ## How long they take to come back when she tries again.
 @export_range(0.0, 5.0, 0.05, "suffix:s") var death_release := 1.0
 
+@export_group("Viv: her body and her listening")
+## What is added to each of her breathing loops, in dB. The files are already quiet (calm and
+## nervous -32 LUFS, panic -24 LUFS); turn one down here if it is ever too present.
+@export var viv_breath_db := {"viv/calm": 0.0, "viv/nervous": 0.0, "viv/panic": 0.0}
+## Seconds for her breathing to change from one mood to another.
+@export_range(0.1, 6.0, 0.1, "suffix:s") var viv_breath_crossfade := 1.5
+## Seconds for her breathing to stop when she holds her breath.
+@export_range(0.0, 1.0, 0.01, "suffix:s") var viv_breath_hold_fade := 0.15
+## Seconds for it to come back once she breathes again (after the breath out has sounded).
+@export_range(0.0, 3.0, 0.05, "suffix:s") var viv_breath_return := 0.8
+## Moving costs information: while she walks, the entity's far-off sounds (ring 1) are this
+## much quieter.
+@export_range(-24.0, 0.0, 0.5, "suffix:dB") var mask_walk_db := -6.0
+## And this much quieter while she sprints.
+@export_range(-24.0, 0.0, 0.5, "suffix:dB") var mask_sprint_db := -12.0
+## Faster than this (u/s) she counts as moving.
+@export_range(0.0, 2.0, 0.05, "suffix:u/s") var mask_moving_speed_u := 0.3
+## Seconds for a sprint's full masking to set in once she moves.
+@export_range(0.0, 2.0, 0.05, "suffix:s") var mask_on_time := 0.3
+## Seconds of standing still for a sprint's full masking to lift (a walk's lifts in half).
+@export_range(0.1, 5.0, 0.1, "suffix:s") var mask_off_time := 1.0
+## The masking sets in over this many units past where ring 1 begins, so there is no step.
+@export_range(0.1, 4.0, 0.1, "suffix:u") var mask_blend_u := 1.0
+## Holding her breath is listening: Music, Ambience and World are low-passed down to this.
+@export_range(500.0, 20000.0, 50.0, "suffix:Hz") var listen_cutoff_hz := 2500.0
+## Seconds for the house to go soft when she starts to hold.
+@export_range(0.0, 2.0, 0.05, "suffix:s") var listen_in := 0.3
+## Seconds for it to return when she lets go early. (A forced gasp snaps it back.)
+@export_range(0.0, 2.0, 0.05, "suffix:s") var listen_out := 0.5
+## While she listens, ring 1 reaches this many times further.
+@export_range(1.0, 2.0, 0.05) var listen_reach_factor := 1.3
+## While she listens, this share of the sounds that would be lost on the way still are
+## (0.5 = half as many gaps).
+@export_range(0.0, 1.0, 0.05) var listen_gap_factor := 0.5
+## While she listens, everything the entity sounds comes up by this much.
+@export_range(0.0, 6.0, 0.5, "suffix:dB") var listen_entity_db := 2.0
+## Seconds for the threat heartbeat to give way to the heartbeat of running out of air, and to
+## come back after it. The two never sound together.
+@export_range(0.0, 2.0, 0.05, "suffix:s") var heartbeat_yield_fade := 0.2
+
 @export_group("Acoustics: how far its sound travels")
 ## How many times per second the way from each entity to Viv is measured. Never every frame.
 @export_range(1.0, 20.0, 0.5, "suffix:/s") var acoustics_rate := 5.0

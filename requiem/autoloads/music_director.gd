@@ -24,6 +24,9 @@ const KIT_TRACKS := {
 	"HUNT": "res://assets/audio/horror-jam-kit 3/OGG/Drone/drone_tension_03.ogg",
 	"PRAYER": "res://assets/audio/horror-jam-kit 3/OGG/Tonal/eerie_music_box_02.ogg",
 }
+## The group of the node that sounds the heartbeat of running out of air (its `level` > 0).
+const STRAIN_HEART_GROUP := &"strain_heart"
+const HEARTBEAT_OFF_DB := -80.0
 const HEARTBEAT_PATH := "res://assets/audio/horror-jam-kit 3/OGG/Body/heartbeat_01.ogg"
 ## The rising tone that starts with the scream, once per hunt.
 const RISER_PATH := "res://assets/audio/horror-jam-kit 3/OGG/Riser/pitch_riser_01.ogg"
@@ -57,6 +60,11 @@ var _hunt_wait := -1.0
 var _dead := false
 var _heartbeat: AudioStreamPlayer
 var _heartbeat_base_db := -80.0
+## dB the threat heartbeat is stepped back right now because she holds her breath.
+var _heartbeat_duck_db := 0.0
+## 0..1: how far the threat heartbeat has given way to the heartbeat of running out of air
+## (player/breath_strain_audio.gd). That one wins while it sounds; the two never play together.
+var _heartbeat_yield := 0.0
 var _riser: AudioStreamPlayer
 
 func _ready() -> void:
@@ -198,6 +206,7 @@ func _fade(player: AudioStreamPlayer, to_db: float, seconds: float) -> void:
 	_fades[player] = {"from": player.volume_db, "to": to_db, "time": 0.0, "length": seconds}
 
 func _process(delta: float) -> void:
+	_tick_heartbeat(delta)
 	if _hunt_wait >= 0.0:
 		_hunt_wait -= delta
 		if _hunt_wait < 0.0:
@@ -225,9 +234,7 @@ func set_breath_held(held: bool) -> void:
 		MixDirector.duck(BREATH_DUCK, MixDirector.Priority.BREATH, {AudioBus.MUSIC: settings.breath_duck_db}, settings.breath_duck_fade)
 	else:
 		MixDirector.release(BREATH_DUCK, settings.breath_duck_fade)
-	if is_instance_valid(_heartbeat) and _heartbeat.playing:
-		var heartbeat_target := _heartbeat_base_db + (settings.breath_duck_db if held else 0.0)
-		create_tween().tween_property(_heartbeat, "volume_db", heartbeat_target, settings.breath_duck_fade)
+	# The threat heartbeat follows in _tick_heartbeat().
 
 ## Called by gameplay when the tutorial hides/deactivates its entity for a zone transition.
 func clear_entity_threat() -> void:
@@ -330,8 +337,34 @@ func _set_threat_heartbeat() -> void:
 	if _heartbeat_base_db <= -80.0:
 		_heartbeat.stop()
 	else:
-		_heartbeat.volume_db = _heartbeat_base_db + (SoundSettings.current().breath_duck_db if breath_held else 0.0)
+		if not _heartbeat.playing:
+			# It starts where it belongs: already stepped back, or already out of the way.
+			_heartbeat_duck_db = SoundSettings.current().breath_duck_db if breath_held else 0.0
+			_heartbeat_yield = 1.0 if _strain_heart_sounding() else 0.0
+		_heartbeat.volume_db = _heartbeat_level()
 		if not _heartbeat.playing: _heartbeat.play()
+
+## The level of the threat heartbeat right now: its level for this music, stepped back while
+## she holds her breath, and gone while the heartbeat of running out of air sounds.
+func _heartbeat_level() -> float:
+	return lerpf(_heartbeat_base_db + _heartbeat_duck_db, HEARTBEAT_OFF_DB, _heartbeat_yield)
+
+## True while her other heartbeat (running out of air) is sounding.
+func _strain_heart_sounding() -> bool:
+	for heart in get_tree().get_nodes_in_group(STRAIN_HEART_GROUP):
+		if float(heart.get(&"level")) > 0.0:
+			return true
+	return false
+
+func _tick_heartbeat(delta: float) -> void:
+	if not is_instance_valid(_heartbeat) or not _heartbeat.playing:
+		return
+	var settings := SoundSettings.current()
+	_heartbeat_duck_db = move_toward(_heartbeat_duck_db, settings.breath_duck_db if breath_held else 0.0,
+		delta * absf(settings.breath_duck_db) / maxf(settings.breath_duck_fade, 0.001))
+	_heartbeat_yield = move_toward(_heartbeat_yield, 1.0 if _strain_heart_sounding() else 0.0,
+		delta / maxf(settings.heartbeat_yield_fade, 0.001))
+	_heartbeat.volume_db = _heartbeat_level()
 
 func _on_heartbeat_finished() -> void:
 	if current_state in [MusicState.SEARCH, MusicState.HUNT]: _heartbeat.play()

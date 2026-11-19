@@ -270,6 +270,12 @@ func _update_bars() -> void:
 	_exertion_bar.visible = exertion_percent > 0.0
 
 
+## True while one of her breath clips is sounding (the breath in, the breath out, a gasp).
+## Presentation only: her breathing loop stays out from under it.
+func is_sounding() -> bool:
+	return _audio_player != null and _audio_player.playing
+
+
 func get_lung_percent() -> float:
 	return lung_percent
 

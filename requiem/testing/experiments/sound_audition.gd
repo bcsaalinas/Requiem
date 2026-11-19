@@ -295,9 +295,12 @@ func where_text() -> String:
 	for set_id: String in voice.gaps:
 		lost += int(voice.gaps[set_id])
 	var level: float = EntityAudio.position_db(voice.heard_u, voice.reach_limit_u())
-	return text + "\nposition sounds: %s\nplaced %d%% · lost on the way %d\npresence %.2f · the house recedes %.2f" % [
+	var her_body := player.get_node_or_null("BodyAudio") as BodyAudio
+	var her := "" if her_body == null else "\nViv: %s · listening %.2f · her steps cover %.0f dB" % [
+		her_body.mood.get_file() if her_body.mood != "" else "no breathing", her_body.listen, -voice.masked_db()]
+	return text + "\nposition sounds: %s\nplaced %d%% · lost on the way %d\npresence %.2f · the house recedes %.2f%s" % [
 		"silent" if level <= EntityAudio.GONE_DB else "%.0f dB · %d%% dulled" % [level, roundi((1.0 - voice.heard_clarity) * 100.0)],
-		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, Dread.presence, MixDirector.recede()]
+		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, Dread.presence, MixDirector.recede(), her]
 
 
 ## What the entity is doing, in the words of the design.

@@ -18,7 +18,9 @@ extends Node
 ## over screen Music, Ambience and World fall silent.
 
 ## Who wins when two moments want the same bus. Higher wins.
-enum Priority { THREAT = 10, PRAYER = 20, BREATH = 30, SCREAM = 40, DEATH = 50 }
+## LISTEN is the soft low-pass of holding her breath; BREATH (running out of air) takes it
+## further on the buses it muffles.
+enum Priority { THREAT = 10, PRAYER = 20, LISTEN = 25, BREATH = 30, SCREAM = 40, DEATH = 50 }
 
 const GAIN_NAME := "MixGain"
 const MUFFLE_NAME := "MixMuffle"

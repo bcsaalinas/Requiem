@@ -17,6 +17,9 @@ const TONE_DB := Vector2(-30.0, -11.0)
 const MUFFLED_BUSES: Array[StringName] = [AudioBus.MUSIC, AudioBus.AMBIENCE]
 const MUFFLE := &"breath_strain"
 const SILENT_DB := -60.0
+## The node whose `level` says the heartbeat of running out of air is sounding: the threat
+## heartbeat (MusicDirector) gives way to it, so the two never sound together.
+const HEART_GROUP := &"strain_heart"
 
 var feedback: Node
 ## 0..1: how much of the strain mix is up right now (for the tests and for tuning).
@@ -29,6 +32,7 @@ var _filters: Array[AudioEffectLowPassFilter] = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_to_group(HEART_GROUP)
 	_heart = _voice("Heart", HEARTBEAT)
 	_tone = _voice("Tone", TONE)
 	for bus_name in MUFFLED_BUSES:
@@ -66,7 +70,9 @@ func _process(delta: float) -> void:
 		MixDirector.release(MUFFLE)
 		return
 	var settings := SoundSettings.current()
-	var cutoff := settings.open_hz * pow(settings.strain_shut_hz / settings.open_hz, level)
+	# Holding her breath has already made the house soft (player/body_audio.gd): running out
+	# of air takes it further from there, never back up.
+	var cutoff := minf(settings.open_hz * pow(settings.strain_shut_hz / settings.open_hz, level), BodyAudio.listen_hz(Acoustics.focus))
 	var cutoffs := {}
 	for bus_name in MUFFLED_BUSES: cutoffs[bus_name] = cutoff
 	MixDirector.muffle(MUFFLE, MixDirector.Priority.BREATH, cutoffs)
