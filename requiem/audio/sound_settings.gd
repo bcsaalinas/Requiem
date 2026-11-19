@@ -477,6 +477,26 @@ static func current() -> SoundSettings:
 ## The wait between two runs after that.
 @export var sniff_run_interval := Vector2(3.0, 6.0)
 
+@export_group("Entity: knocking")
+## The switch. On: when it stands still on its patrol next to a door, it now and then knocks on
+## it, from where it stands. Off: it never knocks. Its knocks are the files in
+## assets/audio/entity/knock/ (never the house's knock); while that folder is empty it never
+## knocks, switch or not. A knock is only a sound: the entity does not hear it and nothing
+## changes in what it does.
+@export var entity_knocks_enabled := false
+## The least time between two knocks.
+@export_range(1.0, 600.0, 1.0, "suffix:s") var entity_knock_gap := 120.0
+## It does not knock until it has been calm this long (unaware, on its patrol): never in the
+## first moments of an encounter, nor just after it heard something or gave up a search.
+@export_range(0.0, 300.0, 1.0, "suffix:s") var entity_knock_first := 30.0
+## It has to have stood still this long (a real pause, not just turning) before it knocks.
+@export_range(0.0, 3.0, 0.05, "suffix:s") var entity_knock_still := 0.4
+## How near the middle of a doorway it has to stand to knock on that door.
+@export_range(0.25, 10.0, 0.25, "suffix:u") var entity_knock_door_u := 1.5
+## How loud a knock is, against its file (on top of anything set_gain_db lists for the set).
+## It then loses what any sound of where it is loses on the way to Viv.
+@export_range(-40.0, 6.0, 0.5, "suffix:dB") var entity_knock_db := -6.0
+
 @export_group("Checks: the jump-scare audit")
 ## The audit (testing/tools/jump_scare_audit.gd, development only) logs every rise on Master of
 ## more than this many dB...

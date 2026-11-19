@@ -7,6 +7,7 @@ extends "res://tutorial/tutorial.gd"
 ## - a whole encounter: key 1 makes the entity hear a sound where Viv stands, and from there
 ##   it plays out by itself with its real timings: it listens, screams, hunts (5 s), loses the
 ##   trail, searches (5 s) and gives up. Keys 2 and 3 skip the waits, key 4 is the catch.
+## N turns the entity's knocking on and off for this session (entity_knocks_enabled; saves nothing).
 ##
 ## The line at the top reads out what the music and the mix are doing meanwhile, and the box
 ## under the sound sets how far its sound travels to Viv (the ring, and whether a wall is in the way).
@@ -25,6 +26,9 @@ const LIST_GAP := 0.4
 const HEARD_RADIUS_U := 60.0
 ## The catch is played from this far away from Viv.
 const CATCH_REACH := 28.0
+## Padding above and below the text of a sound-set button: as little as reads well, so that
+## every set and the read-out under them fit on screen (31 sets, 16 rows, today).
+const SET_BUTTON_PAD := 1.0
 
 ## On: the entity cannot hear Viv's own noises and cannot catch her.
 var safe := true
@@ -125,7 +129,7 @@ func _build_controls() -> void:
 	panel.add_child(mix_status)
 	house_status = _label("", 12)
 	panel.add_child(house_status)
-	panel.add_child(_label("WASD move · Space hold breath · F light · E doors · Esc pause · F1 Test Lab", 12))
+	panel.add_child(_label("WASD move · Space hold breath · F light · E doors · N its knocking · Esc pause · F1 Test Lab", 12))
 	var controls := HBoxContainer.new()
 	controls.add_theme_constant_override("separation", 8)
 	panel.add_child(controls)
@@ -144,7 +148,7 @@ func _build_controls() -> void:
 	safe_button = _button(controls, "", func() -> void: set_safe(not safe))
 	safe_button.tooltip_text = "On: the entity cannot hear Viv's own noises and cannot catch her."
 	# The sound sets, down the right edge: just under the controls, packed tight so that every
-	# set and the read-out under them stay on screen (30 sets, 15 rows, today).
+	# set and the read-out under them stay on screen.
 	var list := VBoxContainer.new()
 	list.position = Vector2(PixelDisplay.UI_CANVAS.x - 330.0, 118.0)
 	list.add_theme_constant_override("separation", 2)
@@ -161,12 +165,40 @@ func _build_controls() -> void:
 		button.add_theme_font_size_override("font_size", 11)
 		button.custom_minimum_size = Vector2(160, 0)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		_tighten(button)
 		set_buttons[set_id] = button
 	# How far its sound travels to Viv, under the list.
 	list.add_child(_label("WHERE IT IS, BY EAR", 12))
 	where_status = _label("", 12)
 	where_status.add_theme_constant_override("line_spacing", 0)
 	list.add_child(where_status)
+
+
+## Less padding above and below a button's text (its look is otherwise the theme's).
+func _tighten(button: Button) -> void:
+	for state in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
+		var box := button.get_theme_stylebox(state)
+		if box == null:
+			continue
+		box = box.duplicate() as StyleBox
+		box.content_margin_top = SET_BUTTON_PAD
+		box.content_margin_bottom = SET_BUTTON_PAD
+		button.add_theme_stylebox_override(state, box)
+
+
+## N. The entity's knocking on and off, for this session only (the settings file is not saved).
+func toggle_knocks() -> void:
+	var settings := SoundSettings.current()
+	settings.entity_knocks_enabled = not settings.entity_knocks_enabled
+
+
+func knocks_text() -> String:
+	var voice: EntityAudio = entity.audio
+	if not SoundSettings.current().entity_knocks_enabled:
+		return "knocks: off"
+	if voice == null or voice.last_knock.is_empty():
+		return "knocks: on (none yet)" if SoundLibrary.has_set(EntityAudio.KNOCK) else "knocks: on (no file)"
+	return "knocks: on (last %.0f s ago)" % (voice._clock - float(voice.last_knock.clock))
 
 
 func _label(value: String, font_size: int) -> Label:
@@ -374,7 +406,7 @@ func _process(delta: float) -> void:
 		if _list_wait <= 0.0:
 			_list_wait = play_set_once(_list.pop_front()) + LIST_GAP
 	var cue: String = String(entity.audio.last_awareness.get("moment", "none")) if entity.audio != null else "none"
-	studio_status.text = "It: %s · last cue: %s%s" % [phase(), cue, "" if _playing_set == "" else " · set: " + _playing_set]
+	studio_status.text = "It: %s · last cue: %s · %s%s" % [phase(), cue, knocks_text(), "" if _playing_set == "" else " · set: " + _playing_set]
 	where_status.text = where_text()
 	house_status.text = house_text()
 	mix_status.text = "threat %.2f (%s) · music %s · Ambience %+.1f dB · World %+.1f dB · Body %+.1f dB · Music bus %+.1f dB" % [
@@ -395,6 +427,7 @@ func _input(event: InputEvent) -> void:
 			KEY_H: house_hurry()
 			KEY_K: house_answer()
 			KEY_M: turn_drone()
+			KEY_N: toggle_knocks()
 			KEY_T: set_safe(not safe)
 			KEY_R: reset_audition()
 			KEY_F1:

@@ -27,6 +27,12 @@ extends Node2D
 ## Its idle voice says it is alive and unaware: a mumbled phrase now and then while it walks its
 ## patrol, trailing off when it pauses. While it searches the voice is lower and rarer, and it
 ## sniffs in short runs as it scuttles. It never speaks while it listens, screams or hunts.
+##
+## Behind a switch (entity_knocks_enabled, off by default) it knocks on a door now and then:
+## once in a patrol pause next to a door, at most once every two minutes, only while Viv hears
+## it across her room or a room away (never on top of her). The knock is its own set
+## (entity/knock, never the house's knock) on its own voice, played from where it stands, on the
+## Entity bus. It is only a sound: nothing hears it and nothing it does changes.
 
 ## Animation cue -> sound set. Every cue name in the entity-lab JSON files is here or in
 ## SILENT_CUES (the regression test checks it).
@@ -65,6 +71,9 @@ const SNIFF := "entity/sniff"
 const STAND_DOWN := "entity/stand_down"
 const MUMBLE := "entity/mumble"
 const EXHALE := "entity/exhale"
+## Its knock on a door. Every knock file comes from this folder, never the house's knock.
+const KNOCK := "entity/knock"
+const KNOCK_FOLDER := SoundLibrary.ROOT + KNOCK + "/"
 ## Its voice (the rest of Channel B is its body). A room away its voice gets through more often.
 const VOICE_SETS: Array[String] = [MUMBLE, SNIFF, EXHALE]
 const SILENT_DB := -60.0
@@ -156,6 +165,20 @@ var _sniff_run_wait := -1.0
 var _sniffs_left := 0
 var _sniff_pace := 0.0
 var _sniff_next := 0.0
+## Its knock: its own voice, here on the entity (not under Heard), so it is heard from where it
+## stands, also through a wall.
+var _knock: AudioStreamPlayer2D
+## The last knock: { stream, door, at, level_db, ring, clock } (debug read-out, tests).
+var last_knock := {}
+var _last_knock := -INF
+## Seconds it has been calm (unaware, on its patrol), and seconds it has stood still in this pause.
+var _calm_for := 0.0
+var _paused_for := 0.0
+## This pause: whether the door next to it was looked for, that door (null: none), and whether
+## it knocked.
+var _knock_looked := false
+var _knock_door: Door = null
+var _knocked := false
 
 
 func _ready() -> void:
@@ -179,6 +202,7 @@ func _ready() -> void:
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
 	for index in AWARENESS_VOICES:
 		_aware.append(_player("Awareness%d" % index))
+	_knock = _player("Knock")
 	rig = entity.get_node_or_null("SpriteRig")
 	if rig != null and rig.has_signal(&"cue"):
 		rig.connect(&"cue", play_cue)
@@ -280,6 +304,7 @@ func stop_all() -> void:
 	for loop in [_breath, _drag, _breath_far, _drag_far]:
 		loop.stop()
 	_talk.stop()
+	_knock.stop()
 	_talk_fade = 0.0
 	_sniff_wait = -1.0
 	_sniffs_left = 0
@@ -294,6 +319,7 @@ func reset() -> void:
 	_exhale_covered_until = -INF
 	_sniff_run_wait = -1.0
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
+	_end_pause(true)            # a new encounter: no knock in its first moments
 	if _duck_left >= 0.0:
 		_duck_left = -1.0
 		MixDirector.release(SCREAM_DUCK)
@@ -671,6 +697,10 @@ func _apply_reach() -> void:
 	if _talk.playing:
 		_talk.volume_db = _heard_db(float(_talk.get_meta(&"level", SILENT_DB)))
 		_talk.panning_strength = placing()
+	# The knock is heard from where it stands: weakened with distance, never moved to a doorway.
+	if _knock.playing:
+		_knock.volume_db = _heard_db(float(_knock.get_meta(&"level", SILENT_DB)))
+		_knock.panning_strength = _panning
 	# Loops: the near and the far player share the level, crossfaded by clarity (equal power).
 	var near_db := linear_to_db(maxf(sqrt(heard_clarity), 0.0001))
 	var far_db := linear_to_db(maxf(sqrt(1.0 - heard_clarity), 0.0001))
@@ -705,6 +735,9 @@ func _process(delta: float) -> void:
 		and entity.velocity.length() > Units.to_px(settings.moving_speed_u)
 	_drive_loop(_drag, _drag_far, DRAG if moving else "", delta, reacting)
 	_tick_voice(delta, _state(), moving, reacting or dead or not shown or not active)
+	if dead and _knock.playing:
+		_knock.stop()
+	_tick_knock(delta)
 	_apply_reach()
 
 
@@ -742,6 +775,89 @@ func _tick_voice(delta: float, state: String, moving: bool, silent: bool) -> voi
 			_sniff_pace = _between(settings.sniff_run_pace)
 			_sniff_next = 0.0
 			_sniff_run_wait = _between(settings.sniff_run_interval)
+
+
+## Its knock on a door, behind the switch (entity_knocks_enabled). It knocks once in a patrol
+## pause, when all of this holds: it is unaware and on its patrol, has been calm for
+## entity_knock_first and has stood still for entity_knock_still; the middle of a doorway is
+## within entity_knock_door_u; Viv hears it across her room or a room away (ring 2 or 1: never on
+## top of her, and not when nobody would hear it); its last knock was entity_knock_gap ago; and
+## the knock set has a file. It reads what the entity is doing and changes none of it.
+func _tick_knock(delta: float) -> void:
+	var settings := SoundSettings.current()
+	if not settings.entity_knocks_enabled:
+		_end_pause(true)          # switched on later, it is calm only from then on
+		return
+	var awareness := Dread.awareness_of(entity, self)
+	var calm := awareness <= Dread.Awareness.PAUSED and _state() == "PATROL"
+	_calm_for = _calm_for + delta if calm else 0.0
+	if not calm or awareness != Dread.Awareness.PAUSED or not is_audible() or GameState.is_dead:
+		_end_pause()
+		return
+	_paused_for += delta
+	if _knocked or _paused_for < settings.entity_knock_still or _calm_for < settings.entity_knock_first \
+			or _clock - _last_knock < settings.entity_knock_gap or heard_ring < 1 or heard_ring > 2 \
+			or not SoundLibrary.has_set(KNOCK):
+		return
+	if not _knock_looked:
+		_knock_looked = true
+		_knock_door = _door_near()
+	if is_instance_valid(_knock_door):
+		_play_knock(_knock_door)
+
+
+## A pause is over (it moved, or it is no longer calm). `encounter`: everything starts over,
+## also the time it has been calm.
+func _end_pause(encounter := false) -> void:
+	_paused_for = 0.0
+	_knock_looked = false
+	_knock_door = null
+	_knocked = false
+	if encounter:
+		_calm_for = 0.0
+
+
+## The door whose doorway is nearest to it, within entity_knock_door_u (null: none). Looked up
+## once per pause.
+func _door_near() -> Door:
+	var reach := Units.to_px(SoundSettings.current().entity_knock_door_u)
+	var nearest: Door = null
+	for node in get_tree().root.find_children("*", "Door", true, false):
+		var door := node as Door
+		if door == null or not door.is_visible_in_tree():
+			continue
+		var distance := door.get_noise_origin().distance_to(entity.global_position)
+		if distance <= reach:
+			reach = distance
+			nearest = door
+	return nearest
+
+
+## One knock on `door`: a file of the knock set, from where it stands, on the Entity bus, at the
+## set's level plus entity_knock_db, less what a sound of where it is loses on the way to Viv.
+func _play_knock(door: Door) -> AudioStreamPlayer2D:
+	var settings := SoundSettings.current()
+	_knocked = true
+	var stream := SoundLibrary.pick(KNOCK)
+	# Never the house's knock, nor any file from outside its own folder.
+	if stream == null or not stream.resource_path.begins_with(KNOCK_FOLDER):
+		push_warning("[EntityAudio] a knock must come from %s, not %s" % [KNOCK_FOLDER, stream.resource_path if stream != null else "nothing"])
+		return null
+	_last_knock = _clock
+	var variation: float = settings.set_pitch_range
+	_knock.stream = stream
+	_knock.bus = AudioBus.ENTITY
+	_knock.pitch_scale = randf_range(1.0 - variation, 1.0 + variation)
+	_knock.set_meta(&"level", SoundLibrary.gain_db(KNOCK) + settings.entity_knock_db)
+	_knock.volume_db = _heard_db(float(_knock.get_meta(&"level")))
+	_knock.panning_strength = _panning
+	_knock.play()
+	plays[KNOCK] = int(plays.get(KNOCK, 0)) + 1
+	last_set = KNOCK
+	last_knock = {"stream": stream, "door": door, "at": _knock.global_position, "level_db": _knock.volume_db,
+		"ring": heard_ring, "clock": _clock}
+	played.emit(KNOCK, _knock)
+	return _knock
 
 
 ## One mumbled phrase, never the one said last. Searching, it is lower and slower.

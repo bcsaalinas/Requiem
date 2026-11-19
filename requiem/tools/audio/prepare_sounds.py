@@ -76,6 +76,7 @@ SETS = {
     "entity/cloth_fall": (WHOLE, -20.0),
     "entity/sob_stops": (WHOLE, -20.0),
     "entity/exhale": (WHOLE, -20.0),
+    "entity/knock": (WHOLE, -20.0),          # its knock on a door: kept whole, as loud as its taps
     "viv/hold_in": (WHOLE, -28.0),
     "viv/exhale": (WHOLE, -28.0),
     "viv/gasp": (WHOLE, -28.0),
