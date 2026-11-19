@@ -459,6 +459,11 @@ func check_sound_audition(lab: Node) -> void:
 			and button.focus_mode == Control.FOCUS_NONE
 	check(studio.sets.size() == folders and folders > 0 and every_button_fits,
 		"Every sound set folder has its own button on screen")
+	await frames(20)
+	var where: Rect2 = studio.where_status.get_global_rect()
+	check(canvas.encloses(where) and studio.where_status.text.begins_with("ring %d" % Acoustics.reading(entity).ring)
+		and studio.where_status.text.contains("wall in the way") and Acoustics.reading(entity).valid,
+		"The read-out under the list says how far its sound travels")
 	var length: float = studio.play_set_once("entity/scream")
 	check(length > 0.0 and studio._entity_voice.playing and studio._entity_voice.bus == AudioBus.ENTITY
 		and not studio._viv_voice.playing, "An entity set plays from the entity, on its bus")

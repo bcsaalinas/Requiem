@@ -115,6 +115,28 @@ static func current() -> SoundSettings:
 ## How long they take to come back when she tries again.
 @export_range(0.0, 5.0, 0.05, "suffix:s") var death_release := 1.0
 
+@export_group("Acoustics: how far its sound travels")
+## How many times per second the way from each entity to Viv is measured. Never every frame.
+@export_range(1.0, 20.0, 0.5, "suffix:/s") var acoustics_rate := 5.0
+## The physics layers of the walls (a bit mask; layer 1 is 1). Doors are on another layer and
+## never block sound.
+@export_flags_2d_physics var acoustics_wall_mask := 1
+## When a wall is in the way, the sound travels this far along the walking path (through the
+## doorways) and the rest in a straight line: 0 = walls do nothing, 1 = it only ever travels
+## around them.
+@export_range(0.0, 1.0, 0.05) var acoustics_path_weight := 0.7
+## A wall is in the way and there is no walking path at all: the sound counts as this many
+## times further than the straight line.
+@export_range(1.0, 6.0, 0.1) var acoustics_no_path_factor := 2.5
+## Ring 3, "on top of you": the sound has travelled less than this.
+@export_range(0.5, 40.0, 0.5, "suffix:u") var ring_on_top_u := 4.0
+## Ring 2, "near" (the same room, or the next doorway): less than this.
+@export_range(0.5, 60.0, 0.5, "suffix:u") var ring_near_u := 9.0
+## Ring 1, "somewhere" (about a room away): less than this. Beyond it is ring 0, "gone".
+@export_range(0.5, 120.0, 0.5, "suffix:u") var ring_somewhere_u := 18.0
+## Clarity is 1 (every detail) up to this distance, and falls evenly to 0 where ring 1 ends.
+@export_range(0.0, 60.0, 0.5, "suffix:u") var clarity_full_u := 4.0
+
 @export_group("Sound sets")
 ## Each time a set plays, its pitch moves at random by up to this much either way (0.06 = 0.94 to 1.06).
 @export_range(0.0, 0.3, 0.01) var set_pitch_range := 0.06

@@ -35,6 +35,7 @@ MusicDirector="*res://autoloads/music_director.gd"
 PixelDisplay="*uid://bg081nyu5xrq3"
 MixDirector="*uid://186u4krtuyn7"
 Dread="*res://audio/dread.gd"
+Acoustics="*uid://oselo488hwn8"
 
 [display]
 

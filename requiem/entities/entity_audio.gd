@@ -142,6 +142,8 @@ func _ready() -> void:
 		entity.connect(&"stood_down", _on_stood_down)
 	# The mood of the house follows what this entity knows (audio/dread.gd).
 	Dread.watch(entity, self)
+	# How far its sound travels to Viv is measured a few times per second (audio/acoustics.gd).
+	Acoustics.watch(entity)
 
 
 func _player(player_name: String) -> AudioStreamPlayer2D:

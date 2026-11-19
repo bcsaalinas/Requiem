@@ -8,7 +8,8 @@ extends "res://tutorial/tutorial.gd"
 ##   it plays out by itself with its real timings: it listens, screams, hunts (5 s), loses the
 ##   trail, searches (5 s) and gives up. Keys 2 and 3 skip the waits, key 4 is the catch.
 ##
-## The line at the top reads out what the music and the mix are doing meanwhile.
+## The line at the top reads out what the music and the mix are doing meanwhile, and the box
+## under the sound sets how far its sound travels to Viv (the ring, and whether a wall is in the way).
 ## While "Viv is safe" is on, the entity cannot hear her and cannot catch her, so she can stand
 ## next to it or walk away from it and listen from anywhere.
 
@@ -29,6 +30,7 @@ const CATCH_REACH := 28.0
 var safe := true
 var studio_status: Label
 var mix_status: Label
+var where_status: Label
 var safe_button: Button
 var set_buttons := {}
 var sets: Array[String] = []
@@ -149,6 +151,10 @@ func _build_controls() -> void:
 		button.custom_minimum_size = Vector2(160, 0)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		set_buttons[set_id] = button
+	# How far its sound travels to Viv, under the list.
+	list.add_child(_label("WHERE IT IS, BY EAR", 12))
+	where_status = _label("", 13)
+	list.add_child(where_status)
 
 
 func _label(value: String, font_size: int) -> Label:
@@ -270,6 +276,16 @@ func _stop_voices() -> void:
 		voice.stop()
 
 
+## How its sound reaches Viv right now (audio/acoustics.gd, measured 5 times per second).
+func where_text() -> String:
+	var heard: AcousticReading = Acoustics.reading(entity)
+	if not heard.valid:
+		return "ring 0 · gone (nothing to hear)"
+	return "ring %d · %s\nits sound travels %.1f u · clarity %.2f\nstraight line %.1f u · walking path %s\nwall in the way: %s" % [
+		heard.ring, heard.ring_name(), heard.acoustic_u, heard.clarity, heard.straight_u,
+		"%.1f u" % heard.path_u if heard.path_u >= 0.0 else "none", "yes" if heard.blocked else "no"]
+
+
 ## What the entity is doing, in the words of the design.
 func phase() -> String:
 	if not entity.active or not entity.visible:
@@ -295,6 +311,7 @@ func _process(delta: float) -> void:
 			_list_wait = play_set_once(_list.pop_front()) + LIST_GAP
 	var cue: String = String(entity.audio.last_awareness.get("moment", "none")) if entity.audio != null else "none"
 	studio_status.text = "It: %s · last cue: %s%s" % [phase(), cue, "" if _playing_set == "" else " · set: " + _playing_set]
+	where_status.text = where_text()
 	mix_status.text = "threat %.2f (%s) · music %s · Ambience %+.1f dB · World %+.1f dB · Body %+.1f dB · Music bus %+.1f dB" % [
 		Dread.threat, Dread.awareness_name(), MusicDirector.STATE_NAMES[MusicDirector.current_state],
 		MixDirector.gain_db(AudioBus.AMBIENCE), MixDirector.gain_db(AudioBus.WORLD), MixDirector.gain_db(AudioBus.BODY), MixDirector.gain_db(AudioBus.MUSIC)]
