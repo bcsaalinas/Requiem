@@ -2,9 +2,13 @@ class_name BodyAudio
 extends Node
 ## Viv's body, and the way she listens. A child of the Player called "BodyAudio".
 ##
-## Her breathing: one quiet loop on the Body bus that says how she is. Calm while nothing is
-## after her, nervous once it has heard something or is searching, panicked while it hunts or
-## while she sprints. The three crossfade slowly, and it stops while she holds her breath.
+## Her breathing: one quiet loop on the Body bus, with two kinds of meaning. Her mood says what
+## the entity knows: calm while it is unaware or paused, nervous once it has heard something,
+## searches or hunts (the two crossfade slowly). Her panting says she is physically tired: it
+## comes in gently while she sprints with the exertion meter past its warning (the same number
+## that makes the HUD's bar pulse), grows louder as the meter nears the forced gasp, and has a
+## short tail once she stops sprinting. Panting takes the place of her mood breathing, it is not
+## laid on top. All of it stops while she holds her breath or one of her breath clips sounds.
 ##
 ## Her listening. Moving costs information: while she walks, the entity's far-off sounds (ring
 ## 1) are quieter, and quieter still while she sprints; a second after she stands still they
@@ -20,8 +24,14 @@ extends Node
 
 const CALM := "viv/calm"
 const NERVOUS := "viv/nervous"
-const PANIC := "viv/panic"
-const MOODS: Array[String] = [CALM, NERVOUS, PANIC]
+## Her panting: she is physically tired. (The set keeps its folder name, viv/panic.)
+const PANT := "viv/panic"
+## The two moods: what the entity knows.
+const MOODS: Array[String] = [CALM, NERVOUS]
+## Every breathing loop she has.
+const LOOPS: Array[String] = [CALM, NERVOUS, PANT]
+## The exertion meter is full here: the forced gasp.
+const EXERTION_FULL := 100.0
 ## Names of the requests made to MixDirector while she listens.
 const LISTEN := &"listen"
 const LISTEN_FOCUS := &"listen_focus"
@@ -29,10 +39,12 @@ const SOFTENED: Array[StringName] = [AudioBus.MUSIC, AudioBus.AMBIENCE, AudioBus
 const SILENT_DB := -60.0
 const HeartAudio := preload("res://player/heart_audio.gd")
 
-## The breathing she is heading for ("" = none: she holds her breath, or she is dead).
+## The mood breathing she is heading for ("" = none: she is dead).
 var mood := ""
-## 0..1 per breathing loop: how much of each is up right now.
-var weights := {CALM: 0.0, NERVOUS: 0.0, PANIC: 0.0}
+## 0..1 per breathing loop: how much of each is up right now (they add up to 1 while she breathes).
+var weights := {CALM: 0.0, NERVOUS: 0.0, PANT: 0.0}
+## 0..1: how much of her breathing is panting (the rest is her mood breathing).
+var pant := 0.0
 ## 0..1: 0 while her breathing is held back (holding her breath, and the breath out after it).
 var open := 1.0
 ## 0..1: how hard she is listening (holding her breath).
@@ -43,6 +55,8 @@ var mask_db := 0.0
 var heart: AudioStreamPlayer
 
 var _loops := {}
+## 0..1 per mood: the slow crossfade between calm and nervous, before the panting takes its share.
+var _moods := {CALM: 0.0, NERVOUS: 0.0}
 
 @onready var player: CharacterBody2D = get_parent() as CharacterBody2D
 @onready var breath: Node = get_parent().get_node_or_null("HoldBreath")
@@ -50,7 +64,7 @@ var _loops := {}
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
-	for set_id in MOODS:
+	for set_id in LOOPS:
 		var loop := AudioStreamPlayer.new()
 		loop.name = set_id.get_file().capitalize()
 		loop.bus = AudioBus.BODY
@@ -82,24 +96,49 @@ static func listen_hz(amount: float) -> float:
 	return settings.open_hz * pow(settings.listen_cutoff_hz / settings.open_hz, clampf(amount, 0.0, 1.0))
 
 
-## The breathing that fits this moment.
+## The mood breathing that fits what the entity knows: calm, or nervous once it has heard
+## something, searches or hunts.
 func wanted_mood() -> String:
 	if GameState.is_dead or player == null:
 		return ""
-	if Dread.awareness >= Dread.Awareness.HUNTING or player.get(&"is_sprinting") == true:
-		return PANIC
-	if Dread.awareness in [Dread.Awareness.HEARD, Dread.Awareness.SEARCHING]:
+	if Dread.awareness >= Dread.Awareness.HEARD:
 		return NERVOUS
 	return CALM
 
 
+## The exertion % past which she pants and the HUD warns (HoldBreath.exertion_warn_percent).
+func warning_percent() -> float:
+	return float(breath.exertion_warn_percent) if breath != null else EXERTION_FULL
+
+
+## How tired she is past the warning: 0 at the warning, 1 at the forced gasp.
+func effort() -> float:
+	var warning := warning_percent()
+	if breath == null or warning >= EXERTION_FULL:
+		return 0.0
+	return clampf(inverse_lerp(warning, EXERTION_FULL, float(breath.exertion_percent)), 0.0, 1.0)
+
+
+## True while she should be panting: sprinting, with the exertion meter past its warning.
+func is_tired() -> bool:
+	return breath != null and mood != "" and player.get(&"is_sprinting") == true \
+		and float(breath.exertion_percent) > warning_percent()
+
+
+## What is added to one of her loops, in dB: her mood's trim, or the panting's for how tired she is.
+func trim_db(set_id: String) -> float:
+	var settings := SoundSettings.current()
+	if set_id == PANT:
+		return lerpf(settings.viv_pant_db.x, settings.viv_pant_db.y, effort())
+	return float(settings.viv_breath_db.get(set_id, 0.0))
+
+
 ## The level one of her breathing loops plays at right now, in dB (for tests and read-outs).
 func level_db(set_id: String) -> float:
-	var settings := SoundSettings.current()
 	var amount: float = sqrt(float(weights[set_id])) * open
 	if amount <= 0.0:
 		return SILENT_DB
-	return maxf(SoundLibrary.gain_db(set_id) + float(settings.viv_breath_db.get(set_id, 0.0)) + linear_to_db(amount), SILENT_DB)
+	return maxf(SoundLibrary.gain_db(set_id) + trim_db(set_id) + linear_to_db(amount), SILENT_DB)
 
 
 func _process(delta: float) -> void:
@@ -117,9 +156,20 @@ func _tick_breathing(delta: float, settings: SoundSettings) -> void:
 		open = move_toward(open, 0.0, delta / maxf(settings.viv_breath_hold_fade, 0.001))
 	else:
 		open = move_toward(open, 1.0, delta / maxf(settings.viv_breath_return, 0.001))
+	# Her mood: calm and nervous crossfade slowly between themselves.
 	for set_id in MOODS:
+		_moods[set_id] = move_toward(float(_moods[set_id]), 1.0 if set_id == mood else 0.0, delta / maxf(settings.viv_breath_crossfade, 0.001))
+	# Her panting: in gently once she is tired, out over a short tail once she is not.
+	if is_tired():
+		pant = move_toward(pant, 1.0, delta / maxf(settings.viv_pant_in, 0.001))
+	else:
+		pant = move_toward(pant, 0.0, delta / maxf(settings.viv_pant_tail, 0.001))
+	# The panting takes its share from her mood breathing.
+	for set_id in MOODS:
+		weights[set_id] = float(_moods[set_id]) * (1.0 - pant)
+	weights[PANT] = pant
+	for set_id in LOOPS:
 		var loop: AudioStreamPlayer = _loops[set_id]
-		weights[set_id] = move_toward(float(weights[set_id]), 1.0 if set_id == mood else 0.0, delta / maxf(settings.viv_breath_crossfade, 0.001))
 		if weights[set_id] <= 0.0:
 			if loop.playing: loop.stop()
 			loop.volume_db = SILENT_DB

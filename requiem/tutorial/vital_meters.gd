@@ -26,8 +26,9 @@ extends HBoxContainer
 @export var beat_rate_max: float = 3.4
 
 @export_group("Exertion")
-## Above this, the bar starts pulsing and the row jitters.
-@export var exertion_warn: float = 65.0
+# The bar starts pulsing and the row jitters above the player's HoldBreath.exertion_warn_percent
+# (one number, shared with her panting).
+
 ## Above this, amber bleeds toward alarm.
 @export var exertion_critical: float = 85.0
 
@@ -195,6 +196,9 @@ func _drive_exertion(delta: float, action: StringName) -> void:
 
 	var effort: float = _exertion_bar.value
 	var urgency: float = 0.0
+	# The warning is the player's own number; with no HoldBreath there is no exertion to warn about.
+	var hold_breath: Node = _player.get_node_or_null("HoldBreath")
+	var exertion_warn: float = hold_breath.exertion_warn_percent if hold_breath != null else INF
 	if effort > exertion_warn:
 		var span: float = maxf(100.0 - exertion_warn, 0.001)
 		urgency = clampf((effort - exertion_warn) / span, 0.0, 1.0)

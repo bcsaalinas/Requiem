@@ -390,6 +390,8 @@ func _configure_entity() -> void:
 	entity.revisit_chance = 0.35
 	entity.hide()
 	entity.active=false
+	# Its unseen breathing belongs to the heard phase that switched it on: never to the next zone.
+	entity.set_breathing(false)
 	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
 	arrival_place=Vector2.INF
@@ -401,7 +403,6 @@ func _configure_entity() -> void:
 		for index in range(1,7):
 			points.append(world.marker("house","Patrol%d" % index))
 		entity.reset_encounter(world.marker("house","EntityArrive"),points)
-		entity.set_breathing(false)
 		entity.get_node("CollisionShape2D").set_deferred("disabled",true)
 		heard_step=0
 		heard_at=Vector2.INF

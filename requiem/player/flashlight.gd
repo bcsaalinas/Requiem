@@ -254,7 +254,7 @@ func _play_click() -> void:
 	if click_clips.is_empty():
 		return
 	_audio_player.volume_db = volume_db
-	_audio_player.stream = click_clips[randi() % click_clips.size()]
+	_audio_player.stream = SoundLibrary.pick_from("flashlight:click", click_clips)
 	_audio_player.play()
 
 	_click_token += 1

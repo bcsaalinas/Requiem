@@ -38,6 +38,10 @@ signal hold_cancelled()
 @export var exertion_rise_rate_percent: float = 6.0
 ## Baja solo mientras estas en calma (ni esprint, ni aguantar, ni bloqueado).
 @export var exertion_decay_rate_percent: float = 4.0
+## Feedback only: past this % the HUD's exertion bar pulses and jitters, and her panting starts
+## while she sprints (player/body_audio.gd). Nothing about the mechanic reads it: the rates,
+## the forced gasp at 100 and what the entity hears do not change with it.
+@export var exertion_warn_percent: float = 65.0
 ## "Calma" = de verdad quieto. Caminar NO descansa. Sin esto el agotamiento
 ## nunca puede subir aguantando la respiracion (ver nota de balance abajo).
 @export var calm_speed_threshold_u: float = 0.1
@@ -258,7 +262,7 @@ func _play_random_clip(clips: Array[AudioStream]) -> void:
 
 	_audio_player.global_position = player.global_position
 	_audio_player.volume_db = volume_db
-	_audio_player.stream = clips[randi() % clips.size()]
+	_audio_player.stream = SoundLibrary.pick_from("hold_breath:" + SoundLibrary.list_key(clips), clips)
 	_audio_player.play()
 
 

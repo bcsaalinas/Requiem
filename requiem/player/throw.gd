@@ -367,7 +367,7 @@ func _play_random_clip(clips: Array[AudioStream], at: Vector2) -> void:
 
 	_audio_player.global_position = at
 	_audio_player.volume_db = volume_db
-	_audio_player.stream = clips[randi() % clips.size()]
+	_audio_player.stream = SoundLibrary.pick_from("throw:" + SoundLibrary.list_key(clips), clips)
 	_audio_player.play()
 
 

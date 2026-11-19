@@ -310,6 +310,9 @@ func where_text() -> String:
 	var her_body := player.get_node_or_null("BodyAudio") as BodyAudio
 	var her := "" if her_body == null else "\nViv: %s · listening %.2f · her steps cover %.0f dB" % [
 		her_body.mood.get_file() if her_body.mood != "" else "no breathing", her_body.listen, -voice.masked_db()]
+	# Its own line, only while she pants: on the line above it would not fit the column.
+	if her_body != null and her_body.pant > 0.0:
+		her += "\nViv: panting %d%% (she is tired)" % roundi(her_body.pant * 100.0)
 	return text + "\nposition sounds: %s\nplaced %d%% · lost on the way %d\npresence %.2f · the house recedes %.2f%s" % [
 		"silent" if level <= EntityAudio.GONE_DB else "%.0f dB · %d%% dulled" % [level, roundi((1.0 - voice.heard_clarity) * 100.0)],
 		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, Dread.presence, MixDirector.recede(), her]

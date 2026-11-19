@@ -240,7 +240,7 @@ func _reproducir_sonido_rezo() -> void:
 		return
 	_audio_player.global_position = global_position
 	_audio_player.volume_db = pray_volume_db
-	_audio_player.stream = pray_clips[randi() % pray_clips.size()]
+	_audio_player.stream = SoundLibrary.pick_from("altar:pray", pray_clips)
 	_audio_player.play()
 
 

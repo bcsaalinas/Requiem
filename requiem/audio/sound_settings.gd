@@ -133,11 +133,22 @@ static func current() -> SoundSettings:
 @export_range(0.0, 5.0, 0.05, "suffix:s") var death_release := 1.0
 
 @export_group("Viv: her body and her listening")
-## What is added to each of her breathing loops, in dB. The files are already quiet (calm and
-## nervous -32 LUFS, panic -24 LUFS); turn one down here if it is ever too present.
-@export var viv_breath_db := {"viv/calm": 0.0, "viv/nervous": 0.0, "viv/panic": 0.0}
+## What is added to her two mood breathing loops, in dB (0 or less). Both files are -32 LUFS.
+## Calm (it knows nothing) is a breath you find when you listen for it, about -44 LUFS; nervous
+## (it has heard something, searches or hunts) is a little more present, about -40 LUFS. Her
+## panting has its own level below (viv_pant_db).
+@export var viv_breath_db := {"viv/calm": -12.0, "viv/nervous": -8.0}
 ## Seconds for her breathing to change from one mood to another.
 @export_range(0.1, 6.0, 0.1, "suffix:s") var viv_breath_crossfade := 1.5
+## Her panting (the viv/panic file, -24 LUFS) says she is physically tired: it plays while she
+## sprints with the exertion meter past its warning. What is added to it, in dB (0 or less):
+## x at the warning, y just before the forced gasp; in between it follows how tired she is.
+## The defaults give about -40 LUFS at the warning and -31 LUFS just before the gasp.
+@export var viv_pant_db := Vector2(-16.0, -7.0)
+## Seconds for her panting to come in once she is tired (a gentle way in).
+@export_range(0.1, 6.0, 0.1, "suffix:s") var viv_pant_in := 2.0
+## Seconds for her panting to fade once she stops sprinting (a short tail).
+@export_range(0.1, 6.0, 0.1, "suffix:s") var viv_pant_tail := 2.5
 ## Seconds for her breathing to stop when she holds her breath.
 @export_range(0.0, 1.0, 0.01, "suffix:s") var viv_breath_hold_fade := 0.15
 ## Seconds for it to come back once she breathes again (after the breath out has sounded).

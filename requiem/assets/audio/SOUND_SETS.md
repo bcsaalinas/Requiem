@@ -468,7 +468,7 @@ Kind: loop (OGG, crossfaded ends, loop on in the import settings). Target: -32 L
 
 ## viv/panic
 
-Plays: Breathing loop, hunted or sprinting  
+Plays: Breathing loop, panting: sprinting past the exertion warning  
 Kind: loop (OGG, crossfaded ends, loop on in the import settings). Target: -24 LUFS.
 
 | File | Length (s) | Loudness (LUFS) | Peak (dB) | Loop | From | Notes |

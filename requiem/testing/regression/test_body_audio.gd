@@ -1,7 +1,9 @@
 extends Node2D
 ## Viv's body and her listening (headless).
-## Her breath clips are her own sets, on Body, with the noise they make unchanged. Her
-## breathing loop follows the situation and stops while she holds her breath. Holding her
+## Her breath clips are her own sets, on Body, with the noise they make unchanged, and no take
+## plays twice running. Her breathing: calm or nervous by what the entity knows, quiet; panting
+## only while she sprints past the exertion warning (the HUD's number too), louder as she tires,
+## with a short tail; it stops while she holds her breath. Holding her
 ## breath makes the house soft and the entity a little louder, further-reaching and less
 ## broken up; walking and sprinting cover its far-off sounds. She has one heart: the hunt and
 ## running out of air both play through it, never two at once (test_heart covers the rest).
@@ -26,6 +28,7 @@ var player: CharacterBody2D
 var breath: Node
 var body: BodyAudio
 var noises := 0
+var radii: Array[float] = []
 var gasps := 0
 
 
@@ -54,7 +57,7 @@ func _ready() -> void:
 	settings = SoundSettings.current()
 	GameState.reset()
 	Input.action_release("hold_breath")
-	NoiseManager.noise_emitted.connect(func(_at: Vector2, _radius: float, _source: int, _duration: float) -> void: noises += 1)
+	NoiseManager.noise_emitted.connect(_on_noise)
 	check_settings()
 	check_scene()
 	await set_up_alone()
@@ -62,6 +65,7 @@ func _ready() -> void:
 	await check_listening()
 	await check_masking()
 	await check_one_heartbeat()
+	await check_no_repeat()
 	player.queue_free()
 	await frames(3)
 	check(is_zero_approx(Acoustics.focus) and is_zero_approx(Acoustics.mask_db) and not MixDirector.is_active(BodyAudio.LISTEN),
@@ -70,6 +74,11 @@ func _ready() -> void:
 	print("[Body audio tests] %d/%d passed" % [checks - failures.size(), checks])
 	await seconds(0.25)
 	get_tree().quit(0 if failures.is_empty() else 1)
+
+
+func _on_noise(_at: Vector2, radius: float, _source: int, _duration: float) -> void:
+	noises += 1
+	radii.append(radius)
 
 
 func check_settings() -> void:
@@ -86,7 +95,7 @@ func check_settings() -> void:
 	for path in ["res://player/body_audio.gd", "res://player/breath_strain_audio.gd", "res://player/heart_audio.gd"]:
 		var source := FileAccess.get_file_as_string(path)
 		check(not source.contains("NoiseManager") and not source.contains("AudioServer"), "%s makes no noise and touches no bus" % path.get_file())
-	for set_id in BodyAudio.MOODS:
+	for set_id in BodyAudio.LOOPS:
 		check(SoundLibrary.files(set_id).size() >= 1, "%s has a file" % set_id)
 
 
@@ -127,38 +136,185 @@ func loop(set_id: String) -> AudioStreamPlayer:
 func check_breathing() -> void:
 	await seconds(settings.viv_breath_crossfade + 0.3)
 	check(body.mood == BodyAudio.CALM and near(body.weights[BodyAudio.CALM], 1.0, 0.001) and loop(BodyAudio.CALM).playing
-		and not loop(BodyAudio.NERVOUS).playing and not loop(BodyAudio.PANIC).playing, "With nothing after her she breathes calmly")
+		and not loop(BodyAudio.NERVOUS).playing and not loop(BodyAudio.PANT).playing, "With nothing after her she breathes calmly")
 	check(near(loop(BodyAudio.CALM).volume_db, SoundLibrary.gain_db(BodyAudio.CALM) + float(settings.viv_breath_db[BodyAudio.CALM]), 0.1)
-		and loop(BodyAudio.CALM).volume_db <= 0.0, "At the level of its file, never turned up (%.1f dB)" % loop(BodyAudio.CALM).volume_db)
+		and loop(BodyAudio.CALM).volume_db <= 0.0, "At the level of its file plus its trim, never turned up (%.1f dB)" % loop(BodyAudio.CALM).volume_db)
+	check(float(settings.viv_breath_db[BodyAudio.CALM]) <= -12.0 and float(settings.viv_breath_db[BodyAudio.NERVOUS]) <= -8.0
+		and not settings.viv_breath_db.has(BodyAudio.PANT), "Calm is at least 12 dB under its file, nervous at least 8 dB; the panting has its own level")
+	check(settings.viv_pant_db.x <= settings.viv_pant_db.y and settings.viv_pant_db.y <= 0.0
+		and near(settings.viv_pant_in, 2.0, 0.001) and near(settings.viv_pant_tail, 2.5, 0.001),
+		"The panting goes from %.0f dB at the warning to %.0f dB before the gasp, never turned up; in over 2 s, a 2.5 s tail" % [settings.viv_pant_db.x, settings.viv_pant_db.y])
+	check(near(breath.exertion_warn_percent, 65.0, 0.001) and near(body.warning_percent(), breath.exertion_warn_percent, 0.001),
+		"Her panting starts at the player's one exertion warning (65 %)")
+	var hold_source := FileAccess.get_file_as_string("res://player/hold_breath.gd")
+	check(hold_source.count("exertion_warn_percent") == 1, "Nothing about the mechanic reads the warning: it is only declared in HoldBreath")
 	# What each moment asks for.
 	var wanted := {Dread.Awareness.UNAWARE: BodyAudio.CALM, Dread.Awareness.PAUSED: BodyAudio.CALM, Dread.Awareness.HEARD: BodyAudio.NERVOUS,
-		Dread.Awareness.SEARCHING: BodyAudio.NERVOUS, Dread.Awareness.HUNTING: BodyAudio.PANIC}
+		Dread.Awareness.SEARCHING: BodyAudio.NERVOUS, Dread.Awareness.HUNTING: BodyAudio.NERVOUS}
 	var before: int = Dread.awareness
 	var right := true
 	for awareness: int in wanted:
 		Dread.awareness = awareness
 		right = right and body.wanted_mood() == wanted[awareness]
 	Dread.awareness = before
-	check(right, "Calm while it is unaware, nervous once it has heard something or searches, panicked while it hunts")
-	# Sprinting.
+	check(right, "Calm while it is unaware or paused, nervous once it has heard something, searches or hunts")
+	# Nervous, with a stand-in that searches and then hunts.
+	var hunter := Hunter.new()
+	hunter.current_state = EntityAudio.SEARCH
+	add_child(hunter)
+	hunter.set_physics_process(false)
+	Dread.watch(hunter)
+	await seconds(settings.viv_breath_crossfade + 0.3)
+	check(body.mood == BodyAudio.NERVOUS and loop(BodyAudio.NERVOUS).playing and not loop(BodyAudio.CALM).playing
+		and near(loop(BodyAudio.NERVOUS).volume_db, SoundLibrary.gain_db(BodyAudio.NERVOUS) + float(settings.viv_breath_db[BodyAudio.NERVOUS]), 0.1)
+		and loop(BodyAudio.NERVOUS).volume_db <= 0.0, "While it searches she breathes nervously, at its file plus its trim (%.1f dB)" % loop(BodyAudio.NERVOUS).volume_db)
+	hunter.current_state = EntityAudio.HUNT
+	await seconds(1.0)
+	check(Dread.awareness == Dread.Awareness.HUNTING and body.mood == BodyAudio.NERVOUS and is_zero_approx(body.pant)
+		and not loop(BodyAudio.PANT).playing, "While it hunts, still nervous: no panting while she is not tired")
+	hunter.queue_free()
+	await seconds(settings.viv_breath_crossfade + 0.3)
+	check(body.mood == BodyAudio.CALM and near(body.weights[BodyAudio.CALM], 1.0, 0.001), "Calm again once it is gone")
+	# Sprinting from rested: nothing yet.
+	breath.exertion_percent = 0.0
 	player.set_physics_process(false)
+	player.velocity = Vector2.ZERO
 	player.is_sprinting = true
-	await seconds(settings.viv_breath_crossfade * 0.5)
-	check(body.mood == BodyAudio.PANIC and loop(BodyAudio.CALM).playing and loop(BodyAudio.PANIC).playing
-		and body.weights[BodyAudio.CALM] > 0.2 and body.weights[BodyAudio.CALM] < 0.8 and body.weights[BodyAudio.PANIC] > 0.2,
-		"Sprinting, her breathing crosses over to panic: halfway, both are heard")
-	await seconds(settings.viv_breath_crossfade * 0.5 + 0.3)
-	check(not loop(BodyAudio.CALM).playing and near(body.weights[BodyAudio.PANIC], 1.0, 0.001), "After 1.5 s only the panic is left")
+	await seconds(3.0)
+	check(breath.exertion_percent > 10.0 and breath.exertion_percent < breath.exertion_warn_percent and is_zero_approx(body.pant)
+		and not loop(BodyAudio.PANT).playing and near(body.weights[BodyAudio.CALM], 1.0, 0.001) and loop(BodyAudio.CALM).playing,
+		"Three seconds of sprinting from rested (%.0f %%): no panting, her calm breathing in full" % breath.exertion_percent)
+	# Just past the warning: the panting comes in gently.
+	var warning: float = breath.exertion_warn_percent
+	await hold_exertion(warning + 0.5, settings.viv_pant_in * 0.5)
+	var total: float = body.weights[BodyAudio.CALM] + body.weights[BodyAudio.NERVOUS] + body.weights[BodyAudio.PANT]
+	check(body.pant > 0.3 and body.pant < 0.7 and loop(BodyAudio.CALM).playing and loop(BodyAudio.PANT).playing and near(total, 1.0, 0.001),
+		"Just past the warning the panting comes in: halfway both are heard (%.2f) and they add up to 1" % body.pant)
+	await hold_exertion(warning + 0.5, settings.viv_pant_in * 0.5 + 0.3)
+	check(near(body.pant, 1.0, 0.001) and not loop(BodyAudio.CALM).playing and is_zero_approx(body.weights[BodyAudio.CALM])
+		and near(loop(BodyAudio.PANT).volume_db, SoundLibrary.gain_db(BodyAudio.PANT) + settings.viv_pant_db.x, 0.2) and loop(BodyAudio.PANT).volume_db <= 0.0,
+		"After %.0f s only the panting is up, at its quiet level (%.1f dB)" % [settings.viv_pant_in, loop(BodyAudio.PANT).volume_db])
+	# It builds with how tired she is.
+	var rising := true
+	var last := -INF
+	var percent := warning + 0.5
+	while percent < 99.9:
+		breath.exertion_percent = percent
+		rising = rising and body.trim_db(BodyAudio.PANT) >= last - 0.0001
+		last = body.trim_db(BodyAudio.PANT)
+		percent += 0.5
+	breath.exertion_percent = 82.5
+	var halfway: float = body.trim_db(BodyAudio.PANT)
+	breath.exertion_percent = 99.0
+	var at_99: float = body.trim_db(BodyAudio.PANT)
+	check(rising and near(halfway, (settings.viv_pant_db.x + settings.viv_pant_db.y) * 0.5, 0.01) and near(at_99, settings.viv_pant_db.y, 0.3),
+		"The panting builds and never falls as she tires: %.1f dB at 82.5 %%, %.1f dB at 99 %%" % [halfway, at_99])
+	await hold_exertion(95.0, 0.2)
+	check(near(loop(BodyAudio.PANT).volume_db, SoundLibrary.gain_db(BodyAudio.PANT) + body.trim_db(BodyAudio.PANT), 0.2)
+		and loop(BodyAudio.PANT).volume_db > SoundLibrary.gain_db(BodyAudio.PANT) + settings.viv_pant_db.x + 3.0 and loop(BodyAudio.PANT).volume_db <= 0.0,
+		"Near the gasp it is louder (%.1f dB), still never turned up" % loop(BodyAudio.PANT).volume_db)
+	# The tail.
+	player.is_sprinting = false
+	await hold_exertion(80.0, settings.viv_pant_tail * 0.4)
+	check(body.pant > 0.3 and loop(BodyAudio.PANT).playing, "She stops sprinting, still tired: the panting does not stop at once (%.2f)" % body.pant)
+	await hold_exertion(80.0, settings.viv_pant_tail * 0.6 + 0.3)
+	check(is_zero_approx(body.pant) and not loop(BodyAudio.PANT).playing and near(body.weights[BodyAudio.CALM], 1.0, 0.001) and loop(BodyAudio.CALM).playing,
+		"After a %.1f s tail it is gone and her calm breathing is back" % settings.viv_pant_tail)
+	check(noises == 0, "Her breathing makes no noise the entity can hear")
+	# Walking while tired: no panting. Sprinting again while tired: straight back.
+	player.velocity = Vector2(Units.to_px(player.walk_speed_u), 0.0)
+	await hold_exertion(80.0, settings.viv_pant_in + 0.3)
+	check(is_zero_approx(body.pant) and not loop(BodyAudio.PANT).playing, "Walking with her exertion high, she does not pant")
+	player.is_sprinting = true
+	player.velocity = Vector2(Units.to_px(player.sprint_speed_u), 0.0)
+	await hold_exertion(80.0, settings.viv_pant_in + 0.2)
+	check(near(body.pant, 1.0, 0.001) and loop(BodyAudio.PANT).playing, "Sprinting again while still tired, the panting is back within %.0f s" % settings.viv_pant_in)
+	player.is_sprinting = false
+	player.velocity = Vector2.ZERO
+	await hold_exertion(75.0, settings.viv_pant_tail + 0.3)
+	# Holding her breath past the warning: no panting, her breathing closed.
+	player.set_physics_process(true)
+	Input.action_press("hold_breath")
+	await hold_exertion(75.0, settings.viv_pant_in + 0.3)
+	check(breath.is_holding and is_zero_approx(body.pant) and not loop(BodyAudio.PANT).playing and body.open <= 0.001
+		and loop(BodyAudio.CALM).volume_db <= BodyAudio.SILENT_DB, "Holding her breath past the warning: no panting, and her breathing closed as before")
+	Input.action_release("hold_breath")
+	await frames(2)
+	for tick in 400:
+		if not breath.is_sounding(): break
+		await frames(1)
+	breath.exertion_percent = 0.0
+	breath.lung_percent = 100.0
+	await seconds(settings.viv_breath_return + 0.3)
+	# The forced gasp at 100 % while she sprints.
+	player.set_physics_process(false)
+	player.velocity = Vector2.ZERO
+	player.is_sprinting = true
+	await hold_exertion(90.0, settings.viv_pant_in + 0.3)
+	check(near(body.pant, 1.0, 0.001), "Sprinting at 90 %, she pants")
+	noises = 0
+	radii.clear()
+	gasps = 0
+	for tick in 600:
+		await frames(1)
+		if gasps > 0: break
+	check(gasps == 1 and noises == 1 and near(radii[0] if not radii.is_empty() else 0.0, Units.to_px(breath.forced_gasp_radius_u), 0.01)
+		and is_zero_approx(breath.exertion_percent) and breath.is_locked,
+		"At 100 %% the forced gasp: one gasp, one noise of %.0f u, her exertion back to 0" % breath.forced_gasp_radius_u)
+	var pant_db: float = loop(BodyAudio.PANT).volume_db
+	var never_up := true
+	var closed_under := true
+	var elapsed := 0.0
+	while elapsed < settings.viv_pant_tail + 1.0:
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+		never_up = never_up and loop(BodyAudio.PANT).volume_db <= pant_db + 0.001
+		pant_db = loop(BodyAudio.PANT).volume_db
+		if elapsed > settings.viv_breath_hold_fade + 0.05 and breath.is_sounding():
+			closed_under = closed_under and body.open <= 0.001
+	check(closed_under and breath._audio_player.stream != null, "Her breathing is closed under the gasp clip")
+	check(never_up and is_zero_approx(body.pant) and not loop(BodyAudio.PANT).playing and not body.is_tired(),
+		"After the gasp the panting only fades, at its quietest, and does not come back while she is not tired")
 	player.is_sprinting = false
 	player.set_physics_process(true)
-	await seconds(settings.viv_breath_crossfade + 0.3)
-	check(body.mood == BodyAudio.CALM and not loop(BodyAudio.PANIC).playing, "And back to calm once she stops")
-	check(noises == 0, "Her breathing makes no noise the entity can hear")
+	for tick in 400:
+		if not breath.is_sounding(): break
+		await frames(1)
+	breath.exertion_percent = 0.0
+	await seconds(settings.viv_breath_return + 0.3)
+	check(near(body.open, 1.0, 0.001) and near(body.weights[BodyAudio.CALM], 1.0, 0.001) and loop(BodyAudio.CALM).playing,
+		"Then her calm breathing returns: she has settled")
+	# The one number.
+	breath.exertion_warn_percent = 40.0
+	player.set_physics_process(false)
+	player.is_sprinting = true
+	await hold_exertion(39.5, settings.viv_pant_in)
+	var not_yet := is_zero_approx(body.pant)
+	await hold_exertion(41.0, settings.viv_pant_in + 0.3)
+	check(not_yet and near(body.pant, 1.0, 0.001) and near(body.trim_db(BodyAudio.PANT), settings.viv_pant_db.x, 0.3),
+		"With the warning moved to 40 %, the panting starts just past 40 % (and enters quietly)")
+	breath.exertion_warn_percent = 65.0
+	player.is_sprinting = false
+	await hold_exertion(0.0, settings.viv_pant_tail + 0.3)
+	player.set_physics_process(true)
+	await frames(2)
 	GameState.is_dead = true
 	await seconds(settings.viv_breath_hold_fade + 0.2)
-	check(body.mood == "" and loop(BodyAudio.CALM).volume_db <= BodyAudio.SILENT_DB, "Dead, she does not breathe")
+	check(body.mood == "" and loop(BodyAudio.CALM).volume_db <= BodyAudio.SILENT_DB and loop(BodyAudio.PANT).volume_db <= BodyAudio.SILENT_DB,
+		"Dead, she does not breathe")
 	GameState.reset()
 	await seconds(settings.viv_breath_return + 0.3)
+
+
+## Keeps her exertion where it is for `time` seconds (it would rise or fall by itself), set
+## before her BodyAudio reads it each frame.
+func hold_exertion(percent: float, time: float) -> void:
+	var elapsed := 0.0
+	breath.exertion_percent = percent
+	while elapsed < time:
+		await get_tree().process_frame
+		breath.exertion_percent = percent
+		elapsed += get_process_delta_time()
 
 
 func cutoffs() -> Array:
@@ -393,8 +549,96 @@ func check_in_the_house() -> void:
 		await frames(1)
 		if Dread.awareness == Dread.Awareness.HUNTING:
 			await frames(2)
-			hunted = her_body.mood == BodyAudio.PANIC
+			hunted = her_body.mood == BodyAudio.NERVOUS and is_zero_approx(her_body.pant)
 			break
-	check(hunted, "When it hunts, panicked")
+	check(hunted, "When it hunts, still nervous, and no panting while she is not tired")
+	await check_hud_warning(game, her_body)
 	game.queue_free()
 	await frames(3)
+
+
+## The HUD's exertion bar pulses past the same one number that starts her panting.
+func check_hud_warning(game: Node2D, her_body: BodyAudio) -> void:
+	var vitals: Node = game.hud.get_node("Screen/Vitals")
+	var her_breath: Node = game.player.get_node("HoldBreath")
+	var warning: float = her_breath.exertion_warn_percent
+	check(not (&"exertion_warn" in vitals) and near(her_body.warning_percent(), warning, 0.001),
+		"The HUD has no warning of its own: it and her panting read HoldBreath's (%.0f %%)" % warning)
+	var at_warning := await exertion_pulses(her_breath, vitals, warning)
+	var past_warning := await exertion_pulses(her_breath, vitals, warning + 2.0)
+	check(not at_warning and past_warning, "The HUD's exertion bar is still at the warning and pulses just past it")
+	her_breath.exertion_warn_percent = 40.0
+	var at_new := await exertion_pulses(her_breath, vitals, 40.0)
+	var past_new := await exertion_pulses(her_breath, vitals, 42.0)
+	check(not at_new and past_new and near(her_body.warning_percent(), 40.0, 0.001),
+		"Moving the one number to 40 %% moves the HUD's warning and her panting together")
+	her_breath.exertion_warn_percent = warning
+	her_breath.exertion_percent = 0.0
+
+
+## Holds her exertion at `percent` for a second: true if the HUD's exertion bar pulsed.
+func exertion_pulses(her_breath: Node, vitals: Node, percent: float) -> bool:
+	var bar: ProgressBar = vitals.get_node("Exertion/Meter")
+	var lowest := 1.0
+	var elapsed := 0.0
+	her_breath.exertion_percent = percent
+	await get_tree().process_frame
+	while elapsed < 1.0:
+		her_breath.exertion_percent = percent
+		await get_tree().process_frame
+		lowest = minf(lowest, bar.modulate.a)
+		elapsed += get_process_delta_time()
+	return lowest < 0.98
+
+
+## No take of hers plays twice running: SoundLibrary.pick_from, and the real users of it.
+func check_no_repeat() -> void:
+	var three: Array = [AudioStreamWAV.new(), AudioStreamWAV.new(), AudioStreamWAV.new()]
+	var two: Array = [AudioStreamWAV.new(), AudioStreamWAV.new()]
+	var one: Array = [AudioStreamWAV.new()]
+	var fine := true
+	for list: Array in [two, three]:
+		var seen := {}
+		var last: AudioStream = null
+		for draw in 300:
+			var clip := SoundLibrary.pick_from("test:%d" % list.size(), list)
+			fine = fine and clip != last and list.has(clip)
+			seen[clip] = true
+			last = clip
+		fine = fine and seen.size() == list.size()
+	check(fine, "From two or three takes, never the same twice running, and every take is heard")
+	var single := true
+	for draw in 20:
+		single = single and SoundLibrary.pick_from("test:one", one) == one[0]
+	check(single and SoundLibrary.pick_from("test:none", []) == null, "One take always gives that take; none gives nothing")
+	var apart := true
+	var last_a: AudioStream = null
+	var last_b: AudioStream = null
+	for draw in 200:
+		var a := SoundLibrary.pick_from("test:a", three)
+		var b := SoundLibrary.pick_from("test:b", three)
+		apart = apart and a != last_a and b != last_b
+		last_a = a
+		last_b = b
+	check(apart, "Two lists remember their last take apart from each other")
+	SoundLibrary.clear()
+	check(not SoundLibrary._last_pick.has(SoundLibrary.LIST_KEY + "test:a"), "Clearing the library forgets them too")
+	# Her breath in through the real player: 50 plays.
+	var never_twice := true
+	var previous: AudioStream = null
+	for play in 50:
+		breath._play_random_clip(breath.hold_clips)
+		var stream: AudioStream = breath._audio_player.stream
+		never_twice = never_twice and stream != previous and stream.resource_path.begins_with(SoundLibrary.ROOT + "viv/hold_in/")
+		previous = stream
+	var alternates := true
+	for play in 20:
+		breath._play_random_clip(breath.exhale_clips)
+		alternates = alternates and breath._audio_player.stream != previous
+		previous = breath._audio_player.stream
+	breath._audio_player.stop()
+	check(never_twice and alternates, "Fifty breaths in and twenty breaths out: never the same take twice running")
+	for path in ["res://player/hold_breath.gd", "res://player/throw.gd", "res://player/flashlight.gd", "res://altar/body_altar.gd"]:
+		var source := FileAccess.get_file_as_string(path)
+		check(source.contains("SoundLibrary.pick_from(") and not source.contains("[randi() %"), "%s chooses its takes with the no-repeat rule" % path.get_file())
+	await frames(2)

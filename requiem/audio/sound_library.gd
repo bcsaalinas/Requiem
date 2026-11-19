@@ -10,6 +10,8 @@ extends RefCounted
 
 const ROOT := "res://assets/audio/"
 const TYPES: Array[String] = ["wav", "ogg", "mp3"]
+## pick_from() remembers its lists under this prefix, so a list never shares memory with a set.
+const LIST_KEY := "list:"
 
 static var _sets := {}
 static var _files := {}
@@ -61,11 +63,33 @@ static func pick(set_id: String) -> AudioStream:
 	if variations.is_empty():
 		stream(set_id)      # warns once
 		return null
-	var index := randi() % variations.size()
-	if variations.size() > 1 and index == int(_last_pick.get(set_id, -1)):
-		index = (index + 1 + randi() % (variations.size() - 1)) % variations.size()
-	_last_pick[set_id] = index
-	return variations[index]
+	return variations[_next_index(set_id, variations.size())]
+
+
+## The same rule as pick() for a list of clips a script holds itself (her breath takes, the
+## throw, the flashlight's click, the prayer): one at random, never the one it gave last time
+## for `key` when there are two or more; null for an empty list. Each list needs its own key.
+static func pick_from(key: String, clips: Array) -> AudioStream:
+	if clips.is_empty():
+		return null
+	return clips[_next_index(LIST_KEY + key, clips.size())]
+
+
+## A key for pick_from() that tells one list of clips from another: its first clip's file.
+static func list_key(clips: Array) -> String:
+	if clips.is_empty() or clips[0] == null:
+		return ""
+	var first: Resource = clips[0]
+	return first.resource_path if not first.resource_path.is_empty() else str(first.get_instance_id())
+
+
+## A random index below `size`, never the one given last time for `memory` (when size > 1).
+static func _next_index(memory: String, size: int) -> int:
+	var index := randi() % size
+	if size > 1 and index == int(_last_pick.get(memory, -1)):
+		index = (index + 1 + randi() % (size - 1)) % size
+	_last_pick[memory] = index
+	return index
 
 
 static func has_set(set_id: String) -> bool:

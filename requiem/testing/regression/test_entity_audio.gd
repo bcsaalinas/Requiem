@@ -252,6 +252,14 @@ func check_in_the_house() -> void:
 	await frames(2)
 	check(audio.breath_set() == EntityAudio.BREATH_CALM, "The tutorial can let it be heard breathing before it is seen")
 	audio.set_breathing(false)
+	# Switched on the way the tutorial's unseen arrival does it, then Viv leaves for another zone.
+	entity.set_breathing(true)
+	await frames(2)
+	var unseen_on: bool = audio.breathes_unseen and audio.breath_set() == EntityAudio.BREATH_CALM
+	game.enter_zone("forest", Vector2.INF, false)
+	await get_tree().create_timer(SoundSettings.current().loop_fade + 0.3).timeout
+	check(unseen_on and not audio.breathes_unseen and audio.breath_set() == "" and not audio._breath.playing and not audio._breath_far.playing,
+		"Its unseen breathing does not follow her into the next zone")
 	Acoustics.set_listener(null)
 	game.queue_free()
 	await frames(3)
