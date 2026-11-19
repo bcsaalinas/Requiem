@@ -1,0 +1,93 @@
+{
+ "clip": "throw_release",
+ "part": "arm_right_off",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_throw_release_arm_right_off.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right",
+  "flashlight_held"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 210,
+ "clip_note": "the arm whips forward; the pebble leaves the hand on frame 1 (spawn the projectile there, at hand_left); then throw_recover",
+ "plays_over": "girl_stand_lower, girl_sneak_lower and girl_side_step_lower (the last two moved by their upper_offset); the body turns as one toward the aim (MOVEMENT_PLAN)",
+ "loop": false,
+ "sound_frames": [
+  1
+ ],
+ "projectile_frame": 1,
+ "state": "flashlight low, off",
+ "light_note": "the flashlight and the hand on it stay at rest (Beti 2026-11-16: the body leans, the light stays)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 50,
+   "anchors": {
+    "hand_left": [
+     128.0,
+     110.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 70,
+   "anchors": {
+    "hand_left": [
+     101.0,
+     126.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 90,
+   "anchors": {
+    "hand_left": [
+     93.0,
+     128.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  }
+ ]
+}

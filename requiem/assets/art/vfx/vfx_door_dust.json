@@ -1,0 +1,53 @@
+{
+  "name": "vfx_door_dust",
+  "category": "vfx",
+  "description": "Plaster and wood dust bursting out when a 2-unit door is slammed, 3 frames spreading N and S.",
+  "sheet": {
+    "file": "vfx_door_dust.png",
+    "hframes": 3,
+    "vframes": 1
+  },
+  "canvas": [
+    480,
+    48
+  ],
+  "frame_size": [
+    160,
+    48
+  ],
+  "frame_count": 3,
+  "ms_per_frame": [
+    90,
+    120,
+    130
+  ],
+  "durations_ms": [
+    90,
+    120,
+    130
+  ],
+  "total_ms": 340,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 90
+    },
+    {
+      "frame": 1,
+      "ms": 120
+    },
+    {
+      "frame": 2,
+      "ms": 130
+    }
+  ],
+  "pivot": [
+    80,
+    24
+  ],
+  "anchor": [
+    80,
+    24
+  ],
+  "loop": false
+}

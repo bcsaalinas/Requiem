@@ -1,0 +1,115 @@
+{
+ "clip": "side_step",
+ "part": "lower",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_side_step_lower.png",
+  "hframes": 6,
+  "vframes": 1
+ },
+ "layers": [
+  "leg_far",
+  "leg_near"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 900,
+ "sound_frames": [
+  2,
+  0
+ ],
+ "speed_u_s": 3.2,
+ "notes": [
+  "drawn moving screen-left (aim fixed, -90 deg); moving screen-right: flip_h this sheet and negate upper_offset.x and head_offset.x",
+  "upper body: the game's idle clip (girl_idle_<mood>_*, no twist) moved by upper_offset; the head pose moves by head_offset (= upper_offset) plus the idle frame's own head_offset",
+  "frames 1 and 4 are half-way: the lead boot is under her arm; frame 3 holds frame 2's boots (the open stance)"
+ ],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 200,
+   "label": "closed",
+   "upper_offset": [
+    -1,
+    0
+   ],
+   "head_offset": [
+    -1,
+    0
+   ]
+  },
+  {
+   "frame": 1,
+   "ms": 100,
+   "label": "lead out",
+   "upper_offset": [
+    -2,
+    0
+   ],
+   "head_offset": [
+    -2,
+    0
+   ]
+  },
+  {
+   "frame": 2,
+   "ms": 200,
+   "label": "open",
+   "upper_offset": [
+    -3,
+    0
+   ],
+   "head_offset": [
+    -3,
+    0
+   ]
+  },
+  {
+   "frame": 3,
+   "ms": 200,
+   "label": "open hold",
+   "upper_offset": [
+    -3,
+    0
+   ],
+   "head_offset": [
+    -3,
+    0
+   ]
+  },
+  {
+   "frame": 4,
+   "ms": 100,
+   "label": "closing",
+   "upper_offset": [
+    -2,
+    0
+   ],
+   "head_offset": [
+    -2,
+    0
+   ]
+  },
+  {
+   "frame": 5,
+   "ms": 100,
+   "label": "closing",
+   "upper_offset": [
+    -1,
+    0
+   ],
+   "head_offset": [
+    -1,
+    0
+   ]
+  }
+ ]
+}

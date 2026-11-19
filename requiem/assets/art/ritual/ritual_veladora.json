@@ -1,0 +1,201 @@
+{
+  "name": "ritual_veladora",
+  "description": "a glass veladora seen from straight above, always lit and weak: a 22 px jar, the wick 2 px off-centre in a lobed melt pool, a soot arc on the inner glass; the flame is drawn, the glow is a Godot light",
+  "file": "ritual_veladora.png",
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 8,
+  "layout": "horizontal",
+  "pivot": [
+    16,
+    16
+  ],
+  "jar_bbox": {
+    "x": 5,
+    "y": 5,
+    "w": 22,
+    "h": 22
+  },
+  "jar_center": [
+    16.0,
+    16.0
+  ],
+  "jar_diameter": 22,
+  "anchors": {
+    "wick": [
+      13.5,
+      16.5
+    ],
+    "note": "wick = the flame's fixed base (the #bab4aa hot point) on every frame; put the Godot light there. Coordinates are px edges from the frame's top-left corner."
+  },
+  "frames": [
+    {
+      "index": 0,
+      "name": "flicker1",
+      "duration_ms": 260,
+      "flame_bbox": {
+        "x": 12,
+        "y": 16,
+        "w": 4,
+        "h": 2
+      },
+      "flame_center": [
+        14.0,
+        17.0
+      ]
+    },
+    {
+      "index": 1,
+      "name": "flicker2",
+      "duration_ms": 180,
+      "flame_bbox": {
+        "x": 12,
+        "y": 15,
+        "w": 4,
+        "h": 3
+      },
+      "flame_center": [
+        14.0,
+        16.5
+      ]
+    },
+    {
+      "index": 2,
+      "name": "flicker3",
+      "duration_ms": 140,
+      "flame_bbox": {
+        "x": 12,
+        "y": 16,
+        "w": 3,
+        "h": 2
+      },
+      "flame_center": [
+        13.5,
+        17.0
+      ]
+    },
+    {
+      "index": 3,
+      "name": "step1",
+      "duration_ms": 200,
+      "flame_bbox": {
+        "x": 12,
+        "y": 15,
+        "w": 6,
+        "h": 3
+      },
+      "flame_center": [
+        15.0,
+        16.5
+      ]
+    },
+    {
+      "index": 4,
+      "name": "step2",
+      "duration_ms": 200,
+      "flame_bbox": {
+        "x": 12,
+        "y": 15,
+        "w": 7,
+        "h": 3
+      },
+      "flame_center": [
+        15.5,
+        16.5
+      ]
+    },
+    {
+      "index": 5,
+      "name": "step3",
+      "duration_ms": 200,
+      "flame_bbox": {
+        "x": 12,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "flame_center": [
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "index": 6,
+      "name": "step4",
+      "duration_ms": 200,
+      "flame_bbox": {
+        "x": 12,
+        "y": 14,
+        "w": 8,
+        "h": 4
+      },
+      "flame_center": [
+        16.0,
+        16.0
+      ]
+    },
+    {
+      "index": 7,
+      "name": "flare",
+      "duration_ms": 320,
+      "flame_bbox": {
+        "x": 12,
+        "y": 14,
+        "w": 9,
+        "h": 4
+      },
+      "flame_center": [
+        16.5,
+        16.0
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "flicker",
+      "from": 0,
+      "to": 2,
+      "loop": true,
+      "note": "calm, always on: loop while nobody prays"
+    },
+    {
+      "name": "step1",
+      "from": 3,
+      "to": 3,
+      "loop": false,
+      "note": "held; prayer bead click 1"
+    },
+    {
+      "name": "step2",
+      "from": 4,
+      "to": 4,
+      "loop": false,
+      "note": "held; bead click 2"
+    },
+    {
+      "name": "step3",
+      "from": 5,
+      "to": 5,
+      "loop": false,
+      "note": "held; bead click 3"
+    },
+    {
+      "name": "step4",
+      "from": 6,
+      "to": 6,
+      "loop": false,
+      "note": "held; bead click 4"
+    },
+    {
+      "name": "flare",
+      "from": 7,
+      "to": 7,
+      "loop": false,
+      "note": "once on completion, then back to flicker"
+    }
+  ],
+  "behaviour": "the steps follow prayer progress (one per rosary-bead click of the Pray audio, ~3 s apart), not fixed seconds; letting go of E steps back down toward flicker. Godot changes the light energy with the step.",
+  "sound_frames": []
+}

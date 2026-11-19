@@ -1,0 +1,295 @@
+{
+ "clip": "walk",
+ "character": "ranger",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "Viv's pivot (the spine at the back of the head); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "ranger_walk.png",
+  "hframes": 8,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left",
+  "arm_right",
+  "flashlight_held",
+  "head"
+ ],
+ "lower": {
+  "file": "../player/girl_walk_lower.png",
+  "note": "Viv's exported walk boots, drawn under him, the same frame index"
+ },
+ "draw_order": "draw order: lower (girl_walk_lower frame i), then this sheet frame i (torso, left arm, right arm, flashlight over the hand, cap). The whole sprite turns as one, facing where he walks (MOVEMENT_PLAN 1)",
+ "state": "flashlight raised, on (always: one carry state, as ranger_stand)",
+ "flashlight_note": "his light is session 04's flashlight cone, from flashlight_tip along flashlight_angle_deg (deg out from straight ahead = down the sheet); steady through the walk, as Viv's",
+ "head_note": "the cap is drawn in the sheet; head_offset is the move already applied (Viv's walk head_offset), head_center includes it",
+ "hip_note": "hip_center is the stand's (Viv's walk sheets carry none)",
+ "loop_ms": 900,
+ "speed_u_s": 3.2,
+ "sound_frames": [
+  0,
+  4
+ ],
+ "notes": [
+  "Viv's walk timing and footsteps (girl_walk_lower.json); he only walks, never runs",
+  "leg clips play faster or slower with movement speed (authored at the speed above)"
+ ],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 140,
+   "head_offset": [
+    0,
+    1
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     104.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 100,
+   "head_offset": [
+    1,
+    0
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     111.0,
+     104.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     81.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 110,
+   "head_offset": [
+    1,
+    0
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     111.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     81.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 100,
+   "head_offset": [
+    1,
+    0
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     111.0,
+     112.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     81.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 140,
+   "head_offset": [
+    0,
+    1
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     110.0,
+     114.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 100,
+   "head_offset": [
+    -1,
+    0
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     109.0,
+     112.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     79.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 6,
+   "ms": 110,
+   "head_offset": [
+    -1,
+    0
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     109.0,
+     108.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     79.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 7,
+   "ms": 100,
+   "head_offset": [
+    -1,
+    0
+   ],
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "hand_left": [
+     109.0,
+     104.0
+    ],
+    "flashlight_tip": [
+     44.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 0.0,
+    "head_center": [
+     79.0,
+     94.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  }
+ ]
+}

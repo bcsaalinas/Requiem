@@ -164,6 +164,22 @@ func toggle() -> void:
 	toggled.emit(is_on)
 
 
+## Story blackout: turns the beam off without a click or a noise event.
+func snuff() -> void:
+	is_on = false
+	_refresh_light()
+	_update_bar()
+
+
+## Restore the beam without simulating a manual switch press.
+func relight() -> void:
+	if battery_percent <= 0.0 or (actions != null and not actions.has_flashlight):
+		return
+	is_on = true
+	_refresh_light()
+	_update_bar()
+
+
 func _aim_at_mouse() -> void:
 	var to_mouse := get_global_mouse_position() - global_position
 	if to_mouse.length_squared() > 1.0:

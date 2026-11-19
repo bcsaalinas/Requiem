@@ -32,15 +32,13 @@ PauseMenu="*res://tutorial/pause_menu.gd"
 LoadingScreen="*res://tutorial/loading_screen.gd"
 Kiosk="*uid://bpyfjo7fw5roa"
 MusicDirector="*res://autoloads/music_director.gd"
+PixelDisplay="*uid://bg081nyu5xrq3"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
+window/size/viewport_width=1920
+window/size/viewport_height=1080
 window/size/resizable=false
-window/size/window_width_override=1920
-window/size/window_height_override=1080
-window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
@@ -125,5 +123,7 @@ fast_reset={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 textures/vram_compression/import_etc2_astc=true
+2d/snap/snap_2d_transforms_to_pixel=true

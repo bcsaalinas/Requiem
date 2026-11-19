@@ -14,6 +14,9 @@ const REGIONS := {
 	"mansion_upper": Rect2(11600, 0, 2304, 1856),
 }
 
+const FriendVisual := preload("res://tutorial/friend_visual.gd")
+const ATTACK_CANDLES := ["RouteVeladora0", "RouteVeladora1", "vestibule_candle", "RouteVeladora2", "altar_candle_left", "altar_candle_right", "RouteVeladora3"]
+const HOUSE_CANDLE_LIGHTS := {"vestibule_candle": "VestibuleLight", "altar_candle_left": "AltarLeftLight", "altar_candle_right": "AltarLeftLight"}
 var props: Dictionary = {}
 var interactables: Dictionary = {}
 var landmarks: Dictionary = {}
@@ -40,7 +43,7 @@ func _index(node: Node) -> void:
 		scene_nodes.append(child)
 		if not landmarks.has(String(child.name)):
 			landmarks[String(child.name)] = child
-		if child.get_script() == Art:
+		if child.get_script() == Art or child.get_script() == FriendVisual:
 			props[String(child.name)] = child
 		if child.has_meta("interaction_id"):
 			var id: String = child.get_meta("interaction_id")
@@ -65,7 +68,6 @@ func nodes_in(zone: String, container: String) -> Array[Node]:
 	var parent: Node = zones[zone].get_node_or_null(container)
 	return parent.get_children() if parent != null else []
 
-## A temporary story light (the window reveal).
 func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength := 1.0) -> PointLight2D:
 	var light := PointLight2D.new()
 	light.position = at
@@ -81,15 +83,34 @@ func lamp(at: Vector2, color := Color("efc98e"), scale_value := 2.0, strength :=
 	add_child(light)
 	return light
 
+func set_candle_out(candle_id: String, out: bool) -> void:
+	if props.has(candle_id):
+		props[candle_id].extinguished = out
+		props[candle_id].queue_redraw()
+	var light: PointLight2D = null
+	var resolved_out := out
+	if HOUSE_CANDLE_LIGHTS.has(candle_id):
+		light = landmarks.get(HOUSE_CANDLE_LIGHTS[candle_id]) as PointLight2D
+		if candle_id.begins_with("altar_candle"):
+			resolved_out = _altar_lights_out()
+	elif props.has(candle_id):
+		light = props[candle_id].get_node_or_null("WarmPool") as PointLight2D
+	if light != null:
+		light.energy = 0.0 if resolved_out else float(light.get_meta("rest_energy"))
+		light.color = Color("71889b") if resolved_out else Color(light.get_meta("rest_color"))
+	if candle_id == "vestibule_candle":
+		zones["house"].get_node("Lights/WindowSpill").visible = not out
+
+## The altar jars share one light: it stays on while either jar is lit.
+func _altar_lights_out() -> bool:
+	var left = props.get("altar_candle_left")
+	var right = props.get("altar_candle_right")
+	return (left == null or left.extinguished) and (right == null or right.extinguished)
+
 func set_house_danger(danger: bool) -> void:
-	for id in ["VestibuleLight", "AltarLeftLight", "AltarRightLight"]:
-		if not landmarks.has(id):
-			continue
-		var light := landmarks[id] as PointLight2D
-		light.energy = 0.12 if danger else float(light.get_meta("rest_energy"))
-		light.color = Color("71889b") if danger else light.get_meta("rest_color")
 	# The kitchen candle stays lit: the recovery light survives the attack.
-	for id in ["altar_candle_left", "altar_candle_right", "vestibule_candle"]:
-		if props.has(id):
-			props[id].extinguished = danger
-			props[id].queue_redraw()
+	for id in ATTACK_CANDLES:
+		set_candle_out(id, danger)
+	# The petals leading away from the porch are gone once the house has turned.
+	if landmarks.has("PorchPetals"):
+		landmarks["PorchPetals"].visible = not danger

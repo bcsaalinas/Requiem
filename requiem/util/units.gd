@@ -28,6 +28,20 @@ const PX_PER_UNIT: float = 32.0
 ## Lado de una celda de las capas de tiles, en pixeles.
 const TILE_PX: int = 32
 
+# --- Arte -----------------------------------------------------------------------
+# El arte se dibuja a 80 px por unidad y se coloca a escala 0.4 (80 * 0.4 = 32 px
+# de mundo = TILE_PX). La camara usa un unico zoom de 2.5, asi 0.4 * 2.5 = 1 y
+# cada pixel de arte ocupa exactamente un pixel de pantalla.
+
+## Pixeles de arte por unidad de juego.
+const ART_PX_PER_UNIT: int = 80
+
+## Escala de todo sprite y capa de tiles con arte final.
+const ART_SCALE: float = 0.4
+
+## Zoom unico de la camara (ART_SCALE * CAMERA_ZOOM = 1).
+const CAMERA_ZOOM: float = 2.5
+
 
 static func to_px(units: float) -> float:
 	return units * PX_PER_UNIT

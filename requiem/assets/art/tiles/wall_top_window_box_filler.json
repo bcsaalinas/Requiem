@@ -1,0 +1,16 @@
+{
+  "name": "wall_top_window_box_filler",
+  "description": "Middle-row filler piece (the floor of the deep window opening, 160x80) for the 3-cell front wall.",
+  "canvas": [
+    160,
+    80
+  ],
+  "footprint_cells": [
+    2,
+    1
+  ],
+  "anchor_px": [
+    80,
+    40
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "name": "wall_top_window_box",
+  "description": "2-unit cutaway box window seen from straight above: protruding outer stone sill, cut wall top, wooden frame with two jambs and central mullion, two cold glass panes, protruding inner wooden sill, and separate gathered curtains layer. No rim.",
+  "canvas": [
+    160,
+    120
+  ],
+  "footprint_cells": [
+    2,
+    1
+  ],
+  "wall_cell_rect_px": {
+    "x": 0,
+    "y": 16,
+    "width": 160,
+    "height": 80
+  },
+  "anchor_px": [
+    80,
+    56
+  ],
+  "anchor_note": "(80, 56) is the centre of the 2x1 wall cells (x=0..159, y=16..95). Outer stone sill overhangs y=0..15 (16 px N); inner wooden sill overhangs y=96..107 (12 px S); curtains extend to y=115.",
+  "orientations": {
+    "north_wall_bedroom": "as drawn (outside to the N, room floor + inner sill + curtains to the S)",
+    "south_wall_porch": "flip_v = true (one is a vertical flip of the other because light is strictly overhead, STYLE section 8)",
+    "is_flip": true
+  },
+  "light_blockers_px": {
+    "jamb_west": {
+      "x": 22,
+      "y": 16,
+      "width": 8,
+      "height": 80
+    },
+    "mullion_centre": {
+      "x": 76,
+      "y": 24,
+      "width": 8,
+      "height": 23
+    },
+    "jamb_east": {
+      "x": 130,
+      "y": 16,
+      "width": 8,
+      "height": 80
+    },
+    "pane_west": {
+      "x": 30,
+      "y": 30,
+      "width": 46,
+      "height": 6
+    },
+    "pane_east": {
+      "x": 84,
+      "y": 30,
+      "width": 46,
+      "height": 6
+    }
+  },
+  "layers": {
+    "sill_outer": "wall_top_window_box_sill_outer.png",
+    "top": "wall_top_window_box_top.png",
+    "frame": "wall_top_window_box_frame.png",
+    "glass": "wall_top_window_box_glass.png",
+    "sill_inner": "wall_top_window_box_sill_inner.png",
+    "curtains": "wall_top_window_box_curtains.png",
+    "composite_with_curtains": "wall_top_window_box.png",
+    "composite_no_curtains": "wall_top_window_box_no_curtains.png"
+  },
+  "three_cell_front_wall": {
+    "method": "filler_piece",
+    "filler_file": "wall_top_window_box_filler.png",
+    "filler_canvas": [
+      160,
+      80
+    ],
+    "split_y_px": 56,
+    "usage": "Split wall_top_window_box at y=56 into outer_half (rows 0..55: 16 px outer sill + 40 px outer wall with frame & glass) and inner_half (rows 56..119: 40 px inner wall with reveal & lip + 12 px inner sill + curtains). Place wall_top_window_box_filler (160x80, the floor of the deep opening) between outer_half and inner_half (once per extra wall cell: 2 filler copies for the 3-cell front wall)."
+  }
+}

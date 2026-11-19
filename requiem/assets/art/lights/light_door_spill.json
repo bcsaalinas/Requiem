@@ -1,0 +1,74 @@
+{
+ "name": "light_door_spill",
+ "kind": "light texture (PointLight2D): the wedge of light through the parents' opening door (the caught moment)",
+ "canvas": [
+  160,
+  256
+ ],
+ "file": "light_door_spill.png",
+ "scale": 1,
+ "scale_note": "drawn at the true size: 1 texture px = 1 art px (texture_scale 0.4 in world px, 1 u = 32 world px = 80 art px). x 0-159 = the 160 px (2 u) door opening, 256 px = 3.2 u into her room. Whole-number scales only (brief 04).",
+ "anchor_row0": "row 0 = the threshold's N edge (door_frame.png row 25, the parents' side); x 0 = the opening's left edge (the hinge jamb). PointLight2D centres its texture: offset = (80, 128) art px from that corner, i.e. the light node sits 80 px right of the hinge jamb and 128 px into her room, or set `offset` accordingly",
+ "direction": "+y: the light falls from the door into her room. Hinge on the LEFT (door_leaf pivot (0, 27)); the leaf swings into the parents' room, so the light comes through the gap at the latch jamb. flip_h for a door hinged on the right; rotate for doors in other walls",
+ "design": "option B 'door ajar' (critic pick; A wide open / C narrow blade in review/light_door_spill_options(_3x).png): leaf ~36 deg open, a 55 px gap at the latch jamb widening to ~136 px; both sides straight and hard (latch jamb x 155 -> 160 and the leaf's free edge x 100 -> 24), meeting at the lamp behind the wall; band edges are arcs round that lamp, stepping down into the room; the far end two broad lobes",
+ "lamp_px": [
+  151.6,
+  -169.8
+ ],
+ "side_lines_px": {
+  "leaf_edge": [
+   [
+    100.0,
+    0
+   ],
+   [
+    24.0,
+    250.0
+   ]
+  ],
+  "latch_jamb": [
+   [
+    155.0,
+    0
+   ],
+   [
+    160.0,
+    250.0
+   ]
+  ]
+ },
+ "opaque_bbox": [
+  33,
+  0,
+  127,
+  251
+ ],
+ "bands_door_to_room": [
+  "#bab4aa",
+  "#8d817b",
+  "#605551",
+  "#473e3c",
+  "#272323"
+ ],
+ "band_values": [
+  0.701,
+  0.514,
+  0.342,
+  0.252,
+  0.142
+ ],
+ "outside": "transparent (alpha 0): no light",
+ "filter": "nearest (project default_texture_filter 0), so the bands stay hard",
+ "game_settings_used_in_review": {
+  "blend_mode": "Add",
+  "color": [
+   0.914,
+   0.718,
+   0.478
+  ],
+  "energy": 1.25,
+  "source": "tutorial/zones/hallway.tscn DoorGlowA / B"
+ },
+ "playback_note": "a suggestion (review/light_door_spill.gif): energy 0 -> 0.35 -> 0.7 -> 1.25 in ~90 ms steps as the leaf swings (or reveal it with the leaf's own angle), hold while parent_doorway_notice plays and the girl's caught holds, then fade",
+ "energy_note": "at the tutorial ambient the two outer bands (#473e3c, #272323) barely show at energy 1.25 (for Beti: energy or a lighter far end; the band set is shared by every light)"
+}

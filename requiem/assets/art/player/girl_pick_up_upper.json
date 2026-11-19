@@ -1,0 +1,173 @@
+{
+ "clip": "pick_up",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pick_up_upper.png",
+  "hframes": 6,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 860,
+ "clip_note": "she bends forward and picks something up ahead of her boots (also used to interact): the hand closes on frame 3 (action_frame); plays once, then the idle",
+ "plays_over": "girl_stand_lower (she stands still to pick up, MOVEMENT_PLAN)",
+ "loop": false,
+ "sound_frames": [
+  3
+ ],
+ "action_frame": 3,
+ "head": "no head sheet: draw a girl_head_poses frame moved by head_offset (frame 2, 0 deg, at [0, 0] is the idle head exactly)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 100,
+   "label": "dip",
+   "head_offset": [
+    0,
+    2
+   ],
+   "anchors": {
+    "hand_left": [
+     108.0,
+     114.0
+    ],
+    "head_center": [
+     80.0,
+     96.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 120,
+   "label": "bend",
+   "head_offset": [
+    0,
+    4
+   ],
+   "anchors": {
+    "hand_left": [
+     103.0,
+     123.0
+    ],
+    "head_center": [
+     80.0,
+     98.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 160,
+   "label": "reach",
+   "head_offset": [
+    0,
+    6
+   ],
+   "anchors": {
+    "hand_left": [
+     98.0,
+     133.0
+    ],
+    "head_center": [
+     80.0,
+     100.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 220,
+   "label": "grab",
+   "head_offset": [
+    0,
+    6
+   ],
+   "anchors": {
+    "hand_left": [
+     98.0,
+     134.0
+    ],
+    "head_center": [
+     80.0,
+     100.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 4,
+   "ms": 120,
+   "label": "rise",
+   "head_offset": [
+    0,
+    3
+   ],
+   "anchors": {
+    "hand_left": [
+     104.0,
+     122.0
+    ],
+    "head_center": [
+     80.0,
+     97.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  },
+  {
+   "frame": 5,
+   "ms": 140,
+   "label": "settle",
+   "head_offset": [
+    0,
+    1
+   ],
+   "anchors": {
+    "hand_left": [
+     108.0,
+     112.0
+    ],
+    "head_center": [
+     80.0,
+     95.5
+    ],
+    "hip_center": [
+     80,
+     81
+    ]
+   }
+  }
+ ]
+}

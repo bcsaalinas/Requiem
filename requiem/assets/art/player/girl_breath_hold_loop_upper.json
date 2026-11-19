@@ -1,0 +1,91 @@
+{
+ "clip": "breath_hold_loop",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_breath_hold_loop_upper.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 1800,
+ "clip_note": "holding her breath: loops while the player holds it",
+ "plays_over": "girl_stand_lower, girl_sneak_lower and girl_side_step_lower (the last two moved by their upper_offset)",
+ "loop": true,
+ "head": "no head sheet: draw a girl_head_poses frame moved by head_offset (frame 2, 0 deg, at [0, 0] is the idle head exactly)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 600,
+   "label": "held",
+   "head_offset": [
+    0,
+    -1
+   ],
+   "anchors": {
+    "hand_left": [
+     105.0,
+     105.0
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 300,
+   "label": "press",
+   "head_offset": [
+    0,
+    -1
+   ],
+   "anchors": {
+    "hand_left": [
+     105.0,
+     104.0
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 600,
+   "label": "press, head",
+   "head_offset": [
+    0,
+    -2
+   ],
+   "anchors": {
+    "hand_left": [
+     104.0,
+     104.0
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 300,
+   "label": "ease",
+   "head_offset": [
+    0,
+    -2
+   ],
+   "anchors": {
+    "hand_left": [
+     106.0,
+     106.0
+    ]
+   }
+  }
+ ]
+}

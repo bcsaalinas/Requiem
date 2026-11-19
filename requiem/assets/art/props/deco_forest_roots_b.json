@@ -1,0 +1,20 @@
+{
+  "name": "deco_forest_roots_b",
+  "description": "Exposed surface roots B, straight down, floor decal, no rim, no collision.",
+  "canvas": [
+    80,
+    80
+  ],
+  "frame_size": [
+    80,
+    80
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    40,
+    40
+  ],
+  "layer": "art",
+  "collision": false
+}

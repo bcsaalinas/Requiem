@@ -1,0 +1,25 @@
+{
+  "name": "tree_spruce_young",
+  "description": "Young spruce (2x2 u), straight down: compact tiered radial needle boughs. Tall: trunk_base + canopy_top.",
+  "canvas": [
+    160,
+    160
+  ],
+  "frame_size": [
+    160,
+    160
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    80,
+    80
+  ],
+  "layers": {
+    "base": "tree_spruce_young_trunk_base.png",
+    "top": "tree_spruce_young_canopy_top.png"
+  },
+  "height_effect": true,
+  "scale_note": "Size 2 x 2 units = 160 x 160 art px. Collision 14 x 10 world px (35 x 25 art). Pivot is the canvas centre.",
+  "sound_frames": []
+}

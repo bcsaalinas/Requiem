@@ -7,6 +7,10 @@ signal throw_cancelled
 signal presentation_reset
 
 const ThrowableVisual := preload("res://player/throwable_visual.gd")
+const TRAIL_TEXTURE := preload("res://assets/art/vfx/vfx_throw_trail.png")
+const TRAIL_MS: Array[int] = [70, 90, 90]
+const TRAIL_ANCHOR := Vector2(40, 12)
+const VfxSheet := preload("res://level/vfx_sheet.gd")
 
 # Throw (verbo secundario de la spec de Requiem)
 #
@@ -68,6 +72,7 @@ enum Throwable { PIEDRA, DESPERTADOR }
 
 @export_group("Audio")
 @export var piedra_clips: Array[AudioStream] = []
+@export var piedra_release_clips: Array[AudioStream] = []
 @export var despertador_clips: Array[AudioStream] = []
 @export var volume_db: float = -6.0
 
@@ -84,6 +89,7 @@ var _windup_duration := 0.0
 var _release_cooldown := 0.0
 var _previous_position := Vector2.ZERO
 var _audio_player: AudioStreamPlayer2D
+var _release_audio_player: AudioStreamPlayer2D
 
 ## Objetos en el aire: { "node", "from", "to", "t", "kind" }
 var _in_flight: Array = []
@@ -94,8 +100,7 @@ var _ringing: Array = []
 @onready var action_state: Node = player.get_node_or_null("ActionState")
 
 # --- Etiqueta de municion en pantalla ---
-var _bar_layer: CanvasLayer
-var _ammo_label: Label
+
 
 
 func _ready() -> void:
@@ -104,18 +109,10 @@ func _ready() -> void:
 
 	_audio_player = AudioStreamPlayer2D.new()
 	add_child(_audio_player)
+	_release_audio_player = AudioStreamPlayer2D.new()
+	add_child(_release_audio_player)
 
-	_bar_layer = CanvasLayer.new()
-	add_child(_bar_layer)
 
-	# Debajo de las barras de HoldBreath (y=20 pulmon, y=54 agotamiento)
-	# y de la bateria de Flashlight (y=88).
-	_ammo_label = Label.new()
-	_ammo_label.position = Vector2(20, 122)
-	_ammo_label.add_theme_font_size_override("font_size", 14)
-	_bar_layer.add_child(_ammo_label)
-
-	_update_label()
 
 
 func _physics_process(delta: float) -> void:
@@ -139,8 +136,6 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("throw") and can_throw():
 		_start_throw()
-
-	_update_label()
 
 
 func _tick_timers(delta: float) -> void:
@@ -284,9 +279,13 @@ func _release_object() -> void:
 	sprite.kind = _pending_kind
 	sprite.size = projectile_size
 	sprite.color = _color_for(_pending_kind)
-	sprite.z_index = 2
+	sprite.z_index = 41
 	player.get_parent().add_child(sprite)
 	sprite.global_position = origin
+	var wake := VfxSheet.new()
+	sprite.add_child(wake)
+	wake.rotation = (_pending_landing - origin).angle() - sprite.global_rotation
+	wake.play(TRAIL_TEXTURE, 3, TRAIL_MS, TRAIL_ANCHOR, true)
 
 	_in_flight.append({
 		"node": sprite,
@@ -296,6 +295,8 @@ func _release_object() -> void:
 		"kind": _pending_kind,
 	})
 	object_released.emit()
+	if _pending_kind == Throwable.PIEDRA:
+		_play_release_clip(piedra_release_clips, origin)
 
 
 func _get_release_origin() -> Vector2:
@@ -374,6 +375,13 @@ func _play_random_clip(clips: Array[AudioStream], at: Vector2) -> void:
 	_audio_player.stream = clips[randi() % clips.size()]
 	_audio_player.play()
 
+func _play_release_clip(clips: Array[AudioStream], at: Vector2) -> void:
+	if clips.is_empty(): return
+	_release_audio_player.global_position = at
+	_release_audio_player.volume_db = volume_db - 3.0
+	_release_audio_player.stream = clips[randi() % clips.size()]
+	_release_audio_player.play()
+
 
 func _color_for(kind: int) -> Color:
 	return despertador_color if kind == Throwable.DESPERTADOR else piedra_color
@@ -381,23 +389,6 @@ func _color_for(kind: int) -> Color:
 
 func _clips_for(kind: int) -> Array[AudioStream]:
 	return despertador_clips if kind == Throwable.DESPERTADOR else piedra_clips
-
-
-func _update_label() -> void:
-	var ammo := "%d" % alarms_left if selected == Throwable.DESPERTADOR else "inf"
-	var state := ""
-
-	if is_throwing:
-		state = "  (lanzando)"
-	elif _cooldown_timer > 0.0:
-		state = "  (%.1fs)" % _cooldown_timer
-	elif not can_throw():
-		state = "  (sin municion)"
-
-	_ammo_label.text = "[Q] %s  x%s   [Tab] cambiar%s" % [
-		Throwable.keys()[selected].capitalize(), ammo, state
-	]
-	_ammo_label.modulate = Color(1, 1, 1, 0.85) if can_throw() else Color(1, 1, 1, 0.4)
 
 
 func get_alarms_left() -> int:

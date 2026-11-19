@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="1_0e2un"]
 [ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav" id="2_2lsu5"]
-[ext_resource type="Texture2D" uid="uid://b6i87tq7obemc" path="res://assets/level/door_plank.png" id="3_a1ds1"]
-[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="4_glow"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+
+[ext_resource type="Texture2D" path="res://assets/art/props/door_frame.png" id="frame_tex"]
+[ext_resource type="Texture2D" path="res://assets/art/props/door_leaf_closed.png" id="leaf_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rjs7o"]
 size = Vector2(32, 64)
@@ -15,6 +17,9 @@ polygon = PackedVector2Array(0, -66, 0, 2)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0e2un"]
 size = Vector2(64, 60)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_leafbody"]
+size = Vector2(13.6, 64)
+
 [node name="Door" type="Node2D" unique_id=1684880140]
 script = ExtResource("1_0e2un")
 style = 1
@@ -22,25 +27,22 @@ creak = ExtResource("2_2lsu5")
 light_energy = 1.15
 locked_light_energy = 0.5
 
-[node name="Frame" type="Node2D" parent="." unique_id=1038022007]
+[node name="Assembly" type="Node2D" parent="."]
+position = Vector2(0, -32)
+rotation = -1.5707964
 
-[node name="JambTop" type="Polygon2D" parent="Frame" unique_id=1815650387]
-color = Color(0.40392157, 0.3137255, 0.22352941, 1)
-polygon = PackedVector2Array(-16, -64, 16, -64, 16, -58, -16, -58)
+[node name="Frame" type="Sprite2D" parent="Assembly"]
+z_index = -9
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("frame_tex")
 
-[node name="JambBottom" type="Polygon2D" parent="Frame" unique_id=1974016660]
-color = Color(0.40392157, 0.3137255, 0.22352941, 1)
-polygon = PackedVector2Array(-16, -6, 16, -6, 16, 0, -16, 0)
+[node name="Hinge" type="Node2D" parent="Assembly"]
 
-[node name="Hinge" type="Node2D" parent="." unique_id=2112431975]
-position = Vector2(0, -58)
-
-[node name="Plank" type="Sprite2D" parent="Hinge" unique_id=1393715560]
-self_modulate = Color(1.45, 1.35, 1.2, 1)
-position = Vector2(6, 0)
-rotation = 1.5707964
-scale = Vector2(0.54167, 0.857)
-texture = ExtResource("3_a1ds1")
+[node name="Leaf" type="Sprite2D" parent="Assembly/Hinge"]
+z_as_relative = false
+z_index = 42
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("leaf_tex")
 centered = false
 
 [node name="Glow" type="Node2D" parent="." unique_id=1730492212]
@@ -51,10 +53,9 @@ color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("4_glow")
-texture_scale = 0.85
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.2
 
 [node name="LightEast" type="PointLight2D" parent="Glow" unique_id=1730492214]
 position = Vector2(28, -32)
@@ -62,10 +63,9 @@ color = Color(0.9098039, 0.7529412, 0.53333336, 1)
 energy = 0.75
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("4_glow")
-texture_scale = 0.85
+shadow_filter = 0
+texture = ExtResource("light_pool")
+texture_scale = 1.2
 
 [node name="Blocker" type="StaticBody2D" parent="." unique_id=884835333]
 
@@ -75,6 +75,14 @@ shape = SubResource("RectangleShape2D_rjs7o")
 
 [node name="Occluder" type="LightOccluder2D" parent="." unique_id=529654975]
 occluder = SubResource("OccluderPolygon2D_0e2un")
+
+[node name="LeafBody" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="LeafBody"]
+shape = SubResource("RectangleShape2D_leafbody")
+disabled = true
 
 [node name="Doorway" type="Area2D" parent="." unique_id=884763414]
 monitorable = false

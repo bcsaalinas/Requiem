@@ -1,0 +1,28 @@
+{
+  "name": "deco_desk",
+  "description": "Wooden desk with two school notebooks (one open, one closed), straight down, no rim.",
+  "file": "deco_desk.png",
+  "canvas": [
+    260,
+    170
+  ],
+  "frame_size": [
+    260,
+    170
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    130,
+    85
+  ],
+  "layers": {
+    "art": "deco_desk.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    104,
+    68
+  ],
+  "sound_frames": []
+}

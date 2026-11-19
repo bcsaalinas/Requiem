@@ -1,0 +1,30 @@
+{
+  "name": "ritual_veladora_unlit",
+  "description": "The veladora with the flame out: identical 22 px glass jar and wax to ritual_veladora, dark charred wick at [13.5, 16.5], no #a8844f.",
+  "file": "ritual_veladora_unlit.png",
+  "canvas": [
+    32,
+    32
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 1,
+  "pivot": [
+    16,
+    16
+  ],
+  "jar_bbox": {
+    "x": 5,
+    "y": 5,
+    "w": 22,
+    "h": 22
+  },
+  "anchors": {
+    "wick": [
+      13.5,
+      16.5
+    ]
+  }
+}

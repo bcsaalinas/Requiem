@@ -4,6 +4,14 @@ extends "res://testing/experiments/breath_studio.gd"
 
 const AltarScene := preload("res://altar/altar.tscn")
 const ALTAR_POSITION := Vector2(420, 350)
+const COFFIN_HALF := Vector2(32, 64)
+const STANDOFF := 34.0
+
+
+## Distance from the coffin's centre to stand just outside its footprint, along a heading.
+static func standoff(direction: Vector2) -> float:
+	var reach := minf(COFFIN_HALF.x / maxf(absf(direction.x), 0.0001), COFFIN_HALF.y / maxf(absf(direction.y), 0.0001))
+	return reach + STANDOFF
 const FACING_NAMES := ["East", "South-east", "South", "South-west", "West", "North-west", "North", "North-east"]
 
 var altar: Node
@@ -27,6 +35,7 @@ func _build_studio_controls() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "PrayerStudioOverlay"
 	layer.layer = 30
+	LegacyUi.fit_layer(layer)
 	add_child(layer)
 	var panel := VBoxContainer.new()
 	panel.position = Vector2(20, 16)
@@ -78,7 +87,7 @@ func _update_equipment_label() -> void:
 
 func set_studio_area(_index: int) -> void:
 	# The open rug has room for all eight views and retains production lighting.
-	enter_zone("bedroom", ALTAR_POSITION + Vector2(0, 66), false)
+	enter_zone("bedroom", ALTAR_POSITION + Vector2(0, standoff(Vector2.DOWN)), false)
 	reset_studio_prayer()
 
 
@@ -108,11 +117,12 @@ func reset_studio_prayer(lung := 100.0) -> void:
 		feedback.reset_feedback()
 	_spawn_altar()
 	var direction := Vector2.from_angle(selected_heading * PI / 4.0)
-	player.global_position = ALTAR_POSITION - direction * 66.0
+	player.global_position = ALTAR_POSITION - direction * standoff(direction)
 	# Drive the shared gait selector once to establish the preset facing, then
 	# settle it normally. This also supports headings before flashlight pickup.
 	var appearance := player.get_node("Appearance")
 	appearance.set_actor_gait(0.0, true, direction, false, 0.0)
+	appearance.actor_facing = StringName(["e", "se", "s", "sw", "w", "nw", "n", "ne"][selected_heading])
 	player.get_node("PlayerMotion").reset_pose()
 	player.get_node("PlayerAim").reset_pose()
 	player.get_node("PlayerAim").set_target(ALTAR_POSITION)

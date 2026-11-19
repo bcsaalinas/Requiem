@@ -1,0 +1,100 @@
+{
+ "clip": "pray_loop_afraid",
+ "part": "arm_right_off",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_loop_afraid_arm_right_off.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right",
+  "flashlight_held"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 720,
+ "plays_over": "girl_pray_loop_lower only (she is still: kneeling never plays over another lower)",
+ "loop": true,
+ "sound_frames": [],
+ "pray_rules": "Beti PRAY RULES: hands joined palm to palm in front of her chest, just ahead of the head; in off and on the torch is pinched between them pointing at the floor ahead (one look for both); in none the hands are joined with no torch; kneel boots option B.",
+ "next_clips_note": "bead step / finish / abort start from the loop frames (calm frame 0 = the settle)",
+ "clip_note": "afraid prayer (brief: shoulders tight, shakier breath): shoulders 2 up and 2 in (squeeze 3), the head ducked 1-2, a fast uneven catching breath and a 1 px sideways tremor of the whole upper body against the still boots (catch +1, shake out -1; head_offset carries it).",
+ "lower": "girl_pray_loop_lower.png (frame 0, every frame)",
+ "state": "flashlight off",
+ "light_note": "off and on draw the same torch pinched between the joined palms (lens px and switch nub), pointing at the floor ahead; flashlight_tip is at the lens, flashlight_angle_deg the drawn value (deg out from straight ahead). In on the game's beam lights the floor ahead of her.",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 240,
+   "label": "tight",
+   "anchors": {
+    "hand_right": [
+     77.5,
+     130.5
+    ],
+    "flashlight_tip": [
+     79.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 140,
+   "label": "catch",
+   "anchors": {
+    "hand_right": [
+     78.5,
+     129.5
+    ],
+    "flashlight_tip": [
+     80.5,
+     149.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 130,
+   "label": "squeeze",
+   "anchors": {
+    "hand_right": [
+     77.5,
+     130.5
+    ],
+    "flashlight_tip": [
+     79.5,
+     150.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 210,
+   "label": "shake out",
+   "anchors": {
+    "hand_right": [
+     76.5,
+     131.5
+    ],
+    "flashlight_tip": [
+     78.5,
+     151.0
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  }
+ ]
+}

@@ -1,21 +1,38 @@
 [gd_scene format=4 uid="uid://dr74sv1m43cak"]
 
-[ext_resource type="Texture2D" uid="uid://c34l3yacjtcod" path="res://assets/level/floor_wood.png" id="1_ttq1y"]
-[ext_resource type="Texture2D" uid="uid://cnatnjlqotr5w" path="res://assets/level/rug_runner.png" id="2_oru21"]
-[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_fi18d"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="3_fi18d"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_2yo68"]
+[ext_resource type="Script" uid="uid://bd1tejuo0o65k" path="res://level/door/door.gd" id="5_dw150"]
 [ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="5_lc55d"]
 [ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="6_dw150"]
+[ext_resource type="AudioStream" uid="uid://cf8hbm4dhrud6" path="res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav" id="6_qo5fo"]
 [ext_resource type="PackedScene" uid="uid://ds3510e3xtnj6" path="res://level/props/coat_rack.tscn" id="7_qo5fo"]
 [ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="8_leac8"]
+[ext_resource type="Texture2D" uid="uid://bg5emi24nm3g" path="res://assets/art/props/door_leaf_b_closed.png" id="8_nunbk"]
 [ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="9_nunbk"]
 [ext_resource type="PackedScene" uid="uid://dbxlnt3r4sufc" path="res://level/props/wardrobe.tscn" id="10_a7x8u"]
+[ext_resource type="Script" uid="uid://xi165ea7y0li" path="res://level/props/height_prop.gd" id="10_qo5fo"]
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="11_vsnya"]
+[ext_resource type="Script" uid="uid://yd6hmejt5ntb" path="res://level/props/lamp.gd" id="12_a7x8u"]
 [ext_resource type="Script" uid="uid://bw8b2k03vifxn" path="res://tutorial/hallway/parent_listener.gd" id="12_ineoj"]
-[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="13_d0uwm"]
 [ext_resource type="Script" uid="uid://cswitug7og38f" path="res://tutorial/hallway/safe_light.gd" id="14_aqal4"]
 [ext_resource type="Script" uid="uid://cux2yhmu0gaur" path="res://level/room/room_visibility.gd" id="15_q3b6f"]
 [ext_resource type="Script" uid="uid://c2ox1fpbkbb7l" path="res://level/room/room.gd" id="16_2x0rn"]
+[ext_resource type="TileSet" path="res://assets/art/tiles/tileset_architecture.tres" id="20_vsnya"]
+[ext_resource type="Script" uid="uid://8ypjuufy30ru" path="res://level/art/height_shifted_tiles.gd" id="21_ineoj"]
+[ext_resource type="Texture2D" uid="uid://c3v364isndjuk" path="res://assets/art/lights/light_lamp_pool.png" id="light_pool"]
+[ext_resource type="Texture2D" uid="uid://d068jrsh0dgqu" path="res://assets/art/props/deco_rug_runner.png" id="rug_new"]
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jamb_l"]
+closed = false
+polygon = PackedVector2Array(-60, -9, -30, -9)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_jamb_r"]
+closed = false
+polygon = PackedVector2Array(30, -9, 60, -9)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_foot"]
+polygon = PackedVector2Array(-4, -2, 4, -2, 4, 2, -4, 2)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k744n"]
 size = Vector2(128, 152)
@@ -34,37 +51,30 @@ size = Vector2(32, 128)
 
 [node name="Hallway" type="Node2D" unique_id=1541038903]
 y_sort_enabled = true
-
-[node name="Floor" type="Sprite2D" parent="." unique_id=1520004086]
-self_modulate = Color(0.7254902, 0.7058824, 0.67058825, 1)
-z_index = -10
-texture_repeat = 2
-position = Vector2(32, 32)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("1_ttq1y")
-centered = false
-region_enabled = true
-region_rect = Rect2(0, 0, 1792, 1088)
+metadata/art_floor_rects = Array[Rect2]([Rect2(32, 32, 896, 544)])
 
 [node name="Rugs" type="Node2D" parent="." unique_id=1221057086]
 z_index = -9
 
 [node name="RunnerWest" type="Sprite2D" parent="Rugs" unique_id=562240918]
 position = Vector2(236, 368)
+rotation = 1.5707964
 scale = Vector2(0.4, 0.4)
-texture = ExtResource("2_oru21")
+texture = ExtResource("rug_new")
 
 [node name="RunnerEast" type="Sprite2D" parent="Rugs" unique_id=1819893685]
 position = Vector2(668, 368)
+rotation = 1.5707964
 scale = Vector2(0.4, 0.4)
-texture = ExtResource("2_oru21")
+texture = ExtResource("rug_new")
 
 [node name="RefugeMat" type="Sprite2D" parent="Rugs" unique_id=1115579449]
 position = Vector2(480, 488)
-scale = Vector2(0.23, 0.23)
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("3_fi18d")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=753767168]
+self_modulate = Color(1, 1, 1, 0)
 z_index = 1
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAEAAEAAAAAAAAAAAAEAAIAAAAAAAAAAAAEAAMAAAAAAAAAAAAEAAQAAAAAAAAAAAAEAAUAAAAAAAAAAAAEAAYAAAAAAAAAAAAEAA0AAAAAAAAAAAAIAA0AAAAAAAAAAAAMAA0AAAAAAAAAAAAMAA4AAAAAAAAAAAAMAA8AAAAAAAAAAAAMABAAAAAAAAAAAAAMABEAAAAAAAAAAAAQABEAAAAAAAAAAAAUAA0AAAAAAAAAAAAYAA0AAAAAAAAAAAAcAAcAAAAAAAAAAAAcAAgAAAAAAAAAAAAcAAkAAAAAAAAAAAAcAAwAAAAAAAAAAAAcAA0AAAAAAAAAAAAIAAIAAAAAAAEAAAAQAAIAAAAAAAEAAAAQAAgAAAAAAAEAAAAYAAIAAAAAAAEAAAAYAAgAAAAAAAEAAAAIAAMAAAAAAAIAAAAQAAMAAAAAAAIAAAAQAAkAAAAAAAIAAAAYAAMAAAAAAAIAAAAYAAkAAAAAAAIAAAABAAcAAAABAAAAAAABAAgAAAABAAAAAAABAAkAAAABAAAAAAABAAwAAAABAAAAAAABAA0AAAABAAAAAAAFAA0AAAABAAAAAAAJAA0AAAABAAAAAAANABEAAAABAAAAAAARAA0AAAABAAAAAAARAA4AAAABAAAAAAARAA8AAAABAAAAAAARABAAAAABAAAAAAARABEAAAABAAAAAAAVAA0AAAABAAAAAAAZAA0AAAABAAAAAAAJAAIAAAABAAEAAAARAAIAAAABAAEAAAARAAgAAAABAAEAAAAZAAIAAAABAAEAAAAZAAgAAAABAAEAAAAJAAMAAAABAAIAAAARAAMAAAABAAIAAAARAAkAAAABAAIAAAAZAAMAAAABAAIAAAAZAAkAAAABAAIAAAACAA0AAAACAAAAAAAGAA0AAAACAAAAAAAKAA0AAAACAAAAAAAOABEAAAACAAAAAAASAA0AAAACAAAAAAAWAA0AAAACAAAAAAAaAAEAAAACAAAAAAAaAAIAAAACAAAAAAAaAAMAAAACAAAAAAAaAAQAAAACAAAAAAAaAAUAAAACAAAAAAAaAAYAAAACAAAAAAAaAA0AAAACAAAAAAACAAgAAAACAAEAAAAKAAIAAAACAAEAAAASAAIAAAACAAEAAAASAAgAAAACAAEAAAAaAAgAAAACAAEAAAACAAkAAAACAAIAAAAKAAMAAAACAAIAAAASAAMAAAACAAIAAAASAAkAAAACAAIAAAAaAAkAAAACAAIAAAADAA0AAAADAAAAAAAHAA0AAAADAAAAAAALAA0AAAADAAAAAAAPAAEAAAADAAAAAAAPAAIAAAADAAAAAAAPAAMAAAADAAAAAAAPAAQAAAADAAAAAAAPAAUAAAADAAAAAAAPAAYAAAADAAAAAAAPABEAAAADAAAAAAATAA0AAAADAAAAAAAXAA0AAAADAAAAAAAbAA0AAAADAAAAAAADAAgAAAADAAEAAAALAAIAAAADAAEAAAALAAgAAAADAAEAAAATAAIAAAADAAEAAAATAAgAAAADAAEAAAAbAAgAAAADAAEAAAADAAkAAAADAAIAAAALAAMAAAADAAIAAAALAAkAAAADAAIAAAATAAMAAAADAAIAAAATAAkAAAADAAIAAAAbAAkAAAADAAIAAAAEAAcAAAAEAAAAAAAIAAEAAAAEAAAAAAAMAAEAAAAEAAAAAAAMAAcAAAAEAAAAAAAQAAEAAAAEAAAAAAAQAAcAAAAEAAAAAAAUAAEAAAAEAAAAAAAYAAEAAAAEAAAAAAAYAAcAAAAEAAAAAAAEAAgAAAAEAAEAAAAMAAIAAAAEAAEAAAAMAAgAAAAEAAEAAAAUAAIAAAAEAAEAAAAEAAkAAAAEAAIAAAAMAAMAAAAEAAIAAAAMAAkAAAAEAAIAAAAUAAMAAAAEAAIAAAAFAAEAAAAFAAAAAAAFAAcAAAAFAAAAAAAJAAEAAAAFAAAAAAANAAEAAAAFAAAAAAANAAcAAAAFAAAAAAARAAEAAAAFAAAAAAARAAcAAAAFAAAAAAAVAAEAAAAFAAAAAAAZAAEAAAAFAAAAAAAZAAcAAAAFAAAAAAAFAAIAAAAFAAEAAAAFAAgAAAAFAAEAAAANAAIAAAAFAAEAAAANAAgAAAAFAAEAAAAVAAIAAAAFAAEAAAAFAAMAAAAFAAIAAAAFAAkAAAAFAAIAAAANAAMAAAAFAAIAAAANAAkAAAAFAAIAAAAVAAMAAAAFAAIAAAACAAcAAAAGAAAAAAAGAAEAAAAGAAAAAAAGAAcAAAAGAAAAAAAKAAEAAAAGAAAAAAAOAAEAAAAGAAAAAAAOAAcAAAAGAAAAAAASAAEAAAAGAAAAAAASAAcAAAAGAAAAAAAWAAEAAAAGAAAAAAAWAAcAAAAGAAAAAAAaAAcAAAAGAAAAAAAGAAIAAAAGAAEAAAAGAAgAAAAGAAEAAAAOAAIAAAAGAAEAAAAOAAgAAAAGAAEAAAAWAAIAAAAGAAEAAAAWAAgAAAAGAAEAAAAGAAMAAAAGAAIAAAAGAAkAAAAGAAIAAAAOAAMAAAAGAAIAAAAOAAkAAAAGAAIAAAAWAAMAAAAGAAIAAAAWAAkAAAAGAAIAAAADAAcAAAAHAAAAAAAHAAEAAAAHAAAAAAAHAAcAAAAHAAAAAAALAAEAAAAHAAAAAAALAAcAAAAHAAAAAAAPAAcAAAAHAAAAAAATAAEAAAAHAAAAAAATAAcAAAAHAAAAAAAXAAEAAAAHAAAAAAAXAAcAAAAHAAAAAAAbAAcAAAAHAAAAAAAHAAIAAAAHAAEAAAAHAAgAAAAHAAEAAAAPAAgAAAAHAAEAAAAXAAIAAAAHAAEAAAAXAAgAAAAHAAEAAAAHAAMAAAAHAAIAAAAHAAkAAAAHAAIAAAAPAAkAAAAHAAIAAAAXAAMAAAAHAAIAAAAXAAkAAAAHAAIAAAAIAAgAAAAAAAEAAAAIAAkAAAAAAAIAAAAIAAcAAAAEAAAAAAA=")
@@ -74,59 +84,85 @@ tile_set = ExtResource("4_2yo68")
 z_index = 1
 y_sort_enabled = true
 
-[node name="BedroomDoor" parent="Doors" unique_id=1684880140 instance=ExtResource("5_lc55d")]
+[node name="BedroomDoor" type="Node2D" parent="Doors" unique_id=1684880140 instance=ExtResource("5_lc55d")]
 position = Vector2(48, 384)
+script = ExtResource("5_dw150")
+style = 1
+creak = ExtResource("6_qo5fo")
+light_energy = 1.15
+locked_light_energy = 0.5
 metadata/interaction_id = "hall_back"
-metadata/interaction_label = "Return to bedroom"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
-[node name="ParentDoorA" parent="Doors" unique_id=1999569606 instance=ExtResource("6_dw150")]
+[node name="ParentDoorA" type="Node2D" parent="Doors" unique_id=1999569606 instance=ExtResource("6_dw150")]
 position = Vector2(320, 320)
+script = ExtResource("5_dw150")
 locked = true
-locked_label = "Mum and Dad"
-
-[node name="ParentDoorB" parent="Doors" unique_id=1027334891 instance=ExtResource("6_dw150")]
-position = Vector2(672, 320)
-locked = true
-locked_label = "Grandma's old room"
-
-[node name="BackDoor" parent="Doors" unique_id=1194472358 instance=ExtResource("5_lc55d")]
-position = Vector2(912, 384)
 swing_side = -1
+leaf_texture = ExtResource("8_nunbk")
+creak = ExtResource("6_qo5fo")
+locked_light_energy = 0.0
+
+
+[node name="ParentDoorB" type="Node2D" parent="Doors" unique_id=1027334891 instance=ExtResource("6_dw150")]
+position = Vector2(672, 320)
+script = ExtResource("5_dw150")
+locked = true
+swing_side = -1
+leaf_texture = ExtResource("8_nunbk")
+creak = ExtResource("6_qo5fo")
+locked_light_energy = 0.0
+
+
+[node name="BackDoor" type="Node2D" parent="Doors" unique_id=1194472358 instance=ExtResource("5_lc55d")]
+position = Vector2(912, 384)
+script = ExtResource("5_dw150")
+style = 1
+swing_side = -1
+creak = ExtResource("6_qo5fo")
+light_energy = 1.15
+locked_light_energy = 0.5
 metadata/interaction_id = "hall_exit"
-metadata/interaction_label = "Go outside"
+metadata/interaction_label = "Open"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Props" type="Node2D" parent="." unique_id=392503483]
 z_index = 1
 y_sort_enabled = true
 
-[node name="CoatRack" parent="Props" unique_id=697432684 instance=ExtResource("7_qo5fo")]
-position = Vector2(150, 346)
+[node name="CoatRack" type="Node2D" parent="Props" unique_id=697432684 instance=ExtResource("7_qo5fo")]
+position = Vector2(150, 329.6)
+script = ExtResource("10_qo5fo")
 
-[node name="RefugeChest" parent="Props" unique_id=2095263743 instance=ExtResource("8_leac8")]
+[node name="RefugeChest" type="Node2D" parent="Props" unique_id=2095263743 instance=ExtResource("8_leac8")]
 position = Vector2(504, 544)
 
-[node name="RefugeLamp" parent="Props" unique_id=476799547 instance=ExtResource("9_nunbk")]
+[node name="RefugeLamp" type="Node2D" parent="Props" unique_id=476799547 instance=ExtResource("9_nunbk")]
 position = Vector2(436, 520)
+script = ExtResource("12_a7x8u")
 
-[node name="ExitLamp" parent="Props" unique_id=879608761 instance=ExtResource("9_nunbk")]
+[node name="ExitLamp" type="Node2D" parent="Props" unique_id=879608761 instance=ExtResource("9_nunbk")]
 position = Vector2(884, 412)
+script = ExtResource("12_a7x8u")
 
-[node name="ParentWardrobeA" parent="Props" unique_id=2070999330 instance=ExtResource("10_a7x8u")]
+[node name="ParentWardrobeA" type="Node2D" parent="Props" unique_id=2070999330 instance=ExtResource("10_a7x8u")]
 position = Vector2(212, 218)
 
-[node name="ParentLampA" parent="Props" unique_id=300877205 instance=ExtResource("9_nunbk")]
+[node name="ParentLampA" type="Node2D" parent="Props" unique_id=300877205 instance=ExtResource("9_nunbk")]
 position = Vector2(420, 214)
+script = ExtResource("12_a7x8u")
 
-[node name="ParentChairB" parent="Props" unique_id=1536587967 instance=ExtResource("11_vsnya")]
+[node name="ParentChairB" type="Node2D" parent="Props" unique_id=1536587967 instance=ExtResource("11_vsnya")]
 position = Vector2(580, 218)
 
-[node name="ParentLampB" parent="Props" unique_id=1511965359 instance=ExtResource("9_nunbk")]
+[node name="ParentLampB" type="Node2D" parent="Props" unique_id=1511965359 instance=ExtResource("9_nunbk")]
 position = Vector2(790, 214)
+script = ExtResource("12_a7x8u")
 
-[node name="EntryLamp" parent="Props" unique_id=889268598 instance=ExtResource("9_nunbk")]
+[node name="EntryLamp" type="Node2D" parent="Props" unique_id=889268598 instance=ExtResource("9_nunbk")]
 position = Vector2(76, 412)
+script = ExtResource("12_a7x8u")
 
 [node name="Listeners" type="Node2D" parent="." unique_id=1407489905]
 
@@ -136,31 +172,67 @@ position = Vector2(320, 320)
 script = ExtResource("12_ineoj")
 glow = NodePath("../DoorGlowA")
 
+[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1200570556]
+occluder = SubResource("OccluderPolygon2D_jamb_l")
+occluder_light_mask = 16
+
+[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1796375050]
+occluder = SubResource("OccluderPolygon2D_jamb_r")
+occluder_light_mask = 16
+
+[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1605182044]
+position = Vector2(-12, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
+[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerA" unique_id=1010234049]
+position = Vector2(10, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
 [node name="ParentListenerB" type="Node2D" parent="Listeners" unique_id=1706915271 node_paths=PackedStringArray("glow")]
 z_index = 1
 position = Vector2(672, 320)
 script = ExtResource("12_ineoj")
 glow = NodePath("../DoorGlowB")
 
+[node name="JambLeft" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=1583872744]
+occluder = SubResource("OccluderPolygon2D_jamb_l")
+occluder_light_mask = 16
+
+[node name="JambRight" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=148474832]
+occluder = SubResource("OccluderPolygon2D_jamb_r")
+occluder_light_mask = 16
+
+[node name="LeftFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=164004579]
+position = Vector2(-12, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
+[node name="RightFoot" type="LightOccluder2D" parent="Listeners/ParentListenerB" unique_id=1653439561]
+position = Vector2(10, -14)
+occluder = SubResource("OccluderPolygon2D_foot")
+occluder_light_mask = 16
+
 [node name="DoorGlowA" type="PointLight2D" parent="Listeners" unique_id=1237831859]
-position = Vector2(320, 324)
+position = Vector2(320, 268)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_d0uwm")
-texture_scale = 0.52
+shadow_item_cull_mask = 16
+texture = ExtResource("light_pool")
+offset = Vector2(0, 52)
+texture_scale = 0.8
 
 [node name="DoorGlowB" type="PointLight2D" parent="Listeners" unique_id=1548784104]
-position = Vector2(672, 324)
+position = Vector2(672, 268)
 color = Color(0.9137255, 0.7176471, 0.47843137, 1)
 energy = 1.25
 shadow_enabled = true
-shadow_filter = 1
-shadow_filter_smooth = 1.0
-texture = ExtResource("13_d0uwm")
-texture_scale = 0.52
+shadow_item_cull_mask = 16
+texture = ExtResource("light_pool")
+offset = Vector2(0, 52)
+texture_scale = 0.8
 
 [node name="SafeLights" type="Node2D" parent="." unique_id=1596456614]
 
@@ -221,6 +293,12 @@ z_index = 40
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(160, 40, 480, 40, 480, 224, 160, 224)
 
+[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomA" unique_id=182461319]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(288, 224, 352, 224, 352, 297, 288, 297)
+
 [node name="ParentRoomB" type="Area2D" parent="Rooms" unique_id=1382177846 node_paths=PackedStringArray("doors")]
 monitorable = false
 script = ExtResource("16_2x0rn")
@@ -235,6 +313,12 @@ z_index = 40
 color = Color(0, 0, 0, 1)
 polygon = PackedVector2Array(512, 40, 832, 40, 832, 224, 512, 224)
 
+[node name="DoorTab" type="Polygon2D" parent="Rooms/ParentRoomB" unique_id=1383237282]
+light_mask = 0
+z_index = 40
+color = Color(0, 0, 0, 1)
+polygon = PackedVector2Array(640, 224, 704, 224, 704, 297, 640, 297)
+
 [node name="Edges" type="StaticBody2D" parent="." unique_id=685681006]
 
 [node name="West" type="CollisionShape2D" parent="Edges" unique_id=2119136232]
@@ -244,3 +328,42 @@ shape = SubResource("RectangleShape2D_ttq1y")
 [node name="East" type="CollisionShape2D" parent="Edges" unique_id=138373591]
 position = Vector2(944, 352)
 shape = SubResource("RectangleShape2D_oru21")
+
+[node name="FinalDoorPool" type="PointLight2D" parent="." unique_id=1818344250]
+position = Vector2(875, 365)
+enabled = false
+color = Color(0.94, 0.77, 0.54, 1)
+energy = 1.1
+shadow_enabled = true
+texture = ExtResource("light_pool")
+texture_scale = 1.6
+
+[node name="ArtFloor" type="TileMapLayer" parent="." unique_id=1351235961]
+light_mask = 17
+z_index = -10
+scale = Vector2(0.4, 0.4)
+tile_map_data = PackedByteArray("AAAJAAcAAAACAAAAAAAKAAcAAAAAAAAAAAAUAAcAAAACAAAAAAAVAAcAAAABAAAAAAAJAAgAAAABAAAAAAAKAAgAAAABAAAAAAAUAAgAAAAAAAAAAAAVAAgAAAABAAAAAAAJAAkAAAACAAAAAAAKAAkAAAAAAAAAAAAUAAkAAAACAAAAAAAVAAkAAAACAAAAAAABAAoAAAAAAAAAAAACAAoAAAAAAAAAAAADAAoAAAAAAAAAAAAEAAoAAAAAAAAAAAAFAAoAAAAAAAAAAAAGAAoAAAAAAAAAAAAHAAoAAAAAAAAAAAAIAAoAAAADAAAAAAAJAAoAAAABAAAAAAAKAAoAAAADAAAAAAALAAoAAAAAAAAAAAAMAAoAAAABAAAAAAANAAoAAAAAAAAAAAAOAAoAAAABAAAAAAAPAAoAAAACAAAAAAAQAAoAAAABAAAAAAARAAoAAAACAAAAAAASAAoAAAACAAAAAAATAAoAAAACAAAAAAAUAAoAAAACAAAAAAAVAAoAAAAAAAAAAAAWAAoAAAACAAAAAAAXAAoAAAACAAAAAAAYAAoAAAADAAAAAAAZAAoAAAACAAAAAAAaAAoAAAAAAAAAAAAbAAoAAAABAAAAAAAcAAoAAAACAAAAAAABAAsAAAAAAAAAAAACAAsAAAABAAAAAAADAAsAAAACAAAAAAAEAAsAAAACAAAAAAAFAAsAAAAAAAAAAAAGAAsAAAACAAAAAAAHAAsAAAACAAAAAAAIAAsAAAAAAAAAAAAJAAsAAAADAAAAAAAKAAsAAAACAAAAAAALAAsAAAACAAAAAAAMAAsAAAAAAAAAAAANAAsAAAAAAAAAAAAOAAsAAAACAAAAAAAPAAsAAAAAAAAAAAAQAAsAAAAAAAAAAAARAAsAAAAAAAAAAAASAAsAAAABAAAAAAATAAsAAAABAAAAAAAUAAsAAAABAAAAAAAVAAsAAAAAAAAAAAAWAAsAAAACAAAAAAAXAAsAAAAAAAAAAAAYAAsAAAACAAAAAAAZAAsAAAAAAAAAAAAaAAsAAAAAAAAAAAAbAAsAAAAAAAAAAAAcAAsAAAAAAAAAAAACAAwAAAAAAAAAAAADAAwAAAACAAAAAAAEAAwAAAAAAAAAAAAFAAwAAAAAAAAAAAAGAAwAAAACAAAAAAAHAAwAAAAAAAAAAAAIAAwAAAAAAAAAAAAJAAwAAAABAAAAAAAKAAwAAAABAAAAAAALAAwAAAAAAAAAAAAMAAwAAAACAAAAAAANAAwAAAABAAAAAAAOAAwAAAABAAAAAAAPAAwAAAADAAAAAAAQAAwAAAAAAAAAAAARAAwAAAABAAAAAAASAAwAAAACAAAAAAATAAwAAAACAAAAAAAUAAwAAAAAAAAAAAAVAAwAAAABAAAAAAAWAAwAAAABAAAAAAAXAAwAAAACAAAAAAAYAAwAAAABAAAAAAAZAAwAAAACAAAAAAAaAAwAAAAAAAAAAAAbAAwAAAACAAAAAAANAA0AAAAAAAAAAAAOAA0AAAABAAAAAAAPAA0AAAAAAAAAAAAQAA0AAAACAAAAAAANAA4AAAAAAAAAAAAOAA4AAAAAAAAAAAAPAA4AAAABAAAAAAAQAA4AAAABAAAAAAANAA8AAAACAAAAAAAOAA8AAAAAAAAAAAAPAA8AAAAAAAAAAAAQAA8AAAACAAAAAAANABAAAAABAAAAAAAOABAAAAABAAAAAAAPABAAAAACAAAAAAAQABAAAAACAAAAAAA=")
+tile_set = ExtResource("20_vsnya")
+
+[node name="ArtWallBase" type="TileMapLayer" parent="." unique_id=1622327232]
+scale = Vector2(0.4, 0.4)
+tile_map_data = PackedByteArray("AAAIAAcAAAAGAAMABAALAAcAAAAGAAMABQAMAAcAAAAGAAMAAAANAAcAAAAGAAMAAAAOAAcAAAAGAAMAAAAPAAcAAAAGAAMAAAAQAAcAAAAGAAMAAAARAAcAAAAGAAMAAAASAAcAAAAGAAMAAAATAAcAAAAGAAMABAAWAAcAAAAGAAMABQAIAAgAAAAGAAMABAALAAgAAAAGAAMABQAMAAgAAAAGAAMAAAANAAgAAAAGAAMAAAAOAAgAAAAGAAMAAAAPAAgAAAAGAAMAAAAQAAgAAAAGAAMAAAARAAgAAAAGAAMAAAASAAgAAAAGAAMAAAATAAgAAAAGAAMABAAWAAgAAAAGAAMABQABAAkAAAAGAAMAAAACAAkAAAAGAAMAAAADAAkAAAAGAAMAAAAEAAkAAAAGAAMAAAAFAAkAAAAGAAMAAAAGAAkAAAAGAAMAAAAHAAkAAAAGAAMAAAAIAAkAAAAIAAMAAAALAAkAAAAIAAMAAQAMAAkAAAAGAAMAAAANAAkAAAAGAAMAAAAOAAkAAAAGAAMAAAAPAAkAAAAGAAMAAAAQAAkAAAAGAAMAAAARAAkAAAAGAAMAAAASAAkAAAAGAAMAAAATAAkAAAAIAAMAAAAWAAkAAAAIAAMAAQAXAAkAAAAGAAMAAAAYAAkAAAAGAAMAAAAZAAkAAAAGAAMAAAAaAAkAAAAGAAMAAAAbAAkAAAAGAAMAAAAcAAkAAAAGAAMAAAABAAwAAAAIAAMAAgAcAAwAAAAIAAMAAwABAA0AAAAHAAMAAgACAA0AAAAGAAMAAgADAA0AAAAGAAMAAgAEAA0AAAAGAAMAAgAFAA0AAAAGAAMAAgAGAA0AAAAGAAMAAgAHAA0AAAAGAAMAAgAIAA0AAAAGAAMAAgAJAA0AAAAGAAMAAgAKAA0AAAAGAAMAAgALAA0AAAAGAAMAAgAMAA0AAAAIAAMAAgARAA0AAAAIAAMAAwASAA0AAAAGAAMAAgATAA0AAAAGAAMAAgAUAA0AAAAGAAMAAgAVAA0AAAAGAAMAAgAWAA0AAAAGAAMAAgAXAA0AAAAGAAMAAgAYAA0AAAAGAAMAAgAZAA0AAAAGAAMAAgAaAA0AAAAGAAMAAgAbAA0AAAAGAAMAAgAcAA0AAAAHAAMAAwAMAA4AAAAGAAMABAARAA4AAAAGAAMABQAMAA8AAAAGAAMABAARAA8AAAAGAAMABQAMABAAAAAGAAMABAARABAAAAAGAAMABQAMABEAAAAHAAMAAgANABEAAAAGAAMAAgAOABEAAAAGAAMAAgAPABEAAAAGAAMAAgAQABEAAAAGAAMAAgARABEAAAAHAAMAAwA=")
+tile_set = ExtResource("20_vsnya")
+
+[node name="ArtWallInnerFace" type="TileMapLayer" parent="." unique_id=1595670152]
+scale = Vector2(0.4, 0.4)
+tile_map_data = PackedByteArray("AAAIAAcAAAAGAAQABAALAAcAAAAGAAQABQATAAcAAAAGAAQABAAWAAcAAAAGAAQABQAIAAgAAAAGAAQABAALAAgAAAAGAAQABQATAAgAAAAGAAQABAAWAAgAAAAGAAQABQABAAkAAAAGAAQAAAACAAkAAAAGAAQAAAADAAkAAAAGAAQAAAAEAAkAAAAGAAQAAAAFAAkAAAAGAAQAAAAGAAkAAAAGAAQAAAAHAAkAAAAGAAQAAAAIAAkAAAAIAAQAAAALAAkAAAAIAAQAAQAMAAkAAAAGAAQAAAANAAkAAAAGAAQAAAAOAAkAAAAGAAQAAAAPAAkAAAAGAAQAAAAQAAkAAAAGAAQAAAARAAkAAAAGAAQAAAASAAkAAAAGAAQAAAATAAkAAAAIAAQAAAAWAAkAAAAIAAQAAQAXAAkAAAAGAAQAAAAYAAkAAAAGAAQAAAAZAAkAAAAGAAQAAAAaAAkAAAAGAAQAAAAbAAkAAAAGAAQAAAAcAAkAAAAGAAQAAAABAAwAAAAIAAQAAgAcAAwAAAAIAAQAAwABAA0AAAAHAAQAAgACAA0AAAAGAAQAAgADAA0AAAAGAAQAAgAEAA0AAAAGAAQAAgAFAA0AAAAGAAQAAgAGAA0AAAAGAAQAAgAHAA0AAAAGAAQAAgAIAA0AAAAGAAQAAgAJAA0AAAAGAAQAAgAKAA0AAAAGAAQAAgALAA0AAAAGAAQAAgAMAA0AAAAIAAQAAgARAA0AAAAIAAQAAwASAA0AAAAGAAQAAgATAA0AAAAGAAQAAgAUAA0AAAAGAAQAAgAVAA0AAAAGAAQAAgAWAA0AAAAGAAQAAgAXAA0AAAAGAAQAAgAYAA0AAAAGAAQAAgAZAA0AAAAGAAQAAgAaAA0AAAAGAAQAAgAbAA0AAAAGAAQAAgAcAA0AAAAHAAQAAwAMAA4AAAAGAAQABAARAA4AAAAGAAQABQAMAA8AAAAGAAQABAARAA8AAAAGAAQABQAMABAAAAAGAAQABAARABAAAAAGAAQABQAMABEAAAAHAAQAAgANABEAAAAGAAQAAgAOABEAAAAGAAQAAgAPABEAAAAGAAQAAgAQABEAAAAGAAQAAgARABEAAAAHAAQAAwA=")
+tile_set = ExtResource("20_vsnya")
+
+[node name="ArtWallTops" type="TileMapLayer" parent="." unique_id=2052014881]
+visible = false
+z_index = 2
+scale = Vector2(0.4, 0.4)
+tile_map_data = PackedByteArray("AAAIAAcAAAAGAAUABAALAAcAAAAGAAUABQAMAAcAAAAAAAgAAAANAAcAAAAAAAgAAAAOAAcAAAAAAAgAAAAPAAcAAAAAAAgAAAAQAAcAAAAAAAgAAAARAAcAAAAAAAgAAAASAAcAAAAAAAgAAAATAAcAAAAHAAYABAAWAAcAAAAHAAYABQAIAAgAAAAGAAUABAALAAgAAAAGAAUABQAMAAgAAAAAAAgAAAANAAgAAAAAAAgAAAAOAAgAAAAAAAgAAAAPAAgAAAAAAAgAAAAQAAgAAAAAAAgAAAARAAgAAAAAAAgAAAASAAgAAAAAAAgAAAATAAgAAAAHAAYABAAWAAgAAAAGAAUABQABAAkAAAAGAAUAAAACAAkAAAAGAAUAAAADAAkAAAAHAAYAAAAEAAkAAAAGAAUAAAAFAAkAAAAGAAUAAAAGAAkAAAAGAAUAAAAHAAkAAAAHAAYAAAAIAAkAAAAIAAUAAAALAAkAAAAIAAUAAQAMAAkAAAAGAAUAAAANAAkAAAAAAAcAAAAOAAkAAAAAAAcAAAAPAAkAAAAGAAUAAAAQAAkAAAAHAAYAAAARAAkAAAAGAAUAAAASAAkAAAAGAAUAAAATAAkAAAAIAAUAAAAWAAkAAAAIAAUAAQAXAAkAAAAGAAUAAAAYAAkAAAAGAAUAAAAZAAkAAAAGAAUAAAAaAAkAAAAHAAYAAAAbAAkAAAAAAAcAAAAcAAkAAAAGAAUAAAABAAwAAAAIAAUAAgAcAAwAAAAIAAUAAwABAA0AAAAHAAUAAgACAA0AAAAGAAYAAgADAA0AAAAGAAUAAgAEAA0AAAAHAAYAAgAFAA0AAAAGAAUAAgAGAA0AAAAGAAUAAgAHAA0AAAAIAAYAAgAIAA0AAAAIAAYAAgAJAA0AAAAGAAUAAgAKAA0AAAAIAAYAAgALAA0AAAAGAAUAAgAMAA0AAAAIAAUAAgARAA0AAAAIAAUAAwASAA0AAAAGAAYAAgATAA0AAAAGAAUAAgAUAA0AAAAGAAUAAgAVAA0AAAAGAAUAAgAWAA0AAAAGAAUAAgAXAA0AAAAIAAYAAgAYAA0AAAAGAAUAAgAZAA0AAAAGAAUAAgAaAA0AAAAGAAUAAgAbAA0AAAAGAAUAAgAcAA0AAAAHAAUAAwAMAA4AAAAGAAUABAARAA4AAAAIAAYABQAMAA8AAAAIAAYABAARAA8AAAAGAAUABQAMABAAAAAAAAcABAARABAAAAAGAAUABQAMABEAAAAHAAUAAgANABEAAAAGAAUAAgAOABEAAAAIAAYAAgAPABEAAAAHAAYAAgAQABEAAAAIAAYAAgARABEAAAAHAAUAAwA=")
+tile_set = ExtResource("20_vsnya")
+
+[node name="ArtWallTopsShifted" type="Node2D" parent="." unique_id=1500327591 node_paths=PackedStringArray("source")]
+z_index = 41
+scale = Vector2(0.4, 0.4)
+script = ExtResource("21_ineoj")
+source = NodePath("../ArtWallTops")

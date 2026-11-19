@@ -1,0 +1,29 @@
+{
+  "name": "deco_chest_open",
+  "description": "The deco_chest trunk with its lid swung back: lid band along the back edge, dark inside, lock plate on the front wall. Same canvas and pivot as deco_chest.",
+  "file": "deco_chest_open.png",
+  "canvas": [
+    190,
+    100
+  ],
+  "frame_size": [
+    190,
+    100
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    95,
+    50
+  ],
+  "layers": {
+    "art": "deco_chest_open.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    76,
+    40
+  ],
+  "sound_frames": [],
+  "stand_in": "derived from deco_chest.png by the integration session; an art export with the same canvas can replace this file without code changes"
+}

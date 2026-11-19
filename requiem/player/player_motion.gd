@@ -2,7 +2,7 @@ extends Node
 ## Walk/held poses follow FootstepNoise. Sprint follows actual distance with a
 ## shorter authored stride; gameplay hearing/audio keep their existing clock.
 
-const SprintAnchors := preload("res://player/art/girl_rig_v2/sprint_layer_anchors.gd")
+const SPRINT_STRIDE_DISTANCE := 103.68
 
 @export var enabled := true
 @export_group("Body feedback (u)")
@@ -102,7 +102,7 @@ func _apply_pose(moving: bool, direction: Vector2, delta: float) -> void:
 	var half_cycle := 0.0 if _foot_side > 0.0 else 1.0
 	var cycle := (half_cycle + gait_phase) * 0.5
 	if enabled and moving and mode == "Sprint":
-		_sprint_clock = fposmod(_sprint_clock + direction.length() / SprintAnchors.STRIDE_DISTANCE, 1.0)
+		_sprint_clock = fposmod(_sprint_clock + direction.length() / SPRINT_STRIDE_DISTANCE, 1.0)
 		cycle = _sprint_clock
 	appearance.set_actor_gait(cycle, enabled and moving,
 		direction, mode == "Sprint", delta)

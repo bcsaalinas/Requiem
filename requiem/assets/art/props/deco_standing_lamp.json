@@ -1,0 +1,31 @@
+{
+  "name": "deco_standing_lamp",
+  "description": "Standing floor lamp seen from straight above: base (turned foot) + top (pleated shade disc & bulb finial).",
+  "file": "deco_standing_lamp.png",
+  "canvas": [
+    64,
+    64
+  ],
+  "frame_size": [
+    64,
+    64
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    32,
+    32
+  ],
+  "layers": {
+    "base": "deco_standing_lamp_base.png",
+    "top": "deco_standing_lamp_top.png",
+    "composite": "deco_standing_lamp.png"
+  },
+  "height_effect": true,
+  "height_factor": 0.006,
+  "collision_world_px": [
+    14,
+    8
+  ],
+  "sound_frames": []
+}

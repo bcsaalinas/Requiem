@@ -1,0 +1,148 @@
+{
+ "clip": "sprint",
+ "part": "head",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_sprint_head.png",
+  "hframes": 8,
+  "vframes": 1
+ },
+ "layers": [
+  "head"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 600,
+ "head": "she always faces the run, so no head turning in the sprint",
+ "head_center_note": "the 0 deg head pose's head_center moved by head_offset (the drawn head adds the bun bounce and the clean-up)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 70,
+   "head_offset": [
+    0,
+    6
+   ],
+   "anchors": {
+    "head_center": [
+     80.0,
+     100.5
+    ]
+   },
+   "bun_bounce_px": 0
+  },
+  {
+   "frame": 1,
+   "ms": 85,
+   "head_offset": [
+    1,
+    5
+   ],
+   "anchors": {
+    "head_center": [
+     81.0,
+     99.5
+    ]
+   },
+   "bun_bounce_px": 1
+  },
+  {
+   "frame": 2,
+   "ms": 75,
+   "head_offset": [
+    1,
+    4
+   ],
+   "anchors": {
+    "head_center": [
+     81.0,
+     98.5
+    ]
+   },
+   "bun_bounce_px": 0
+  },
+  {
+   "frame": 3,
+   "ms": 70,
+   "head_offset": [
+    1,
+    5
+   ],
+   "anchors": {
+    "head_center": [
+     81.0,
+     99.5
+    ]
+   },
+   "bun_bounce_px": 0
+  },
+  {
+   "frame": 4,
+   "ms": 70,
+   "head_offset": [
+    0,
+    6
+   ],
+   "anchors": {
+    "head_center": [
+     80.0,
+     100.5
+    ]
+   },
+   "bun_bounce_px": 0
+  },
+  {
+   "frame": 5,
+   "ms": 85,
+   "head_offset": [
+    -1,
+    5
+   ],
+   "anchors": {
+    "head_center": [
+     79.0,
+     99.5
+    ]
+   },
+   "bun_bounce_px": 1
+  },
+  {
+   "frame": 6,
+   "ms": 75,
+   "head_offset": [
+    -1,
+    4
+   ],
+   "anchors": {
+    "head_center": [
+     79.0,
+     98.5
+    ]
+   },
+   "bun_bounce_px": 0
+  },
+  {
+   "frame": 7,
+   "ms": 70,
+   "head_offset": [
+    -1,
+    5
+   ],
+   "anchors": {
+    "head_center": [
+     79.0,
+     99.5
+    ]
+   },
+   "bun_bounce_px": 0
+  }
+ ]
+}

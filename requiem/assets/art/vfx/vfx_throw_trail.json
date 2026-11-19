@@ -1,0 +1,53 @@
+{
+  "name": "vfx_throw_trail",
+  "category": "vfx",
+  "description": "Thrown pebble motion wake, 3 frames, drawn traveling +x so Godot rotates it with velocity.",
+  "sheet": {
+    "file": "vfx_throw_trail.png",
+    "hframes": 3,
+    "vframes": 1
+  },
+  "canvas": [
+    144,
+    24
+  ],
+  "frame_size": [
+    48,
+    24
+  ],
+  "frame_count": 3,
+  "ms_per_frame": [
+    70,
+    90,
+    90
+  ],
+  "durations_ms": [
+    70,
+    90,
+    90
+  ],
+  "total_ms": 250,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 70
+    },
+    {
+      "frame": 1,
+      "ms": 90
+    },
+    {
+      "frame": 2,
+      "ms": 90
+    }
+  ],
+  "pivot": [
+    40,
+    12
+  ],
+  "anchor": [
+    40,
+    12
+  ],
+  "loop": false
+}

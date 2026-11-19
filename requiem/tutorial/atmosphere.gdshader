@@ -6,6 +6,8 @@ uniform float pressure : hint_range(0.0, 1.0) = 0.0;
 // 0 = unaware, 1 = entity focused / hunting the player (adds subtle aberration & heartbeat vignette).
 uniform float focus : hint_range(0.0, 1.0) = 0.0;
 uniform float pulse : hint_range(0.0, 1.0) = 0.0;
+// Brief, deterministic visual shock when the entity first enters its chase state.
+uniform float hunt_intro : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
     vec2 uv = floor(FRAGCOORD.xy) * SCREEN_PIXEL_SIZE;
@@ -18,7 +20,11 @@ void fragment() {
     float b = texture(screen_texture, clamp(uv - dir * aberr, vec2(0.0), vec2(1.0))).b;
     vec3 scene = vec3(r, g, b);
 
-    float eff_pressure = clamp(pressure + focus * (0.24 + 0.16 * pulse), 0.0, 1.0);
+    float intro_edge = smoothstep(0.2, 1.35, dist);
+    scene = mix(scene, vec3(dot(scene, vec3(.2126, .7152, .0722))), .25 * hunt_intro);
+    scene = mix(scene, vec3(.20, .015, .025), .38 * hunt_intro * intro_edge);
+
+    float eff_pressure = clamp(pressure + focus * (0.24 + 0.16 * pulse) + hunt_intro * 0.15, 0.0, 1.0);
     float vignette = 1.0 - (.14 + .46 * eff_pressure) * smoothstep(.25 - .15 * eff_pressure, 1.45, dist);
     float luma = dot(scene, vec3(.2126, .7152, .0722));
     scene = mix(scene, vec3(luma), .45 * eff_pressure);

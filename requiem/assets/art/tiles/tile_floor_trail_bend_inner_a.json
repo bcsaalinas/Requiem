@@ -1,0 +1,33 @@
+{
+  "name": "tile_floor_trail_bend_inner_a",
+  "canvas": [
+    80,
+    80
+  ],
+  "pivot": [
+    40,
+    40
+  ],
+  "layer": "floor",
+  "drawn_corners_trail": [
+    "NW",
+    "NE",
+    "SW"
+  ],
+  "drawn_corner_grid": [
+    [
+      1,
+      1
+    ],
+    [
+      1,
+      0
+    ]
+  ],
+  "edge_crossings": {
+    "S": "39|40",
+    "E": "39|40"
+  },
+  "chord_equation": "x + y = 120",
+  "baker_rule": "Use on 45-degree diagonal trail runs where a 1-corner cell (NW) is diagonally adjacent to a 3-corner cell (NW|NE|SW) along the bevel direction; alternate _a and _b variants by cell parity or random weight so consecutive diagonal cells do not repeat."
+}

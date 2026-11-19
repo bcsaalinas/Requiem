@@ -1,0 +1,68 @@
+{
+ "clip": "sprint",
+ "part": "lower",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_sprint_lower.png",
+  "hframes": 8,
+  "vframes": 1
+ },
+ "layers": [
+  "leg_far",
+  "leg_near"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 600,
+ "sound_frames": [
+  1,
+  5
+ ],
+ "speed_u_s": 5.4,
+ "notes": [
+  "feet land on frames 1 (L) and 5 (R); 0 and 4 are flight; dust puffs on the landings (session 04)",
+  "leg clips play faster or slower with movement speed (authored at the speed above)"
+ ],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 70
+  },
+  {
+   "frame": 1,
+   "ms": 85
+  },
+  {
+   "frame": 2,
+   "ms": 75
+  },
+  {
+   "frame": 3,
+   "ms": 70
+  },
+  {
+   "frame": 4,
+   "ms": 70
+  },
+  {
+   "frame": 5,
+   "ms": 85
+  },
+  {
+   "frame": 6,
+   "ms": 75
+  },
+  {
+   "frame": 7,
+   "ms": 70
+  }
+ ]
+}

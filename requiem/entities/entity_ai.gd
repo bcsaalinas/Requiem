@@ -88,13 +88,14 @@ signal state_changed(previous: int, current: int)
 ## Cues posicionales al entrar en estados de menor amenaza.
 @export var investigate_cue_clips: Array[AudioStream] = []
 @export var search_cue_clips: Array[AudioStream] = []
-@export var state_cue_volume_db: float = -13.0
+@export var state_cue_volume_db: float = -6.0
 ## Un solo golpe de sonido al atraparte.
 @export var catch_clips: Array[AudioStream] = []
-@export var breath_volume_db: float = -10.0
+@export var breath_volume_db: float = -3.0
 ## Cuanto sube el volumen de la respiracion (encima de breath_volume_db) en HUNT.
-@export var hunt_breath_volume_boost_db: float = 6.0
-@export var stinger_volume_db: float = -2.0
+@export var hunt_breath_volume_boost_db: float = 9.0
+@export var stinger_volume_db: float = 3.0
+@export_range(0.5, 2.0) var hunt_stinger_pitch: float = 1.0
 
 var current_state: int = State.PATROL
 var last_heard_position: Vector2 = Vector2.ZERO
@@ -326,7 +327,6 @@ func _change_state(new_state: int) -> void:
 	if current_state == new_state:
 		return
 
-	var was_hunting := current_state == State.HUNT
 	var previous_state := current_state
 	current_state = new_state
 	state_changed.emit(previous_state, new_state)
@@ -337,14 +337,12 @@ func _change_state(new_state: int) -> void:
 
 	_refresh_color()
 
-	# La respiracion solo se REINICIA de golpe al cruzar la frontera
-	# calma <-> caza: es el latido dramatico de "te encontre" / "te perdi".
-	# Dentro de PATROL/INVESTIGATE/SEARCH sigue su propio bucle sin cortes.
-	if new_state == State.HUNT and not was_hunting:
+	# Cada estado aplica su intensidad de respiracion al entrar.
+	if new_state == State.HUNT:
 		_play_stinger(hunt_stinger_clips)
-		_play_breath_clip()
-	elif was_hunting and new_state != State.HUNT:
-		_play_breath_clip()
+		_stinger_player.pitch_scale = hunt_stinger_pitch
+	# Apply the state's breathing intensity immediately, including SEARCH -> PATROL.
+	_play_breath_clip()
 	if new_state == State.INVESTIGATE:
 		_play_state_cue(investigate_cue_clips)
 	elif new_state == State.SEARCH:
@@ -377,10 +375,7 @@ func get_state_name() -> String:
 
 # ------------------------------------------------------------------ audio ---
 
-## Respiracion en bucle: cada vez que un clip termina, encadena el siguiente
-## (con la lista de calma o de caza segun el estado ACTUAL, leido en ese
-## instante). Asi un cambio de estado a mitad de clip se refleja solo en el
-## proximo ciclo, salvo en la frontera calma<->caza que se fuerza al toque.
+## Encadena clips del estado actual; las transiciones actualizan tono y volumen de inmediato.
 func _play_breath_clip() -> void:
 	if GameState.is_dead:
 		return
@@ -407,6 +402,7 @@ func _play_stinger(clips: Array[AudioStream]) -> void:
 	if clips.is_empty():
 		return
 	_stinger_player.volume_db = stinger_volume_db
+	_stinger_player.pitch_scale = 1.0
 	_stinger_player.stream = clips[randi() % clips.size()]
 	_stinger_player.play()
 

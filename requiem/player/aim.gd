@@ -1,14 +1,17 @@
 extends Node
 ## A continuous control response selects sparse body/arm poses. The wrist and
 ## beam share one heading and socket; this controller never advances the gait.
+## The heading follows the cursor, except in a sprint, where it follows the run.
+## VivAnimator swings the drawn torch arm to get_arm_heading(), so the hand goes
+## where the cursor goes and the body only turns once the arm runs out of reach.
 
 @export_range(30.0, 720.0) var body_turn_speed_degrees := 240.0
 @export_range(30.0, 1080.0) var aim_turn_speed_degrees := 540.0
+## Body turn while sprinting: the same rate VivAnimator turns the running body.
+@export_range(30.0, 1080.0) var sprint_turn_speed_degrees := 540.0
 @export_range(15.0, 45.0) var turn_threshold_degrees := 30.0
 @export var cursor_deadzone_u := 0.75
 
-const LegPose := preload("res://player/leg_pose.gd")
-const RigLayers := preload("res://player/character_rig_layers.gd")
 
 const DIRECTIONS := ["e", "se", "s", "sw", "w", "nw", "n", "ne"]
 const POSE_STEP := PI / 4.0
@@ -35,8 +38,6 @@ var _arm_angle := PI / 2.0
 var _arm_step := 0
 var _wrist_correction := 0.0
 var _unarmed_action_facing := false
-var _legs := LegPose.new()
-var _leg_layers := RigLayers.new()
 
 
 func _ready() -> void:
@@ -72,8 +73,6 @@ func reset_pose() -> void:
 	_unarmed_action_facing = false
 	has_valid_target = false
 	clear_target()
-	_legs.reset(body_angle)
-	_update_lower_pose(0.0)
 	_apply_pose()
 
 
@@ -119,13 +118,18 @@ func _physics_process(delta: float) -> void:
 		_wrist_correction = 0.0
 		_turning = false
 		has_valid_target = false
+	elif player.is_sprinting and actions.can_aim():
+		# Running: the torch arm pumps with the stride, so it cannot also track the
+		# cursor. The beam points where she runs; the cursor takes over when she slows.
+		has_valid_target = true
+		_update_aim(_travel_angle, player.global_position + Vector2.from_angle(_travel_angle) * 2048.0, delta,
+			deg_to_rad(sprint_turn_speed_degrees))
 	elif actions.can_aim() and (flashlight.follow_mouse or _target.is_finite()):
 		var target := get_target_position()
 		var to_target := target - player.global_position
 		has_valid_target = to_target.length() >= Units.to_px(cursor_deadzone_u)
 		if has_valid_target:
 			_update_aim(to_target.angle(), target, delta)
-	_update_lower_pose(delta)
 	_apply_pose()
 
 
@@ -173,7 +177,7 @@ func _apply_pose() -> void:
 	# The hand may extend beyond the collision footprint. Keep the light source
 	# on the player's side of a wall instead of leaking through that wall.
 	if player.is_inside_tree() and player.get_world_2d() != null:
-		var query := PhysicsRayQueryParameters2D.create(player.global_position, muzzle, player.collision_mask, [player.get_rid()])
+		var query := PhysicsRayQueryParameters2D.create(player.global_position, muzzle, 1, [player.get_rid()])
 		var hit := player.get_world_2d().direct_space_state.intersect_ray(query)
 		if not hit.is_empty():
 			origin = hit.position + (player.global_position - muzzle).normalized() * 1.5
@@ -188,6 +192,17 @@ func _update_actor_pose() -> void:
 	appearance.set_actor_pose(pose_body_angle, aim_angle, direction, actions.has_flashlight, _arm_step)
 
 
+## Where the torch arm points: the root-to-cursor heading the arm has turned to so far. It never
+## reads the hand back, so drawing the arm along it cannot feed the aim.
+func get_arm_heading() -> float:
+	return _arm_angle
+
+
+## Places the light again after the presentation has moved the hand this frame.
+func refresh_beam_origin() -> void:
+	_apply_pose()
+
+
 func get_hand_global_position() -> Vector2:
 	return appearance.to_global(appearance.get_actor_hand_position())
 
@@ -198,11 +213,3 @@ func get_muzzle_global_position() -> Vector2:
 
 func get_beam_global_position() -> Vector2:
 	return flashlight.global_position
-
-
-func _update_lower_pose(delta: float) -> void:
-	var state := String(appearance.actor_animation).get_slice("_", 0)
-	var lower := _legs.advance(delta, state, appearance.actor_frame, appearance.actor_is_moving,
-		_travel_angle, pose_body_angle, appearance.global_position, appearance.actor_ground_offset,
-		appearance.actor_frame_scale, _leg_layers)
-	appearance.set_actor_lower_pose(lower)

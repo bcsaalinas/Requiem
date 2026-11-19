@@ -8,17 +8,7 @@ extends Control
 ## Visual rule: the room is dark and still. The candle on the altar and the thin rule under the
 ## title are the only things that move, on the same flicker idiom as a dying flashlight.
 
-const CONTROLS := [
-	["WASD / Arrows", "Move"],
-	["Shift", "Sprint"],
-	["Space", "Hold breath"],
-	["E", "Interact · Doors · Pray"],
-	["F", "Flashlight"],
-	["B", "Swap battery"],
-	["Q / Tab", "Throw · Switch"],
-	["R / Select", "Reset to title"],
-	["F11", "Fullscreen"],
-]
+const ControlsList := preload("res://tutorial/controls_list.gd")
 ## Where the candle flame sits in the key art (UV of menu_background.png), and the
 ## size of its glow in art pixels. The art is drawn "covered", so the glow follows it.
 const CANDLE_UV := Vector2(0.8156, 0.5444)
@@ -44,6 +34,9 @@ var _current_page := "main"
 var _last_focus: Dictionary = {}
 var _starting := false
 var _fullscreen: CheckButton
+var _display_mode: Button
+var _turn_mode: Button
+var _captions: Button
 var _pages: Dictionary = {}
 var _clock := 0.0
 var _flicker_target := 1.0
@@ -56,6 +49,7 @@ var _rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	LegacyUi.fit_root(self)
 	MusicDirector.set_music_state(MusicDirector.MusicState.MENU)
 	Kiosk.enter_fullscreen()
 	_rng.randomize()
@@ -90,7 +84,7 @@ func _ready() -> void:
 
 func _build_controls() -> void:
 	var grid: GridContainer = %ControlsGrid
-	for row in CONTROLS:
+	for row in ControlsList.ROWS:
 		var key := Label.new()
 		key.text = row[0]
 		key.theme_type_variation = &"KeyLabel"
@@ -187,6 +181,14 @@ func _caption(page: Control, caption: String) -> void:
 	page.add_child(label)
 
 
+func _refresh_display_caption() -> void:
+	_display_mode.text = Preferences.display_caption()
+
+
+func _refresh_turn_caption() -> void:
+	_turn_mode.text = Preferences.turn_caption()
+
+
 func _build_extra_pages() -> void:
 	var settings := _page("settings")
 	_caption(settings, "SETTINGS")
@@ -202,6 +204,12 @@ func _build_extra_pages() -> void:
 	_fullscreen.button_pressed = Preferences.fullscreen
 	_fullscreen.toggled.connect(Preferences.set_fullscreen)
 	display.add_child(_fullscreen)
+	_display_mode = _button(display, Preferences.display_caption(), Preferences.toggle_display_mode)
+	Preferences.display_mode_changed.connect(_refresh_display_caption)
+	_turn_mode = _button(display, Preferences.turn_caption(), Preferences.toggle_turn_mode)
+	Preferences.turn_mode_changed.connect(_refresh_turn_caption)
+	_captions = _button(display, Preferences.captions_caption(), Preferences.toggle_captions)
+	Preferences.captions_changed.connect(func(): _captions.text = Preferences.captions_caption())
 	_button(display, "Back", _show_page.bind("settings"))
 
 	var quit := _page("quit")

@@ -1,0 +1,93 @@
+{
+ "clip": "idle_calm",
+ "part": "arm_right_on",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_idle_calm_arm_right_on.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right_raised",
+  "flashlight_raised"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 3500,
+ "mood": "calm",
+ "mood_note": "her normal idle: A, the arms widen 1 px outward on the in-breath, the head 1 px back at the top",
+ "plays_over": "girl_stand_lower, and girl_side_step_lower moved by its upper_offset (both sides)",
+ "switch_note": "calm by default; tired / exhausted after a sprint (MOVEMENT_PLAN 4). Switch at a frame boundary: frame 0 of every mood is her rest pose (exhausted's head 1 px forward)",
+ "state": "flashlight raised, on",
+ "flashlight_note": "flashlight_tip / flashlight_angle_deg are the drawn values (deg out from straight ahead)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 1400,
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 500,
+   "anchors": {
+    "hand_right": [
+     45.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     44.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 900,
+   "anchors": {
+    "hand_right": [
+     45.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     44.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 700,
+   "anchors": {
+    "hand_right": [
+     46.1,
+     128.4
+    ],
+    "flashlight_tip": [
+     45.2,
+     142.0
+    ],
+    "flashlight_angle_deg": 0.0
+   }
+  }
+ ]
+}

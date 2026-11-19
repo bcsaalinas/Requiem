@@ -1,0 +1,48 @@
+{
+ "name": "light_veladora",
+ "kind": "light texture (PointLight2D) for each veladora: an always-lit, very weak ambient pool, not a safe zone",
+ "canvas": [
+  192,
+  192
+ ],
+ "file": "light_veladora.png",
+ "centre_px": [
+  96.0,
+  96.0
+ ],
+ "centre_note": "px-edge coordinates from the top-left = the texture centre (PointLight2D centres its texture on the node). Put the node on the veladora's wick (ritual_veladora.json anchors.wick). The core sits ~2 px NE of the centre on purpose (the rings are not concentric).",
+ "opaque_bbox": [
+  51,
+  49,
+  92,
+  98
+ ],
+ "bands_core_to_spill": [
+  "#8d817b",
+  "#605551",
+  "#473e3c",
+  "#272323"
+ ],
+ "band_values": [
+  0.514,
+  0.342,
+  0.252,
+  0.142
+ ],
+ "outside": "transparent (alpha 0): no light",
+ "scale_note": "review at the whole-number art scale 3 (pool radius ~45-50 texture px = ~140 art px = ~1.8 u) = texture_scale 1.2 in world px (1 u = 32 world px = 80 art px). The old altar lights were the 256 px lamp_pool.tres gradient at texture_scale 1.05. Light textures may only scale by whole numbers.",
+ "filter": "nearest (project default_texture_filter 0), so the bands stay hard",
+ "game_settings_used_in_review": {
+  "blend_mode": "Add",
+  "color": [
+   0.9411765,
+   0.76862746,
+   0.5411765
+  ],
+  "energy": 1.0,
+  "source": "tutorial/zones/house.tscn AltarLeftLight / AltarRightLight"
+ },
+ "energy_note": "4 low bands, peak #8d817b (0.53), no #bab4aa core: the brief's 'very weak, keep the bands low'. One or two read as a faint warm pool on the altar top; with all 8 altar slots lit the Add lights stack and the cloth goes flat peach, so lower the per-candle energy (or light fewer) if the game fills the altar (for Beti / the Godot session).",
+ "placement_note": "two veladoras side by side show the same lump twice; rotate or flip one light node by 90 / 180 degrees in Godot so neighbours don't look stamped (the texture stays nearest-sampled)",
+ "design": "option A 'low, long tail' (critic pick), shortened after the critics: a #8d817b core ~19 px across ~2 px NE of the wick, a #605551 ring 3-4 px on the NE and ~10 px on the SW, a lumpy #473e3c body and a #272323 rim 11-25 px wide with 2-3 broad lobes; no band under 3 px, no edge straight for more than 8 px"
+}

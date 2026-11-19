@@ -1,0 +1,28 @@
+{
+  "name": "deco_kitchen_table",
+  "description": "Scrubbed wooden kitchen table with cutting board and clay cazuela, straight down (legs hidden under the top), no rim.",
+  "file": "deco_kitchen_table.png",
+  "canvas": [
+    260,
+    170
+  ],
+  "frame_size": [
+    260,
+    170
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    130,
+    85
+  ],
+  "layers": {
+    "art": "deco_kitchen_table.png"
+  },
+  "height_effect": false,
+  "collision_world_px": [
+    104,
+    68
+  ],
+  "sound_frames": []
+}

@@ -1,0 +1,52 @@
+{
+ "name": "vfx_sprint_dust",
+ "category": "vfx",
+ "sheet": {
+  "file": "vfx_sprint_dust.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "frame_size": [
+  48,
+  48
+ ],
+ "frame_index_base": 0,
+ "loop": false,
+ "total_ms": 440,
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 60
+  },
+  {
+   "frame": 1,
+   "ms": 160
+  },
+  {
+   "frame": 2,
+   "ms": 120
+  },
+  {
+   "frame": 3,
+   "ms": 100
+  }
+ ],
+ "anchor": [
+  24,
+  44
+ ],
+ "anchor_note": "px-edge coords in the frame: the planted boot's toe point. Place the sprite so this point sits on the boot that lands (girl_sprint_lower frames 1 L / 5 R; toe points in her 160 frame: L (91.5, 130), R (68.5, 130), facing S, pivot (80, 80)).",
+ "facing": "drawn with travel = +y (S), the same facing as every girl sheet; the dust is kicked back toward -y. Rotate the node with her sprint direction at the moment of the plant (as her sprite), then leave it world-fixed (sprint_dust.gd: set_as_top_level).",
+ "flip_h": "use flip_h (before the rotation) on right-foot plants so the two feet don't stamp the same puff",
+ "z_note": "draw under the player (z below her sprite): frame 0 and the start of frame 1 sit under her coat, as sprint_dust.gd's own comment expects; frames 1-3 show behind her as she runs on.",
+ "playback": "one shot per plant, then free the node / hide it; no fade, no scaling (alpha 0/255, shrink in steps is drawn). 440 ms = sprint_dust.gd's longest puff life; frame 1 (160 ms) holds while her body clears the plant at 5.4 u/s.",
+ "lighting": "a normal lit sprite (albedo): bright colour comes from the lights. At the tutorial ambient only her presence light reaches the dust behind her, so frame 2-3 are faint there (in NEEDS_BETI).",
+ "colours": [
+  "#8d817b",
+  "#766a65",
+  "#605551",
+  "#473e3c"
+ ],
+ "replaces": "the circles drawn by Requiem/requiem/player/sprint_dust.gd _draw() (DUST_COLOR (0.61, 0.59, 0.52), 3 translucent puffs per plant); its emit logic (contacts, travel, MAX_PUFFS) can stay",
+ "source": "ws04_ui_lights_vfx/vfx_sprint_dust.aseprite (layer `dust`, tag `sprint_dust`) = _tools/dust_build.py --build C1R2"
+}

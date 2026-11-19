@@ -1,0 +1,10 @@
+{
+  "name": "item_key",
+  "description": "Old brass door key seen from above.",
+  "file": "item_key.png",
+  "canvas": [
+    20,
+    12
+  ],
+  "stand_in": "drawn by the integration session; an art export with the same canvas can replace this file without code changes"
+}

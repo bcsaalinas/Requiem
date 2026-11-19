@@ -28,7 +28,6 @@ material = SubResource("ShaderMaterial_3npmm")
 
 [node name="SafetyKillzones" type="Node2D" parent="." unique_id=2141479773]
 script = ExtResource("4_7d2fe")
-
 [node name="TutorialAmbient" type="CanvasModulate" parent="." unique_id=1594022313]
 color = Color(0.019607844, 0.023529412, 0.03137255, 1)
 

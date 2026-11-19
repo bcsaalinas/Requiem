@@ -30,11 +30,7 @@ signal failed
 
 @export_group("Voice")
 @export var lines: Array[String] = [
-	"LISTEN OR DIE",
-	"EVERY BREATH BETRAYS YOU",
-	"PRAYER WON'T SAVE YOU. SURVIVING IT WILL.",
-	"IT CANNOT SEE YOU. IT HAS NEVER SEEN ANYTHING.",
-	"THE DARK IS NOT THE THREAT. YOU ARE.",
+	"It cannot see you. It has never seen anything.",
 ]
 @export var line_interval: float = 3.4
 
@@ -64,7 +60,7 @@ func _ready() -> void:
 
 func _build() -> void:
 	_root = Control.new()
-	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	LegacyUi.fit_root(_root)
 	_root.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_root)
 

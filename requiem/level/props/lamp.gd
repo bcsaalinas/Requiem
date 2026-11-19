@@ -12,7 +12,7 @@ extends Node2D
 		energy = value
 		_apply()
 ## Light radius as a multiple of the 256 px falloff texture (1.0 = 128 px reach).
-@export_range(0.1, 6.0, 0.05) var reach := 1.3:
+@export_range(0.4, 6.0, 0.4) var reach := 1.2:
 	set(value):
 		reach = value
 		_apply()
@@ -32,5 +32,5 @@ func _apply() -> void:
 		return
 	light.enabled = lit
 	light.energy = energy
-	light.texture_scale = reach
+	light.texture_scale = maxf(roundf(reach / 0.4), 1.0) * 0.4
 	light.color = color

@@ -29,17 +29,7 @@ signal quit_pressed
 @export var duck_bus_name: String = "Master"
 @export var duck_db: float = -14.0
 
-const CONTROLS := [
-	["WASD / Arrows", "Move"],
-	["Shift", "Sprint"],
-	["Space", "Hold breath"],
-	["E", "Interact · Pray"],
-	["F", "Flashlight"],
-	["B", "Replace battery"],
-	["Q / Tab", "Throw · Switch"],
-	["R / Select", "Reset to title"],
-	["F11", "Fullscreen"],
-]
+const ControlsList := preload("res://tutorial/controls_list.gd")
 
 var is_open: bool = false
 
@@ -76,7 +66,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build() -> void:
 	_root = Control.new()
-	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	LegacyUi.fit_root(_root)
+	_root.theme = preload("res://tutorial/ui_text_theme.tres")
 	add_child(_root)
 
 	# A tint, not a blackout: the player still sees the room they are standing
@@ -138,6 +129,15 @@ func _build_main() -> Control:
 	))
 	box.add_child(_menu_button("Controls", func(): _show_page("controls")))
 	box.add_child(_menu_button("Audio", func(): _show_page("audio")))
+	var display_mode := _menu_button(Preferences.display_caption(), Preferences.toggle_display_mode)
+	Preferences.display_mode_changed.connect(func(): display_mode.text = Preferences.display_caption())
+	box.add_child(display_mode)
+	var turn_mode := _menu_button(Preferences.turn_caption(), Preferences.toggle_turn_mode)
+	Preferences.turn_mode_changed.connect(func(): turn_mode.text = Preferences.turn_caption())
+	box.add_child(turn_mode)
+	var captions := _menu_button(Preferences.captions_caption(), Preferences.toggle_captions)
+	Preferences.captions_changed.connect(func(): captions.text = Preferences.captions_caption())
+	box.add_child(captions)
 	box.add_child(_menu_button("Quit to desktop", func():
 		quit_pressed.emit()
 		get_tree().quit()
@@ -153,7 +153,7 @@ func _build_controls() -> Control:
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 28)
 	grid.add_theme_constant_override("v_separation", 7)
-	for row in CONTROLS:
+	for row in ControlsList.ROWS:
 		var key := UIPalette.label(row[0], UIPalette.MIN_TEXT_SIZE, UIPalette.CANDLE)
 		key.custom_minimum_size.x = 180
 		grid.add_child(key)

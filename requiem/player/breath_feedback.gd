@@ -15,13 +15,14 @@ const GASP_SECONDS := 0.28
 @onready var appearance: Node2D = player.get_node("Appearance")
 
 var phase: StringName = &"idle"
-var phase_name := "Relaxed"
 var pose_phase := 0.0
 var hold_focus := 0.0
 var strain := 0.0
 var lung_pressure := 0.0
 var exertion_pressure := 0.0
 var pulse := 0.0
+## A lub-dub on the same clock as `pulse` (0..1): what the tunnel throbs to.
+var heartbeat := 0.0
 var cue: StringName = &""
 var cue_age := 10.0
 var recovery_fraction := 0.0
@@ -45,6 +46,8 @@ func _ready() -> void:
 	_layer = CanvasLayer.new()
 	_layer.name = "BreathEffects"
 	_layer.layer = 15
+	# Over the world image and its Atmosphere film, under the native-resolution UI.
+	PixelDisplay.attach_world_layer(_layer)
 	add_child(_layer)
 	_vfx = BreathVfx.new()
 	_vfx.feedback = self
@@ -54,13 +57,13 @@ func _ready() -> void:
 
 func reset_feedback() -> void:
 	phase = &"idle"
-	phase_name = "Relaxed"
 	pose_phase = 0.0
 	hold_focus = 0.0
 	strain = 0.0
 	lung_pressure = 0.0
 	exertion_pressure = 0.0
 	pulse = 0.0
+	heartbeat = 0.0
 	_elapsed = 0.0
 	_pulse_clock = 0.0
 	_forced_duration = 0.0
@@ -89,6 +92,8 @@ func _physics_process(delta: float) -> void:
 		1.0 - exp(-delta * (15.0 if breath.is_holding else 5.5)))
 	_pulse_clock = fposmod(_pulse_clock + delta * TAU * lerpf(0.8, 1.55, strain), TAU)
 	pulse = (1.0 - cos(_pulse_clock)) * 0.5
+	var beat := _pulse_clock / TAU
+	heartbeat = exp(-pow((beat - 0.12) / 0.06, 2.0)) + 0.6 * exp(-pow((beat - 0.34) / 0.07, 2.0))
 	if breath.is_locked:
 		# Recovery stays visible even though the mechanic clears exertion on gasp.
 		if not _was_locked:
@@ -116,20 +121,7 @@ func _physics_process(delta: float) -> void:
 		phase = &"idle"
 		pose_phase = 0.0
 	_was_locked = breath.is_locked
-	_update_label()
 	appearance.set_breath_pose(phase, pose_phase)
-
-
-func _update_label() -> void:
-	match phase:
-		&"inhale": phase_name = "Holding breath"
-		&"hold": phase_name = "Holding breath"
-		&"strain": phase_name = "Straining"
-		&"release": phase_name = "Controlled exhale"
-		&"release_loud": phase_name = "Loud exhale"
-		&"gasp": phase_name = "Forced gasp"
-		&"recovery": phase_name = "Recovering"
-		_: phase_name = "Release Space" if breath.needs_release else "Relaxed"
 
 
 func _on_hold_started() -> void:

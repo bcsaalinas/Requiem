@@ -32,6 +32,7 @@ func _build_studio_controls() -> void:
 	var layer := CanvasLayer.new()
 	layer.name = "BreathStudioOverlay"
 	layer.layer = 30
+	LegacyUi.fit_layer(layer)
 	add_child(layer)
 	var panel := VBoxContainer.new()
 	panel.position = Vector2(20, 16)
@@ -131,7 +132,7 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	if not is_instance_valid(studio_status): return
 	var feedback := player.get_node_or_null("BreathFeedback")
-	var phase: String = feedback.phase_name if feedback != null else String(player.get_node("ActionState").get_action())
+	var phase: String = String(feedback.phase) if feedback != null else String(player.get_node("ActionState").get_action())
 	studio_status.text = "%s · Air %d%% · Exertion %d%%" % [phase.capitalize(), roundi(breath.lung_percent), roundi(breath.exertion_percent)]
 
 

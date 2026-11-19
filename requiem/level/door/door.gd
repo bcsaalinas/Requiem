@@ -4,10 +4,10 @@ extends Node2D
 ## A doorway cut into the wall TileMapLayer. The leaf, the movement blocker and the light
 ## occluder always change together: a closed door stops bodies, light and (with Room covers) sight.
 ##
-## FRONT doors sit in an east-west wall: an upright leaf in the wall face plus its top edge in the
-## dark wall band. SIDE doors sit in a north-south wall: a plank seen from above that swings 90 deg.
-## The node origin is the floor line of the doorway (bottom of the face for FRONT, south end of the
-## gap for SIDE), so the door y-sorts like the wall it belongs to.
+## Seen from above, both styles are the same door: a floor-level frame (the threshold) and a leaf at
+## wall height that swings 90 degrees about its hinge. `style` is only the wall orientation: FRONT sits
+## in an east-west wall, SIDE in a north-south wall. The node origin is the floor line of the
+## doorway (bottom of the drawn wall row for FRONT, south end of the gap for SIDE).
 
 signal opened
 signal closed
@@ -25,7 +25,7 @@ enum Style { FRONT, SIDE }
 		_update_light()
 ## Seconds the leaf takes to swing open or shut.
 @export_range(0.05, 2.0, 0.05) var swing_time := 0.35
-## SIDE doors only: 1 swings the leaf toward +x (east), -1 toward -x (west).
+## FRONT: 1 swings the leaf toward +y (south), -1 toward -y (north). SIDE: 1 swings it east, -1 west.
 @export_range(-1, 1, 2) var swing_side := 1:
 	set(value):
 		swing_side = value
@@ -34,6 +34,11 @@ enum Style { FRONT, SIDE }
 @export_range(0.0, 1.0, 0.01) var swing := 0.0:
 	set(value):
 		swing = value
+		_apply_swing()
+
+@export var leaf_texture: Texture2D = preload("res://assets/art/props/door_leaf_closed.png"):
+	set(value):
+		leaf_texture = value
 		_apply_swing()
 
 @export_group("Noise")
@@ -61,13 +66,23 @@ enum Style { FRONT, SIDE }
 @export var focused_light_boost := 1.6
 
 @export_group("Interaction")
-@export var open_label := "Open door"
-@export var close_label := "Close door"
+@export var open_label := "Open"
+@export var close_label := "Close"
 @export var locked_label := "Locked"
+
+## Leaf art: 160x34 px canvas drawn hinged on the left, swinging south; the pivot is the hinge-end
+## corner of the swing face. The closed leaf sits 23 art px below the top of the frame.
+const LEAF_CANVAS_Y := 23.0
+const LEAF_WIDTH := 160.0
+const PIVOT_Y_SOUTH := 27.0
+const PIVOT_Y_NORTH := 7.0
+const FRAME_SIZE := Vector2(64, 32)
 
 var is_open := false
 var focused := false
 var _tween: Tween
+var _hinge_base := Vector2.ZERO
+var _leaf_body_pending := false
 
 
 func _ready() -> void:
@@ -85,6 +100,17 @@ func _ready() -> void:
 		doorway.body_entered.connect(_on_doorway_body_entered)
 
 
+func _process(_delta: float) -> void:
+	var assembly := get_node_or_null("Assembly") as Node2D
+	var hinge := get_node_or_null("Assembly/Hinge") as Node2D
+	if assembly == null or hinge == null or Engine.is_editor_hint():
+		return
+	var shift := HeightShift.offset_for(assembly.global_position)
+	hinge.position = _hinge_base + shift.rotated(-assembly.global_rotation)
+	if _leaf_body_pending:
+		_update_leaf_body()
+
+
 func _on_doorway_body_entered(body: Node2D) -> void:
 	if opened_by_group != &"" and body.is_in_group(opened_by_group) and body.is_visible_in_tree():
 		open()
@@ -99,6 +125,7 @@ func open(quiet := false, silent := false) -> bool:
 	_animate(1.0)
 	if not silent:
 		_make_noise(quiet)
+	_spawn_hinge_dust()
 	opened.emit()
 	return true
 
@@ -112,6 +139,7 @@ func close(quiet := false, silent := false) -> bool:
 	_sync_blockers()
 	if not silent:
 		_make_noise(quiet)
+	_spawn_hinge_dust()
 	closed.emit()
 	return true
 
@@ -147,17 +175,21 @@ func interaction_label() -> String:
 ## Doors take part in the tutorial interaction highlight like the other props.
 func set_focused(value: bool) -> void:
 	focused = value
-	var frame := get_node_or_null("Frame") as CanvasItem
-	if frame != null:
-		frame.modulate = Color(1.5, 1.4, 1.2) if value else Color.WHITE
 	_update_light()
+
+
+## Decorative doorway lights forced off (story beats); real lights still reach the door.
+var decorative_glow_off := false:
+	set(value):
+		decorative_glow_off = value
+		_update_light()
 
 
 func _update_light() -> void:
 	var glow := get_node_or_null("Glow")
 	if glow == null:
 		return
-	var energy := locked_light_energy if locked else light_energy
+	var energy := 0.0 if decorative_glow_off else (locked_light_energy if locked else light_energy)
 	if focused:
 		energy *= focused_light_boost
 	for light in glow.get_children():
@@ -181,25 +213,80 @@ func _sync_blockers() -> void:
 	var shape := get_node_or_null("Blocker/Shape") as CollisionShape2D
 	if shape != null:
 		shape.set_deferred("disabled", is_open)
-	var occluder := get_node_or_null("Occluder") as LightOccluder2D
-	if occluder != null:
-		occluder.visible = not is_open
+	for occluder_name in ["Occluder", "OccluderLeaf"]:
+		var occluder := get_node_or_null(occluder_name) as LightOccluder2D
+		if occluder != null:
+			# FRONT doors keep the y -80 line off: it stopped her beam 57 px
+			# before the leaf; the jamb posts seal the sides now.
+			occluder.visible = false if occluder_name == "Occluder" 				and style == Style.FRONT else not is_open
+	_sync_leaf_body()
+
+
+## The swung-open leaf gets its own Viv-only body once it lands; a shut door
+## still relies on Blocker. Layer 2 reaches only her mask, so the entity, the
+## ranger, pebbles and navigation never feel it.
+func _sync_leaf_body() -> void:
+	var shape := get_node_or_null("LeafBody/Shape") as CollisionShape2D
+	if shape == null:
+		return
+	if not is_open:
+		_leaf_body_pending = false
+		shape.set_deferred("disabled", true)
+	else:
+		_leaf_body_pending = true
+
+
+func _update_leaf_body() -> void:
+	var shape := get_node_or_null("LeafBody/Shape") as CollisionShape2D
+	var leaf := get_node_or_null("Assembly/Hinge/Leaf") as Sprite2D
+	if shape == null or leaf == null:
+		_leaf_body_pending = false
+		return
+	if not is_open or swing < 0.99:
+		return
+	var xf := global_transform.affine_inverse() * leaf.global_transform
+	var points := PackedVector2Array([xf * Vector2.ZERO, xf * Vector2(LEAF_WIDTH, 0.0), \
+		xf * Vector2(0.0, 34.0), xf * Vector2(LEAF_WIDTH, 34.0)])
+	var aabb := Rect2(points[0], Vector2.ZERO)
+	for i in range(1, points.size()):
+		aabb = aabb.expand(points[i])
+	shape.position = aabb.get_center()
+	(shape.shape as RectangleShape2D).size = aabb.size
+	# If she stands where the leaf lands, the body waits until she is clear
+	# instead of shoving or trapping her.
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape.shape
+	query.transform = global_transform * Transform2D(0.0, shape.position)
+	query.collision_mask = 1
+	for hit in get_world_2d().direct_space_state.intersect_shape(query, 8):
+		if (hit["collider"] as Node).is_in_group("player"):
+			return
+	shape.set_deferred("disabled", false)
+	_leaf_body_pending = false
 
 
 func _apply_swing() -> void:
 	if not is_inside_tree():
 		return
-	var hinge := get_node_or_null("Hinge") as Node2D
-	if style == Style.FRONT:
-		# Seen from the front, a leaf turning away from the viewer narrows toward its hinge.
-		if hinge != null:
-			hinge.scale.x = lerpf(1.0, 0.16, swing)
-			hinge.modulate = Color.WHITE.lerp(Color(0.42, 0.42, 0.42), swing)
-		var top := get_node_or_null("TopHinge") as Node2D
-		if top != null:
-			top.rotation = lerpf(0.0, PI * 0.5, swing)
-	elif hinge != null:
-		hinge.rotation = lerpf(0.0, -swing_side * PI * 0.5, swing)
+	var assembly := get_node_or_null("Assembly") as Node2D
+	var hinge := get_node_or_null("Assembly/Hinge") as Node2D
+	var leaf := get_node_or_null("Assembly/Hinge/Leaf") as Sprite2D
+	if assembly == null or hinge == null or leaf == null:
+		return
+	# In assembly space the leaf is drawn hinged on the left, swinging south. SIDE doors are hinged at
+	# the north end, which is the right end once the assembly is turned; swing_side 1 is south in
+	# assembly space for both styles (east for SIDE).
+	var swings_south := swing_side == 1
+	var hinge_right := style == Style.SIDE
+	leaf.texture = leaf_texture
+	leaf.flip_h = hinge_right
+	leaf.flip_v = not swings_south
+	var pivot := Vector2(LEAF_WIDTH if hinge_right else 0.0, PIVOT_Y_SOUTH if swings_south else PIVOT_Y_NORTH)
+	leaf.position = -pivot * Units.ART_SCALE
+	_hinge_base = -FRAME_SIZE * 0.5 + Vector2(pivot.x, LEAF_CANVAS_Y + pivot.y) * Units.ART_SCALE
+	var open_angle := PI * 0.5 if swings_south != hinge_right else -PI * 0.5
+	hinge.position = _hinge_base
+	hinge.rotation = open_angle * swing
 
 
 func _make_noise(quiet: bool) -> void:
@@ -219,3 +306,23 @@ func _make_noise(quiet: bool) -> void:
 ## Centre of the doorway gap in global coordinates.
 func get_noise_origin() -> Vector2:
 	return to_global(Vector2(0.0, -48.0) if style == Style.FRONT else Vector2(0.0, -32.0))
+
+
+## Burst of plaster/wood dust out of the hinge side on every swing (vfx_door_dust sheet).
+func _spawn_hinge_dust() -> void:
+	var hinge := get_node_or_null("Assembly/Hinge") as Node2D
+	if hinge == null or Engine.is_editor_hint():
+		return
+	var dust := VfxSheet.new()
+	get_parent().add_child(dust)
+	dust.set_as_top_level(true)
+	dust.global_position = hinge.global_position
+	dust.z_index = 35
+	dust.play(DUST_TEXTURE, 3, DUST_MS, DUST_ANCHOR)
+
+
+const VfxSheet := preload("res://level/vfx_sheet.gd")
+const DUST_TEXTURE := preload("res://assets/art/vfx/vfx_door_dust.png")
+## vfx_door_dust.json: 90, 120, 130 ms; centred 80,24 of a 160x48 frame.
+const DUST_MS: Array[int] = [90, 120, 130]
+const DUST_ANCHOR := Vector2(80, 24)

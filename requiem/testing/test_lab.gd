@@ -21,7 +21,9 @@ var switching := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	get_window().mode = Window.MODE_WINDOWED
-	get_window().size = Vector2i(1280, 720)
+	get_window().size = Vector2i(
+		ProjectSettings.get_setting("display/window/size/viewport_width"),
+		ProjectSettings.get_setting("display/window/size/viewport_height"))
 	noise = NoiseOverlay.new()
 	noise.enabled = false
 	add_child(noise)
@@ -30,9 +32,13 @@ func _ready() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 110
 	add_child(layer)
+	var ui := Control.new()
+	ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	LegacyUi.fit_root(ui)
+	layer.add_child(ui)
 	menu = PanelContainer.new()
+	ui.add_child(menu)
 	menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	layer.add_child(menu)
 	var center := CenterContainer.new()
 	menu.add_child(center)
 	var choices := VBoxContainer.new()
@@ -58,7 +64,7 @@ func _ready() -> void:
 	choices.add_child(help)
 	toolbar = HBoxContainer.new()
 	toolbar.position = Vector2(20, 116)
-	layer.add_child(toolbar)
+	ui.add_child(toolbar)
 	add_button(toolbar, "F1 · Test Lab", show_menu)
 	add_button(toolbar, "Restart test", restart)
 	toolbar.hide()
@@ -97,7 +103,7 @@ func clear_scene() -> void:
 		await get_tree().process_frame
 	active_scene = null
 	GameState.reset()
-	GameOverUi.label.text = ""
+	GameOverUi._reset()
 	noise.enabled = false
 	noise._noises.clear()
 	noise._legend_layer.hide()

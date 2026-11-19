@@ -64,6 +64,7 @@ var flashlight: PointLight2D
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 @onready var heard_flash: Node2D = $NoiseFx/HeardFlash
 @onready var film: ColorRect = $Atmosphere/Film
+var field_map: Node
 @onready var ambient_modulate: CanvasModulate = $TutorialAmbient
 var zone := "bedroom"
 var stage := "ki"
@@ -114,6 +115,7 @@ var low_battery_hinted := false
 var dead_light_time := 0.0
 ## Eased 0..1 closeness of the hunting entity (drives the Atmosphere vignette).
 var threat_pressure := 0.0
+var hunt_intro_effect := 0.0
 var friend_home := Vector2.ZERO
 var _paused := false
 var _paused_modes: Dictionary = {}
@@ -123,6 +125,9 @@ func _enter_tree() -> void:
 	GameState.reset()
 
 func _ready() -> void:
+	field_map = preload("res://tutorial/field_map.gd").new()
+	field_map.name = "FieldMap"
+	add_child(field_map)
 	get_window().content_scale_size = Vector2i(1280,720)
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
@@ -136,6 +141,7 @@ func _ready() -> void:
 	breath._bar_layer.hide()
 	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
+	entity.state_changed.connect(_on_entity_state_changed)
 	MusicDirector.bind_gameplay(entity, breath)
 	flashlight=player.get_node("flashlight")
 	has_flashlight=false
@@ -158,12 +164,14 @@ func _ready() -> void:
 		if zone=="house" and not attack_finished: prayer_audio.play())
 	flashlight.click_clips.assign([load("res://assets/audio/629008__realgtro__flashlight-click.wav")])
 	thrower.piedra_clips.assign([sound("rock")])
+	thrower.piedra_release_clips.assign([sound("stone_throw")])
 	if test_mode:
 		player.get_node("FootstepNoise").walk_clips.clear()
 		breath.hold_clips.clear()
 		breath.exhale_clips.clear()
 		breath.exertion_clips.clear()
 		thrower.piedra_clips.clear()
+		thrower.piedra_release_clips.clear()
 		flashlight.click_clips.clear()
 	NoiseManager.noise_emitted.connect(_on_noise)
 	GameState.altar_completed.connect(_on_altar_prayed)
@@ -194,6 +202,7 @@ func _ready() -> void:
 	friend_home=world.props["friend"].global_position
 	prayer_audio.global_position=friend_home
 	enter_zone(start_zone)
+	field_map.bind_game(self)
 	if not test_mode:
 		show_dialogue([
 			"ELI: I'm at my aunt's old house. Follow the yellow trail marks. Bring a light.",
@@ -227,6 +236,10 @@ func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
 	audio.add_to_group("tutorial_audio")
 	audio.finished.connect(audio.queue_free)
 	audio.play()
+
+func _play_pickup_sound(at: Vector2) -> void:
+	var variants := ["pickup_hand_1", "pickup_hand_2", "pickup_hand_3", "pickup_hand_4"]
+	play_sound(variants.pick_random(), at, -7.0)
 
 ## Moves the player into a zone. `arrival_door` (an interaction id) starts open behind the
 ## player and swings shut once they step away from it.
@@ -323,6 +336,7 @@ func _configure_entity() -> void:
 
 func _process(delta: float) -> void:
 	if _paused: return
+	hunt_intro_effect = move_toward(hunt_intro_effect, 0.0, delta * 1.5)
 	ambient_reply_cooldown=maxf(0,ambient_reply_cooldown-delta)
 	if subtitle_time>0:
 		subtitle_time-=delta
@@ -551,7 +565,7 @@ func interact(id: String) -> void:
 			say("Rocks full")
 		else:
 			thrower.rocks+=3
-			play_sound("pickup",player.position)
+			_play_pickup_sound(player.position)
 			_animate_rocks(world.interactables[id]["node"].global_position)
 			say("Rocks +3",5)
 		return
@@ -603,7 +617,7 @@ func interact(id: String) -> void:
 				say("Rocks full")
 			else:
 				thrower.rocks+=3
-				play_sound("pickup",player.position)
+				_play_pickup_sound(player.position)
 				_animate_rocks(world.interactables[id]["node"].global_position)
 				say("Rocks +3",5)
 		"forest_exit": enter_zone("house")
@@ -682,7 +696,7 @@ func interact(id: String) -> void:
 func collect(id: String) -> void:
 	collected[id]=true
 	var item: Node2D = world.interactables[id]["node"]
-	play_sound("pickup",player.position)
+	_play_pickup_sound(player.position)
 	# The item flies into her hands and the inventory slot pops; her animation is untouched.
 	var tween := item.create_tween()
 	tween.tween_property(item,"global_position",player.global_position+Vector2(0,-12),0.25) \
@@ -728,7 +742,7 @@ func insert_battery() -> void:
 	flashlight.battery_percent=100
 	flashlight.is_on=true
 	flashlight._refresh_light()
-	play_sound("switch",player.position)
+	play_sound("battery_insert",player.position,-5.0)
 	if not test_mode and zone != "bedroom":
 		NoiseManager.emit_noise(player.global_position, 1.5 * Units.PX_PER_UNIT, NoiseManager.SourceType.FLASHLIGHT)
 	hud.pulse_slot("battery")
@@ -801,6 +815,11 @@ func _update_threat_presentation() -> void:
 	var next_focus := lerpf(cur_focus, focus_target, 0.12)
 	mat.set_shader_parameter("focus", next_focus)
 	mat.set_shader_parameter("pulse", 0.5 + 0.5 * sin( float(Time.get_ticks_msec()) * 0.012 ))
+	mat.set_shader_parameter("hunt_intro", hunt_intro_effect)
+
+func _on_entity_state_changed(_previous: int, current: int) -> void:
+	if current == 3:
+		hunt_intro_effect = 1.0
 
 ## Shown on the capture screen: the sound that gave the player away.
 func game_over_cause() -> String:

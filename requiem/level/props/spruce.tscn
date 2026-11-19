@@ -1,30 +1,26 @@
 [gd_scene format=3 uid="uid://divkq7aknh84x"]
 
-[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_6bht1"]
-[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_gx4cn"]
-[ext_resource type="Texture2D" uid="uid://cno1jcaciyvgn" path="res://level/props/textures/spruce.tres" id="3_wo3qt"]
+[ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="1_tree"]
+[ext_resource type="Texture2D" uid="uid://b0cmo4d6bhf4" path="res://assets/art/props/tree_spruce_trunk_base.png" id="2_trunk"]
+[ext_resource type="Texture2D" uid="uid://brqjohsd1mhbn" path="res://assets/art/props/tree_spruce_canopy_top.png" id="3_canopy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4h732"]
 size = Vector2(20, 14)
 
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_f53ru"]
-polygon = PackedVector2Array(-8, -8, -4, -14, 4, -14, 8, -8, 4, -2, -4, -2)
-
 [node name="Spruce" type="Node2D" unique_id=182172005]
+script = ExtResource("1_tree")
 
-[node name="Shadow" type="Sprite2D" parent="." unique_id=1450118756]
-z_index = -1
-position = Vector2(0, -4)
-scale = Vector2(0.5, 0.42)
-texture = ExtResource("1_6bht1")
+[node name="Trunk" type="Sprite2D" parent="." unique_id=1463904102]
+position = Vector2(0, -6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_trunk")
 
-[node name="Sprite" type="Sprite2D" parent="." unique_id=1463904102]
-self_modulate = Color(0.78039217, 0.8, 0.78039217, 1)
-material = ExtResource("2_gx4cn")
-position = Vector2(-70, -162)
-scale = Vector2(0.528, 0.528)
-texture = ExtResource("3_wo3qt")
-centered = false
+[node name="Canopy" type="Sprite2D" parent="." unique_id=1463904103]
+z_as_relative = false
+z_index = 30
+position = Vector2(0, -6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_canopy")
 
 [node name="Body" type="StaticBody2D" parent="." unique_id=462502784]
 
@@ -32,5 +28,3 @@ centered = false
 position = Vector2(0, -6)
 shape = SubResource("RectangleShape2D_4h732")
 
-[node name="Occluder" type="LightOccluder2D" parent="." unique_id=1414653772]
-occluder = SubResource("OccluderPolygon2D_f53ru")

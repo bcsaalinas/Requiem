@@ -1,0 +1,37 @@
+{
+  "name": "ritual_copal_burner",
+  "description": "a clay popoxcomitl (a short-handled sahumador) on the altar, seen from straight above: a round clay bowl with its handle stub to the E, grey ash inside, a charcoal lump against the W wall with the ember (the only #a8844f px) and a little copal resin. Not a pickup (no glint). The smoke is ws04's VFX; the glow is a Godot light.",
+  "file": "ritual_copal_burner.png",
+  "canvas": [
+    24,
+    24
+  ],
+  "pivot": [
+    12,
+    12
+  ],
+  "bbox": {
+    "x": 1,
+    "y": 3,
+    "w": 23,
+    "h": 18
+  },
+  "altar_slot": "copal_burner",
+  "altar_slot_note": "ritual_altar.json slot `copal_burner`: frame centre (120, 126) on level 2 (the bottom level), 24 x 24. Place it unrotated (handle E); any 90-degree turn also reads.",
+  "anchors": {
+    "ember": [
+      7.0,
+      13.5
+    ],
+    "bowl_centre": [
+      9.5,
+      12
+    ],
+    "handle_end": [
+      23,
+      11.5
+    ]
+  },
+  "anchor_note": "px-edge coordinates from the canvas top-left. `ember` is where vfx_copal_smoke and the ember's Godot light should start.",
+  "sound_frames": []
+}

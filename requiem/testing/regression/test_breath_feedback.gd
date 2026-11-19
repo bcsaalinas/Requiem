@@ -2,7 +2,6 @@ extends Node2D
 ## Real-input presentation checks plus a compact exhaustive upper-pose sweep.
 ## Gameplay parity is checked with presentation enabled and disabled.
 
-const RigLayers := preload("res://player/character_rig_layers.gd")
 const GRIP_LENS := Vector2(16, 34)
 const DIRECTIONS := [&"e", &"se", &"s", &"sw", &"w", &"nw", &"n", &"ne"]
 
@@ -73,11 +72,7 @@ func reset_scenario() -> void:
 
 
 func world_boots() -> Dictionary:
-	var lower: Dictionary = appearance.get_actor_lower_pose()
-	var result := {}
-	for side in ["left", "right"]:
-		result[side] = appearance.to_global(appearance.get_actor_leg_transform(side) * lower.pose.metadata[side].boot)
-	return result
+	return (appearance.get_actor_lower_pose()["boots"] as Dictionary).duplicate()
 
 
 func watch_fixed_boots() -> void:
@@ -95,12 +90,9 @@ func observe_alignment() -> void:
 	_pose_samples += 1
 	if not action.has_flashlight:
 		return
-	var grip: Transform2D = appearance.get_actor_grip_transform()
-	var painted_lens: Vector2 = appearance.to_global(grip * GRIP_LENS)
-	_lens_error = maxf(_lens_error, painted_lens.distance_to(aim.get_beam_global_position()))
-	var grip_heading: float = (appearance.global_transform * grip).basis_xform(Vector2.DOWN).angle()
-	var forearm_heading: float = appearance.global_rotation + appearance._rig_rotation + appearance._rig_pose.flashlight_angle
-	_wrist_bend = maxf(_wrist_bend, absf(rad_to_deg(angle_difference(forearm_heading, grip_heading))))
+	var rig: CharacterSprite = appearance.rig
+	_lens_error = maxf(_lens_error, rig.flashlight_tip_global().distance_to(aim.get_muzzle_global_position()))
+	_wrist_bend = maxf(_wrist_bend, absf(rad_to_deg(angle_difference(flashlight.global_rotation, aim.aim_angle))))
 
 
 func _ready() -> void:
@@ -148,8 +140,8 @@ func check_hold_and_release() -> void:
 	await frames(2)
 	check(feedback.phase == &"inhale" and feedback.cue == &"inhale" and feedback.cue_age < 0.1,
 		"Accepted Space input immediately starts the inhale pose and inward visual cue")
-	check(appearance._breath_track == &"inhale" and appearance._rig_pose.upper_texture == RigLayers.BREATH_ATLAS,
-		"The real player renders the authored inhale upper-body sheet")
+	check(appearance.breath_track == &"inhale" and String(appearance.rig.clip_name(&"upper")).begins_with("girl_breath_hold"),
+		"The real player plays the authored hold-in upper-body clip")
 	await frames(18)
 	check(feedback.phase == &"hold" and feedback.hold_focus > 0.95 and breath.is_holding,
 		"Inhale settles into a sustained hold with responsive focus feedback")
@@ -159,9 +151,9 @@ func check_hold_and_release() -> void:
 	await frames(12)
 	check(feedback.phase == &"strain" and feedback.strain > 0.2 and feedback.lung_pressure > 0.2,
 		"Low actual air drives tension and the strain pose")
-	check(feedback._vfx._edge.material.get_shader_parameter("strength") > 0.0
-		and feedback._vfx._edge.material.get_shader_parameter("strength") <= 0.17,
-		"Low-air edge shading is present and remains within the restrained opacity cap")
+	check(feedback._vfx._edge.material.get_shader_parameter("amount") > 0.9
+		and feedback._vfx._edge.material.get_shader_parameter("radius") < feedback._vfx.RADIUS_HELD,
+		"Held breath closes the view into a tunnel that tightens as the air runs low")
 	Input.action_release("hold_breath")
 	await frames(2)
 	check(feedback.phase == &"release" and feedback.cue == &"release" and not breath.is_holding,
@@ -252,7 +244,7 @@ func check_interruptions_and_pause() -> void:
 	player.process_mode = Node.PROCESS_MODE_DISABLED
 	await frames(3)
 	check(feedback.phase == &"idle" and feedback.cue == &"" and feedback.hold_focus == 0.0
-		and appearance._breath_track == &"idle" and not feedback._vfx.visible,
+		and appearance.breath_track == &"idle" and not feedback._vfx.visible,
 		"Dialogue disabling clears breath feedback and hides the visual overlay")
 	check(noises.is_empty(), "An interrupted hold never gives an exhale reward or gameplay noise")
 	player.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -325,32 +317,30 @@ func check_mechanic_parity() -> void:
 func check_all_breath_shapes() -> void:
 	await reset_scenario()
 	var variants := {}
-	var expected_samples := 0
+	var carry_names := ["none", "off", "on"]
+	var rig: CharacterSprite = appearance.rig
 	for equipment in range(3):
 		action.has_flashlight = equipment > 0
 		flashlight.is_on = equipment == 2
 		flashlight._refresh_light()
-		for heading in range(8):
-			appearance.actor_facing = DIRECTIONS[heading]
-			aim.reset_pose()
-			var angle := heading * PI / 4.0
-			var arm_step := heading % 5 - 2 if equipment > 0 else 0
-			aim._arm_step = arm_step
-			aim.aim_angle = angle + arm_step * PI / 8.0 + (deg_to_rad(15.0) if equipment > 0 else 0.0)
-			_held_boots = world_boots()
-			for track in RigLayers.BREATH_ANCHORS.TRACKS:
-				var count: int = RigLayers.BREATH_ANCHORS.TRACKS[track].count
-				for frame in range(count):
-					appearance.set_breath_pose(StringName(track), frame / float(maxi(count - 1, 1)))
-					aim._apply_pose()
-					observe_alignment()
-					observe_fixed_boots()
-					variants["%d:%d:%s" % [equipment, heading, track]] = true
-					expected_samples += 1
+		for track in ["hold_in", "hold_loop", "strain", "let_go", "forced_gasp"]:
+			var upper := CharacterClips.get_clip("girl_breath_%s_upper" % track)
+			var arm := CharacterClips.get_clip("girl_breath_%s_arm_right_%s" % [track, carry_names[equipment]])
+			if upper.is_empty() or arm.is_empty() or upper["frames"].size() != arm["frames"].size():
+				continue
+			variants["%d:%s" % [equipment, track]] = true
+			rig.play(&"upper", "girl_breath_%s_upper" % track, {"restart": true})
+			rig.play(&"arm_right", "girl_breath_%s_arm_right_%s" % [track, carry_names[equipment]], {"restart": true})
+			for frame in range(upper["frames"].size()):
+				rig.set_frame(&"upper", frame)
+				rig.set_frame(&"arm_right", frame)
+				aim._apply_pose()
+				observe_alignment()
+				observe_fixed_boots()
 		check(appearance.actor_equipped == (equipment > 0) and flashlight.is_on == (equipment == 2),
 			"Breath poses retain equipment ownership and torch power state %d" % equipment)
-	check(variants.size() == 3 * 8 * 7 and expected_samples == 3 * 8 * RigLayers.BREATH_ANCHORS.FRAMES_PER_MODE,
-		"All seven authored tracks cover eight headings with absent, unlit and lit flashlight variants")
-	check(appearance._rig_pose.upper_texture == RigLayers.BREATH_ATLAS,
-		"Every sampled action ends on the dedicated breath atlas rather than an idle substitute")
+	check(variants.size() == 3 * 5,
+		"All five authored breath clips exist with matching upper and arm sheets for absent, unlit and lit flashlight variants")
+	check(String(rig.clip_name(&"upper")).begins_with("girl_breath_"),
+		"Every sampled action ends on a dedicated breath clip rather than an idle substitute")
 	completed_scenarios += 1

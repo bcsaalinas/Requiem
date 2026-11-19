@@ -22,14 +22,13 @@ func frames(count: int) -> void:
 
 
 func within_region(message: String) -> void:
-	var viewport_size := get_viewport().get_visible_rect().size
+	var image := Rect2(PixelDisplay.layout()["image_rect"])
 	var inverse := game.get_canvas_transform().affine_inverse()
 	var bounds: Rect2 = game.World.REGIONS[game.zone].grow(0.5)
-	for corner in [Vector2.ZERO, Vector2(viewport_size.x, 0), viewport_size,
-		Vector2(0, viewport_size.y)]:
+	for corner in [image.position, Vector2(image.end.x, image.position.y), image.end,
+		Vector2(image.position.x, image.end.y)]:
 		check(bounds.has_point(inverse * corner), message + " · " + str(corner))
-	check(Rect2(Vector2.ZERO, viewport_size).has_point(
-		game.get_canvas_transform() * game.player.global_position), message + " · player stays visible")
+	check(image.has_point(game.get_canvas_transform() * game.player.global_position), message + " · player stays visible")
 
 
 func capture(id: String) -> void:
@@ -46,7 +45,7 @@ func _ready() -> void:
 	game.test_mode = true
 	add_child(game)
 	await frames(10)
-	check(get_viewport().get_camera_2d() == game.camera_rig.camera, "Phantom camera is current")
+	check(PixelDisplay.world_view.get_camera_2d() == game.camera_rig.camera, "Phantom camera is current")
 	check(not game.player.get_node("Camera2D").enabled, "Original camera cannot compete with the rig")
 	check(game.camera_rig.exploration.is_active(), "Exploration shot is selected by the addon host")
 	check(not game.camera_rig.camera.position_smoothing_enabled, "Only Phantom Camera supplies damping")
@@ -85,7 +84,7 @@ func _ready() -> void:
 	await capture("01-hallway-phantom")
 	game.set_native_camera(true)
 	await frames(5)
-	check(get_viewport().get_camera_2d() == game.player.get_node("Camera2D"), "Comparison switches to original camera")
+	check(PixelDisplay.world_view.get_camera_2d() == game.player.get_node("Camera2D"), "Comparison switches to original camera")
 	within_region("Original hallway comparison")
 	await capture("02-hallway-original")
 	game.set_native_camera(false)

@@ -1,0 +1,33 @@
+{
+ "clip": "stand",
+ "part": "lower",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_stand_lower.png",
+  "hframes": 1,
+  "vframes": 1
+ },
+ "layers": [
+  "leg_far",
+  "leg_near"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 100,
+ "kind": "pose: one frame (the standing boots)",
+ "sound_frames": [],
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 100
+  }
+ ]
+}

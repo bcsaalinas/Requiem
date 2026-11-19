@@ -1,0 +1,127 @@
+{
+ "clip": "pray_loop_afraid",
+ "part": "upper",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_loop_afraid_upper.png",
+  "hframes": 4,
+  "vframes": 1
+ },
+ "layers": [
+  "torso",
+  "arm_left"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 720,
+ "plays_over": "girl_pray_loop_lower only (she is still: kneeling never plays over another lower)",
+ "loop": true,
+ "sound_frames": [],
+ "pray_rules": "Beti PRAY RULES: hands joined palm to palm in front of her chest, just ahead of the head; in off and on the torch is pinched between them pointing at the floor ahead (one look for both); in none the hands are joined with no torch; kneel boots option B.",
+ "next_clips_note": "bead step / finish / abort start from the loop frames (calm frame 0 = the settle)",
+ "clip_note": "afraid prayer (brief: shoulders tight, shakier breath): shoulders 2 up and 2 in (squeeze 3), the head ducked 1-2, a fast uneven catching breath and a 1 px sideways tremor of the whole upper body against the still boots (catch +1, shake out -1; head_offset carries it).",
+ "lower": "girl_pray_loop_lower.png (frame 0, every frame)",
+ "head": "no head sheet: draw girl_head_poses frame 2 (0 deg, the idle head) moved by head_offset (the bow, the breath and the tremor)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 240,
+   "label": "tight",
+   "head_offset": [
+    0,
+    11
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     130.5
+    ],
+    "head_center": [
+     80.0,
+     105.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 140,
+   "label": "catch",
+   "head_offset": [
+    1,
+    10
+   ],
+   "anchors": {
+    "hand_left": [
+     83.5,
+     129.5
+    ],
+    "head_center": [
+     81.0,
+     104.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 130,
+   "label": "squeeze",
+   "head_offset": [
+    0,
+    11
+   ],
+   "anchors": {
+    "hand_left": [
+     82.5,
+     130.5
+    ],
+    "head_center": [
+     80.0,
+     105.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  },
+  {
+   "frame": 3,
+   "ms": 210,
+   "label": "shake out",
+   "head_offset": [
+    -1,
+    12
+   ],
+   "anchors": {
+    "hand_left": [
+     81.5,
+     131.5
+    ],
+    "head_center": [
+     79.0,
+     106.5
+    ],
+    "hip_center": [
+     80.0,
+     83.6
+    ]
+   }
+  }
+ ]
+}

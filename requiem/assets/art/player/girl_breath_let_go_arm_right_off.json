@@ -1,0 +1,89 @@
+{
+ "clip": "breath_let_go",
+ "part": "arm_right_off",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_breath_let_go_arm_right_off.png",
+  "hframes": 3,
+  "vframes": 1
+ },
+ "layers": [
+  "arm_right",
+  "flashlight_held"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": 460,
+ "clip_note": "she lets the breath out quietly: plays once, then the idle (frame 0 of every mood is her rest pose)",
+ "plays_over": "girl_stand_lower, girl_sneak_lower and girl_side_step_lower (the last two moved by their upper_offset)",
+ "loop": false,
+ "state": "flashlight low, off",
+ "flashlight_note": "flashlight_tip / flashlight_angle_deg are the drawn values (deg out from straight ahead)",
+ "frames": [
+  {
+   "frame": 0,
+   "ms": 120,
+   "anchors": {
+    "hand_left": [
+     108.0,
+     109.0
+    ],
+    "hand_right": [
+     50,
+     110
+    ],
+    "flashlight_tip": [
+     48.5,
+     123
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 1,
+   "ms": 200,
+   "anchors": {
+    "hand_left": [
+     111.0,
+     112.0
+    ],
+    "hand_right": [
+     49,
+     111
+    ],
+    "flashlight_tip": [
+     47.5,
+     124
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  },
+  {
+   "frame": 2,
+   "ms": 140,
+   "anchors": {
+    "hand_left": [
+     110.0,
+     111.0
+    ],
+    "hand_right": [
+     50,
+     111
+    ],
+    "flashlight_tip": [
+     48.5,
+     124
+    ],
+    "flashlight_angle_deg": 4.0
+   }
+  }
+ ]
+}

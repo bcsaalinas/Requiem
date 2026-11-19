@@ -1,0 +1,42 @@
+{
+ "clip": "pray_loop",
+ "part": "lower",
+ "canvas": [
+  160,
+  160
+ ],
+ "pivot": [
+  80,
+  80
+ ],
+ "pivot_note": "the bun (old rig's spine pivot); the same pivot as every girl sheet",
+ "frame_index_base": 0,
+ "sheet": {
+  "file": "girl_pray_loop_lower.png",
+  "hframes": 1,
+  "vframes": 1
+ },
+ "layers": [
+  "leg_far",
+  "leg_near"
+ ],
+ "draw_order": "draw order: lower, upper (torso + left arm), arm_right_<state> (the flashlight is drawn over its arm), head (a girl_head_poses frame at head_offset, or girl_sprint_head)",
+ "loop_ms": null,
+ "plays_over": "girl_pray_loop_lower only (she is still: kneeling never plays over another lower)",
+ "loop": true,
+ "sound_frames": [],
+ "pray_rules": "Beti PRAY RULES: hands joined palm to palm in front of her chest, just ahead of the head; in off and on the torch is pinched between them pointing at the floor ahead (one look for both); in none the hands are joined with no torch; kneel boots option B.",
+ "next_clips_note": "bead step / finish / abort start from the loop frames (calm frame 0 = the settle)",
+ "lower_note": "one frame: the kneel's settle boots (option B), unmoved under every pray_loop_calm / pray_loop_afraid frame; = girl_pray_kneel_lower frame 3",
+ "boots": "Beti PRAY RULES option B: each boot slid toward her by 12 px and in toward the spine by 4 px (kneel weight 1)",
+ "frames": [
+  {
+   "frame": 0,
+   "label": "settle boots",
+   "upper_offset": [
+    0,
+    0
+   ]
+  }
+ ]
+}

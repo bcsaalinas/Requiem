@@ -1,0 +1,16 @@
+{
+  "name": "tree_bare",
+  "description": "Tutorial outdoors bare tree, straight down: thick forked limbs with tip lace and moss. Tall: trunk_base (ground contact) + canopy_top (height-shifted crown).",
+  "canvas": [320, 320],
+  "frame_size": [320, 320],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [160, 160],
+  "layers": {
+    "base": "tree_bare_trunk_base.png",
+    "top": "tree_bare_canopy_top.png"
+  },
+  "height_effect": true,
+  "scale_note": "Brief B size 4 x 4 units = 320 x 320 art px. Collision in tree.tscn is 22 x 14 world px (55 x 35 art). The canopy covers the larger crown; the trunk_base covers the ground contact. Pivot is the canvas centre.",
+  "sound_frames": []
+}

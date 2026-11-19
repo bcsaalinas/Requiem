@@ -36,12 +36,15 @@ signal heard_noise(at: Vector2, source: int)
 @export_range(0.0, 1.0, 0.05) var revisit_chance := 0.35
 @export_group("Audio")
 @export var drag_clip: AudioStream = preload("res://tutorial/assets/audio/behind_wall.wav")
-@export var drag_volume_db := -14.0
+@export var drag_volume_db := -7.0
 ## Optional soft pat/tap while it feels the floor (empty: silent).
-@export var feel_clip: AudioStream
-@export var feel_volume_db := -20.0
+@export var feel_clip: AudioStream = preload("res://assets/audio/footsteps/concrete_step_04.wav")
+@export var feel_volume_db := -13.0
 ## Random seconds between two pats.
 @export var feel_tap_interval := Vector2(0.5, 1.0)
+## Close-up crunches when the capture animation pulls the player under the shroud.
+@export var devour_clip: AudioStream = preload("res://assets/audio/monster/devour.wav")
+@export var devour_volume_db := -1.0
 
 var route: Array[Vector2] = []
 var route_index := 0
@@ -57,6 +60,10 @@ var _drag: AudioStreamPlayer2D
 var _feel_player: AudioStreamPlayer2D
 var _feel_left := 0.0
 var _tap_wait := 0.0
+var _story_breathing := false
+var _caught_audio := false
+var _devour_player: AudioStreamPlayer
+var _devour_started := false
 
 func _ready() -> void:
 	super._ready()
@@ -65,25 +72,45 @@ func _ready() -> void:
 	color_by_state = false
 	log_state_changes = false
 	_drag = AudioStreamPlayer2D.new()
+	_drag.bus = "SFX"
 	_drag.stream = drag_clip
 	_drag.volume_db = drag_volume_db
 	_drag.max_distance = 900.0
 	add_child(_drag)
 	_feel_player = AudioStreamPlayer2D.new()
+	_feel_player.bus = "SFX"
 	_feel_player.stream = feel_clip
 	_feel_player.volume_db = feel_volume_db
 	_feel_player.max_distance = 600.0
 	add_child(_feel_player)
+	_devour_player = AudioStreamPlayer.new()
+	_devour_player.bus = "SFX"
+	_devour_player.stream = devour_clip
+	_devour_player.volume_db = devour_volume_db
+	add_child(_devour_player)
+	sprite_rig.hide_player.connect(_play_devour_audio)
+
+func _exit_tree() -> void:
+	for audio in [_drag, _feel_player, _devour_player]:
+		if is_instance_valid(audio):
+			audio.stop()
+			audio.stream = null
+	super._exit_tree()
 
 func _physics_process(delta: float) -> void:
 	if not active:
 		velocity = Vector2.ZERO
 		_update_drag(false)
+		_feel_player.stop()
+		if not _story_breathing or GameState.is_dead:
+			_breath_player.stop()
 		return
+	_story_breathing = false
 	if _listening > 0.0:
 		_listening -= delta
 		_halt()
 		_update_drag(false)
+		_feel_player.stop()
 		if _listening <= 0.0 and not GameState.is_dead:
 			_resume_breathing()
 			_start_hunt()
@@ -93,6 +120,8 @@ func _physics_process(delta: float) -> void:
 		_scream_left -= delta
 		_halt()
 		_update_drag(false)
+		if _scream_left <= 0.0:
+			_resume_breathing()
 		return
 	super._physics_process(delta)
 	_update_drag(velocity.length() > 4.0)
@@ -104,6 +133,8 @@ func _start_hunt() -> void:
 	super._start_hunt()
 	if not was_hunting:
 		_scream_left = hunt_start_hold
+		if _scream_left > 0.0:
+			_breath_player.stop()
 
 ## Hearing keeps EntityAI's step rule (heard when the distance is within the sound's radius),
 ## with a calm multiplier on top; a new sound first triggers the listening tell.
@@ -131,6 +162,18 @@ func _on_noise_emitted(at: Vector2, radius: float, source: int, _duration: float
 		_resume_breathing()
 		_start_hunt()
 
+## Story use: it turns to a place it heard before it became active (the prayer that stopped).
+## The same chain as any heard sound: the listening tell, the scream, the run, the floor feeling.
+func notice(at: Vector2) -> void:
+	if not active or GameState.is_dead:
+		return
+	last_heard_position = at
+	_feel_left = 0.0
+	_remember(at)
+	heard_noise.emit(at, NoiseManager.SourceType.PRAY)
+	_listening = randf_range(listen_time_range.x, listen_time_range.y)
+	_breath_player.stop()
+
 ## Multiplier applied to a sound's radius at this moment (x1.6 while it hunts or searches).
 func hearing_multiplier() -> float:
 	if current_state == State.HUNT or current_state == State.SEARCH:
@@ -155,11 +198,25 @@ func is_feeling() -> bool:
 
 ## The lethal contact: it stops, faces the player and plays the catch (the caller stops the AI).
 func play_catch(target: Vector2) -> void:
+	if _caught_audio:
+		return
+	_play_stinger(catch_clips)
+	_caught_audio = true
+	_story_breathing = false
+	_breath_player.stop()
+	_feel_player.stop()
 	_scream_left = 0.0
 	_listening = 0.0
 	velocity = Vector2.ZERO
 	_update_drag(false)
 	sprite_rig.play_catch(target)
+
+func _play_devour_audio() -> void:
+	if not _caught_audio or _devour_started or GameState.is_dead or devour_clip == null:
+		return
+	_devour_started = true
+	_devour_player.volume_db = devour_volume_db
+	_devour_player.play()
 
 func _tick_patrol(delta: float) -> void:
 	if route.is_empty(): return
@@ -202,19 +259,35 @@ func _remember(at: Vector2) -> void:
 	if _memory.size() > 4:
 		_memory.pop_front()
 
+func set_breathing(on: bool) -> void:
+	_story_breathing = on
+	if on:
+		_resume_breathing()
+	else:
+		_breath_player.stop()
+
 func _resume_breathing() -> void:
 	if not _breath_player.playing:
 		_play_breath_clip()
 
+func _play_breath_clip() -> void:
+	if _caught_audio or _listening > 0.0 or _scream_left > 0.0:
+		return
+	if not active and not _story_breathing:
+		return
+	super._play_breath_clip()
+
 func _update_drag(moving: bool) -> void:
+	_drag.volume_db = drag_volume_db + (3.0 if current_state == State.HUNT else 0.0)
+	_drag.pitch_scale = 1.15 if current_state == State.HUNT else 0.85
 	if moving and not _drag.playing and drag_clip != null:
-		_drag.pitch_scale = randf_range(0.8, 0.95)
 		_drag.play()
 	elif not moving and _drag.playing:
 		_drag.stop()
 
 func _update_feel_audio(delta: float) -> void:
-	if feel_clip == null or not is_feeling():
+	if GameState.is_dead or feel_clip == null or not is_feeling():
+		_feel_player.stop()
 		_tap_wait = 0.3
 		return
 	_tap_wait -= delta
@@ -225,10 +298,17 @@ func _update_feel_audio(delta: float) -> void:
 
 func _on_catch_area_body_entered(body: Node2D) -> void:
 	if active and body.is_in_group("player"):
-		_play_stinger(catch_clips)
 		caught.emit()
 
 func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
+	_story_breathing = false
+	_caught_audio = false
+	_devour_started = false
+	_devour_player.stop()
+	_breath_player.stop()
+	_stinger_player.stop()
+	_feel_player.stop()
+	_update_drag(false)
 	global_position = at
 	route = points.duplicate()
 	route_index = 0
@@ -242,6 +322,7 @@ func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	_patrol_wait = 1.5
 	last_heard_source = -1
 	_change_state(State.PATROL)
+	_breath_player.stop()
 	active = false
 	_feel_left = 0.0
 	sprite_rig.reset()

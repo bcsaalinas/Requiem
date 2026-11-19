@@ -1,0 +1,31 @@
+{
+  "name": "vfx_glass_break",
+  "description": "Glass bursting out of a window when a stone hits it: Cold shards + short Ash putty-dust burst, 4 frames.",
+  "canvas": [
+    640,
+    160
+  ],
+  "frame_size": [
+    160,
+    160
+  ],
+  "frame_count": 4,
+  "ms_per_frame": [
+    90,
+    95,
+    105,
+    110
+  ],
+  "durations_ms": [
+    90,
+    95,
+    105,
+    110
+  ],
+  "pivot": [
+    80,
+    80
+  ],
+  "centre_note": "Frame centre (80, 80) is the centre of the window opening.",
+  "loop": false
+}

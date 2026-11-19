@@ -1,0 +1,57 @@
+{
+  "name": "item_phone",
+  "description": "Viv's phone lying face up, straight down; _lit strip is the whole phone with the screen glowing in #5d6a74/#3e4952 for the incoming message.",
+  "canvas": [
+    20,
+    32
+  ],
+  "pivot": [
+    10,
+    16
+  ],
+  "bbox": {
+    "x": 3,
+    "y": 3,
+    "w": 14,
+    "h": 25
+  },
+  "item": {
+    "file": "item_phone.png",
+    "frames": 1
+  },
+  "glint": {
+    "file": "item_phone_glint.png",
+    "frame_size": [
+      20,
+      32
+    ],
+    "frames": 2,
+    "durations_ms": [
+      160,
+      480
+    ],
+    "loop": true,
+    "tag": "glint",
+    "center": [
+      10.0,
+      14.0
+    ]
+  },
+  "sound_frames": [],
+  "lit": {
+    "file": "item_phone_lit.png",
+    "scope": "whole_phone",
+    "note": "_lit is the whole phone (same 20x32 canvas and pivot as item_phone.png) with the screen on in #5d6a74/#3e4952 and an #8d817b notification banner.",
+    "frame_size": [
+      20,
+      32
+    ],
+    "frames": 2,
+    "durations_ms": [
+      360,
+      360
+    ],
+    "loop": true,
+    "tag": "lit"
+  }
+}
