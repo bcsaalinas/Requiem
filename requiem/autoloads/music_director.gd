@@ -219,12 +219,12 @@ func bind_gameplay(entity: Node, breath: Node) -> void:
 func _on_entity_state_changed(_previous: int, new_state: int) -> void:
 	_entity_music_state = _music_state_for_entity(new_state)
 	_set_threat_heartbeat(new_state)
-	if current_state in [MusicState.PRAYER, MusicState.DEATH]: return
+	if current_state == MusicState.DEATH or is_instance_valid(_prayer_source): return
 	set_music_state(_entity_music_state)
 
 func _set_threat_heartbeat(entity_state: int) -> void:
 	if not is_instance_valid(_heartbeat) or _heartbeat.stream == null: return
-	if current_state in [MusicState.PRAYER, MusicState.DEATH]:
+	if current_state in [MusicState.PRAYER, MusicState.DEATH] or is_instance_valid(_prayer_source):
 		_heartbeat.stop()
 		return
 	if entity_state == 3:
@@ -258,18 +258,32 @@ func _on_forced_gasp(_reason: StringName, _duration: float) -> void: set_breath_
 func _on_prayer_started(source: Node) -> void:
 	_prayer_source = source
 	_heartbeat.stop()
-	set_music_state(MusicState.PRAYER)
+	# Keep the current gameplay track selected, but fade it out for the ritual.
+	# The altar already plays the authored low prayer loop; switching to PRAYER
+	# added an unrelated music-box melody over that sound.
+	_set_prayer_music_muted(true)
 func _on_prayer_ended(source: Node, _immediate: bool) -> void:
 	if source == _prayer_source:
 		_prayer_source = null
-		set_music_state(_entity_music_state)
+		_set_prayer_music_muted(false)
 		_set_threat_heartbeat(2 if _entity_music_state == MusicState.SEARCH else (3 if _entity_music_state == MusicState.HUNT else 0))
+
+func _set_prayer_music_muted(muted: bool) -> void:
+	var tween: Tween = null
+	for bank_index in range(_banks.size()):
+		for index in _banks[bank_index].size():
+			var player: AudioStreamPlayer = _banks[bank_index][index]
+			if player.playing:
+				if tween == null: tween = create_tween().set_parallel(true)
+				var target_db: float = -80.0 if muted or bank_index != _active_bank else _stem_target_db(_active_state, index)
+				tween.tween_property(player, "volume_db", target_db, 0.18)
 func _on_player_died() -> void:
 	_heartbeat.stop()
 	set_music_state(MusicState.DEATH)
 func _on_game_reset() -> void:
 	set_breath_held(false)
 	_prayer_source = null
+	_set_prayer_music_muted(false)
 	_heartbeat.stop()
 	set_music_state(MusicState.EXPLORE)
 

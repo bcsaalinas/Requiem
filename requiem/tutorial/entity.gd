@@ -67,6 +67,8 @@ var _devour_started := false
 
 func _ready() -> void:
 	super._ready()
+	_breath_player.max_distance = 2400.0
+	_stinger_player.max_distance = 2200.0
 	_sprite.hide()
 	sprite_rig = $SpriteRig
 	color_by_state = false
@@ -75,7 +77,7 @@ func _ready() -> void:
 	_drag.bus = "SFX"
 	_drag.stream = drag_clip
 	_drag.volume_db = drag_volume_db
-	_drag.max_distance = 900.0
+	_drag.max_distance = 1800.0
 	add_child(_drag)
 	_feel_player = AudioStreamPlayer2D.new()
 	_feel_player.bus = "SFX"
@@ -280,6 +282,7 @@ func _play_breath_clip() -> void:
 func _update_drag(moving: bool) -> void:
 	_drag.volume_db = drag_volume_db + (3.0 if current_state == State.HUNT else 0.0)
 	_drag.pitch_scale = 1.15 if current_state == State.HUNT else 0.85
+	_drag.max_distance = 1800.0
 	if moving and not _drag.playing and drag_clip != null:
 		_drag.play()
 	elif not moving and _drag.playing:

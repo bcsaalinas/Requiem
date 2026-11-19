@@ -122,6 +122,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 # Author handles and titles preserved from audio filenames referenced by runtime scenes.
 const AUDIO := [
+	["drotzruhn · Freesound · CC BY 4.0", "whisper ave maria in Swedish for georden_west · 12 s excerpt, normalized and faded · freesound.org/s/448704/"],
+	["WakuWakuWakuWaku · CC0", "Wooden Chest Lid Open · normalized · sfxfree.com/audio/fs-422975"],
 	["Sclolex · Freesound · CC0", "ZombieEatingFlesh · capture sound layer"],
 	["aust_paul · Freesound · CC0", "rip_tear FLESH! · capture sound layer"],
 	["Ogrebane · OpenGameArt · CC0", "Monster Sound Effects Pack · state vocal cues"],

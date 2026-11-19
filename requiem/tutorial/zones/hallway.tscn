@@ -137,6 +137,8 @@ script = ExtResource("10_qo5fo")
 
 [node name="RefugeChest" type="Node2D" parent="Props" unique_id=2095263743 instance=ExtResource("8_leac8")]
 position = Vector2(504, 544)
+metadata/interaction_id = "chest_hall_refuge"
+metadata/interaction_label = "Open"
 
 [node name="RefugeLamp" type="Node2D" parent="Props" unique_id=476799547 instance=ExtResource("9_nunbk")]
 position = Vector2(436, 520)

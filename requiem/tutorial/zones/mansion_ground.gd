@@ -3,9 +3,29 @@ extends Node2D
 ## Distribución de múltiples habitaciones reales interconectadas (sin pasillos de laberinto artificial)
 
 @onready var walls: TileMapLayer = $Walls
+const TUTORIAL_ARCHITECTURE := preload("res://assets/art/tiles/tileset_architecture.tres")
 
 func _ready() -> void:
 	_build_walls()
+	_build_tutorial_floor()
+
+func _build_tutorial_floor() -> void:
+	# Use the tutorial's own 80 px architectural tiles at the same 0.4 art scale
+	# as the house, for a 32 px grid matching this map's walls and room layout.
+	var old_floor := get_node_or_null("Floor") as CanvasItem
+	if old_floor != null: old_floor.hide()
+	var floor_layer := TileMapLayer.new()
+	floor_layer.name = "TutorialArtFloor"
+	floor_layer.tile_set = TUTORIAL_ARCHITECTURE
+	floor_layer.scale = Vector2(0.4, 0.4)
+	floor_layer.z_index = -10
+	floor_layer.light_mask = 17
+	add_child(floor_layer)
+	move_child(floor_layer, 0)
+	for y in range(2, 53):
+		for x in range(2, 69):
+			var tile_index := posmod(x * 7 + y * 11, 4)
+			floor_layer.set_cell(Vector2i(x, y), 0, Vector2i(tile_index, 0))
 
 func _build_walls() -> void:
 	if walls == null:

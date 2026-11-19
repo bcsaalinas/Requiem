@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://k7narjpvx3pe" path="res://tutorial/hud.gd" id="1_xqdwv"]
 [ext_resource type="Texture2D" uid="uid://fkll4swrubgh" path="res://tutorial/assets/art/details_atlas.png" id="2_w8sm5"]
 [ext_resource type="Script" uid="uid://bm28acd0c7jac" path="res://tutorial/vital_meters.gd" id="3_w8sm5"]
+[ext_resource type="Theme" path="res://tutorial/ui_text_theme.tres" id="ui_text_theme"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_hna5b"]
 atlas = ExtResource("2_w8sm5")
@@ -97,6 +98,7 @@ layer = 20
 script = ExtResource("1_xqdwv")
 
 [node name="Screen" type="Control" parent="." unique_id=2070659366]
+theme = ExtResource("ui_text_theme")
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -330,6 +332,36 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
+[node name="Caption" type="Label" parent="Screen"]
+layout_mode = 0
+anchor_left = 0.2
+anchor_top = 1.0
+anchor_right = 0.8
+anchor_bottom = 1.0
+offset_top = -164.0
+offset_bottom = -136.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.5529412, 0.5058824, 0.48235294, 1)
+theme_override_colors/font_shadow_color = Color(0.05490196, 0.047058824, 0.050980393, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="KeyHint" type="Label" parent="Screen"]
+visible = false
+layout_mode = 0
+offset_right = 240.0
+offset_bottom = 28.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.7294118, 0.7058824, 0.6666667, 1)
+theme_override_colors/font_shadow_color = Color(0.05490196, 0.047058824, 0.050980393, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
 [node name="Banner" type="Label" parent="Screen" unique_id=486676250]
 visible = false
 layout_mode = 0
@@ -417,6 +449,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
+
+[node name="EndTitle" type="Label" parent="Screen"]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.5529412, 0.5058824, 0.48235294, 1)
+theme_override_font_sizes/font_size = 46
+text = "REQUIEM"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="PauseMenu" type="PanelContainer" parent="Screen" unique_id=1718583822]
 process_mode = 3

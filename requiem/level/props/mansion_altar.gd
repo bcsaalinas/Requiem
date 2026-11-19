@@ -51,9 +51,10 @@ var _color_base: Color = Color.WHITE
 
 func _ready() -> void:
 	_audio_player = AudioStreamPlayer2D.new()
+	_audio_player.bus = "SFX"
 	add_child(_audio_player)
 	if pray_clips.is_empty():
-		var clip = load("res://tutorial/assets/audio/prayer.wav")
+		var clip = load("res://tutorial/assets/audio/prayer_female.mp3")
 		if clip != null:
 			pray_clips.append(clip)
 	if is_instance_valid(sprite):

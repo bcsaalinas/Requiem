@@ -21,7 +21,6 @@ default_bus_layout="res://default_bus_layout.tres"
 
 [autoload]
 
-Exhibit="*res://autoloads/exhibit.gd"
 Preferences="*res://autoloads/preferences.gd"
 NoiseManager="*res://autoloads/noise_manager.gd"
 GameState="*res://autoloads/game_state.gd"

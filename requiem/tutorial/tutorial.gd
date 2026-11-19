@@ -43,6 +43,27 @@ const ZONE_AMBIENCE_VOLUME_DB := {
 const PLAYER_SOUNDS := [NoiseManager.SourceType.FOOTSTEP, NoiseManager.SourceType.SPRINT,
 	NoiseManager.SourceType.CROUCH, NoiseManager.SourceType.BREATH, NoiseManager.SourceType.THROW,
 	NoiseManager.SourceType.DOOR]
+const HEARD_PHASE := 20.0
+const HEARD_PHASE_RETRY := 8.0
+const HEARD_BEAM_WAIT := 3.0
+const PRESENCE_PATH: Array[Dictionary] = [
+	{"at": 3.0, "spot": Vector2(544, 650), "caption": "[Something drags itself in by the front door]"},
+	{"at": 8.0, "spot": Vector2(608, 560), "caption": "[Dragging, closer]"},
+	{"at": 13.0, "spot": Vector2(608, 470), "caption": "[Wet breathing]", "breathing": true},
+	{"at": 17.0, "spot": Vector2(660, 380), "caption": "", "carried": true},
+]
+const UNEASE_SPOTS := {
+	"Kitchen": [Vector2(240, 300), Vector2(150, 560), Vector2(330, 200)],
+	"Vestibule": [Vector2(608, 200), Vector2(470, 330), Vector2(700, 600)],
+	"AltarRoom": [Vector2(1008, 250), Vector2(1100, 560), Vector2(880, 330)],
+}
+const UNEASE_CUES := [
+	["chair_scrape", "[A chair drags]", -7.0],
+	["behind_wall", "[Something moves behind the wall]", -8.0],
+	["presence", "[Something shifts in another room]", -10.0],
+	["thud", "[A heavy knock under the floor]", -9.0],
+	["door", "[A door moves somewhere in the house]", -10.0],
+]
 ## Seconds a warned parent keeps listening before settling again.
 const PARENT_LISTEN_TIME := 3.5
 ## A parent door starts to stir when her next step falls short of it by less than this fraction of
@@ -76,6 +97,31 @@ var has_flashlight: bool:
 var batteries := 0
 var window_broken := false
 var door_unlocked := false
+var has_key := false
+var key_used := false
+var key_noise_at := Vector2.INF
+var heard_length := 0.0
+var heard_step := 0
+var heard_at := Vector2.INF
+var heard_phase_seen := false
+var arrival_place := Vector2.INF
+var arrival_target := Vector2.ZERO
+var arrival_wait := 0.0
+var _beam_image: Image
+var _caption_time := 0.0
+var _unease_time := 0.0
+var _unease_next := 3.5
+var _unease_count := 0
+var _unease_last := -1
+var ranger_checkpoint_ready := false
+var prayer_captioned := false
+var breathing_captioned := false
+var stone_hint_seen := false
+var space_hint := false
+var has_sprinted := false
+var has_thrown := false
+var sprint_hint_time := 0.0
+var flash_hint_time := 0.0
 var friend_met := false
 var attack_finished := false
 var complete := false
@@ -128,9 +174,6 @@ func _ready() -> void:
 	field_map = preload("res://tutorial/field_map.gd").new()
 	field_map.name = "FieldMap"
 	add_child(field_map)
-	get_window().content_scale_size = Vector2i(1280,720)
-	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	get_window().content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	if not test_mode: Kiosk.enter_fullscreen()
 	get_viewport().size_changed.connect(_frame_camera)
 	# Beyond the walls is void: black, like the unlit rooms.
@@ -139,8 +182,8 @@ func _ready() -> void:
 	breath=player.get_node("HoldBreath")
 	player.get_node("Sprite2D").hide()
 	breath._bar_layer.hide()
-	thrower._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
+	thrower.object_released.connect(func(): has_thrown = true)
 	entity.state_changed.connect(_on_entity_state_changed)
 	MusicDirector.bind_gameplay(entity, breath)
 	flashlight=player.get_node("flashlight")
@@ -155,6 +198,9 @@ func _ready() -> void:
 		if batteries <= 0:
 			hud.reject_slot("flashlight"))
 	entity.caught.connect(_caught)
+	var ranger: Node = world.zones["forest"].get_node("Ranger")
+	ranger.caught.connect(_on_ranger_caught)
+	ranger.spotted.connect(_on_ranger_spotted)
 	hud.resume_requested.connect(_toggle_pause)
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
 	PauseMenu.resume_pressed.connect(_toggle_pause)
@@ -222,20 +268,24 @@ func _exit_tree() -> void:
 	GameState.reset()
 
 func sound(id: String) -> AudioStream:
+	if id == "prayer":
+		return preload("res://tutorial/assets/audio/prayer_female.mp3")
 	if not _sounds.has(id): _sounds[id]=load("res://tutorial/assets/audio/%s.wav"%id)
 	return _sounds[id]
 
-func play_sound(id: String, at: Vector2, volume := -8.0) -> void:
-	if test_mode: return
+func play_sound(id: String, at: Vector2, volume := -8.0) -> AudioStreamPlayer2D:
+	if test_mode: return null
 	var audio:=AudioStreamPlayer2D.new()
 	audio.position=at
 	audio.bus="SFX"
 	audio.stream=sound(id)
 	audio.volume_db=volume
+	audio.pitch_scale=randf_range(0.92, 1.06)
 	add_child(audio)
 	audio.add_to_group("tutorial_audio")
 	audio.finished.connect(audio.queue_free)
 	audio.play()
+	return audio
 
 func _play_pickup_sound(at: Vector2) -> void:
 	var variants := ["pickup_hand_1", "pickup_hand_2", "pickup_hand_3", "pickup_hand_4"]
@@ -287,14 +337,17 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 		AmbienceManager.set_track(zone_stream if not test_mode else null,
 			ZONE_AMBIENCE_VOLUME_DB.get(zone, 0.0), 2.0)
 	prayer_audio.stop()
-	if zone=="house" and not attack_finished and not test_mode: prayer_audio.play()
+	if zone=="house" and not attack_finished and not test_mode:
+		prayer_audio.play()
+		if not prayer_captioned:
+			prayer_captioned = true
+			caption("[Low praying]")
 	_configure_entity()
 	hud.set_breath_hint(false)
 	if ambient_modulate != null:
-		if zone in ["mansion_ground", "mansion_upper"]:
-			ambient_modulate.color = Color(1.0, 1.0, 1.0, 1.0)
-		else:
-			ambient_modulate.color = Color(0.019607844, 0.023529412, 0.03137255, 1.0)
+		# The new mansion follows the tutorial's near-black ambient level; local
+		# lamps, the flashlight, and the breathing ring now reveal what is nearby.
+		ambient_modulate.color = Color(0.019607844, 0.023529412, 0.03137255, 1.0)
 	if zone in ["mansion_ground", "mansion_upper"]:
 		hud.show_altars_tracker(true)
 		hud.set_altars_count(GameState.altars_completed, 7)
@@ -303,11 +356,24 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 		hall_stirred.clear()
 		hall_refuge_cued=false
 		hall_audio_clock=0
+	if zone == "forest":
+		ranger_checkpoint_ready = false
+		world.zones["forest"].get_node("ThrowTarget").hide()
 	if save: save_checkpoint()
 
 func _configure_entity() -> void:
+	entity.revisit_chance = 0.35
 	entity.hide()
 	entity.active=false
+	# The forest ranger is a separate character from the house entity. Keep him
+	# active only in his zone so thrown stones can reach his noise listener.
+	var ranger_zone: Node = world.zones.get("forest") as Node
+	if ranger_zone != null:
+		var forest_ranger := ranger_zone.get_node_or_null("Ranger") as CharacterBody2D
+		if forest_ranger != null:
+			forest_ranger.active = zone == "forest"
+			if zone == "forest":
+				forest_ranger.reset_patrol()
 	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
 	# The opening forest and impossible room suggest a presence through spatial sound.
@@ -316,9 +382,21 @@ func _configure_entity() -> void:
 		var points: Array[Vector2] = []
 		for index in range(1,7):
 			points.append(world.marker("house","Patrol%d" % index))
-		entity.reset_encounter(world.marker("house","EntitySpawn"),points)
-		entity.show()
-		encounter_grace=5.0
+		# New-sounds encounter: let the house sound occupied before the entity is
+		# visible. Once she takes the key, it enters from the front door and walks
+		# toward the noise the key made.
+		entity.reset_encounter(world.marker("house","EntityArrive"),points)
+		entity.set_breathing(false)
+		entity.get_node("CollisionShape2D").set_deferred("disabled", true)
+		arrival_place = Vector2.INF
+		heard_step = 0
+		heard_at = Vector2.INF
+		_unease_time = 0.0
+		_unease_next = 3.5
+		_unease_count = 0
+		_unease_last = -1
+		if has_key:
+			_begin_presence()
 	elif zone == "mansion_ground":
 		var points: Array[Vector2] = []
 		for index in range(1, 9):
@@ -336,7 +414,10 @@ func _configure_entity() -> void:
 
 func _process(delta: float) -> void:
 	if _paused: return
+	_update_house_roof()
 	hunt_intro_effect = move_toward(hunt_intro_effect, 0.0, delta * 1.5)
+	if zone == "forest":
+		world.interactables["ranger"]["position"] = world.zones["forest"].get_node("Ranger").global_position
 	ambient_reply_cooldown=maxf(0,ambient_reply_cooldown-delta)
 	if subtitle_time>0:
 		subtitle_time-=delta
@@ -344,26 +425,42 @@ func _process(delta: float) -> void:
 	if banner_time>0:
 		banner_time-=delta
 		if banner_time<=0: hud.banner.text=""
+	if _caption_time > 0.0:
+		_caption_time -= delta
+		if _caption_time <= 0.0: hud.caption.text = ""
 	hud.breath.value=breath.lung_percent
 	hud.effort.value=breath.exertion_percent
 	hud.update_breath_feedback(player.get_node("BreathFeedback"))
 	hud.battery.value=flashlight.battery_percent
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
+	hud.set_key(has_key and not key_used)
 	var throw_cooldown_frac := 0.0
 	if "_cooldown_timer" in thrower and "_release_cooldown" in thrower:
 		throw_cooldown_frac = clampf(thrower._cooldown_timer / maxf(thrower._release_cooldown, 0.001), 0.0, 1.0)
 	hud.update_equipment_state(flashlight.is_on, flashlight.battery_percent, batteries, thrower.rocks, throw_cooldown_frac)
+	_update_key_hint(delta)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
 	if not dialogue.is_empty() or resetting: return
 	if sequence!="": _tick_sequence(delta)
-	if encounter_grace>0:
+	if zone == "house" and attack_finished:
+		if not has_key: _tick_unease(delta)
+		if heard_phase_seen:
+			if encounter_grace > 0.0:
+				_tick_heard_phase(delta)
+			if arrival_place != Vector2.INF: _tick_arrival(delta)
+	elif encounter_grace>0:
 		encounter_grace-=delta
-		if encounter_grace<=0 and not complete and entity.visible: entity.active=true
+		if encounter_grace<=0 and not complete and entity.visible:
+			entity.active=true
+			# reset_encounter stops all loops; explicitly restart her breathing when
+			# the mansion's quiet-entry grace period ends.
+			entity.set_breathing(true)
 	if zone=="hallway": _tick_hallway(delta)
 	if zone=="forest" and not forest_cued and player.position.x>3500:
 		forest_cued=true
 		say("[A branch snaps beyond the marked path. Nothing moves.]",5)
 		play_sound("branch",Vector2(3630,215),-4)
+	if zone == "forest": _tick_ranger_checkpoint()
 	if zone=="loop" and not loop_cued and player.position.x>7460:
 		loop_cued=true
 		play_sound("behind_wall",_wall_listeners()[0]+Vector2(0,-60),-5)
@@ -375,6 +472,111 @@ func _process(delta: float) -> void:
 	_update_threat_presentation()
 	_tick_battery(delta)
 	_find_interaction()
+
+func caption(message: String, duration := 4.0) -> void:
+	hud.caption.text = message
+	_caption_time = duration
+
+func in_presence() -> bool:
+	return zone == "house" and attack_finished and heard_phase_seen and (encounter_grace > 0.0 or arrival_place != Vector2.INF)
+
+func in_unease() -> bool:
+	return zone == "house" and attack_finished and not has_key and not complete and not resetting
+
+func _begin_presence() -> void:
+	var duration := HEARD_PHASE_RETRY if heard_phase_seen else HEARD_PHASE
+	heard_phase_seen = true
+	heard_step = 0
+	heard_length = duration
+	heard_at = Vector2.INF
+	encounter_grace = duration
+	breathing_captioned = false
+
+func _tick_unease(delta: float) -> void:
+	_unease_time += delta
+	if _unease_time < _unease_next:
+		return
+	_unease_time = 0.0
+	_unease_next = randf_range(5.0, 9.0)
+	_unease_count += 1
+	var cue: Array = UNEASE_CUES.pick_random()
+	var rooms: RoomVisibility = world.rooms("house")
+	var current_room := String(rooms.current.name) if rooms != null and rooms.current != null else ""
+	var room_names: Array = UNEASE_SPOTS.keys().filter(func(name): return name != current_room)
+	if room_names.is_empty(): room_names = UNEASE_SPOTS.keys()
+	var spots: Array = UNEASE_SPOTS[room_names.pick_random()]
+	var at: Vector2 = world.zones["house"].global_position + spots.pick_random()
+	if _unease_count % 3 == 0:
+		at = player.global_position + Vector2.RIGHT.rotated(player.global_rotation) * -120.0
+	play_sound(String(cue[0]), at, float(cue[2]))
+	caption(String(cue[1]), 3.0)
+
+func _tick_heard_phase(delta: float) -> void:
+	encounter_grace = maxf(0.0, encounter_grace - delta)
+	var elapsed := heard_length - encounter_grace
+	var beat_scale: float = heard_length / HEARD_PHASE
+	while heard_step < PRESENCE_PATH.size() and elapsed >= float(PRESENCE_PATH[heard_step].at) * beat_scale:
+		var step: Dictionary = PRESENCE_PATH[heard_step]
+		var origin: Vector2 = world.zones["house"].global_position
+		heard_at = origin + step.spot
+		entity.global_position = heard_at
+		if bool(step.get("breathing", false)):
+			entity.set_breathing(true)
+			if not breathing_captioned:
+				breathing_captioned = true
+				caption(String(step.caption), 4.0)
+		if bool(step.get("carried", false)):
+			play_sound("presence", heard_at, -3.0)
+		elif not bool(step.get("breathing", false)):
+			play_sound("presence", heard_at)
+			if not String(step.caption).is_empty(): caption(String(step.caption), 4.0)
+		heard_step += 1
+	if encounter_grace <= 0.0 and arrival_place == Vector2.INF:
+		var target := key_noise_at if key_noise_at != Vector2.INF else friend_home
+		var from_position: Vector2 = heard_at if heard_at != Vector2.INF else world.marker("house", "EntityArrive")
+		_arrive(from_position, target)
+
+func _arrive(place: Vector2, target: Vector2) -> void:
+	var navigation := world.landmarks.get("HouseNavigation") as NavigationRegion2D
+	var map: RID = navigation.get_navigation_map() if navigation != null else RID()
+	arrival_place = NavigationServer2D.map_get_closest_point(map, place) if map.is_valid() else place
+	arrival_target = target
+	arrival_wait = HEARD_BEAM_WAIT
+	entity.global_position = arrival_place
+
+func _in_beam(at: Vector2) -> bool:
+	if flashlight == null or not flashlight.enabled or not flashlight.is_on or flashlight.texture == null:
+		return false
+	if _beam_image == null:
+		var texture := flashlight.texture as Texture2D
+		if texture == null: return false
+		_beam_image = texture.get_image()
+	if _beam_image == null: return false
+	var local: Vector2 = flashlight.global_transform.affine_inverse() * at
+	var pixel: Vector2 = (local - flashlight.offset) / flashlight.texture_scale + Vector2(_beam_image.get_size()) * 0.5
+	if pixel.x < 0 or pixel.y < 0 or pixel.x >= _beam_image.get_width() or pixel.y >= _beam_image.get_height(): return false
+	var texel: Color = _beam_image.get_pixelv(Vector2i(pixel))
+	return texel.a * texel.v > 0.05
+
+func _tick_arrival(delta: float) -> void:
+	arrival_wait -= delta
+	if arrival_wait > 0.0 and _in_beam(arrival_place): return
+	entity.global_position = arrival_place
+	entity.get_node("CollisionShape2D").set_deferred("disabled", false)
+	entity.show()
+	entity.active = true
+	entity.notice(arrival_target)
+	arrival_place = Vector2.INF
+
+func _update_key_hint(delta: float) -> void:
+	sprint_hint_time = maxf(0.0, sprint_hint_time - delta)
+	flash_hint_time = maxf(0.0, flash_hint_time - delta)
+	var message := ""
+	if space_hint and not breath.is_holding: message = "SPACE  ·  Hold breath"
+	elif sprint_hint_time > 0.0: message = "SHIFT  ·  Sprint"
+	elif flash_hint_time > 0.0: message = "F  ·  Flashlight"
+	elif zone == "forest" and thrower.rocks > 0 and not has_thrown: message = "Q  ·  Throw rock"
+	hud.show_key_hint(message, PixelDisplay.world_to_ui(player.global_position))
 
 func _tick_hallway(delta: float) -> void:
 	hall_audio_clock -= delta
@@ -391,8 +593,11 @@ func _tick_hallway(delta: float) -> void:
 			hall_cued=true
 			if index==0 and not hall_lesson_done:
 				say("[A chair scrapes behind the door]\nThey're still up. Hold my breath past their doors.",5)
+				caption("[Chair scrapes behind the door]", 5.0)
+				space_hint = true
 			else:
 				say("[A chair scrapes behind the door]" if index==0 else "[Movement behind the door]",4)
+				caption("[Chair scrapes behind the door]" if index==0 else "[Movement behind the door]", 4.0)
 			play_sound("chair_scrape",door.global_position+Vector2(0,-40),-3)
 			hall_audio_clock=4.0
 	if hall_audio_clock<=0 and nearest_door != null:
@@ -416,6 +621,7 @@ func _tick_hallway(delta: float) -> void:
 			hall_stirred.erase(index)
 	if not hall_lesson_done and not listeners.is_empty() and player.position.x > listeners.back().global_position.x+90:
 		hall_lesson_done=true
+		space_hint = false
 	hud.set_breath_hint(not hall_lesson_done,breath.is_holding,urgency,delta)
 	if hall_hold_alert and breath.is_holding:
 		hall_hold_alert=false
@@ -477,6 +683,13 @@ func _input(event: InputEvent) -> void:
 			and dialogue.is_empty() and not resetting:
 		hud.reject_slot("rocks")
 		say("No rocks left")
+	if event.is_action_pressed("sprint"):
+		has_sprinted = true
+		sprint_hint_time = 0.0
+	if event.is_action_pressed("throw"):
+		has_thrown = true
+	if event.is_action_pressed("candle_toggle"):
+		flash_hint_time = 0.0
 	if key==KEY_E:
 		if not dialogue.is_empty(): advance_dialogue()
 		elif not resetting and sequence=="":
@@ -527,10 +740,27 @@ func _find_interaction() -> void:
 		if prop_node.has_method("set_focused"):
 			prop_node.set_focused(id==nearest)
 	hud.prompt.text="" if nearest=="" else "E  ·  "+interaction_label(nearest)
-	if nearest!="": hud.place_prompt(get_canvas_transform()*world.interactables[nearest]["position"])
+	if nearest!="": hud.place_prompt(PixelDisplay.world_to_ui(world.interactables[nearest]["position"]))
+
+## The exterior roof sits above room contents by design. Lift it while a room is occupied so the
+## player, pickups and the new HUD prompts remain visible from the top-down camera.
+func _update_house_roof() -> void:
+	var rooms: RoomVisibility = world.rooms("house")
+	var inside_house: bool = zone == "house" and rooms != null and rooms.current != null
+	var house: Node = world.zones.get("house") as Node
+	if house == null:
+		return
+	for node_name in ["ArtRoof", "ArtRoofEaves", "ArtRoofEaveCorners"]:
+		var roof := house.get_node_or_null(node_name) as CanvasItem
+		if roof != null:
+			roof.visible = not inside_house
 
 func interaction_available(id: String) -> bool:
 	if collected.has(id): return false
+	if id == "phone" and not bool(world.interactables["chest_bedroom"]["node"].get("is_open")): return false
+	if id.begins_with("chest_"):
+		if id == "chest_vestibule" and not attack_finished: return false
+		var chest: Node = world.interactables[id]["node"]
 	if id=="flashlight" and has_flashlight: return false
 	if id=="friend": return zone=="house" and not friend_met
 	if id=="altar_pray": return false # The friend demonstrates prayer in this introduction.
@@ -538,7 +768,12 @@ func interaction_available(id: String) -> bool:
 	return true
 
 func interaction_label(id: String) -> String:
+	if id.begins_with("chest_"):
+		var chest: Node = world.interactables[id]["node"]
+		if bool(chest.get("is_open")):
+			return "Read" if String(chest.get("loot")) == "note" else "Take"
 	if id=="window" and window_broken: return "Release latch"
+	if id=="front_door" and attack_finished and has_key and not key_used: return "Unlock door"
 	if id=="front_door" and door_unlocked: return "Open door"
 	var node: Node = world.interactables[id]["node"]
 	if node is Door:
@@ -551,6 +786,48 @@ func interact(id: String) -> void:
 	# Distance validation is shared by normal input and tests; no remote interactions.
 	if player.position.distance_to(world.interactables[id]["position"])>85: return
 	var target_node: Node = world.interactables[id]["node"]
+	if id.begins_with("chest_"):
+		if id == "chest_vestibule" and not attack_finished: return
+		if not target_node.has_method("open"):
+			push_warning("Chest interaction '%s' has no open() method" % id)
+			return
+		if not bool(target_node.get("is_open")):
+			target_node.call("open", breath.is_holding)
+			if id == "chest_bedroom":
+				world.interactables["phone"]["node"].show()
+			if String(target_node.get("loot")) == "empty":
+				collected[id] = true
+				say("The chest is empty")
+			return
+		collected[id] = true
+		target_node.call("take_content")
+		match String(target_node.get("loot")):
+			"battery":
+				batteries += 1
+				if has_flashlight and flashlight.battery_percent <= 0.0:
+					insert_battery()
+				else:
+					say("Battery +1")
+			"stones":
+				if thrower.rocks < 3:
+					thrower.rocks = mini(3, thrower.rocks + 3)
+					say("Rocks +3")
+				else:
+					say("Rocks full")
+			"key":
+				has_key = true
+				key_noise_at = target_node.global_position
+				hud.set_key(true)
+				hud.pulse_slot("key")
+				say("Found a key")
+				if zone == "house" and attack_finished:
+					_begin_presence()
+			"note":
+				var note := String(target_node.get("note_text"))
+				if not note.is_empty(): show_dialogue([note])
+			"empty":
+				say("The chest is empty")
+		return
 	if target_node is Door and not id in ZONE_DOORS and id != "mansion_main_porton" and id != "loop_end" and id != "loop_back":
 		_use_door(target_node as Door)
 		return
@@ -620,7 +897,13 @@ func interact(id: String) -> void:
 				_play_pickup_sound(player.position)
 				_animate_rocks(world.interactables[id]["node"].global_position)
 				say("Rocks +3",5)
-		"forest_exit": enter_zone("house")
+		"forest_exit":
+			var ranger = world.zones["forest"].get_node("Ranger")
+			if ranger.chasing:
+				say("Not with him right behind me.", 4.0)
+				return
+			enter_zone("house")
+		"ranger": say("RANGER: This trail is closed tonight. Head back home.", 5.0)
 		"house_back":
 			if attack_finished: say("The path has disappeared into the dark.")
 			else: enter_zone("forest",world.marker("forest","SpawnFromHouse"))
@@ -635,6 +918,13 @@ func interact(id: String) -> void:
 			else: say("The latch is behind the glass.\nQ · Throw rock",6)
 		"front_door":
 			var front_door: Door = world.interactables[id]["node"]
+			if attack_finished and has_key and not key_used:
+				key_used=true
+				door_unlocked=true
+				front_door.locked=false
+				hud.set_key(false)
+				play_sound("door",player.position)
+				say("The key turns in the lock.",4)
 			if not door_unlocked:
 				say("Locked. The latch is beside the window.",5)
 				play_sound("door",player.position)
@@ -651,6 +941,7 @@ func interact(id: String) -> void:
 		"mansion_main_porton":
 			if GameState.altars_completed >= GameState.total_altars:
 				complete = true
+				hud.end_title.show()
 				entity.active = false
 				encounter_grace = 0
 				tutorial_completed.emit()
@@ -685,6 +976,7 @@ func interact(id: String) -> void:
 		"loop_end":
 			if not complete:
 				complete=true
+				hud.end_title.show()
 				entity.active=false
 				encounter_grace=0
 				tutorial_completed.emit()
@@ -774,14 +1066,17 @@ func _on_rock_landed(at: Vector2) -> void:
 	play_sound("glass",at,-3)
 	NoiseManager.emit_noise(at,256,NoiseManager.SourceType.ENVIRONMENT)
 	# The figure stands just behind the glass; it draws above the room cover for this one beat.
-	var reveal: Node2D = world.landmarks["reveal"]
-	reveal.modulate=Color(.65,.65,.65,.65)
-	reveal.z_index=45
-	reveal.show()
-	play_sound("presence",reveal.global_position)
+	var reveal := world.landmarks.get("Reveal", world.landmarks.get("reveal")) as Node2D
+	var reveal_at := side_light.global_position + Vector2(0, -24)
+	if reveal != null:
+		reveal.modulate=Color(.65,.65,.65,.65)
+		reveal.z_index=45
+		reveal.show()
+		reveal_at = reveal.global_position
+	play_sound("presence",reveal_at)
 	sequence="reveal"
 	sequence_time=0
-	var reveal_light: PointLight2D = world.lamp(reveal.global_position+Vector2(0,30),Color("a9b9a7"),.8,.45)
+	var reveal_light: PointLight2D = world.lamp(reveal_at+Vector2(0,30),Color("a9b9a7"),.8,.45)
 	reveal_light.name="RevealLight"
 	# The figure is light-only on layer 4: only this light ever shows it.
 	reveal_light.range_item_cull_mask |= 8
@@ -851,7 +1146,8 @@ func _tick_sequence(delta: float) -> void:
 	sequence_time+=delta
 	if sequence=="reveal":
 		if sequence_time>=1.15:
-			world.landmarks["reveal"].hide()
+			var reveal := world.landmarks.get("Reveal", world.landmarks.get("reveal")) as Node2D
+			if reveal != null: reveal.hide()
 			var light:=world.get_node_or_null("RevealLight")
 			if light!=null: light.queue_free()
 			sequence=""
@@ -929,6 +1225,32 @@ func _parent_heard(listener: ParentListener, at: Vector2, source: int) -> void:
 		return
 	parent_failures+=1
 	request_reset("DAD: Back to bed. Now.\nHe heard your %s through the door." % _noise_name(source),true)
+
+func _on_ranger_spotted() -> void:
+	if zone == "forest" and not resetting:
+		say("RANGER: You there! Stop!", 3.0)
+		if not has_sprinted: sprint_hint_time = 4.0
+
+func _on_ranger_caught() -> void:
+	if zone == "forest" and not resetting:
+		request_reset("RANGER: Trail's closed. Go home.")
+
+func _tick_ranger_checkpoint() -> void:
+	var forest: Node2D = world.zones["forest"]
+	var ranger: CharacterBody2D = forest.get_node("Ranger")
+	if ranger.get("distracted"):
+		forest.get_node("ThrowTarget").hide()
+	if ranger_checkpoint_ready: return
+	var setup: Vector2 = forest.global_position + Vector2(700, 400)
+	if player.global_position.distance_to(setup) > 55.0: return
+	ranger_checkpoint_ready = true
+	thrower.rocks = maxi(thrower.rocks, 3)
+	player.global_position = setup
+	player.velocity = Vector2.ZERO
+	player.get_node("FootstepNoise").reset_steps()
+	save_checkpoint()
+	ranger.active = true
+	forest.get_node("ThrowTarget").show()
 
 func _noise_name(source: int) -> String:
 	match source:
@@ -1020,7 +1342,7 @@ func _begin_game_over() -> void:
 	dialogue.clear()
 	dialogue_done=Callable()
 	sequence=""
-	world.landmarks["reveal"].hide()
+	_hide_window_reveal()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
 	play_sound("presence",player.position)
@@ -1062,13 +1384,17 @@ func request_reset(message: String, bedroom := false) -> void:
 		friend_met=false
 		world.props["friend"].show()
 	sequence=""
-	world.landmarks["reveal"].hide()
+	_hide_window_reveal()
 	var reveal_light:=world.get_node_or_null("RevealLight")
 	if reveal_light!=null: reveal_light.queue_free()
 	hud.shade.color=Color(0,0,0,.82)
 	say(message,4)
 	play_sound("parent" if bedroom else "presence",player.position)
 	_restore_after_delay(bedroom)
+
+func _hide_window_reveal() -> void:
+	var reveal := world.landmarks.get("Reveal", world.landmarks.get("reveal")) as Node2D
+	if reveal != null: reveal.hide()
 
 func _restore_after_delay(bedroom: bool) -> void:
 	await get_tree().create_timer(.7 if not test_mode else .01).timeout

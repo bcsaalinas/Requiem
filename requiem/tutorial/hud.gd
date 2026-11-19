@@ -4,10 +4,16 @@ signal resume_requested
 signal fullscreen_requested
 
 const UIPalette := preload("res://util/ui_palette.gd")
+const KEY_ICON := preload("res://assets/art/items/item_key.png")
+const PICKUP_PROMPT_GAP := 12.0
 
 @onready var root: Control = $Screen
 @onready var prompt: Label = $Screen/InteractionPrompt
 @onready var subtitle: Label = $Screen/Subtitle
+## Compatibility alias used by tutorial regression and scripted caption callers.
+@onready var caption: Label = $Screen/Caption
+@onready var end_title: Label = $Screen/EndTitle
+@onready var key_hint: Label = $Screen/KeyHint
 @onready var breath: ProgressBar = $Screen/Vitals/Breath/Meter
 @onready var effort: ProgressBar = $Screen/Vitals/Exertion/Meter
 @onready var battery: ProgressBar = $Screen/Vitals/Battery/Meter
@@ -36,6 +42,7 @@ var _throw_cooldown_frac := 0.0
 var _inventory_overlay: Control
 
 func _ready() -> void:
+	LegacyUi.fit_root(root)
 	for kind in ["flashlight", "battery", "rocks"]:
 		var slot: Control = inventory.get_node(String(kind).capitalize())
 		slot.custom_minimum_size = Vector2(maxf(slot.custom_minimum_size.x, 64.0), slot.custom_minimum_size.y)
@@ -133,6 +140,25 @@ func update_inventory(equipped: bool, spares: int, rocks: int) -> void:
 	if vitals != null and vitals.has_method("set_equipment_context"):
 		vitals.set_equipment_context(spares)
 	_refresh_slot_modulation()
+
+## The key is a single story item, so add its slot only when it is first found.
+func set_key(held: bool) -> void:
+	if not _slots.has("key"):
+		if not held:
+			return
+		var slot: Control = _slots.flashlight.duplicate()
+		slot.name = "Key"
+		(slot.get_node("Icon") as TextureRect).texture = KEY_ICON
+		inventory.add_child(slot)
+		_slots["key"] = slot
+	_slots["key"].visible = held
+
+func show_key_hint(message: String, window_position: Vector2) -> void:
+	key_hint.text = message
+	key_hint.visible = not message.is_empty()
+	if message.is_empty():
+		return
+	key_hint.position = Vector2(window_position.x - key_hint.size.x * 0.5, window_position.y + 34.0)
 
 ## Rich per-frame equipment feedback: light power, swap prompt, empty dim, throw cooldown.
 func update_equipment_state(flashlight_on: bool, battery_percent: float, spares: int, rocks: int, throw_cooldown_frac := 0.0) -> void:
@@ -284,15 +310,15 @@ func _draw_inventory_overlay() -> void:
 		var sweep := Rect2(slot_rect.position.x, slot_rect.end.y - fill_h, slot_rect.size.x, fill_h)
 		_inventory_overlay.draw_rect(sweep, Color(0.04, 0.05, 0.06, 0.45), true)
 
-func place_prompt(at: Vector2, in_dialogue := false) -> void:
-	at /= 1.5
-	var viewport_size := root.size
+func place_prompt(at: Vector2, in_dialogue := false, above := false) -> void:
+	var viewport_size := PixelDisplay.UI_CANVAS
+	prompt.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM if above and not in_dialogue else VERTICAL_ALIGNMENT_TOP
 	if in_dialogue:
 		prompt.position = Vector2((viewport_size.x-prompt.size.x)*.5,viewport_size.y-69)
 	else:
 		prompt.position = Vector2(
 			clampf(at.x-prompt.size.x*.5,24,viewport_size.x-prompt.size.x-24),
-			clampf(at.y+34,78,viewport_size.y-215))
+			clampf(at.y-PICKUP_PROMPT_GAP-prompt.size.y if above else at.y+34,78,viewport_size.y-215))
 
 func show_altars_tracker(shown: bool) -> void:
 	if altars_tracker != null:

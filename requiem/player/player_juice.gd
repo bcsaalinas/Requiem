@@ -529,11 +529,12 @@ func _restore_all_lights() -> void:
 	_restore_world_lights()
 
 
-func _on_step_played(side: int, at: Vector2, mode: StringName, _pitch: float, _volume_db: float) -> void:
+func _on_step_played(side: String, at: Vector2, mode: String, _clip: AudioStream, _pitch: float, _gain_db: float) -> void:
 	if not _is_gameplay_active():
 		return
 	var move_dir := _player.velocity.normalized() if _player.velocity.length_squared() > 1.0 else Vector2.DOWN
-	var perp := Vector2(-move_dir.y, move_dir.x) * float(side)
+	var side_sign := -1.0 if side.to_lower() == "left" else 1.0
+	var perp := Vector2(-move_dir.y, move_dir.x) * side_sign
 
 	if mode == &"sprint":
 		_step_kick = perp * sprint_step_shake_px + move_dir * (sprint_step_shake_px * 0.45)

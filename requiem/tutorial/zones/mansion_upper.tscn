@@ -1,8 +1,7 @@
 [gd_scene format=3 uid="uid://cm7l3yam4k2d1"]
 
-[ext_resource type="Texture2D" uid="uid://c34l3yacjtcod" path="res://assets/level/floor_wood.png" id="1_floor"]
-[ext_resource type="Texture2D" uid="uid://cnatnjlqotr5w" path="res://assets/level/rug_runner.png" id="2_runner"]
-[ext_resource type="Texture2D" uid="uid://exefpig3j58q" path="res://assets/level/rug_sage.png" id="3_sage"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_runner.png" id="2_runner"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="3_sage"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_walls"]
 [ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="5_doorfront"]
 [ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="6_doorside"]
@@ -14,10 +13,10 @@
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="13_armchair"]
 [ext_resource type="PackedScene" uid="uid://c0qu82jhm0c1m" path="res://level/props/standing_lamp.tscn" id="14_lamp"]
 [ext_resource type="Script" uid="uid://bat3x3dgudkyd" path="res://tutorial/art.gd" id="16_art"]
-[ext_resource type="PackedScene" path="res://level/props/dining_table.tscn" id="20_dining"]
-[ext_resource type="PackedScene" path="res://level/props/bookshelf.tscn" id="22_bookshelf"]
-[ext_resource type="PackedScene" path="res://level/props/chapel_pew.tscn" id="23_pew"]
-[ext_resource type="PackedScene" path="res://level/props/grandfather_clock.tscn" id="26_clock"]
+[ext_resource type="PackedScene" path="res://level/props/kitchen_table.tscn" id="20_dining"]
+[ext_resource type="PackedScene" path="res://level/props/kitchen_shelf.tscn" id="22_bookshelf"]
+[ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="23_pew"]
+[ext_resource type="PackedScene" path="res://level/props/standing_lamp.tscn" id="26_clock"]
 [ext_resource type="Script" path="res://tutorial/zones/mansion_upper.gd" id="1_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_void_n"]
@@ -47,17 +46,6 @@ agent_radius = 15.0
 [node name="MansionUpper" type="Node2D"]
 y_sort_enabled = true
 script = ExtResource("1_script")
-
-[node name="Floor" type="Sprite2D" parent="."]
-self_modulate = Color(0.58, 0.54, 0.48, 1)
-z_index = -10
-texture_repeat = 2
-position = Vector2(64, 64)
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("1_floor")
-centered = false
-region_enabled = true
-region_rect = Rect2(0, 0, 4288, 3392)
 
 [node name="CentralVoid" type="Node2D" parent="."]
 
@@ -92,24 +80,22 @@ z_index = -9
 
 [node name="StudyRug" type="Sprite2D" parent="Rugs"]
 position = Vector2(672, 352)
-scale = Vector2(0.55, 0.55)
+scale = Vector2(0.85, 0.8)
 texture = ExtResource("3_sage")
 
 [node name="MasterBedroomRug" type="Sprite2D" parent="Rugs"]
 position = Vector2(1568, 352)
-scale = Vector2(0.55, 0.55)
+scale = Vector2(0.85, 0.8)
 texture = ExtResource("3_sage")
 
 [node name="GalleryRunner" type="Sprite2D" parent="Rugs"]
 position = Vector2(1888, 992)
-rotation = 1.5707964
-scale = Vector2(0.7, 0.45)
+scale = Vector2(0.8, 0.9)
 texture = ExtResource("2_runner")
 
 [node name="TapancoRunner" type="Sprite2D" parent="Rugs"]
 position = Vector2(1152, 1552)
-rotation = 1.5707964
-scale = Vector2(0.65, 0.45)
+scale = Vector2(0.8, 0.9)
 texture = ExtResource("2_runner")
 
 [node name="Walls" type="TileMapLayer" parent="." groups=["mansion_nav"]]
@@ -339,6 +325,8 @@ position = Vector2(1952, 208)
 
 [node name="ClosetChest" parent="Props" instance=ExtResource("9_chest")]
 position = Vector2(2096, 224)
+metadata/interaction_id = "chest_closet"
+metadata/interaction_label = "Abrir cofre"
 
 [node name="Altar6_Galeria" parent="Props" instance=ExtResource("8_altar")]
 position = Vector2(2016, 736)
@@ -352,6 +340,8 @@ position = Vector2(1760, 656)
 
 [node name="GalleryChest" parent="Props" instance=ExtResource("9_chest")]
 position = Vector2(1760, 992)
+metadata/interaction_id = "chest_gallery"
+metadata/interaction_label = "Abrir cofre"
 
 [node name="GalleryPew" parent="Props" instance=ExtResource("23_pew")]
 position = Vector2(2016, 992)

@@ -40,8 +40,16 @@ static func _track() -> void:
 
 
 static func _refit() -> void:
-	_roots.assign(_roots.filter(func(node: Object) -> bool: return is_instance_valid(node)))
-	_layers.assign(_layers.filter(func(node: Object) -> bool: return is_instance_valid(node)))
+	var valid_roots: Array[Control] = []
+	for root in _roots:
+		if is_instance_valid(root):
+			valid_roots.append(root)
+	_roots = valid_roots
+	var valid_layers: Array[CanvasLayer] = []
+	for layer in _layers:
+		if is_instance_valid(layer):
+			valid_layers.append(layer)
+	_layers = valid_layers
 	for root in _roots:
 		_place(root)
 	for layer in _layers:

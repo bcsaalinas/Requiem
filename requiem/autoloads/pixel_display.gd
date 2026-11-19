@@ -66,6 +66,15 @@ func to_ui(window_point: Vector2) -> Vector2:
 	return (window_point - current["ui_origin"]) / current["ui_scale"]
 
 
+## World position into the legacy UI's 1280 x 720 coordinate space.
+func world_to_ui(world_point: Vector2) -> Vector2:
+	var current := layout()
+	var view_point: Vector2 = world_view.get_canvas_transform() * world_point
+	var image_rect: Rect2i = current["image_rect"]
+	var window_point := Vector2(image_rect.position) + view_point * float(current["image_scale"])
+	return to_ui(window_point)
+
+
 func _init() -> void:
 	world_view = SubViewport.new()
 	world_view.name = "WorldView"
