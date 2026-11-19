@@ -2,9 +2,11 @@
 
 [ext_resource type="Script" path="res://entities/entity_ai.gd" id="1_w5oec"]
 [ext_resource type="AudioStream" uid="uid://cdfkincpxkbh4" path="res://assets/audio/366137__dcsfx__monster-breathing.wav" id="2_breath"]
-[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 3/OGG/Stinger/dread_stinger_01.ogg" id="3_stinger"]
-[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 3/OGG/Body/breath_texture_01.ogg" id="4_investigate"]
-[ext_resource type="AudioStream" path="res://assets/audio/horror-jam-kit 3/OGG/Riser/riser_02.ogg" id="5_search"]
+[ext_resource type="AudioStream" path="res://assets/audio/monster/hunt_scream.wav" id="3_stinger"]
+[ext_resource type="AudioStream" path="res://assets/audio/monster/investigate.wav" id="4_investigate"]
+[ext_resource type="AudioStream" path="res://assets/audio/monster/search_growl.wav" id="5_search"]
+
+[ext_resource type="AudioStream" path="res://assets/audio/monster/catch.wav" id="6_catch"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_xdf4s"]
 size = Vector2(32, 32)
@@ -19,6 +21,8 @@ radius = 24.0
 [node name="Entity" type="CharacterBody2D" unique_id=1685648159]
 script = ExtResource("1_w5oec")
 breath_calm_clips = Array[AudioStream]([ExtResource("2_breath")])
+catch_clips = Array[AudioStream]([ExtResource("6_catch")])
+hunt_stinger_pitch = 0.77
 hunt_stinger_clips = Array[AudioStream]([ExtResource("3_stinger")])
 investigate_cue_clips = Array[AudioStream]([ExtResource("4_investigate")])
 search_cue_clips = Array[AudioStream]([ExtResource("5_search")])

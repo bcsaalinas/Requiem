@@ -72,6 +72,7 @@ enum Throwable { PIEDRA, DESPERTADOR }
 
 @export_group("Audio")
 @export var piedra_clips: Array[AudioStream] = []
+@export var piedra_release_clips: Array[AudioStream] = []
 @export var despertador_clips: Array[AudioStream] = []
 @export var volume_db: float = -6.0
 
@@ -88,6 +89,7 @@ var _windup_duration := 0.0
 var _release_cooldown := 0.0
 var _previous_position := Vector2.ZERO
 var _audio_player: AudioStreamPlayer2D
+var _release_audio_player: AudioStreamPlayer2D
 
 ## Objetos en el aire: { "node", "from", "to", "t", "kind" }
 var _in_flight: Array = []
@@ -107,6 +109,8 @@ func _ready() -> void:
 
 	_audio_player = AudioStreamPlayer2D.new()
 	add_child(_audio_player)
+	_release_audio_player = AudioStreamPlayer2D.new()
+	add_child(_release_audio_player)
 
 
 
@@ -291,6 +295,8 @@ func _release_object() -> void:
 		"kind": _pending_kind,
 	})
 	object_released.emit()
+	if _pending_kind == Throwable.PIEDRA:
+		_play_release_clip(piedra_release_clips, origin)
 
 
 func _get_release_origin() -> Vector2:
@@ -368,6 +374,13 @@ func _play_random_clip(clips: Array[AudioStream], at: Vector2) -> void:
 	_audio_player.volume_db = volume_db
 	_audio_player.stream = clips[randi() % clips.size()]
 	_audio_player.play()
+
+func _play_release_clip(clips: Array[AudioStream], at: Vector2) -> void:
+	if clips.is_empty(): return
+	_release_audio_player.global_position = at
+	_release_audio_player.volume_db = volume_db - 3.0
+	_release_audio_player.stream = clips[randi() % clips.size()]
+	_release_audio_player.play()
 
 
 func _color_for(kind: int) -> Color:

@@ -14,7 +14,8 @@ var config := ConfigFile.new()
 var storage_path := "user://preferences.cfg"
 var fullscreen := false
 var display_mode := DISPLAY_FILL
-var turn_mode := TURN_FREE
+## Her body is drawn turning in 22.5° steps by default; "free" is the option.
+var turn_mode := TURN_STEPS
 var captions := false
 
 func _ready() -> void:
@@ -27,9 +28,8 @@ func load_preferences() -> void:
 	display_mode = str(config.get_value("display", "mode", DISPLAY_FILL))
 	if display_mode != DISPLAY_PIXEL_PERFECT:
 		display_mode = DISPLAY_FILL
-	turn_mode = str(config.get_value("display", "turn_mode", TURN_FREE))
-	if turn_mode != TURN_STEPS:
-		turn_mode = TURN_FREE
+	var stored_turn_mode := str(config.get_value("display", "turn_mode", TURN_STEPS))
+	turn_mode = stored_turn_mode if stored_turn_mode in [TURN_FREE, TURN_STEPS] else TURN_STEPS
 	captions = bool(config.get_value("display", "captions", false))
 	for index in AudioServer.bus_count:
 		var bus_name := AudioServer.get_bus_name(index)

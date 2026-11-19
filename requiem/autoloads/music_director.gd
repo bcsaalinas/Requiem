@@ -13,7 +13,7 @@ const KIT_TRACKS := {
 	"EXPLORE": "res://assets/audio/horror-jam-kit/WAV/Drone/drone_tension_02.wav",
 	"INVESTIGATE": "res://assets/audio/horror-jam-kit/WAV/Drone/drone_tension_03.wav",
 	"SEARCH": "res://assets/audio/horror-jam-kit 3/OGG/Tonal/high_tension_tone_01.ogg",
-	"HUNT": "res://assets/audio/horror-jam-kit 3/OGG/Drone/drone_tension_03.ogg",
+	"HUNT": "res://assets/audio/music/hunt.wav",
 	"PRAYER": "res://assets/audio/horror-jam-kit 3/OGG/Tonal/eerie_music_box_02.ogg",
 }
 const HEARTBEAT_PATH := "res://assets/audio/horror-jam-kit 3/OGG/Body/heartbeat_01.ogg"
