@@ -14,6 +14,10 @@ extends Node2D
 ##                         house ducked under them;
 ##   it lost the trail   - a groan, then one sniff;
 ##   it gave up          - a long breath out.
+##
+## Its idle voice says it is alive and unaware: a mumbled phrase now and then while it walks its
+## patrol, trailing off when it pauses. While it searches the voice is lower and rarer, and it
+## sniffs in short runs as it scuttles. It never speaks while it listens, screams or hunts.
 
 ## Animation cue -> sound set. Every cue name in the entity-lab JSON files is here or in
 ## SILENT_CUES (the regression test checks it).
@@ -50,6 +54,7 @@ const FOOT_SLAM := "entity/foot_slam"
 const LOST := "entity/lost"
 const SNIFF := "entity/sniff"
 const STAND_DOWN := "entity/stand_down"
+const MUMBLE := "entity/mumble"
 const SILENT_DB := -60.0
 ## EntityAI.State, as state_changed reports it.
 const PATROL := 0
@@ -98,6 +103,19 @@ var _duck_left := -1.0
 var _sniff_wait := -1.0
 var _exhale_covered_until := -INF
 var _listener: Node2D
+## The last idle phrase: { stream, pitch, state } (debug read-out, tests).
+var last_talk := {}
+var _talk: AudioStreamPlayer2D
+## Seconds until the next phrase may start.
+var _talk_wait := 0.0
+## While a phrase trails off: dB it loses per second (0: it is not trailing off).
+var _talk_fade := 0.0
+var _still_for := 0.0
+## Seconds until the next run of sniffs (-1: none planned).
+var _sniff_run_wait := -1.0
+var _sniffs_left := 0
+var _sniff_pace := 0.0
+var _sniff_next := 0.0
 
 
 func _ready() -> void:
@@ -106,6 +124,8 @@ func _ready() -> void:
 		_voices.append(_player("Voice%d" % index))
 	_breath = _player("Breath")
 	_drag = _player("Drag")
+	_talk = _player("Talk")
+	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
 	for index in AWARENESS_VOICES:
 		var voice := _player("Awareness%d" % index)
 		voice.max_distance = NO_ENGINE_FALLOFF_PX
@@ -198,7 +218,10 @@ func stop_all() -> void:
 		voice.stop()
 	_breath.stop()
 	_drag.stop()
+	_talk.stop()
+	_talk_fade = 0.0
 	_sniff_wait = -1.0
+	_sniffs_left = 0
 
 
 ## Back to silence, with nothing pending (an encounter was reset).
@@ -207,6 +230,8 @@ func reset() -> void:
 	_heard_wait = -1.0
 	_scream_wait = -1.0
 	_exhale_covered_until = -INF
+	_sniff_run_wait = -1.0
+	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
 	if _duck_left >= 0.0:
 		_duck_left = -1.0
 		MixDirector.release(SCREAM_DUCK)
@@ -294,9 +319,15 @@ func _on_state_changed(previous: int, current: int) -> void:
 		_scream_wait = settings.scream_cue_wait + SCREAM_AFTER_INHALE if animated else 0.0
 	if current != SEARCH:
 		_sniff_wait = -1.0
+		_sniff_run_wait = -1.0
+		_sniffs_left = 0
+	if current == SEARCH:
+		_talk_wait = _between(settings.talk_interval_search)
+		_sniff_run_wait = _between(settings.sniff_run_interval)
 	if previous == HUNT and current == SEARCH:
 		play_awareness(&"lost", LOST, _far_reach())
 		_sniff_wait = settings.lost_then_sniff
+		_sniff_run_wait = settings.lost_then_sniff + _between(settings.sniff_run_first)
 	if previous == SEARCH and current == PATROL and not entity.has_signal(&"stood_down"):
 		_on_stood_down()
 
@@ -332,6 +363,7 @@ func _on_stood_down() -> void:
 	_sniff_wait = -1.0
 	_exhale_covered_until = _clock + settings.stand_down_covers_exhale
 	play_awareness(&"stand_down", STAND_DOWN, _far_reach())
+	_talk_wait = _between(settings.talk_after_stand_down)       # then its idle talking resumes
 
 
 func _tick_awareness(delta: float) -> void:
@@ -416,6 +448,68 @@ func _process(delta: float) -> void:
 	var moving: bool = shown and active and not dead and not reacting \
 		and entity.velocity.length() > Units.to_px(settings.moving_speed_u)
 	_drive_loop(_drag, DRAG if moving else "", delta, reacting)
+	_tick_voice(delta, _state(), moving, reacting or dead or not shown or not active)
+
+
+## The idle voice. `silent`: it is listening, screaming, catching, hidden, inactive or dead.
+func _tick_voice(delta: float, state: String, moving: bool, silent: bool) -> void:
+	var settings := SoundSettings.current()
+	if _talk.playing and _talk_fade > 0.0:
+		_talk.volume_db -= _talk_fade * delta
+		if _talk.volume_db <= SILENT_DB:
+			_talk.stop()
+	if silent or state == "HUNT":
+		return
+	var searching := state == "SEARCH"
+	_still_for = 0.0 if moving else _still_for + delta
+	_talk_wait -= delta
+	if _talk.playing:
+		# A patrol pause: the talk trails off. A fade, never the hard cut of listening.
+		if not searching and _talk_fade == 0.0 and _still_for >= settings.talk_pause_grace:
+			_talk_fade = -SILENT_DB / maxf(settings.talk_pause_fade, 0.001)
+	elif _talk_wait <= 0.0 and (moving or searching):
+		_say(searching)
+	if not searching:
+		return
+	# Sniffing as it scuttles: short runs at a steady pace.
+	if _sniffs_left > 0:
+		_sniff_next -= delta
+		if _sniff_next <= 0.0:
+			play_set(SNIFF)
+			_sniffs_left -= 1
+			_sniff_next += _sniff_pace
+	elif _sniff_run_wait >= 0.0:
+		_sniff_run_wait -= delta
+		if _sniff_run_wait <= 0.0 and moving and _sniff_wait < 0.0:
+			_sniffs_left = randi_range(settings.sniff_run_count.x, settings.sniff_run_count.y)
+			_sniff_pace = _between(settings.sniff_run_pace)
+			_sniff_next = 0.0
+			_sniff_run_wait = _between(settings.sniff_run_interval)
+
+
+## One mumbled phrase, never the one said last. Searching, it is lower and slower.
+func _say(searching: bool) -> void:
+	var settings := SoundSettings.current()
+	var interval := _between(settings.talk_interval_search if searching else settings.talk_interval_patrol)
+	var stream := SoundLibrary.pick(MUMBLE)
+	if stream == null:
+		_talk_wait = interval
+		return
+	var wander: float = settings.set_pitch_range * (0.5 if searching else 1.0)
+	_talk.stream = stream
+	_talk.pitch_scale = (settings.talk_pitch_search if searching else 1.0) * randf_range(1.0 - wander, 1.0 + wander)
+	_talk.volume_db = SoundLibrary.gain_db(MUMBLE) + randf_range(-settings.set_volume_range_db, settings.set_volume_range_db)
+	_talk_fade = 0.0
+	_talk.play()
+	# The next phrase waits its interval, and at least a breath after this one has ended.
+	_talk_wait = maxf(interval, stream.get_length() / _talk.pitch_scale + settings.talk_min_gap)
+	plays[MUMBLE] = int(plays.get(MUMBLE, 0)) + 1
+	last_talk = {"stream": stream, "pitch": _talk.pitch_scale, "state": "SEARCH" if searching else "PATROL"}
+	played.emit(MUMBLE, _talk)
+
+
+func _between(span: Vector2) -> float:
+	return randf_range(span.x, span.y)
 
 
 ## Fades a loop toward the set it should be playing ("" = silence). A change of set waits for

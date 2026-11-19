@@ -268,8 +268,10 @@ func check_encounter() -> void:
 		"Heard-you, then the inhale, the scream and the stomp, once each")
 	if heard.size() < 2 or inhale.size() != 1 or scream.size() != 1 or slam.size() != 1:
 		return
-	var warning: float = inhale[0].time - heard[0].time
-	check(warning >= 0.65, "The heard-you cue comes %.2f s before the first loud sound: at least 0.7 s of warning" % warning)
+	# The scream is the only sound of the sequence above -16 LUFS (the inhale sits at -16).
+	var warning: float = scream[0].time - heard[0].time
+	check(warning >= 0.7, "The heard-you cue comes %.2f s before the scream: at least 0.7 s of warning" % warning)
+	check(inhale[0].time - heard[0].time >= 0.5, "And the silence after the cue lasts (%.2f s to the inhale)" % (inhale[0].time - heard[0].time))
 	var between := body.filter(func(sound: Dictionary) -> bool: return sound.time > heard[0].time and sound.time < inhale[0].time)
 	var between_sets: Array = between.map(func(sound: Dictionary) -> String: return sound.set)
 	check(between.size() <= 1 and between_sets.all(func(set_id: String) -> bool: return set_id == "entity/claw_scrape")

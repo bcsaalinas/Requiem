@@ -127,8 +127,8 @@ func check_in_the_house() -> void:
 	if audio == null:
 		return
 	var players: Array = audio.get_children()
-	check(players.size() == SoundSettings.current().entity_voices + 2 + EntityAudio.AWARENESS_VOICES and players.all(func(player: Node) -> bool:
-		return player is AudioStreamPlayer2D and player.bus == AudioBus.ENTITY), "A pool of players, plus breath, drag and the awareness voices, all on the Entity bus")
+	check(players.size() == SoundSettings.current().entity_voices + 3 + EntityAudio.AWARENESS_VOICES and players.all(func(player: Node) -> bool:
+		return player is AudioStreamPlayer2D and player.bus == AudioBus.ENTITY), "A pool of players, plus breath, drag, voice and the awareness voices, all on the Entity bus")
 	check(entity.breath_calm_clips.is_empty() and entity.breath_hunt_clips.is_empty() and entity.hunt_stinger_clips.is_empty()
 		and entity.search_cue_clips.is_empty() and entity.investigate_cue_clips.is_empty() and entity.catch_clips.is_empty()
 		and entity.drag_clip == null and entity.feel_clip == null,

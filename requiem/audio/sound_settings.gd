@@ -146,3 +146,27 @@ static func current() -> SoundSettings:
 ## A cue more than this far under its full level counts as too quiet to hear. No awareness
 ## cue may ever play below it (fairness test).
 @export_range(-40.0, 0.0, 0.5, "suffix:dB") var audible_db := -20.0
+
+@export_group("Entity: idle voice")
+## On patrol it mumbles one phrase every so often: the shortest and longest wait between two.
+@export var talk_interval_patrol := Vector2(6.0, 15.0)
+## While it searches it speaks less: the shortest and longest wait between two phrases.
+@export var talk_interval_search := Vector2(10.0, 20.0)
+## While it searches its voice is lower and slower: the pitch it speaks at (1 = as on patrol).
+@export_range(0.5, 1.0, 0.01) var talk_pitch_search := 0.9
+## The least silence between the end of one phrase and the start of the next.
+@export_range(0.0, 10.0, 0.1, "suffix:s") var talk_min_gap := 2.0
+## When it pauses on patrol, a phrase it was saying trails off over this long (breathing goes on).
+@export_range(0.0, 2.0, 0.01, "suffix:s") var talk_pause_fade := 0.4
+## It has to have stood still this long before the phrase trails off.
+@export_range(0.0, 1.0, 0.01, "suffix:s") var talk_pause_grace := 0.25
+## After it gives up a search, its idle talking resumes this long after the breath out starts.
+@export var talk_after_stand_down := Vector2(4.0, 7.0)
+## While it searches and scuttles it sniffs in short runs: how many sniffs in a run.
+@export var sniff_run_count := Vector2i(2, 4)
+## Time from one sniff of a run to the next. Picked once per run, so each run has a steady pace.
+@export var sniff_run_pace := Vector2(0.34, 0.42)
+## The first run comes this long after the single sniff that follows "it lost you".
+@export var sniff_run_first := Vector2(1.0, 1.8)
+## The wait between two runs after that.
+@export var sniff_run_interval := Vector2(3.0, 6.0)
