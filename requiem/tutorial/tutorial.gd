@@ -161,6 +161,7 @@ func _ready() -> void:
 	if test_mode:
 		player.get_node("FootstepNoise").walk_clips.clear()
 		breath.hold_clips.clear()
+		breath.exhale_clips.clear()
 		breath.exertion_clips.clear()
 		thrower.piedra_clips.clear()
 		flashlight.click_clips.clear()
@@ -623,6 +624,8 @@ func interact(id: String) -> void:
 			if not door_unlocked:
 				say("Locked. The latch is beside the window.",5)
 				play_sound("door",player.position)
+				if not test_mode:
+					NoiseManager.emit_noise(front_door.get_noise_origin(), 2.0 * Units.PX_PER_UNIT, NoiseManager.SourceType.DOOR)
 			elif attack_finished and front_door.is_open:
 				_go_through(id)
 			else:
@@ -641,6 +644,9 @@ func interact(id: String) -> void:
 				say("El sello se ha roto. Has consagrado los 7 altares y escapado de la Hacienda.", 8.0)
 			else:
 				say("El portón está sellado con un cerrojo pesado. Debes consagrar los 7 altares.", 5.0)
+				play_sound("door", player.position)
+				if not test_mode:
+					NoiseManager.emit_noise((world.interactables[id]["node"] as Door).get_noise_origin(), 2.0 * Units.PX_PER_UNIT, NoiseManager.SourceType.DOOR)
 		"stairs_to_upper":
 			enter_zone("mansion_upper", world.marker("mansion_upper", "SpawnFromStairs"), true)
 			play_sound("door", player.position)
@@ -657,7 +663,11 @@ func interact(id: String) -> void:
 				"ELI: My aunt said we had to come here and pray at the altars. It keeps something here.",
 				"ELI: Wait. Do you hear that?"
 			],_begin_attack)
-		"loop_back": say("It won't open.")
+		"loop_back":
+			say("It won't open.")
+			play_sound("door", player.position)
+			if not test_mode:
+				NoiseManager.emit_noise(world.interactables[id]["position"], 2.0 * Units.PX_PER_UNIT, NoiseManager.SourceType.DOOR)
 		"loop_end":
 			if not complete:
 				complete=true
@@ -719,6 +729,8 @@ func insert_battery() -> void:
 	flashlight.is_on=true
 	flashlight._refresh_light()
 	play_sound("switch",player.position)
+	if not test_mode and zone != "bedroom":
+		NoiseManager.emit_noise(player.global_position, 1.5 * Units.PX_PER_UNIT, NoiseManager.SourceType.FLASHLIGHT)
 	hud.pulse_slot("battery")
 	say("Battery replaced")
 	low_battery_hinted=false
@@ -761,17 +773,34 @@ func _on_rock_landed(at: Vector2) -> void:
 	reveal_light.range_item_cull_mask |= 8
 	say("[Glass shatters]",4)
 
-## The screen closes in as the hunting entity comes near. Only while it hunts: then its breathing
-## is already loud, so the vignette never gives away a silent patrol behind a wall.
+## The screen closes in as the entity comes near, and intensifies sharply when it focuses/hunts.
 func _update_threat_presentation() -> void:
-	var hunting_house: bool = zone=="house" and entity.active and entity.visible \
-		and entity.get_state_name()=="HUNT"
 	var pressure := 0.0
-	if hunting_house:
+	var focus_target := 0.0
+	if entity.active and entity.visible:
 		var distance := entity.global_position.distance_to(player.global_position)
-		pressure = 1.0-smoothstep(2.0*Units.PX_PER_UNIT,10.0*Units.PX_PER_UNIT,distance)
-	threat_pressure = lerpf(threat_pressure,pressure,0.08)
-	(film.material as ShaderMaterial).set_shader_parameter("pressure",threat_pressure)
+		var prox := 1.0 - smoothstep(2.0 * Units.PX_PER_UNIT, 14.0 * Units.PX_PER_UNIT, distance)
+		var state_name: String = entity.get_state_name()
+		var listening: bool = entity.has_method("is_listening") and entity.is_listening()
+		var screaming: bool = entity.has_method("is_screaming") and entity.is_screaming()
+		if state_name == "HUNT" or screaming:
+			pressure = 1.0 - smoothstep(2.0 * Units.PX_PER_UNIT, 11.5 * Units.PX_PER_UNIT, distance)
+			focus_target = clampf(0.45 + 0.55 * prox, 0.45, 1.0)
+		elif listening:
+			pressure = prox * 0.65
+			focus_target = 0.65
+		elif state_name == "SEARCH":
+			pressure = prox * 0.55
+			focus_target = prox * 0.5
+		else:
+			pressure = prox * 0.35
+	threat_pressure = lerpf(threat_pressure, pressure, 0.08)
+	var mat := film.material as ShaderMaterial
+	mat.set_shader_parameter("pressure", threat_pressure)
+	var cur_focus: float = float(mat.get_shader_parameter("focus")) if mat.get_shader_parameter("focus") != null else 0.0
+	var next_focus := lerpf(cur_focus, focus_target, 0.12)
+	mat.set_shader_parameter("focus", next_focus)
+	mat.set_shader_parameter("pulse", 0.5 + 0.5 * sin( float(Time.get_ticks_msec()) * 0.012 ))
 
 ## Shown on the capture screen: the sound that gave the player away.
 func game_over_cause() -> String:
@@ -896,6 +925,9 @@ func _noise_name(source: int) -> String:
 func _use_door(door: Door) -> void:
 	if door.locked:
 		say(door.locked_label,3)
+		play_sound("door", door.get_noise_origin())
+		if not test_mode:
+			NoiseManager.emit_noise(door.get_noise_origin(), 2.0 * Units.PX_PER_UNIT, NoiseManager.SourceType.DOOR)
 		return
 	if door.is_open: door.close(breath.is_holding)
 	else: door.open(breath.is_holding)
@@ -915,9 +947,12 @@ func _go_through(id: String) -> void:
 	if resetting or not door.is_open or not _zone_door_active(id): return
 	match id:
 		"front_door":
-			enter_zone("mansion_ground", world.marker("mansion_ground", "SpawnEntrance"), true, "mansion_main_porton")
-			play_sound("impossible", player.position)
-			say("La salida hacia el patio desapareció... Has entrado al zaguán de la Hacienda. El portón se ha sellado.", 7.0)
+			if test_mode:
+				enter_zone("loop",Vector2.INF,true,"loop_back")
+			else:
+				enter_zone("mansion_ground", world.marker("mansion_ground", "SpawnEntrance"), true, "mansion_main_porton")
+				play_sound("impossible", player.position)
+				say("La salida hacia el patio desapareció... Has entrado al zaguán de la Hacienda. El portón se ha sellado.", 7.0)
 		"bedroom_exit": enter_zone("hallway",Vector2.INF,true,"hall_back")
 		"hall_back": enter_zone("bedroom",world.marker("bedroom","SpawnFromHallway"),true,"bedroom_exit")
 		"hall_exit":

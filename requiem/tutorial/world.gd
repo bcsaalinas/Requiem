@@ -30,7 +30,7 @@ func _ready() -> void:
 		# Story code and the camera-test rig still address the sidelight as a prop.
 		props["window"] = landmarks["SideLight"]
 		window_body = landmarks["SideLight"].get_node("Body")
-	for id in ["ForestNavigation", "HouseNavigation", "LoopNavigation", "MansionNavigation", "MansionUpperNavigation"]:
+	for id in ["ForestNavigation", "HouseNavigation", "LoopNavigation"]:
 		if landmarks.has(id):
 			navigation_regions.append(landmarks[id])
 
