@@ -86,6 +86,15 @@ static func current() -> SoundSettings:
 @export_range(-30.0, 0.0, 0.5, "suffix:dB") var threat_world_db := -10.0
 ## At full threat Viv's own body is this much louder, so she hears herself.
 @export_range(0.0, 9.0, 0.5, "suffix:dB") var threat_body_db := 3.0
+## Presence is a second number from 0 to 1: how near its sound is, in any state (1 = on top of
+## her, 0 = gone). It lags behind the facts by a random time in this range (shortest,
+## longest), so it gives a feeling and never a position.
+@export var presence_lag := Vector2(0.5, 2.0)
+## And it moves slowly: how long it would take to go all the way from 0 to 1 or back.
+@export_range(0.1, 10.0, 0.1, "suffix:s") var presence_time := 1.5
+## An unaware entity on top of her makes the world recede this much of what a hunt does
+## (0 = not at all, 1 = just as much). The stronger of threat and presence decides.
+@export_range(0.0, 1.0, 0.05) var presence_world_share := 0.5
 
 @export_group("Music")
 ## How long the music takes to change when nothing below says otherwise (menu, prayer, a new zone).
@@ -160,15 +169,36 @@ static func current() -> SoundSettings:
 ## Level change of single animation cues that reuse another cue's set: the grope while it
 ## scuttles is a softer scrape, the idle tick a much softer tap.
 @export var cue_gain_db := {"claw_grope": -4.0, "claw_tick": -8.0}
-## Distance at which its sounds have faded to nothing. For now the engine's own default
-## (2000 px), as before; Phase 2 replaces it with distances along the way sound really travels.
-@export_range(4.0, 120.0, 0.5, "suffix:u") var entity_reach_u := 62.5
-## How fast they fade on the way there (1 = evenly, higher = most of the drop comes early).
-@export_range(0.5, 4.0, 0.1) var entity_falloff := 1.0
 ## How long its breath and drag loops take to fade in or out.
 @export_range(0.0, 2.0, 0.01, "suffix:s") var loop_fade := 0.2
 ## Above this speed it counts as moving, and its shroud drags.
 @export_range(0.0, 2.0, 0.005, "suffix:u/s") var moving_speed_u := 0.125
+
+@export_group("Entity: where it is (Channel B)")
+## Its breathing, talking, claws, drag and sniffing are the sounds that say where it is. They
+## follow the way its sound really travels (Acoustics), not the straight line. They play at
+## full level while that way is shorter than this...
+@export_range(0.0, 20.0, 0.25, "suffix:u") var position_full_u := 2.0
+## ...and get quieter from there on, down to this at the far edge of ring 1 ("somewhere")...
+@export_range(-40.0, 0.0, 0.5, "suffix:dB") var position_edge_db := -18.0
+## ...along this curve (1 = evenly; higher = they stay loud longer and drop late; lower = most
+## of the drop comes early).
+@export_range(0.3, 3.0, 0.05) var position_falloff := 1.0
+## Over the last stretch before ring 1 ends they fade to nothing, so nothing pops in or out.
+@export_range(0.0, 8.0, 0.25, "suffix:u") var position_fade_u := 2.0
+## The way is measured 5 times per second; in between, what is heard glides over this long.
+@export_range(0.0, 2.0, 0.01, "suffix:s") var position_smooth := 0.25
+## Blur: below this clarity a single sound (a step, a tap, a phrase) plays on the far,
+## dulled bus instead of the near one. Its loops crossfade between the two all the way.
+@export_range(0.0, 1.0, 0.01) var far_below_clarity := 0.5
+## Direction: in rings 3 and 2 its sounds are placed exactly. Across ring 1 the placing
+## weakens down to this at the far edge (1 = exact, 0 = dead centre). Vague, never wrong.
+@export_range(0.0, 1.0, 0.01) var far_panning := 0.35
+## Gaps: in ring 1 each body sound (a step, a tap, a scrape) only plays with a chance between
+## these two: the first at the far edge, the second where ring 1 begins. Nearer, all play.
+@export var gap_chance_body := Vector2(0.3, 0.7)
+## The same for its voice (talking, sniffing): it gets through more often than its body.
+@export var gap_chance_voice := Vector2(0.65, 0.95)
 
 @export_group("Entity: what it knows (Channel A)")
 ## The heard-you cue plays at full level out to this distance. It must cover every place a

@@ -464,6 +464,8 @@ func check_sound_audition(lab: Node) -> void:
 	check(canvas.encloses(where) and studio.where_status.text.begins_with("ring %d" % Acoustics.reading(entity).ring)
 		and studio.where_status.text.contains("wall in the way") and Acoustics.reading(entity).valid,
 		"The read-out under the list says how far its sound travels")
+	check(studio.where_status.text.contains("position sounds:") and studio.where_status.text.contains("lost on the way")
+		and studio.where_status.text.contains("presence"), "And what that does to its position sounds and to the house")
 	var length: float = studio.play_set_once("entity/scream")
 	check(length > 0.0 and studio._entity_voice.playing and studio._entity_voice.bus == AudioBus.ENTITY
 		and not studio._viv_voice.playing, "An entity set plays from the entity, on its bus")

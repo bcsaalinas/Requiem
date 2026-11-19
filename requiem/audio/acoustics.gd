@@ -22,18 +22,21 @@ const WALL_GROUP := &"sound_wall"
 ## A watched emitter was measured again.
 signal measured(emitter: Node2D, reading: AcousticReading)
 
-## instance id -> { emitter: WeakRef, reading: AcousticReading, wait: float }
+## instance id -> { emitter: WeakRef, voice: WeakRef or null, reading: AcousticReading, wait: float }
 var _watched := {}
 var _listener_override: WeakRef
 
 
-## Starts measuring an emitter. Asking twice is fine.
-func watch(emitter: Node2D) -> void:
+## Starts measuring an emitter. Asking twice is fine. `voice` is the node that makes its
+## sounds, when it can say whether it can be heard at all (is_audible(): the tutorial's
+## entity breathes before it is shown). Without one, an emitter is heard while it is shown.
+func watch(emitter: Node2D, voice: Node = null) -> void:
 	if emitter == null or _watched.has(emitter.get_instance_id()):
 		return
 	# Emitters take turns: two of them are never measured in the same frame.
 	var turn: float = float(_watched.size() % 4) * 0.25 / maxf(SoundSettings.current().acoustics_rate, 1.0)
-	_watched[emitter.get_instance_id()] = {"emitter": weakref(emitter), "reading": AcousticReading.new(), "wait": turn}
+	_watched[emitter.get_instance_id()] = {"emitter": weakref(emitter), "voice": weakref(voice) if voice != null else null,
+		"reading": AcousticReading.new(), "wait": turn}
 
 
 func unwatch(emitter: Node2D) -> void:
@@ -46,6 +49,27 @@ func reading(emitter: Node2D) -> AcousticReading:
 	if emitter == null or not _watched.has(emitter.get_instance_id()):
 		return AcousticReading.new()
 	return _watched[emitter.get_instance_id()].reading
+
+
+## Measures a watched emitter again right now (it was just moved by hand) and keeps the result.
+func remeasure(emitter: Node2D) -> AcousticReading:
+	if emitter == null or not _watched.has(emitter.get_instance_id()):
+		return AcousticReading.new()
+	var entry: Dictionary = _watched[emitter.get_instance_id()]
+	entry.reading = measure(emitter)
+	measured.emit(emitter, entry.reading)
+	return entry.reading
+
+
+## Whether an emitter can be heard at all: its voice says so, else it has to be shown.
+func is_audible(emitter: Node2D) -> bool:
+	if emitter == null or not emitter.is_inside_tree():
+		return false
+	var entry: Dictionary = _watched.get(emitter.get_instance_id(), {})
+	var voice: Node = (entry.voice as WeakRef).get_ref() if entry.get("voice") != null else null
+	if voice != null and voice.has_method(&"is_audible"):
+		return bool(voice.call(&"is_audible"))
+	return emitter.is_visible_in_tree()
 
 
 ## The ring of the nearest watched emitter (0 with none): how close anything is, by ear.
@@ -91,7 +115,7 @@ func clarity_for(acoustic_u: float) -> float:
 func measure(emitter: Node2D) -> AcousticReading:
 	var result := AcousticReading.new()
 	var ears := listener()
-	if emitter == null or ears == null or not emitter.is_inside_tree() or not emitter.is_visible_in_tree():
+	if emitter == null or ears == null or not is_audible(emitter):
 		return result
 	var skipped: Array[RID] = []
 	for body: Node in [emitter, ears, ears.get_parent()]:

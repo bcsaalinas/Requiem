@@ -1,0 +1,331 @@
+extends Node
+## Where it is, by ear (headless): the rings applied to the entity's position sounds.
+## In the same room every one of them is heard, sharp and exactly placed. A room away they
+## are quieter, dulled, vaguely placed, and some are lost on the way. Further off there is
+## nothing. What it knows (heard-you, scream) is never dulled, thinned out or cut off.
+## How near it is also reaches the mood of the house (presence), late and smoothly: the
+## world recedes a little, and the music ignores it.
+
+## Positions relative to the house zone, in pixels (see test_acoustics.gd for the rooms).
+const VESTIBULE_A := Vector2(520, 400)
+const VESTIBULE_NEXT := Vector2(552, 400)           # 1 u from A: on top of her
+const VESTIBULE_B := Vector2(680, 400)              # 5 u from A, same room: near
+const KITCHEN_BY_WALL := Vector2(368, 176)
+const VESTIBULE_BY_WALL := Vector2(432, 176)        # 2 u apart, the wall between: somewhere
+const BODY := "entity/claws_walk"
+const TRIES := 400
+
+var failures: Array[String] = []
+var checks := 0
+var game: Node2D
+var entity: CharacterBody2D
+var audio: EntityAudio
+var settings: SoundSettings
+var house := Vector2.ZERO
+var noises := 0
+var lost := 0
+var music_changes := 0
+
+
+func check(condition: bool, message: String) -> void:
+	checks += 1
+	if not condition:
+		failures.append(message)
+		push_error(message)
+
+
+func frames(count: int) -> void:
+	for i in range(count): await get_tree().physics_frame
+
+
+func seconds(time: float) -> void:
+	await get_tree().create_timer(time).timeout
+
+
+func near(a: float, b: float, tolerance := 0.05) -> bool:
+	return absf(a - b) <= tolerance
+
+
+func _ready() -> void:
+	settings = SoundSettings.current()
+	check_settings()
+	check_curves()
+	await set_up()
+	await check_same_room()
+	await check_a_room_away()
+	await check_far_away()
+	await check_glide()
+	await check_presence()
+	check(noises == 0, "None of it made a noise the entity could hear (%d)" % noises)
+	game.queue_free()
+	await frames(3)
+	print("[Ring tests] %d/%d passed" % [checks - failures.size(), checks])
+	await seconds(0.25)
+	get_tree().quit(0 if failures.is_empty() else 1)
+
+
+func check_settings() -> void:
+	check(settings.gap_chance_body == Vector2(0.3, 0.7), "A room away a body sound gets through 3 to 7 times in 10")
+	check(settings.gap_chance_voice.x > settings.gap_chance_body.x and settings.gap_chance_voice.y > settings.gap_chance_body.y
+		and settings.gap_chance_voice.y <= 1.0, "Its voice gets through more often than its body")
+	check(near(settings.far_panning, 0.35), "A room away it is placed about a third as exactly (%.2f)" % settings.far_panning)
+	check(settings.presence_lag == Vector2(0.5, 2.0), "How near it is reaches the mood 0.5 to 2 s late")
+	check(settings.position_edge_db < 0.0 and settings.position_full_u < settings.ring_on_top_u, "Its position sounds lose level with distance")
+	var source := FileAccess.get_file_as_string("res://entities/entity_audio.gd")
+	check(not source.contains("NoiseManager"), "The entity's sounds never make noise it could hear itself")
+	check(not source.contains("entity_reach_u") and not source.contains("AudioServer"), "It sets no bus levels and uses no straight-line reach")
+	var settings_source := FileAccess.get_file_as_string("res://audio/sound_settings.gd")
+	check(not settings_source.contains("entity_reach_u") and not settings_source.contains("entity_falloff"), "The old straight-line reach settings are gone")
+
+
+## The three curves, with nothing playing.
+func check_curves() -> void:
+	var limit: float = settings.ring_somewhere_u
+	check(is_zero_approx(EntityAudio.position_db(0.0, limit)) and is_zero_approx(EntityAudio.position_db(settings.position_full_u, limit)),
+		"Right beside her nothing is lost")
+	var falling := true
+	var last := 0.0
+	for step in range(0, 80):
+		var level: float = EntityAudio.position_db(step * 0.25, limit)
+		falling = falling and level <= last + 0.0001
+		last = level
+	check(falling, "Further away is never louder")
+	check(EntityAudio.position_db(settings.ring_near_u, limit) < -3.0 and EntityAudio.position_db(settings.ring_near_u, limit) > settings.position_edge_db,
+		"Where the room ends it is clearly quieter, and still heard (%.1f dB)" % EntityAudio.position_db(settings.ring_near_u, limit))
+	check(EntityAudio.position_db(limit - 0.01, limit) < EntityAudio.SILENT_DB + 1.0 and EntityAudio.position_db(limit, limit) <= EntityAudio.GONE_DB
+		and EntityAudio.position_db(400.0, limit) <= EntityAudio.GONE_DB, "It fades to nothing where ring 1 ends, with no step")
+	check(EntityAudio.position_panning(0.0, limit) == 1.0 and EntityAudio.position_panning(settings.ring_near_u, limit) == 1.0,
+		"In rings 3 and 2 it is placed exactly")
+	check(near(EntityAudio.position_panning(limit, limit), settings.far_panning, 0.001)
+		and EntityAudio.position_panning((settings.ring_near_u + limit) * 0.5, limit) < 1.0
+		and EntityAudio.position_panning((settings.ring_near_u + limit) * 0.5, limit) > settings.far_panning,
+		"Across ring 1 its direction grows vague, never wrong")
+	check(EntityAudio.chance_through(0.0, limit, false) == 1.0 and EntityAudio.chance_through(settings.ring_near_u - 0.01, limit, false) == 1.0
+		and EntityAudio.chance_through(settings.ring_near_u - 0.01, limit, true) == 1.0, "In rings 3 and 2 nothing is lost on the way")
+	var steady := true
+	for step in range(0, 36):
+		var at: float = settings.ring_near_u + step * 0.25
+		var body: float = EntityAudio.chance_through(at, limit, false)
+		var voice: float = EntityAudio.chance_through(at, limit, true)
+		steady = steady and body >= settings.gap_chance_body.x - 0.001 and body <= settings.gap_chance_body.y + 0.001 and voice > body
+	check(steady, "Anywhere in ring 1 a body sound has a 0.3 to 0.7 chance, and a voice sound a better one")
+	check(EntityAudio.chance_through(limit, limit, false) == 0.0 and EntityAudio.chance_through(limit, limit, true) == 0.0,
+		"Beyond ring 1 nothing gets through")
+
+
+func set_up() -> void:
+	GameState.reset()
+	NoiseManager.noise_emitted.connect(func(_at: Vector2, _radius: float, _source: int, _duration: float) -> void: noises += 1)
+	game = preload("res://tutorial/tutorial.tscn").instantiate()
+	game.test_mode = true
+	add_child(game)
+	await frames(5)
+	game.dialogue.clear()
+	entity = game.entity
+	audio = entity.audio
+	game.attack_finished = true
+	game.enter_zone("house", Vector2.INF, false)
+	await frames(3)
+	house = game.world.zones["house"].global_position
+	# Nobody moves or makes a sound here: both are placed by hand, and it stands breathing.
+	game.player.process_mode = Node.PROCESS_MODE_DISABLED
+	var route: Array[Vector2] = [house + VESTIBULE_A]
+	entity.reset_encounter(house + VESTIBULE_A, route)
+	entity.show()
+	entity.set_physics_process(false)
+	audio.lost_on_the_way.connect(func(_set_id: String) -> void: lost += 1)
+	MusicDirector.music_state_changed.connect(func(_from: int, _to: int) -> void: music_changes += 1)
+	noises = 0
+
+
+## Puts the entity and Viv in place; it is heard from there at once.
+func place(entity_at: Vector2, viv_at: Vector2) -> void:
+	entity.global_position = house + entity_at
+	game.player.global_position = house + viv_at
+	await frames(2)       # moved bodies reach the physics space on the next physics frame
+	audio.placed()
+	await frames(1)
+
+
+## Plays one set `count` times; returns how many got through.
+func play_many(set_id: String, count: int) -> int:
+	var through := 0
+	for index in count:
+		if audio.play_set(set_id) != null:
+			through += 1
+	return through
+
+
+func check_same_room() -> void:
+	# Near: five units away, nothing between them.
+	await place(VESTIBULE_A, VESTIBULE_B)
+	check(audio.heard_ring == 2 and audio.heard_clarity > 0.9 and near(audio.heard_u, 5.0, 0.2),
+		"Across the room it is near: ring %d, %.1f u" % [audio.heard_ring, audio.heard_u])
+	lost = 0
+	check(play_many(BODY, 100) == 100 and play_many(EntityAudio.SNIFF, 100) == 100 and lost == 0 and audio.gaps.is_empty(),
+		"In the same room every sound it makes is heard")
+	var voice := audio.play_set(BODY)
+	var limit: float = audio.reach_limit_u()
+	check(voice != null and voice.bus == AudioBus.ENTITY and voice.panning_strength == 1.0, "Sharp, and placed exactly")
+	check(voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY) + EntityAudio.position_db(audio.heard_u, limit))
+		and voice.volume_db < SoundLibrary.gain_db(BODY) and voice.max_distance >= EntityAudio.NO_ENGINE_FALLOFF_PX,
+		"A little under its full level, set from the way its sound travels (%.1f dB)" % (voice.volume_db if voice != null else 0.0))
+	await seconds(settings.loop_fade + 0.3)
+	check(audio.breath_set() == EntityAudio.BREATH_CALM and audio._breath_far.playing and audio._breath_far.stream == audio._breath.stream
+		and audio._breath_far.bus == AudioBus.ENTITY_FAR and audio._breath.bus == AudioBus.ENTITY,
+		"Its breath plays twice, once sharp and once dulled, the same take")
+	check(audio._breath.volume_db > audio._breath_far.volume_db + 6.0, "Near, the sharp one carries it (%.1f against %.1f dB)" % [audio._breath.volume_db, audio._breath_far.volume_db])
+	var near_breath: float = audio._breath.volume_db
+	# On top of her.
+	await place(VESTIBULE_A, VESTIBULE_NEXT)
+	voice = audio.play_set(BODY)
+	check(audio.heard_ring == 3 and audio.heard_clarity == 1.0 and voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY)),
+		"Right beside her it is at its full level")
+	await frames(3)
+	check(audio._breath_far.volume_db <= EntityAudio.GONE_DB and near(audio._breath.volume_db, SoundLibrary.gain_db(EntityAudio.BREATH_CALM), 0.1)
+		and audio._breath.volume_db > near_breath, "And nothing of it is dulled")
+	audio.stop_all()
+
+
+func check_a_room_away() -> void:
+	await place(KITCHEN_BY_WALL, VESTIBULE_BY_WALL)
+	var limit: float = audio.reach_limit_u()
+	check(audio.heard_ring == 1 and audio.heard_clarity < settings.far_below_clarity and audio.listener_distance_u() < settings.ring_on_top_u,
+		"Two units away through the wall it is somewhere: ring %d, %.1f u by ear" % [audio.heard_ring, audio.heard_u])
+	# Gaps.
+	lost = 0
+	audio.gaps.clear()
+	var played_before := int(audio.plays.get(BODY, 0))
+	var body := play_many(BODY, TRIES)
+	var expected_body: float = EntityAudio.chance_through(audio.heard_u, limit, false)
+	var body_share := float(body) / TRIES
+	check(body_share >= settings.gap_chance_body.x and body_share <= settings.gap_chance_body.y and near(body_share, expected_body, 0.1),
+		"Of its steps, %d in %d got through (about %.2f expected)" % [body, TRIES, expected_body])
+	check(int(audio.gaps.get(BODY, 0)) == TRIES - body and lost == TRIES - body and int(audio.plays.get(BODY, 0)) - played_before == body,
+		"A sound lost on the way is counted as lost, never as played")
+	var sniffs := play_many(EntityAudio.SNIFF, TRIES)
+	var expected_voice: float = EntityAudio.chance_through(audio.heard_u, limit, true)
+	check(sniffs > body and near(float(sniffs) / TRIES, expected_voice, 0.1),
+		"Its sniffing gets through more often: %d in %d (about %.2f expected)" % [sniffs, TRIES, expected_voice])
+	var said_before := int(audio.plays.get(EntityAudio.MUMBLE, 0))
+	var lost_before := int(audio.gaps.get(EntityAudio.MUMBLE, 0))
+	for index in TRIES:
+		audio._say(false)
+	var said := int(audio.plays.get(EntityAudio.MUMBLE, 0)) - said_before
+	check(said + int(audio.gaps.get(EntityAudio.MUMBLE, 0)) - lost_before == TRIES and said > body and said < TRIES,
+		"So does its talking: %d phrases in %d" % [said, TRIES])
+	check(audio._talk.bus == AudioBus.ENTITY_FAR and audio._talk.panning_strength < 1.0, "And what is heard of it is dulled and vague")
+	# What does get through.
+	var voice: AudioStreamPlayer2D = null
+	while voice == null:
+		voice = audio.play_set(BODY)
+	check(voice.bus == AudioBus.ENTITY_FAR, "A step that gets through is dulled (the far bus)")
+	check(voice.panning_strength < 1.0 and voice.panning_strength > settings.far_panning
+		and near(voice.panning_strength, EntityAudio.position_panning(audio.heard_u, limit), 0.001),
+		"It comes from over there, not from a point (placed %.2f)" % voice.panning_strength)
+	check(voice.volume_db < SoundLibrary.gain_db(BODY) + EntityAudio.position_db(settings.ring_near_u, limit) and voice.volume_db > EntityAudio.SILENT_DB,
+		"Quieter than anywhere in the room, and still heard (%.1f dB)" % voice.volume_db)
+	await seconds(settings.loop_fade + 0.3)
+	check(audio._breath.playing and audio._breath_far.volume_db > audio._breath.volume_db and audio._breath_far.volume_db > EntityAudio.SILENT_DB,
+		"Its breath is mostly the dulled one now (%.1f against %.1f dB)" % [audio._breath_far.volume_db, audio._breath.volume_db])
+	# What it knows is not thinned out, dulled or made vague.
+	var cues := 0
+	var plain := true
+	for index in 60:
+		var cue := audio._play_heard()
+		if cue != null:
+			cues += 1
+			plain = plain and cue.bus == AudioBus.ENTITY and cue.panning_strength == 1.0
+	check(cues == 60 and plain, "The heard-you cue is never lost on the way, dulled or made vague")
+	audio.stop_all()
+
+
+func check_far_away() -> void:
+	await place(game.world.marker("house", "Patrol4") - house, game.world.marker("house", "Patrol3") - house)
+	check(audio.heard_ring == 0 and audio.heard_clarity == 0.0, "From one end of the house to the other it is gone (%.1f u)" % audio.heard_u)
+	lost = 0
+	var said_before := int(audio.plays.get(EntityAudio.MUMBLE, 0))
+	for index in 50:
+		audio._say(false)
+	check(play_many(BODY, 100) == 0 and play_many(EntityAudio.SNIFF, 100) == 0 and int(audio.plays.get(EntityAudio.MUMBLE, 0)) == said_before and lost == 250,
+		"Nothing it does there is heard: no step, no sniff, no talking")
+	await seconds(settings.loop_fade + 0.3)
+	check(audio.breath_set() == EntityAudio.BREATH_CALM and audio._breath.volume_db <= EntityAudio.GONE_DB and audio._breath_far.volume_db <= EntityAudio.GONE_DB,
+		"It still breathes, and none of it arrives")
+	# What it knows still reaches her.
+	var heard := audio._play_heard()
+	check(heard != null and heard.playing and heard.bus == AudioBus.ENTITY
+		and heard.volume_db >= SoundLibrary.gain_db(EntityAudio.HEARD_VOICE) + settings.heard_voice_gain_db + settings.heard_floor_db - 0.01
+		and settings.heard_floor_db >= settings.audible_db,
+		"Yet the heard-you cue still reaches her (%.1f dB)" % (heard.volume_db if heard != null else 0.0))
+	var scream := audio.play_awareness(&"scream", EntityAudio.SCREAM, audio._scream_reach(), settings.scream_gain_db)
+	check(scream != null and scream.playing and scream.bus == AudioBus.ENTITY
+		and scream.volume_db >= SoundLibrary.gain_db(EntityAudio.SCREAM) + settings.scream_gain_db + settings.scream_floor_db - 0.01
+		and settings.scream_floor_db >= settings.audible_db,
+		"And so does the scream (%.1f dB)" % (scream.volume_db if scream != null else 0.0))
+	audio.stop_all()
+
+
+## Between two measurements what she hears glides; it never jumps.
+func check_glide() -> void:
+	await place(VESTIBULE_A, VESTIBULE_B)
+	var from: float = audio.heard_u
+	# It walks behind the wall (moved here in one go, without telling its voice).
+	entity.global_position = house + KITCHEN_BY_WALL
+	game.player.global_position = house + VESTIBULE_BY_WALL
+	await frames(2)
+	var to: float = Acoustics.remeasure(entity).acoustic_u
+	await frames(2)
+	check(to > from + 4.0 and absf(audio.heard_u - from) < (to - from) * 0.5, "A change in how far it sounds is not heard at once (%.1f of %.1f to %.1f u)" % [audio.heard_u, from, to])
+	await seconds(settings.position_smooth * 6.0 + 0.3)
+	check(near(audio.heard_u, Acoustics.reading(entity).acoustic_u, 0.3), "It glides there in a moment (%.1f u)" % audio.heard_u)
+
+
+## How near it is reaches the mood late and smoothly, moves the world a little, and never the music.
+func check_presence() -> void:
+	var settle: float = settings.presence_lag.y + settings.presence_time + 0.4
+	await place(game.world.marker("house", "Patrol4") - house, game.world.marker("house", "Patrol3") - house)
+	await seconds(settle)
+	check(is_zero_approx(Dread.presence) and not MixDirector.is_active(MixDirector.THREAT_MIX) and is_zero_approx(MixDirector.gain_db(AudioBus.AMBIENCE)),
+		"With it far away there is no presence and the house is at its own level")
+	music_changes = 0
+	await place(VESTIBULE_A, VESTIBULE_B)
+	var clarity: float = audio.heard_clarity
+	check(near(Dread.reported_presence(), clarity, 0.001) and Dread.presence < clarity * 0.5, "Near again, it reports how near; the mood does not jump (%.2f)" % Dread.presence)
+	var started := -1.0
+	var arrived := -1.0
+	var biggest_step := 0.0
+	var waits: Array[float] = []
+	var previous: float = Dread.presence
+	var previous_wait: float = Dread._presence_wait
+	var clock := 0.0
+	while clock < 8.0:
+		await get_tree().process_frame
+		var delta: float = get_process_delta_time()
+		clock += delta
+		biggest_step = maxf(biggest_step, absf(Dread.presence - previous))
+		if started < 0.0 and Dread.presence > previous: started = clock
+		if arrived < 0.0 and near(Dread.presence, clarity, 0.001): arrived = clock
+		if Dread._presence_wait > previous_wait: waits.append(Dread._presence_wait)
+		previous = Dread.presence
+		previous_wait = Dread._presence_wait
+	check(started >= 0.0 and started <= settings.presence_lag.y + 0.1, "It starts to be felt within %.0f s (%.2f s)" % [settings.presence_lag.y, started])
+	check(arrived - started >= clarity * settings.presence_time - 0.15 and biggest_step < 0.1,
+		"And grows over about %.1f s, with no jump (%.2f s)" % [settings.presence_time, arrived - started])
+	check(waits.size() >= 3 and waits.all(func(wait: float) -> bool: return wait >= settings.presence_lag.x - 0.05 and wait <= settings.presence_lag.y),
+		"The mood looks at where it is every 0.5 to 2 s, not every frame (%d looks in 8 s)" % waits.size())
+	var share: float = clarity * settings.presence_world_share
+	check(near(Dread.presence, clarity, 0.001) and near(MixDirector.recede(), share, 0.001) and is_zero_approx(Dread.threat),
+		"Unaware and near: presence %.2f, no threat, the world recedes %.2f" % [Dread.presence, MixDirector.recede()])
+	check(near(MixDirector.gain_db(AudioBus.AMBIENCE), settings.threat_world_db * share) and near(MixDirector.gain_db(AudioBus.WORLD), settings.threat_world_db * share)
+		and near(MixDirector.gain_db(AudioBus.BODY), settings.threat_body_db * share) and is_zero_approx(MixDirector.gain_db(AudioBus.ENTITY)),
+		"The house goes down %.1f dB and Viv's body comes up %.1f dB; the entity is untouched" % [-settings.threat_world_db * share, settings.threat_body_db * share])
+	check(music_changes == 0 and MusicDirector.current_state == MusicDirector.MusicState.EXPLORE and Dread.awareness == Dread.Awareness.UNAWARE,
+		"The music does not react to how near it is")
+	entity.hide()
+	await frames(2)
+	check(not audio.is_audible() and is_zero_approx(Dread.reported_presence()), "Hidden, it reports nothing")
+	await seconds(settle)
+	check(is_zero_approx(Dread.presence) and not MixDirector.is_active(MixDirector.THREAT_MIX) and is_zero_approx(MixDirector.gain_db(AudioBus.WORLD)),
+		"And the house comes back")
+	entity.show()

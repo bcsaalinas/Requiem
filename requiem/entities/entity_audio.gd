@@ -15,6 +15,12 @@ extends Node2D
 ##   it lost the trail   - a groan, then one sniff;
 ##   it gave up          - a long breath out.
 ##
+## Where it is (Channel B: its breath, talking, claws, drag and sniffing) only carries about a
+## room. These sounds follow the way sound really travels to Viv (Acoustics): in the same room
+## every one is heard, sharp and exactly placed; a room away they are quieter, dulled, vaguely
+## placed, and some of them are lost on the way; further off there is nothing. What it knows
+## (Channel A) is never dulled, thinned out or cut off like this.
+##
 ## Its idle voice says it is alive and unaware: a mumbled phrase now and then while it walks its
 ## patrol, trailing off when it pauses. While it searches the voice is lower and rarer, and it
 ## sniffs in short runs as it scuttles. It never speaks while it listens, screams or hunts.
@@ -55,12 +61,17 @@ const LOST := "entity/lost"
 const SNIFF := "entity/sniff"
 const STAND_DOWN := "entity/stand_down"
 const MUMBLE := "entity/mumble"
+const EXHALE := "entity/exhale"
+## Its voice (the rest of Channel B is its body). A room away its voice gets through more often.
+const VOICE_SETS: Array[String] = [MUMBLE, SNIFF, EXHALE]
 const SILENT_DB := -60.0
+## What a player is set to when nothing of it may be heard.
+const GONE_DB := -80.0
 ## EntityAI.State, as state_changed reports it.
 const PATROL := 0
 const SEARCH := 2
 const HUNT := 3
-## Awareness players do their own falling off with distance; this switches the engine's off.
+## Every player does its own falling off with distance; this switches the engine's off.
 const NO_ENGINE_FALLOFF_PX := 1000000.0
 const AWARENESS_VOICES := 6
 ## Name of the request made to MixDirector under the scream.
@@ -73,6 +84,8 @@ signal played(set_id: String, voice: AudioStreamPlayer2D)
 ## An awareness cue started. moment: heard, heard_again, inhale, scream, foot_slam, lost,
 ## lost_sniff, stand_down. level_db: how far under its full level it reaches the listener.
 signal awareness_played(moment: StringName, set_id: String, stream: AudioStream, level_db: float)
+## A position sound was lost on the way to Viv (a gap, or it is too far to hear at all).
+signal lost_on_the_way(set_id: String)
 
 var entity: CharacterBody2D
 var rig: Node
@@ -82,10 +95,25 @@ var breathes_unseen := false
 ## How many times each set has played, and the last one (debug read-out, tests).
 var plays := {}
 var last_set := ""
+## How its position sounds reach Viv right now: the way its sound travels (u), gliding between
+## measurements, and what follows from it (debug read-out, tests).
+var heard_u := 0.0
+var heard_clarity := 1.0
+var heard_ring := 3
+## How many position sounds of each set were lost on the way, and the last one.
+var gaps := {}
+var last_gap := ""
+## dB every position sound loses on the way right now, and how exactly it is placed (0..1).
+var _reach_db := 0.0
+var _panning := 1.0
+var _reach_known := false
 var _voices: Array[AudioStreamPlayer2D] = []
 var _next_voice := 0
 var _breath: AudioStreamPlayer2D
 var _drag: AudioStreamPlayer2D
+## The same loops once more on the dulled bus: the two crossfade with clarity.
+var _breath_far: AudioStreamPlayer2D
+var _drag_far: AudioStreamPlayer2D
 var _unknown_cues := {}
 var _was_shown := false
 ## The last awareness cue: { moment, set, stream, level_db, at } (debug read-out, tests).
@@ -124,13 +152,14 @@ func _ready() -> void:
 		_voices.append(_player("Voice%d" % index))
 	_breath = _player("Breath")
 	_drag = _player("Drag")
+	_breath_far = _player("BreathFar")
+	_drag_far = _player("DragFar")
+	_breath_far.bus = AudioBus.ENTITY_FAR
+	_drag_far.bus = AudioBus.ENTITY_FAR
 	_talk = _player("Talk")
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
 	for index in AWARENESS_VOICES:
-		var voice := _player("Awareness%d" % index)
-		voice.max_distance = NO_ENGINE_FALLOFF_PX
-		voice.attenuation = 1.0
-		_aware.append(voice)
+		_aware.append(_player("Awareness%d" % index))
 	rig = entity.get_node_or_null("SpriteRig")
 	if rig != null and rig.has_signal(&"cue"):
 		rig.connect(&"cue", play_cue)
@@ -143,16 +172,16 @@ func _ready() -> void:
 	# The mood of the house follows what this entity knows (audio/dread.gd).
 	Dread.watch(entity, self)
 	# How far its sound travels to Viv is measured a few times per second (audio/acoustics.gd).
-	Acoustics.watch(entity)
+	Acoustics.watch(entity, self)
 
 
 func _player(player_name: String) -> AudioStreamPlayer2D:
-	var settings := SoundSettings.current()
 	var player := AudioStreamPlayer2D.new()
 	player.name = player_name
 	player.bus = AudioBus.ENTITY
-	player.max_distance = Units.to_px(settings.entity_reach_u)
-	player.attenuation = settings.entity_falloff
+	# The engine only knows the straight line. Levels are set here, from the way sound travels.
+	player.max_distance = NO_ENGINE_FALLOFF_PX
+	player.attenuation = 1.0
 	add_child(player)
 	return player
 
@@ -194,15 +223,24 @@ func play_cue(cue_name: String) -> AudioStreamPlayer2D:
 	return play_set(CUE_SETS[cue_name], float(SoundSettings.current().cue_gain_db.get(cue_name, 0.0)))
 
 
-## Plays one variation of a set from the entity's position. Returns the player, or null when
-## the set is empty.
+## Plays one variation of a set from the entity's position, as a position sound (Channel B):
+## a room away it may be lost on the way, and further off it always is. Returns the player, or
+## null when the set is empty or the sound did not get through.
 func play_set(set_id: String, extra_db := 0.0, pitch := 1.0) -> AudioStreamPlayer2D:
 	var stream := SoundLibrary.stream(set_id)
 	if stream == null:
 		return null
+	if is_catching() and heard_u > 0.0:
+		_reach_known = false         # it has her: heard from her side at once, with no glide
+		_tick_reach(0.0)
+	if not _gets_through(set_id):
+		return null
 	var voice := _free_voice()
 	voice.stream = stream
-	voice.volume_db = SoundLibrary.gain_db(set_id) + extra_db
+	voice.bus = _one_shot_bus()
+	voice.set_meta(&"level", SoundLibrary.gain_db(set_id) + extra_db)
+	voice.volume_db = _heard_db(float(voice.get_meta(&"level")))
+	voice.panning_strength = _panning
 	voice.pitch_scale = pitch
 	voice.play()
 	plays[set_id] = int(plays.get(set_id, 0)) + 1
@@ -220,8 +258,8 @@ func set_breathing(on: bool) -> void:
 func stop_all() -> void:
 	for voice in _voices + _aware:
 		voice.stop()
-	_breath.stop()
-	_drag.stop()
+	for loop in [_breath, _drag, _breath_far, _drag_far]:
+		loop.stop()
 	_talk.stop()
 	_talk_fade = 0.0
 	_sniff_wait = -1.0
@@ -231,6 +269,7 @@ func stop_all() -> void:
 ## Back to silence, with nothing pending (an encounter was reset).
 func reset() -> void:
 	stop_all()
+	_reach_known = false         # it was moved by hand: no glide from where it was
 	_heard_wait = -1.0
 	_scream_wait = -1.0
 	_exhale_covered_until = -INF
@@ -278,6 +317,7 @@ static func reach_db(distance_u: float, reach: Array) -> float:
 
 
 ## Straight distance from the entity to Viv, in units (0 when there is nobody listening).
+## What it knows (Channel A) falls off along this line; walls do not hold it back.
 func listener_distance_u() -> float:
 	if not is_instance_valid(_listener):
 		_listener = get_tree().get_first_node_in_group(&"player") as Node2D
@@ -434,10 +474,137 @@ func _free_voice() -> AudioStreamPlayer2D:
 
 func _exit_tree() -> void:
 	MixDirector.release(SCREAM_DUCK)
+	Dread.report_presence(self, 0.0)
+	Acoustics.unwatch(entity)
+
+
+## It was put somewhere by hand (a reset, a test): it is heard from there at once, with no
+## glide from where it was.
+func placed() -> void:
+	Acoustics.remeasure(entity)
+	_reach_known = false
+	_tick_reach(0.0)
+
+
+## True while anything of it can be heard: it is shown, or it breathes before it is shown.
+func is_audible() -> bool:
+	return entity != null and entity.is_inside_tree() and (entity.is_visible_in_tree() or breathes_unseen)
+
+
+## How much quieter a position sound is after travelling `acoustic_u` (0 = full level), when
+## ring 1 ends at `limit_u`. From there on it is gone.
+static func position_db(acoustic_u: float, limit_u: float) -> float:
+	var settings := SoundSettings.current()
+	if acoustic_u >= limit_u:
+		return GONE_DB
+	var along := clampf(inverse_lerp(settings.position_full_u, limit_u, acoustic_u), 0.0, 1.0)
+	var level: float = settings.position_edge_db * pow(along, settings.position_falloff)
+	var fade_from: float = limit_u - settings.position_fade_u
+	if acoustic_u > fade_from:
+		level = lerpf(level, SILENT_DB, inverse_lerp(fade_from, limit_u, acoustic_u))
+	return level
+
+
+## How exactly a position sound is placed after travelling `acoustic_u`: exact in rings 3 and
+## 2, weakening across ring 1.
+static func position_panning(acoustic_u: float, limit_u: float) -> float:
+	var settings := SoundSettings.current()
+	if acoustic_u <= settings.ring_near_u or limit_u <= settings.ring_near_u:
+		return 1.0
+	return lerpf(1.0, settings.far_panning, clampf(inverse_lerp(settings.ring_near_u, limit_u, acoustic_u), 0.0, 1.0))
+
+
+## The chance that a single position sound gets through after travelling `acoustic_u`: always
+## in rings 3 and 2, never beyond ring 1, and in between a chance that falls with clarity.
+static func chance_through(acoustic_u: float, limit_u: float, voice: bool) -> float:
+	var settings := SoundSettings.current()
+	if acoustic_u >= limit_u:
+		return 0.0
+	if acoustic_u < settings.ring_near_u:
+		return 1.0
+	var span: Vector2 = settings.gap_chance_voice if voice else settings.gap_chance_body
+	return lerpf(span.y, span.x, clampf(inverse_lerp(settings.ring_near_u, limit_u, acoustic_u), 0.0, 1.0))
+
+
+## Where ring 1 ends for Viv right now, in units.
+func reach_limit_u() -> float:
+	return SoundSettings.current().ring_somewhere_u
+
+
+## Rolls whether one position sound reaches Viv. One that does not is counted, never played.
+func _gets_through(set_id: String) -> bool:
+	var chance := chance_through(heard_u, reach_limit_u(), VOICE_SETS.has(set_id))
+	if chance >= 1.0 or randf() < chance:
+		return true
+	gaps[set_id] = int(gaps.get(set_id, 0)) + 1
+	last_gap = set_id
+	lost_on_the_way.emit(set_id)
+	return false
+
+
+## A single sound plays on whichever bus is closer to what is left of its detail.
+func _one_shot_bus() -> StringName:
+	return AudioBus.ENTITY if heard_clarity >= SoundSettings.current().far_below_clarity else AudioBus.ENTITY_FAR
+
+
+## The level of a position sound at Viv's ears, from the level it has next to her.
+func _heard_db(level: float) -> float:
+	return maxf(level + _reach_db, GONE_DB) if _reach_db > GONE_DB else GONE_DB
+
+
+## Follows the way its sound travels to Viv (measured by Acoustics a few times per second,
+## gliding in between), and reports how near it is to the mood of the house.
+func _tick_reach(delta: float) -> void:
+	var settings := SoundSettings.current()
+	var listening: bool = Acoustics.listener() != null
+	var audible := is_audible()
+	# With nobody to hear it, it sounds as if she stood right here.
+	var target := 0.0
+	if listening:
+		var reading := Acoustics.reading(entity)
+		# Until it has been measured (it only just appeared), the straight line.
+		target = reading.acoustic_u if reading.valid else listener_distance_u()
+	# It has her: nothing is between them, whatever was measured last.
+	if is_catching():
+		target = 0.0
+	if not audible:
+		_reach_known = false
+	elif not _reach_known or settings.position_smooth <= 0.0:
+		heard_u = target
+		_reach_known = true
+	else:
+		heard_u = lerpf(heard_u, target, 1.0 - exp(-delta / settings.position_smooth))
+	var limit := reach_limit_u()
+	heard_ring = 0 if heard_u >= limit else Acoustics.ring_for(heard_u)
+	heard_clarity = Acoustics.clarity_for(heard_u)
+	_reach_db = position_db(heard_u, limit)
+	_panning = position_panning(heard_u, limit)
+	Dread.report_presence(self, heard_clarity if audible and listening and not GameState.is_dead else 0.0)
+
+
+## Sets what reaches Viv of every position sound that is playing: level, blur and placing.
+func _apply_reach() -> void:
+	for voice in _voices:
+		if voice.playing:
+			voice.volume_db = _heard_db(float(voice.get_meta(&"level", SILENT_DB)))
+			voice.panning_strength = _panning
+	if _talk.playing:
+		_talk.volume_db = _heard_db(float(_talk.get_meta(&"level", SILENT_DB)))
+		_talk.panning_strength = _panning
+	# Loops: the near and the far player share the level, crossfaded by clarity (equal power).
+	var near_db := linear_to_db(maxf(sqrt(heard_clarity), 0.0001))
+	var far_db := linear_to_db(maxf(sqrt(1.0 - heard_clarity), 0.0001))
+	for pair: Array in [[_breath, _breath_far], [_drag, _drag_far]]:
+		var level := float(pair[0].get_meta(&"level", SILENT_DB))
+		pair[0].volume_db = _heard_db(level + near_db)
+		pair[1].volume_db = _heard_db(level + far_db)
+		pair[0].panning_strength = _panning
+		pair[1].panning_strength = _panning
 
 
 func _process(delta: float) -> void:
 	var settings := SoundSettings.current()
+	_tick_reach(delta)
 	_tick_awareness(delta)
 	var dead: bool = GameState.is_dead
 	var shown := entity.is_visible_in_tree()
@@ -451,21 +618,22 @@ func _process(delta: float) -> void:
 	var reacting: bool = _is(&"is_listening") or _is(&"is_screaming") or is_catching()
 	var breathes: bool = not dead and (shown or breathes_unseen)
 	var wanted_breath := BREATH_HUNT if _state() == "HUNT" else BREATH_CALM
-	_drive_loop(_breath, wanted_breath if breathes and not reacting else "", delta, reacting)
+	_drive_loop(_breath, _breath_far, wanted_breath if breathes and not reacting else "", delta, reacting)
 	# The shroud drags while it moves.
 	var active: bool = entity.get(&"active") != false
 	var moving: bool = shown and active and not dead and not reacting \
 		and entity.velocity.length() > Units.to_px(settings.moving_speed_u)
-	_drive_loop(_drag, DRAG if moving else "", delta, reacting)
+	_drive_loop(_drag, _drag_far, DRAG if moving else "", delta, reacting)
 	_tick_voice(delta, _state(), moving, reacting or dead or not shown or not active)
+	_apply_reach()
 
 
 ## The idle voice. `silent`: it is listening, screaming, catching, hidden, inactive or dead.
 func _tick_voice(delta: float, state: String, moving: bool, silent: bool) -> void:
 	var settings := SoundSettings.current()
 	if _talk.playing and _talk_fade > 0.0:
-		_talk.volume_db -= _talk_fade * delta
-		if _talk.volume_db <= SILENT_DB:
+		_talk.set_meta(&"level", float(_talk.get_meta(&"level", SILENT_DB)) - _talk_fade * delta)
+		if float(_talk.get_meta(&"level")) <= SILENT_DB:
 			_talk.stop()
 	if silent or state == "HUNT":
 		return
@@ -501,13 +669,17 @@ func _say(searching: bool) -> void:
 	var settings := SoundSettings.current()
 	var interval := _between(settings.talk_interval_search if searching else settings.talk_interval_patrol)
 	var stream := SoundLibrary.pick(MUMBLE)
-	if stream == null:
+	if stream == null or not _gets_through(MUMBLE):
+		# Nothing to say, or the phrase was lost on the way to Viv: the next one waits its turn.
 		_talk_wait = interval
 		return
 	var wander: float = settings.set_pitch_range * (0.5 if searching else 1.0)
 	_talk.stream = stream
 	_talk.pitch_scale = (settings.talk_pitch_search if searching else 1.0) * randf_range(1.0 - wander, 1.0 + wander)
-	_talk.volume_db = SoundLibrary.gain_db(MUMBLE) + randf_range(-settings.set_volume_range_db, settings.set_volume_range_db)
+	_talk.bus = _one_shot_bus()
+	_talk.set_meta(&"level", SoundLibrary.gain_db(MUMBLE) + randf_range(-settings.set_volume_range_db, settings.set_volume_range_db))
+	_talk.volume_db = _heard_db(float(_talk.get_meta(&"level")))
+	_talk.panning_strength = _panning
 	_talk_fade = 0.0
 	_talk.play()
 	# The next phrase waits its interval, and at least a breath after this one has ended.
@@ -522,14 +694,19 @@ func _between(span: Vector2) -> float:
 
 
 ## Fades a loop toward the set it should be playing ("" = silence). A change of set waits for
-## the old one to fade out; `at_once` stops it with no fade.
-func _drive_loop(player: AudioStreamPlayer2D, set_id: String, delta: float, at_once := false) -> void:
+## the old one to fade out; `at_once` stops it with no fade. `far` is its twin on the dulled
+## bus: it plays the same take in step. The level kept here is the one next to Viv; what
+## reaches her is set in _apply_reach().
+func _drive_loop(player: AudioStreamPlayer2D, far: AudioStreamPlayer2D, set_id: String, delta: float, at_once := false) -> void:
 	var step := delta * -SILENT_DB / maxf(SoundSettings.current().loop_fade, 0.001)
+	var level := float(player.get_meta(&"level", SILENT_DB))
 	if player.playing and _loop_set(player) != set_id:
-		player.volume_db = SILENT_DB if at_once else move_toward(player.volume_db, SILENT_DB, step)
-		if player.volume_db > SILENT_DB:
+		level = SILENT_DB if at_once else move_toward(level, SILENT_DB, step)
+		player.set_meta(&"level", level)
+		if level > SILENT_DB:
 			return
 		player.stop()
+		far.stop()
 	if set_id == "":
 		return
 	if not player.playing:
@@ -538,9 +715,13 @@ func _drive_loop(player: AudioStreamPlayer2D, set_id: String, delta: float, at_o
 			return
 		var variations := SoundLibrary.files(set_id)
 		player.stream = variations[randi() % variations.size()]       # loops: one take, going round
-		player.volume_db = SILENT_DB
+		far.stream = player.stream
+		level = SILENT_DB
+		player.volume_db = GONE_DB
+		far.volume_db = GONE_DB
 		player.play()
-	player.volume_db = move_toward(player.volume_db, SoundLibrary.gain_db(set_id), step)
+		far.play()
+	player.set_meta(&"level", move_toward(level, SoundLibrary.gain_db(set_id), step))
 
 
 func _loop_set(player: AudioStreamPlayer2D) -> String:

@@ -12,8 +12,9 @@ extends Node
 ## Muffling is only ever applied to Music, Ambience and World (AudioBus.MUFFLEABLE): never to
 ## the entity, never to Viv's body.
 ##
-## Two requests are its own. The mood of the house (Dread.threat): as it rises, Ambience and
-## World pull back and Viv's body comes forward, so she hears herself. And death: on the game
+## Two requests are its own. The mood of the house (Dread.threat, and Dread.presence for an
+## entity that is near without knowing): as it rises, Ambience and World pull back and Viv's
+## body comes forward, so she hears herself. And death: on the game
 ## over screen Music, Ambience and World fall silent.
 
 ## Who wins when two moments want the same bus. Higher wins.
@@ -40,7 +41,8 @@ var _set_up := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	ensure_buses()
-	Dread.threat_changed.connect(_on_threat_changed)
+	Dread.threat_changed.connect(_on_mood_changed)
+	Dread.presence_changed.connect(_on_mood_changed)
 	GameState.player_died.connect(_on_player_died)
 	GameState.state_reset.connect(_on_state_reset)
 
@@ -144,15 +146,22 @@ func muffle_filter(bus_name: StringName) -> AudioEffectLowPassFilter:
 	return _muffles.get(bus_name)
 
 
+## How far the world has receded (0..1): the stronger of what it knows (threat) and how near
+## it is (presence, at a share of its full effect).
+func recede() -> float:
+	return maxf(Dread.threat, Dread.presence * SoundSettings.current().presence_world_share)
+
+
 ## The mood of the house: Ambience and World recede with it, Viv's body comes forward.
-func _on_threat_changed(threat: float) -> void:
-	if threat <= 0.0:
+func _on_mood_changed(_value := 0.0) -> void:
+	var amount := recede()
+	if amount <= 0.0:
 		release(THREAT_MIX)
 		return
 	var settings := SoundSettings.current()
-	var world: float = settings.threat_world_db * threat
+	var world: float = settings.threat_world_db * amount
 	follow(THREAT_MIX, Priority.THREAT, {AudioBus.AMBIENCE: world, AudioBus.WORLD: world,
-		AudioBus.BODY: settings.threat_body_db * threat})
+		AudioBus.BODY: settings.threat_body_db * amount})
 
 
 ## The game over screen: the house falls silent. What the entity is still sounding is left to

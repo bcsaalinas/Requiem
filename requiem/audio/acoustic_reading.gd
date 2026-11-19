@@ -2,8 +2,8 @@ class_name AcousticReading
 extends RefCounted
 ## One measurement of how an emitter's sound reaches Viv (audio/acoustics.gd makes them).
 
-## False when there was nothing to measure: no listener, or the emitter is not in the scene or
-## not shown. Such a reading is ring 0, clarity 0.
+## False when there was nothing to measure: no listener, or the emitter cannot be heard (it is
+## not in the scene, or not shown and silent). Such a reading is ring 0, clarity 0.
 var valid := false
 ## Straight-line distance, in units.
 var straight_u := 0.0

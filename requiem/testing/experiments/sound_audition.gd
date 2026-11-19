@@ -65,8 +65,9 @@ func _ready() -> void:
 	_entity_voice = AudioStreamPlayer2D.new()
 	_entity_voice.name = "AuditionVoice"
 	_entity_voice.bus = AudioBus.ENTITY
-	_entity_voice.max_distance = Units.to_px(SoundSettings.current().entity_reach_u)
-	_entity_voice.attenuation = SoundSettings.current().entity_falloff
+	# Auditioning a set plays it as it is, at any distance: this is a listening booth.
+	_entity_voice.max_distance = EntityAudio.NO_ENGINE_FALLOFF_PX
+	_entity_voice.attenuation = 1.0
 	entity.add_child(_entity_voice)
 	_viv_voice = AudioStreamPlayer.new()
 	_viv_voice.name = "AuditionVoice"
@@ -153,7 +154,7 @@ func _build_controls() -> void:
 		set_buttons[set_id] = button
 	# How far its sound travels to Viv, under the list.
 	list.add_child(_label("WHERE IT IS, BY EAR", 12))
-	where_status = _label("", 13)
+	where_status = _label("", 12)
 	list.add_child(where_status)
 
 
@@ -216,6 +217,8 @@ func audition_catch() -> void:
 		return
 	if entity.global_position.distance_to(player.global_position) > CATCH_REACH:
 		entity.global_position = player.global_position + Vector2(CATCH_REACH, 0)
+		if entity.audio != null:
+			entity.audio.placed()       # it was moved by hand: it is heard from here at once
 	# The automated mode skips the wait before the game over screen; here the catch plays out.
 	test_mode = false
 	_begin_game_over()
@@ -281,9 +284,20 @@ func where_text() -> String:
 	var heard: AcousticReading = Acoustics.reading(entity)
 	if not heard.valid:
 		return "ring 0 · gone (nothing to hear)"
-	return "ring %d · %s\nits sound travels %.1f u · clarity %.2f\nstraight line %.1f u · walking path %s\nwall in the way: %s" % [
+	var text := "ring %d · %s\nits sound travels %.1f u · clarity %.2f\nstraight line %.1f u · walking path %s\nwall in the way: %s" % [
 		heard.ring, heard.ring_name(), heard.acoustic_u, heard.clarity, heard.straight_u,
 		"%.1f u" % heard.path_u if heard.path_u >= 0.0 else "none", "yes" if heard.blocked else "no"]
+	# What that does to its position sounds (breath, talking, claws, drag, sniffing).
+	var voice: EntityAudio = entity.audio
+	if voice == null:
+		return text
+	var lost := 0
+	for set_id: String in voice.gaps:
+		lost += int(voice.gaps[set_id])
+	var level: float = EntityAudio.position_db(voice.heard_u, voice.reach_limit_u())
+	return text + "\nposition sounds: %s\nplaced %d%% · lost on the way %d\npresence %.2f · the house recedes %.2f" % [
+		"silent" if level <= EntityAudio.GONE_DB else "%.0f dB · %d%% dulled" % [level, roundi((1.0 - voice.heard_clarity) * 100.0)],
+		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, Dread.presence, MixDirector.recede()]
 
 
 ## What the entity is doing, in the words of the design.

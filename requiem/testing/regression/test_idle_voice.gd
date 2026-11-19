@@ -42,6 +42,9 @@ func _ready() -> void:
 	home = game.world.marker("house", "Patrol1")
 	game.player.global_position = game.world.marker("house", "Patrol4")
 	game.player.process_mode = Node.PROCESS_MODE_DISABLED
+	# This suite is about when it speaks, so it listens from right beside the entity, where
+	# nothing is lost on the way (test_rings covers what distance does to its voice).
+	Acoustics.set_listener(entity)
 	entity.get_node("CollisionShape2D").disabled = false
 	for door in game.world.zones["house"].get_node("Doors").get_children():
 		if door is Door:

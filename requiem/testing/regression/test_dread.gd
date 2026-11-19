@@ -212,16 +212,20 @@ func check_unaware() -> void:
 	for distance_u: float in [1.5, 40.0, 6.0]:
 		game.player.global_position = entity.global_position + Vector2.LEFT * Units.to_px(distance_u)
 		await seconds(0.4)
-	check(music.is_empty() and aware.is_empty() and is_zero_approx(Dread.threat) and is_zero_approx(gain(AudioBus.AMBIENCE))
-		and is_zero_approx(gain(AudioBus.WORLD)) and not MixDirector.is_active(MixDirector.THREAT_MIX),
-		"Right beside Viv or across the house, an unaware entity changes neither the music nor the world")
+	check(music.is_empty() and aware.is_empty() and is_zero_approx(Dread.threat),
+		"Right beside Viv or across the house, an unaware entity changes neither the music nor the threat")
+	# How near it is (presence) moves the world a little by itself: test_rings covers that.
+	check(near(gain(AudioBus.AMBIENCE), settings.threat_world_db * MixDirector.recede()) and near(gain(AudioBus.WORLD), settings.threat_world_db * MixDirector.recede())
+		and MixDirector.recede() <= settings.presence_world_share, "With no threat the world only recedes as far as its nearness takes it (%.2f)" % MixDirector.recede())
 	# A patrol pause: a little threat, no change of music.
 	entity._patrol_wait = 999.0
 	await seconds(settings.threat_lag.y + settings.threat_rise_time + 0.3)
 	check(Dread.awareness == Dread.Awareness.PAUSED and near(Dread.threat, settings.threat_paused, 0.001), "When it pauses, threat is %.1f (%.2f)" % [settings.threat_paused, Dread.threat])
-	check(near(gain(AudioBus.AMBIENCE), settings.threat_world_db * settings.threat_paused) and near(gain(AudioBus.WORLD), settings.threat_world_db * settings.threat_paused)
-		and near(gain(AudioBus.BODY), settings.threat_body_db * settings.threat_paused) and music.is_empty(),
-		"The world dips by a dB, and the music does not react")
+	# The stronger of threat and nearness decides how far the world recedes.
+	var receded: float = MixDirector.recede()
+	check(receded >= settings.threat_paused and near(gain(AudioBus.AMBIENCE), settings.threat_world_db * receded) and near(gain(AudioBus.WORLD), settings.threat_world_db * receded)
+		and near(gain(AudioBus.BODY), settings.threat_body_db * receded) and music.is_empty(),
+		"The world dips by a dB or more (%.1f dB), and the music does not react" % gain(AudioBus.AMBIENCE))
 
 
 ## Roam, heard, scream, hunt, lost, search, gave up.
@@ -316,8 +320,9 @@ func check_encounter() -> void:
 	await seconds(length - 2.0 + 0.3)
 	check(drone != null and drone.playing and is_zero_approx(drone.volume_db) and track(search) == null, "Then the drone is back in full and the tone is gone")
 	await seconds(maxf(0.0, gave_up.time + settings.threat_searching * settings.threat_fall_time + settings.threat_lag.y + 0.4 - now()))
-	check(Dread.threat <= settings.threat_paused + 0.001 and gain(AudioBus.AMBIENCE) >= settings.threat_world_db * settings.threat_paused - 0.05,
-		"And the house is back (threat %.2f)" % Dread.threat)
+	check(Dread.threat <= settings.threat_paused + 0.001 and near(gain(AudioBus.AMBIENCE), settings.threat_world_db * MixDirector.recede())
+		and MixDirector.recede() <= maxf(settings.threat_paused, settings.presence_world_share) + 0.001,
+		"And the house is back, but for how near it still is (threat %.2f, Ambience %.1f dB)" % [Dread.threat, gain(AudioBus.AMBIENCE)])
 	var rise: float = knew.time - heard_at + settings.threat_rise_time
 	check(rise < settings.threat_searching * settings.threat_fall_time, "The mood rose in about %.1f s and took %.0f s to fall" % [rise, settings.threat_searching * settings.threat_fall_time])
 	check(music.map(func(change: Dictionary) -> int: return change.to) == [heard_state, hunt, search, explore],

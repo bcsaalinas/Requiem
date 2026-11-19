@@ -127,8 +127,10 @@ func check_in_the_house() -> void:
 	if audio == null:
 		return
 	var players: Array = audio.get_children()
-	check(players.size() == SoundSettings.current().entity_voices + 3 + EntityAudio.AWARENESS_VOICES and players.all(func(player: Node) -> bool:
-		return player is AudioStreamPlayer2D and player.bus == AudioBus.ENTITY), "A pool of players, plus breath, drag, voice and the awareness voices, all on the Entity bus")
+	var far_twins: Array = [audio._breath_far, audio._drag_far]
+	check(players.size() == SoundSettings.current().entity_voices + 5 + EntityAudio.AWARENESS_VOICES and players.all(func(player: Node) -> bool:
+		return player is AudioStreamPlayer2D and player.bus == (AudioBus.ENTITY_FAR if player in far_twins else AudioBus.ENTITY)),
+		"A pool of players, plus breath, drag, voice and the awareness voices on the Entity bus, and the dulled twins of breath and drag on EntityFar")
 	check(entity.breath_calm_clips.is_empty() and entity.breath_hunt_clips.is_empty() and entity.hunt_stinger_clips.is_empty()
 		and entity.search_cue_clips.is_empty() and entity.investigate_cue_clips.is_empty() and entity.catch_clips.is_empty()
 		and entity.drag_clip == null and entity.feel_clip == null,
@@ -153,6 +155,9 @@ func check_in_the_house() -> void:
 	var patrol: Vector2 = game.world.marker("house", "Patrol1")
 	game.player.global_position = game.world.marker("house", "Patrol4")
 	game.player.process_mode = Node.PROCESS_MODE_DISABLED
+	# This suite is about which sound each cue plays, so it listens from right beside the
+	# entity, where nothing is lost on the way (test_rings covers what distance does).
+	Acoustics.set_listener(entity)
 	entity.global_position = patrol
 	entity.get_node("CollisionShape2D").disabled = false
 	entity.show()
@@ -247,6 +252,7 @@ func check_in_the_house() -> void:
 	await frames(2)
 	check(audio.breath_set() == EntityAudio.BREATH_CALM, "The tutorial can let it be heard breathing before it is seen")
 	audio.set_breathing(false)
+	Acoustics.set_listener(null)
 	game.queue_free()
 	await frames(3)
 

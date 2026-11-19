@@ -9,6 +9,11 @@ extends Node
 ## Both only say what it knows. Neither reads how far away it is: a quiet house never gives
 ## its position away.
 ##
+## `presence` is a second mood: how near its sound is, whatever it knows (1 = on top of her,
+## 0 = gone). This script does not work it out. Each entity's own sound reports it
+## (EntityAudio, from Acoustics), and here it only arrives late and moves slowly, so it is a
+## feeling in the room and never a bearing. The music does not follow it.
+##
 ## Entities report themselves here (EntityAudio does it for every entity that has one).
 ## Nothing in this script makes a sound, and nothing in it makes noise the entity can hear.
 
@@ -30,6 +35,8 @@ signal threat_changed(value: float)
 ## One of its awareness cues just played: heard, heard_again, inhale, scream, foot_slam,
 ## lost, lost_sniff, stand_down (EntityAudio.awareness_played).
 signal cue_played(moment: StringName)
+## The second mood moved (0..1). Sent every frame while it is moving.
+signal presence_changed(value: float)
 
 var awareness: int = Awareness.UNAWARE
 var threat := 0.0
@@ -38,6 +45,11 @@ var _watched := {}
 var _target := 0.0
 var _lag := 0.0
 var _settle := false
+var presence := 0.0
+## instance id -> { source: WeakRef, value: float }: what each entity's sound last reported.
+var _reports := {}
+var _presence_goal := 0.0
+var _presence_wait := 0.0
 
 
 func _ready() -> void:
@@ -78,6 +90,28 @@ func awareness_of(entity: Node2D, audio: Node = null) -> int:
 	return Awareness.PAUSED if standing else Awareness.UNAWARE
 
 
+## An entity's sound says how near it is to Viv's ears right now (0..1). The strongest report
+## counts. Report 0 when it can no longer be heard.
+func report_presence(source: Object, value: float) -> void:
+	if source == null:
+		return
+	var id := source.get_instance_id()
+	if not _reports.has(id):
+		_reports[id] = {"source": weakref(source), "value": 0.0}
+	_reports[id].value = clampf(value, 0.0, 1.0)
+
+
+## The strongest report right now, with no lag (for tests and read-outs).
+func reported_presence() -> float:
+	var strongest := 0.0
+	for id in _reports.keys():
+		if (_reports[id].source as WeakRef).get_ref() == null:
+			_reports.erase(id)
+			continue
+		strongest = maxf(strongest, _reports[id].value)
+	return strongest
+
+
 ## The threat value each awareness stands for (audio/sound_settings.tres).
 func threat_for(level: int) -> float:
 	var settings := SoundSettings.current()
@@ -95,6 +129,7 @@ func awareness_name() -> String:
 
 func _process(delta: float) -> void:
 	var settings := SoundSettings.current()
+	_tick_presence(delta, settings)
 	var now := _read()
 	if now != awareness:
 		var previous := awareness
@@ -122,6 +157,24 @@ func _process(delta: float) -> void:
 	var time: float = settings.threat_rise_time if _target > threat else settings.threat_fall_time
 	threat = move_toward(threat, _target, delta / maxf(time, 0.001))
 	threat_changed.emit(threat)
+
+
+## Presence looks at the reports only now and then (the lag), and then drifts to what it saw.
+func _tick_presence(delta: float, settings: SoundSettings) -> void:
+	_presence_wait -= delta
+	if _settle:
+		# A new attempt starts clean.
+		_presence_wait = 0.0
+		_presence_goal = reported_presence()
+		if presence != _presence_goal:
+			presence = _presence_goal
+			presence_changed.emit(presence)
+	if _presence_wait <= 0.0:
+		_presence_goal = reported_presence()
+		_presence_wait = randf_range(settings.presence_lag.x, settings.presence_lag.y)
+	if presence != _presence_goal:
+		presence = move_toward(presence, _presence_goal, delta / maxf(settings.presence_time, 0.001))
+		presence_changed.emit(presence)
 
 
 ## The most alert thing any watched entity knows.
