@@ -3,8 +3,9 @@ extends Node2D
 ## Her breath clips are her own sets, on Body, with the noise they make unchanged. Her
 ## breathing loop follows the situation and stops while she holds her breath. Holding her
 ## breath makes the house soft and the entity a little louder, further-reaching and less
-## broken up; walking and sprinting cover its far-off sounds. The two heartbeats never sound
-## together. None of it makes noise, and none of it ever dulls the entity.
+## broken up; walking and sprinting cover its far-off sounds. She has one heart: the hunt and
+## running out of air both play through it, never two at once (test_heart covers the rest).
+## None of it makes noise, and none of it ever dulls the entity.
 
 const KITCHEN_BY_WALL := Vector2(368, 176)
 const VESTIBULE_BY_WALL := Vector2(432, 176)        # 2 u apart, the wall between: ring 1
@@ -12,6 +13,11 @@ const VESTIBULE_A := Vector2(520, 400)
 const VESTIBULE_B := Vector2(680, 400)              # 5 u apart, same room: ring 2
 const STEP := "entity/claws_walk"
 const TRIES := 400
+
+## A stand-in entity that hunts: Dread reads what it knows from its current_state.
+class Hunter extends CharacterBody2D:
+	var current_state := EntityAudio.HUNT
+	var active := true
 
 var failures: Array[String] = []
 var checks := 0
@@ -77,7 +83,7 @@ func check_settings() -> void:
 	check(settings.listen_cutoff_hz > settings.strain_shut_hz, "Running out of air dulls the house further than listening does")
 	check(MixDirector.Priority.SCREAM > MixDirector.Priority.LISTEN and MixDirector.Priority.BREATH > MixDirector.Priority.LISTEN
 		and MixDirector.Priority.LISTEN > MixDirector.Priority.PRAYER, "The scream outranks her listening, and her listening outranks prayer")
-	for path in ["res://player/body_audio.gd", "res://player/breath_strain_audio.gd"]:
+	for path in ["res://player/body_audio.gd", "res://player/breath_strain_audio.gd", "res://player/heart_audio.gd"]:
 		var source := FileAccess.get_file_as_string(path)
 		check(not source.contains("NoiseManager") and not source.contains("AudioServer"), "%s makes no noise and touches no bus" % path.get_file())
 	for set_id in BodyAudio.MOODS:
@@ -109,8 +115,9 @@ func set_up_alone() -> void:
 	body = player.get_node("BodyAudio")
 	breath.forced_gasp_started.connect(func(_reason: StringName, _duration: float) -> void: gasps += 1)
 	await frames(3)
-	check(breath._audio_player.bus == AudioBus.BODY and body.get_children().size() == 3 and body.get_children().all(func(loop: Node) -> bool:
-		return loop is AudioStreamPlayer and loop.bus == AudioBus.BODY), "Her breath clips and her three breathing loops play on Body")
+	check(breath._audio_player.bus == AudioBus.BODY and body.get_children().size() == 4 and body.get_children().all(func(loop: Node) -> bool:
+		return loop is AudioStreamPlayer and loop.bus == AudioBus.BODY) and body.heart.get_parent() == body,
+		"Her breath clips, her three breathing loops and her heart play on Body")
 
 
 func loop(set_id: String) -> AudioStreamPlayer:
@@ -233,40 +240,52 @@ func check_masking() -> void:
 	await frames(2)
 
 
-## Her heart for running out of air, and her heart for the hunt: never both.
+## Her heart in a hunt and running out of air: one voice, louder and faster as the air runs out.
 func check_one_heartbeat() -> void:
 	var feedback: Node = player.get_node("BreathFeedback")
 	var strain: Node = feedback.strain_audio
-	var threat_heart: AudioStreamPlayer = MusicDirector._heartbeat
-	MusicDirector.set_music_state(MusicDirector.MusicState.HUNT, 0.0)
-	await seconds(0.3)
-	check(threat_heart.playing and threat_heart.bus == AudioBus.BODY and strain._heart.bus == AudioBus.BODY and threat_heart.volume_db > -30.0,
-		"In a hunt her heart is heard, on Body (%.1f dB)" % threat_heart.volume_db)
-	var alone: float = threat_heart.volume_db
+	var heart: Node = body.heart
+	check(strain.get_node_or_null("Heart") == null and MusicDirector.get_node_or_null("ThreatHeartbeat") == null,
+		"Running out of air and the music have no heartbeat of their own any more")
+	# A stand-in that hunts: Dread reads it like any entity.
+	var hunter := Hunter.new()
+	add_child(hunter)
+	hunter.set_physics_process(false)
+	Dread.watch(hunter)
+	await seconds(settings.threat_lag.y + settings.threat_rise_time + settings.heart_rise_time + 0.3)
+	check(heart.playing and heart.bus == AudioBus.BODY and heart.reason == &"threat" and heart.level_db() > -30.0,
+		"In a hunt her heart is heard, on Body (%.1f dB)" % heart.level_db())
+	var alone: float = heart.level_db()
+	var alone_pitch: float = heart.pitch_scale
 	feedback.enabled = true
 	breath.lung_percent = 24.0
 	Input.action_press("hold_breath")
-	var both := 0
 	for tick in 150:
 		await frames(1)
 		if breath.lung_percent < 12.0: breath.lung_percent = 12.0
-		# Both count as sounding only above the level where either can be heard at all.
-		if strain._heart.playing and strain.level > 0.5 and threat_heart.playing and threat_heart.volume_db > alone - 30.0:
-			both += 1
-	check(strain.level > 0.6 and strain._heart.playing, "Running out of air, the strain heartbeat sounds (%.2f)" % strain.level)
-	check(threat_heart.volume_db <= MusicDirector.HEARTBEAT_OFF_DB + 1.0 and both == 0, "And the threat heartbeat has given way to it: they never sound together")
+	check(strain.level > 0.6 and heart.reason == &"strain" and heart.playing and heart.level_db() > alone + 3.0 and heart.pitch_scale > alone_pitch,
+		"Running out of air makes the same heart louder and faster (%.2f: %.1f dB, speed %.2f)" % [strain.level, heart.level_db(), heart.pitch_scale])
 	check(MixDirector.cutoff_hz(AudioBus.MUSIC) < settings.listen_cutoff_hz - 100.0 and near(MixDirector.cutoff_hz(AudioBus.WORLD), settings.listen_cutoff_hz, 5.0),
 		"Running out of air takes the soft house further on Music and Ambience (%.0f Hz), never back up" % MixDirector.cutoff_hz(AudioBus.MUSIC))
 	breath.lung_percent = 60.0
 	Input.action_release("hold_breath")
-	await seconds(1.0 + settings.heartbeat_yield_fade)
-	check(strain.level <= 0.01 and not strain._heart.playing and threat_heart.playing and near(threat_heart.volume_db, alone, 0.5),
-		"Breathing again, the threat heartbeat is back (%.1f dB)" % threat_heart.volume_db)
-	MusicDirector.set_music_state(MusicDirector.MusicState.EXPLORE, 0.0)
+	await seconds(1.0 + settings.listen_out)
+	check(strain.level <= 0.01 and heart.reason == &"threat" and heart.playing and near(heart.level_db(), alone, 0.5),
+		"Breathing again, it is back at the hunt's level (%.1f dB)" % heart.level_db())
+	hunter.current_state = EntityAudio.PATROL
+	hunter.velocity = Vector2(Units.to_px(2.0), 0.0)
+	var hunting: float = heart.get(&"amount")
+	await seconds(settings.threat_lag.y + 2.0)
+	check(heart.playing and float(heart.get(&"amount")) < hunting - 0.05, "After the hunt it calms as the threat falls (%.2f)" % heart.get(&"amount"))
+	hunter.queue_free()
+	GameState.reset()
 	await frames(3)
-	check(not threat_heart.playing, "And it stops with the hunt")
+	check(not heart.playing, "And a new attempt starts with it silent")
 	breath.lung_percent = 100.0
 	breath.exertion_percent = 0.0
+	for tick in 400:
+		if not breath.is_sounding(): break
+		await frames(1)
 
 
 ## With the entity in the house: what her listening and her moving do to what she hears of it.

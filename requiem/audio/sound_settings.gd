@@ -168,9 +168,35 @@ static func current() -> SoundSettings:
 @export_range(0.0, 1.0, 0.05) var listen_gap_factor := 0.5
 ## While she listens, everything the entity sounds comes up by this much.
 @export_range(0.0, 6.0, 0.5, "suffix:dB") var listen_entity_db := 2.0
-## Seconds for the threat heartbeat to give way to the heartbeat of running out of air, and to
-## come back after it. The two never sound together.
-@export_range(0.0, 2.0, 0.05, "suffix:s") var heartbeat_yield_fade := 0.2
+
+@export_group("Viv: her heart")
+## There is one heartbeat (player/heart_audio.gd). How hard it beats is one amount from 0 to 1;
+## running out of air, what the entity knows and how near it is each push it up their own
+## distance, and the heart follows the highest. Its level at the faintest beat and at the
+## hardest (the hardest is also the most it can ever be: the cap).
+@export var heart_db := Vector2(-30.0, -3.0)
+## Its speed at the faintest beat and at the hardest (1 = as recorded, 1.45 = 45% faster).
+@export var heart_pitch := Vector2(0.95, 1.45)
+## Below this amount it also fades towards silence, so it never starts with a step.
+@export_range(0.01, 0.5, 0.01) var heart_edge := 0.05
+## Seconds it would take to go all the way up, from silent to the hardest beat...
+@export_range(0.05, 5.0, 0.05, "suffix:s") var heart_rise_time := 0.65
+## ...and all the way down. Fast on purpose: the first breath out is the relief.
+@export_range(0.05, 5.0, 0.05, "suffix:s") var heart_fall_time := 0.25
+## Running out of air: the amount at the first strain, and with no air left (-22 to -3 dB).
+@export var heart_strain := Vector2(0.3, 1.0)
+## What the entity knows (threat, 0..1): at or below this nothing beats (a pause on its patrol
+## is 0.1 and must tell her nothing)...
+@export_range(0.0, 1.0, 0.01) var heart_threat_from := 0.3
+## ...and from just above it up to a hunt, the amount goes from here to here. A hunt is
+## about -13 dB, a search about -18.5, having heard something about -20.
+@export var heart_threat := Vector2(0.15, 0.63)
+## How near it is by ear (presence, 0..1), whatever it knows: at or below this nothing beats
+## (about the edge of "near", ring 2)...
+@export_range(0.0, 1.0, 0.01) var heart_presence_from := 0.6
+## ...and from just above it up to on top of her, the amount goes from here to here: at most
+## about -24 dB, clearly quieter than a search.
+@export var heart_presence := Vector2(0.0, 0.22)
 
 @export_group("House: its own voice")
 ## No sound of the house may be louder than this (LUFS).

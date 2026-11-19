@@ -292,9 +292,21 @@ func _cue_text(cue: Dictionary) -> String:
 
 
 ## The audio read-out, one fact per line.
+## Her heart, from the Player in the scene: "heart 0.22 (presence)", "heart 0.00" while silent.
+func heart_text() -> String:
+	for body: Node in get_tree().root.find_children("*", "BodyAudio", true, false):
+		var heart: Node = body.get(&"heart")
+		if heart == null:
+			continue
+		var amount := float(heart.get(&"amount"))
+		var reason := String(heart.get(&"reason"))
+		return "heart %.2f (%s)" % [amount, reason] if amount > 0.0 and reason != "" else "heart %.2f" % amount
+	return "heart 0.00"
+
+
 func audio_text() -> String:
 	var lines: Array[String] = []
-	lines.append("AUDIO [F3] · threat %.2f (%s) · presence %.2f" % [Dread.threat, Dread.awareness_name(), Dread.presence])
+	lines.append("AUDIO [F3] · threat %.2f (%s) · presence %.2f · %s" % [Dread.threat, Dread.awareness_name(), Dread.presence, heart_text()])
 	var voice := nearest_voice()
 	var reading: AcousticReading = Acoustics.reading(voice.entity) if voice != null else AcousticReading.new()
 	if voice == null or not reading.valid:

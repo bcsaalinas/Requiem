@@ -12,6 +12,9 @@ extends Node
 ## Music, Ambience and World, before running out of air dulls it further), the entity stays
 ## sharp and comes up a little, its far-off sounds carry further and fewer of them are lost.
 ##
+## Her heart: the one heartbeat in the game, a child called "Heart" (player/heart_audio.gd).
+## It follows the highest of running out of air, what the entity knows and how near it is.
+##
 ## Nothing here makes a noise the entity can hear, and nothing here ever dulls the entity.
 ## Every number is in audio/sound_settings.tres.
 
@@ -24,6 +27,7 @@ const LISTEN := &"listen"
 const LISTEN_FOCUS := &"listen_focus"
 const SOFTENED: Array[StringName] = [AudioBus.MUSIC, AudioBus.AMBIENCE, AudioBus.WORLD]
 const SILENT_DB := -60.0
+const HeartAudio := preload("res://player/heart_audio.gd")
 
 ## The breathing she is heading for ("" = none: she holds her breath, or she is dead).
 var mood := ""
@@ -35,6 +39,8 @@ var open := 1.0
 var listen := 0.0
 ## dB (0 or less): how much her own movement covers the entity's far-off sounds.
 var mask_db := 0.0
+## Her heart (player/heart_audio.gd): its `amount`, `reason` and `level_db()` say how it beats.
+var heart: AudioStreamPlayer
 
 var _loops := {}
 
@@ -54,6 +60,10 @@ func _ready() -> void:
 		loop.finished.connect(func() -> void:
 			if weights[set_id] > 0.0: loop.play())
 		_loops[set_id] = loop
+	heart = HeartAudio.new()
+	heart.name = "Heart"
+	heart.set(&"body", self)
+	add_child(heart)
 	if breath != null:
 		breath.forced_gasp_started.connect(_on_forced_gasp)
 

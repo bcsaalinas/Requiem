@@ -243,10 +243,13 @@ func check_player() -> void:
 	var body_voices: Array = player.get_node("FootstepAudio").get_children()
 	body_voices.append(player.get_node("HoldBreath")._audio_player)
 	body_voices.append_array(player.get_node("BreathFeedback").strain_audio.get_children())
+	body_voices.append(player.get_node("BodyAudio").heart)
 	body_voices.append(player.get_node("flashlight")._audio_player)
+	# 3 footstep voices, her breath, the strain tone, her heart and the flashlight click.
 	check(body_voices.size() >= 7 and body_voices.all(func(voice: Node) -> bool: return voice.bus == AudioBus.BODY),
-		"Her footsteps, breath, strain heartbeat and tone, and the flashlight click play on Body")
-	check(MusicDirector._heartbeat.bus == AudioBus.BODY, "The threat heartbeat plays on Body")
+		"Her footsteps, breath, strain tone and heart, and the flashlight click play on Body")
+	check(player.get_node("BodyAudio").heart.bus == AudioBus.BODY and MusicDirector.get_node_or_null("ThreatHeartbeat") == null,
+		"Her one heartbeat plays on Body; the music has none of its own")
 	check(player.get_node("Throw")._audio_player.bus == AudioBus.WORLD, "What she throws lands on World")
 	var strain: Node = player.get_node("BreathFeedback").strain_audio
 	check(strain._filters.size() == 2 and strain._filters[0] == MixDirector.muffle_filter(AudioBus.MUSIC)
