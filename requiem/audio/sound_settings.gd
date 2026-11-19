@@ -367,3 +367,23 @@ static func current() -> SoundSettings:
 @export var sniff_run_first := Vector2(1.0, 1.8)
 ## The wait between two runs after that.
 @export var sniff_run_interval := Vector2(3.0, 6.0)
+
+@export_group("Checks: the jump-scare audit")
+## The audit (testing/tools/jump_scare_audit.gd, development only) logs every rise on Master of
+## more than this many dB...
+@export_range(3.0, 40.0, 0.5, "suffix:dB") var audit_jump_db := 18.0
+## ...within this long.
+@export_range(0.02, 1.0, 0.01, "suffix:s") var audit_jump_window := 0.1
+## Quieter than this (peak on Master) counts as this, so a rise out of silence is measured
+## from here. A rise of 18 dB from -26 dB ends near -8 dB peak, about where a sound of
+## -16 LUFS sits: quieter things appearing in a quiet house are not jump scares.
+@export_range(-80.0, 0.0, 1.0, "suffix:dB") var audit_floor_db := -26.0
+## A rise this soon after the scream starts is the scream: counted, not logged.
+@export_range(0.0, 5.0, 0.1, "suffix:s") var audit_scream_time := 1.4
+## A rise this soon after a noise she made or a key she pressed is her own action.
+@export_range(0.0, 1.0, 0.05, "suffix:s") var audit_own_action := 0.3
+## Until this long after the heard-you cue a rise is that cue itself; from then on it was
+## warned of (the contract's 0.7 s)...
+@export_range(0.0, 5.0, 0.05, "suffix:s") var audit_warning := 0.7
+## ...while the encounter is on, or ended no longer ago than this (the stand-down's own sound).
+@export_range(0.0, 10.0, 0.5, "suffix:s") var audit_aftermath := 3.0

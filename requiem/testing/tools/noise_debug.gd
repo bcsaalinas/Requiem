@@ -19,8 +19,22 @@ extends Node
 # en unidades, no en pixeles, para poder verificar la escala de un vistazo.
 #
 # F3 activa / desactiva la visualizacion.
+#
+# AUDIO READ-OUT (Step 12 of the audio work). With the overlay on, the bottom left of the
+# screen also says what the sound system is doing right now:
+#   - threat (what the entity knows, 0..1) and presence (how near it feels, 0..1);
+#   - for the nearest entity: its ring (3 on top of you, 2 near, 1 somewhere, 0 gone), the
+#     clarity of its sound, and whether a wall is in the way;
+#   - the last cue it played on each channel: A, what it knows (heard, scream, lost,
+#     stand_down...) and B, where it is (claws, breath, sniffing...);
+#   - whether the house voice may speak, and if not, why;
+#   - the jump-scare audit (jump_scare_audit.gd): sudden rises on Master and what explains them.
+# It only reads: it changes no sound and makes no noise.
 
 const PX_PER_UNIT: float = Units.PX_PER_UNIT
+const JumpScareAudit := preload("res://testing/tools/jump_scare_audit.gd")
+## How often the scene is searched for entities that make sound.
+const AUDIO_SEARCH_EVERY := 0.5
 
 
 ## Nodo interno que hace el dibujo. Vive dentro del CanvasLayer.
@@ -43,6 +57,11 @@ class NoiseCanvas extends Node2D:
 @export var fill_alpha: float = 0.07
 @export var label_font_size: int = 16
 
+@export_group("Audio")
+@export var audio_font_size: int = 13
+## Distance of the audio read-out from the left and bottom edges of the screen.
+@export var audio_margin := Vector2(16, 44)
+
 @export_group("Consola")
 ## Imprime cada ruido en consola ademas de dibujarlo.
 @export var log_to_console: bool = false
@@ -54,6 +73,15 @@ var _canvas_layer: CanvasLayer
 var _canvas: NoiseCanvas
 var _legend_layer: CanvasLayer
 var _legend: Label
+## The audio read-out (bottom left) and the audit that watches Master for sudden rises.
+var audio_label: Label
+var audit: Node
+## Every EntityAudio in the scene, found again every AUDIO_SEARCH_EVERY seconds.
+var _voices: Array[EntityAudio] = []
+var _voice_search := 0.0
+## The last cue on each channel: { moment or set, time }.
+var _last_knows := {}
+var _last_where := {}
 
 
 func _ready() -> void:
@@ -78,6 +106,18 @@ func _ready() -> void:
 	_legend.add_theme_font_size_override("font_size", 14)
 	_legend_layer.add_child(_legend)
 
+	audio_label = Label.new()
+	audio_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	audio_label.add_theme_font_size_override("font_size", audio_font_size)
+	audio_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
+	audio_label.add_theme_constant_override("shadow_offset_x", 1)
+	audio_label.add_theme_constant_override("shadow_offset_y", 2)
+	_legend_layer.add_child(audio_label)
+
+	audit = JumpScareAudit.new()
+	audit.name = "JumpScareAudit"
+	add_child(audit)
+
 	NoiseManager.noise_emitted.connect(_on_noise_emitted)
 	_update_legend()
 
@@ -98,6 +138,7 @@ func _on_noise_emitted(noise_position: Vector2, radius: float, source_type: int,
 
 
 func _process(delta: float) -> void:
+	_tick_audio(delta)
 	if _noises.is_empty():
 		return
 
@@ -188,3 +229,79 @@ func _update_legend() -> void:
 		state, int(PX_PER_UNIT), _noises.size()
 	]
 	_legend.modulate = Color(1, 1, 1, 0.85) if enabled else Color(1, 1, 1, 0.35)
+
+
+# --- Audio read-out -------------------------------------------------------------------------
+
+func _time() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+
+func _tick_audio(delta: float) -> void:
+	_voice_search -= delta
+	if _voice_search <= 0.0:
+		_voice_search = AUDIO_SEARCH_EVERY
+		_find_voices()
+	if enabled and audio_label != null:
+		audio_label.text = audio_text()
+		# Bottom left of the UI canvas, growing upwards with its lines.
+		audio_label.position = Vector2(audio_margin.x, PixelDisplay.UI_CANVAS.y - audio_margin.y - audio_label.get_minimum_size().y)
+		# The one-line noise legend sits right above it, clear of whatever the scene shows top left.
+		_legend.position = audio_label.position - Vector2(0, _legend.get_minimum_size().y + 2.0)
+		audit.verbose = log_to_console
+
+
+## Follows every EntityAudio in the scene, to know the last cue each channel played.
+func _find_voices() -> void:
+	_voices.clear()
+	for node in get_tree().root.find_children("*", "EntityAudio", true, false):
+		var voice := node as EntityAudio
+		_voices.append(voice)
+		if not voice.awareness_played.is_connected(_on_knows_played):
+			voice.awareness_played.connect(_on_knows_played)
+			voice.played.connect(_on_where_played)
+
+
+func _on_knows_played(moment: StringName, set_id: String, _stream: AudioStream, _level_db: float) -> void:
+	_last_knows = {"cue": "%s (%s)" % [moment, set_id.get_file()], "time": _time()}
+	audit.note_sound(set_id.get_file())
+
+
+func _on_where_played(set_id: String, _voice: AudioStreamPlayer2D) -> void:
+	_last_where = {"cue": set_id.get_file(), "time": _time()}
+	audit.note_sound(set_id.get_file())
+
+
+## The entity whose sound reaches Viv best right now (null with none).
+func nearest_voice() -> EntityAudio:
+	var best: EntityAudio = null
+	var best_score := -1.0
+	for voice in _voices:
+		if not is_instance_valid(voice) or voice.entity == null:
+			continue
+		var reading: AcousticReading = Acoustics.reading(voice.entity)
+		var score: float = float(reading.ring) + reading.clarity if reading.valid else 0.0
+		if score > best_score:
+			best = voice
+			best_score = score
+	return best
+
+
+func _cue_text(cue: Dictionary) -> String:
+	return "none yet" if cue.is_empty() else "%s, %.1f s ago" % [cue.cue, _time() - float(cue.time)]
+
+
+## The audio read-out, one fact per line.
+func audio_text() -> String:
+	var lines: Array[String] = []
+	lines.append("AUDIO [F3] · threat %.2f (%s) · presence %.2f" % [Dread.threat, Dread.awareness_name(), Dread.presence])
+	var voice := nearest_voice()
+	var reading: AcousticReading = Acoustics.reading(voice.entity) if voice != null else AcousticReading.new()
+	if voice == null or not reading.valid:
+		lines.append("it: nothing to hear (ring 0 · clarity 0.00 · wall in the way: no)")
+	else:
+		lines.append("it: ring %d, %s · clarity %.2f · wall in the way: %s" % [reading.ring, reading.ring_name(), reading.clarity, "yes" if reading.blocked else "no"])
+	lines.append("last cue · what it knows (A): %s · where it is (B): %s" % [_cue_text(_last_knows), _cue_text(_last_where)])
+	lines.append("house voice: %s" % HouseVoice.status())
+	lines.append("jump audit: %s" % audit.summary())
+	return "\n".join(lines)

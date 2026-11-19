@@ -477,6 +477,27 @@ func check_sound_audition(lab: Node) -> void:
 	await frames(2)
 	check(not MusicDirector.drone_in and studio.mix_status.text.contains("music EXPLORE (no drone, back in"), "M sends the drone away (and brings it back)")
 	studio.turn_drone()
+	# F3: the noise overlay's audio read-out.
+	var f3 := InputEventKey.new()
+	f3.keycode = KEY_F3
+	f3.pressed = true
+	lab.noise._unhandled_input(f3)
+	await frames(40)
+	var read_out: Label = lab.noise.audio_label
+	var lines: PackedStringArray = read_out.text.split("\n")
+	check(lab.noise.enabled and read_out.is_visible_in_tree() and lines.size() == 5 and lines[0].begins_with("AUDIO [F3] · threat ") and lines[0].contains("presence ")
+		and lines[1].begins_with("it: ring %d" % Acoustics.reading(entity).ring) and lines[1].contains("clarity ") and lines[1].contains("wall in the way: "),
+		"F3 shows the audio read-out in the lab: threat, presence, ring, clarity and wall (%s / %s)" % [lines[0], lines[1] if lines.size() > 1 else ""])
+	check(lines.size() == 5 and lines[2].begins_with("last cue · what it knows (A): ") and lines[2].contains("where it is (B): ")
+		and lines[3] == "house voice: " + HouseVoice.status() and lines[4].begins_with("jump audit: ") and lines[4].contains(" unexplained"),
+		"And the last cue on each channel, why the house voice is silent, and the jump-scare audit")
+	var read_out_rect: Rect2 = read_out.get_global_rect()
+	check(canvas.encloses(read_out_rect) and not read_out_rect.intersects(controls) and not read_out_rect.intersects(studio.where_status.get_global_rect()),
+		"The read-out sits clear of the station's own panels (%s)" % read_out_rect)
+	check(lab.noise.audit != null and lab.noise.audit.readings > 0 and lab.noise.audit.house_breaches.is_empty(), "The audit is listening while the lab runs")
+	lab.noise._unhandled_input(f3)
+	await frames(2)
+	check(not lab.noise.enabled and not read_out.is_visible_in_tree(), "F3 again hides it")
 	var length: float = studio.play_set_once("entity/scream")
 	check(length > 0.0 and studio._entity_voice.playing and studio._entity_voice.bus == AudioBus.ENTITY
 		and not studio._viv_voice.playing, "An entity set plays from the entity, on its bus")
