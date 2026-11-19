@@ -15,6 +15,8 @@ const KITCHEN_BY_WALL := Vector2(368, 176)
 const VESTIBULE_BY_WALL := Vector2(432, 176)
 const VESTIBULE_A := Vector2(520, 400)
 const VESTIBULE_B := Vector2(680, 400)
+## Far in the kitchen: the altar door is 22 u away, behind the kitchen wall.
+const KITCHEN_FAR := Vector2(150, 200)
 
 var failures: Array[String] = []
 var checks := 0
@@ -332,6 +334,38 @@ func check_calm_and_house() -> void:
 	check(audit.unexplained().is_empty() and audit.house_breaches.is_empty() and HouseVoice.violations == 0,
 		"No house sound is a jump, and none played while its gates were closed: %s" % audit.summary())
 	await seconds(settings.house_nothing_time)
+	# The answer at its top step, from the nearest place it may come from.
+	HouseVoice.answer_step = settings.house_escalate_steps
+	HouseVoice._since_accepted = 0.0
+	HouseVoice._answer_distance = 0.0
+	HouseVoice._since_loud = 0.0          # she has been loud lately: no quiet minute resets it
+	HouseVoice._since_answer = INF
+	var answered: bool = HouseVoice.answer()
+	await seconds(settings.house_answer_delay + 1.0)
+	var knock: Dictionary = HouseVoice.history.back()
+	check(answered and knock.family == &"answer" and HouseVoice.answer_step == settings.house_escalate_steps
+		and audit.unexplained().is_empty() and audit.house_breaches.is_empty(),
+		"The answer at its top step, from the nearest place (%.1f u), is no jump: %s" % [Units.to_u(knock.at.distance_to(game.player.global_position)), audit.summary()])
+	# A door found ajar, with its creak: she is in the kitchen, the altar door shut, far and behind a wall.
+	var altar_door: Door = game.world.interactables["altar_door"]["node"]
+	altar_door.snap(false)
+	game.player.global_position = house + KITCHEN_FAR
+	game.world.rooms("house").sync_to(game.player.global_position)
+	await frames(3)
+	HouseVoice.begin_run()
+	HouseVoice._ajar_from = house + Vector2(1008, 250)
+	var gate: String = HouseVoice.gate()
+	HouseVoice._leave_ajar()
+	await seconds(2.5)
+	check(gate == "" and HouseVoice.ajar_done and HouseVoice.history.back().family == &"aftermath" and is_equal_approx(altar_door.swing, settings.house_ajar_swing)
+		and not altar_door.is_open and audit.unexplained().is_empty() and audit.house_breaches.is_empty() and HouseVoice.violations == 0,
+		"A door found ajar, with its creak, is no jump either: %s" % audit.summary())
+	altar_door.snap(true)
+	HouseVoice.begin_run()
+	HouseVoice._reset_escalation()          # back to the first answer for what follows
+	game.player.global_position = house + VESTIBULE_A
+	game.world.rooms("house").sync_to(game.player.global_position)
+	await frames(3)
 
 
 ## A whole encounter beside her: only the scream jumps; everything else was warned of.

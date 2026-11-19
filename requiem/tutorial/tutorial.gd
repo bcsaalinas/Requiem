@@ -295,6 +295,8 @@ func _ready() -> void:
 		door.opened.connect(func(): _on_zone_doorway(player,id))
 	friend_home=world.props["friend"].global_position
 	prayer_audio.global_position=friend_home
+	# A new game (a retry after death is not): the house may leave a door ajar once again.
+	HouseVoice.begin_run()
 	enter_zone(start_zone)
 	if not test_mode:
 		show_dialogue([
@@ -446,7 +448,11 @@ func _enter_house_voice() -> void:
 	var rooms := {}
 	for room: String in UNEASE_SPOTS:
 		rooms[room]=UNEASE_SPOTS[room].map(func(spot: Vector2) -> Vector2: return house+spot)
-	HouseVoice.enter(rooms,_room_name,player)
+	# Its doors too: after one of its effects, one of them may be found ajar.
+	var doors: Array[Door]=[]
+	for node in world.zones["house"].get_node("Doors").get_children():
+		if node is Door: doors.append(node)
+	HouseVoice.enter(rooms,_room_name,player,doors)
 	HouseVoice.story_holds=house_story()
 
 ## The room of the house she is in ("" when she is in none of them).

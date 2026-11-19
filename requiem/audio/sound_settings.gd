@@ -274,6 +274,39 @@ static func current() -> SoundSettings:
 ## The answering knock comes this long after what she did, and not again for this long.
 @export_range(0.1, 5.0, 0.1, "suffix:s") var house_answer_delay := 1.1
 @export_range(0.0, 120.0, 1.0, "suffix:s") var house_answer_gap := 12.0
+## How many times the answer can come closer: if she keeps being loud, each answer comes from
+## a little nearer than the last (never from her own room), up to this many steps.
+@export_range(0, 10) var house_escalate_steps := 3
+## Two loud things answered within this many seconds of each other make the next answer
+## closer. Longer than house_answer_gap, or the answer could never come closer.
+@export_range(1.0, 300.0, 1.0, "suffix:s") var house_escalate_window := 40.0
+## After this many seconds with nothing loud from her, the answer is back where it started:
+## the first one after it comes from anywhere, as quiet as any house sound.
+@export_range(1.0, 600.0, 1.0, "suffix:s") var house_escalate_reset := 60.0
+## The loudest the closest answer may be (LUFS). The limit rises step by step from
+## house_max_lufs to this; the knock is only ever turned down to it, never up.
+@export_range(-50.0, -10.0, 0.5, "suffix:LUFS") var house_escalate_max_lufs := -22.0
+## An answer never comes from nearer than this, even from the next room.
+@export_range(0.0, 30.0, 0.5, "suffix:u") var house_answer_min_u := 3.0
+## The aftermath: after one of the rare effects, a door in a room she is not in may later be
+## found ajar, with a creak she hears (the entity does not). Once per run. Off: never.
+## The door is only drawn a little open: it stays shut for bodies, light and the entity.
+@export var house_ajar := true
+## The chance, after an effect, that a door is left ajar (0..1).
+@export_range(0.0, 1.0, 0.05) var house_ajar_chance := 0.5
+## Seconds after the effect before the door is found ajar (a random time in this span).
+@export var house_ajar_delay := Vector2(8.0, 20.0)
+## How far the leaf is drawn open (0 = shut, 1 = fully open).
+@export_range(0.0, 1.0, 0.01) var house_ajar_swing := 0.2
+## The door left ajar is at least this far from her, with a wall between them.
+@export_range(0.0, 60.0, 0.5, "suffix:u") var house_ajar_min_u := 10.0
+## The caption shown with its creak.
+@export var house_ajar_caption := "[A door opens, somewhere in the house]"
+## The creak, when the door has none of its own whose loudness is known (its own creak is
+## used when it is this file or one of house_effects), and how loud the file is (LUFS,
+## measured with ffmpeg ebur128). It plays turned down to house_max_lufs, like every house sound.
+@export_file("*.wav", "*.ogg") var house_ajar_creak := "res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav"
+@export_range(-50.0, 0.0, 0.1, "suffix:LUFS") var house_ajar_creak_lufs := -17.1
 ## When the room she is in is not known, a house sound is never nearer than this.
 @export_range(0.0, 30.0, 0.5, "suffix:u") var house_min_distance_u := 8.0
 

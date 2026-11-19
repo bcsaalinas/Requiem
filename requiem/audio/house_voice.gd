@@ -12,7 +12,14 @@ extends Node
 ## awareness cue has sounded lately, and she is not praying; effects are also kept far apart
 ## and never repeat. gate() says in words why it is silent at any moment.
 ##
-## One loud thing she does may be answered by a single knock a second later (answer()).
+## One loud thing she does may be answered by a single knock a second later (answer()). If she
+## keeps being loud, each answer comes a little closer (never from her room) and may be a little
+## louder, up to house_escalate_steps; a quiet minute puts it back.
+##
+## The aftermath: after one of the rare effects, a door the level gave it, in a room she is not
+## in, may later be found ajar, with a creak she hears. The door is only drawn a little open:
+## it stays shut for bodies, light and the entity, and the entity does not hear the creak. Once
+## per run (begin_run()).
 ##
 ## A level says where its rooms are with enter() and leaves with leave(); while it tells its
 ## own part of the story it sets story_holds, and may use play() and spot_away() for it.
@@ -32,10 +39,13 @@ const ENTITY_FILES := "res://assets/audio/entity/"
 const BEHIND_WALL := "behind_wall"
 const HISTORY := 12
 
-## Something sounded: family is &"settle", &"effect", &"answer" or &"story" (a level's own).
+## Something sounded: family is &"settle", &"effect", &"answer", &"aftermath" (a door found
+## ajar) or &"story" (a level's own).
 signal sounded(family: StringName, stream: AudioStream, at: Vector2, level_db: float, caption: String)
 ## The ambience thinned instead of an effect.
 signal thinned()
+## A door was found ajar (the aftermath of an effect). Its leaf only: it is still shut.
+signal door_left_ajar(door: Door)
 
 ## While true the level is telling its own part: the house voice keeps quiet by itself.
 var story_holds := false
@@ -44,6 +54,10 @@ var story_holds := false
 var history: Array[Dictionary] = []
 ## How many of its own sounds played while its gates were closed. Must stay 0.
 var violations := 0
+## How much closer the answer has come: 0 (as far as any house sound) to house_escalate_steps.
+var answer_step := 0
+## True once a door was left ajar in this run (a retry after death does not clear it).
+var ajar_done := false
 
 ## room name -> Array[Vector2] of places a sound can come from (world px).
 var _rooms := {}
@@ -59,20 +73,43 @@ var _nothing_left := -1.0
 var _was_open := false
 var _last_effect := ""
 var _last_spot := Vector2.INF
+## Seconds since she last did something loud (since answer() was last called, answered or not).
+var _since_loud := INF
+## Seconds since the last answer that was accepted.
+var _since_accepted := INF
+## True when the answer on its way raised the step.
+var _answer_raised := false
+## How far from her the last answer came (px); INF when forgotten.
+var _answer_distance := INF
+## The doors the level gave: any may be left ajar after an effect.
+var _doors: Array[Door] = []
+## Seconds until a door may be found ajar (-1: nothing pending), and where the effect sounded.
+var _ajar_wait := -1.0
+var _ajar_from := Vector2.INF
+## The swing the house last drew on the door it is leaving ajar (NAN: it is drawing none).
+var _ajar_leaf := NAN
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	Dread.cue_played.connect(func(_moment: StringName) -> void: _since_cue = 0.0)
+	GameState.state_reset.connect(_on_state_reset)
 
 
 ## A level's house: its rooms and the places in them a sound can come from (world px), a
-## callable that names the room she is in ("" when unknown), and whoever is listening.
-func enter(rooms: Dictionary, current_room: Callable, listener: Node2D) -> void:
+## callable that names the room she is in ("" when unknown), whoever is listening, and the
+## doors that may be found ajar (none: no door ever is).
+func enter(rooms: Dictionary, current_room: Callable, listener: Node2D, doors: Array = []) -> void:
 	var settings := SoundSettings.current()
 	_rooms = rooms.duplicate(true)
 	_current_room = current_room
 	_listener = listener
+	_doors.clear()
+	for door in doors:
+		if door is Door:
+			_doors.append(door)
+	_ajar_wait = -1.0
+	_reset_escalation()
 	_effect_wait = randf_range(settings.house_effect_gap.x, settings.house_effect_gap.y)
 	_settle_wait = randf_range(settings.house_settle_gap.x, settings.house_settle_gap.y)
 	_open_wait = 0.0
@@ -86,6 +123,9 @@ func leave() -> void:
 	_rooms.clear()
 	_current_room = Callable()
 	_listener = null
+	_doors.clear()
+	_ajar_wait = -1.0
+	_reset_escalation()
 	_answer_wait = -1.0
 	story_holds = false
 	_end_nothing(0.0)
@@ -130,10 +170,21 @@ func effect_gate() -> String:
 	return ""
 
 
+## A new run of the game: a door may be left ajar again. Not called on a retry after death.
+func begin_run() -> void:
+	ajar_done = false
+	_ajar_wait = -1.0
+
+
 ## One line for a read-out.
 func status() -> String:
 	var held := effect_gate()
-	return "silent: %s" % held if gate() != "" else ("settling · %s" % held if held != "" else "may speak")
+	var line := "silent: %s" % held if gate() != "" else ("settling · %s" % held if held != "" else "may speak")
+	if answer_step > 0:
+		var settings := SoundSettings.current()
+		line += " · answers: step %d of %d (quiet resets it in %.0f s)" % [answer_step, settings.house_escalate_steps,
+			maxf(settings.house_escalate_reset - _since_loud, 0.0)]
+	return line
 
 
 ## Brings the next effect forward to now (auditioning). The gates still apply.
@@ -199,12 +250,53 @@ func allowed(stream: AudioStream) -> bool:
 
 
 ## Something she did was loud: the house may answer with a single knock, a second later.
-## Returns true if an answer is on its way.
+## Returns true if an answer is on its way. Asked again soon after an answer, the next one
+## comes closer; every call, answered or not, restarts the quiet that puts it back.
 func answer() -> bool:
-	if gate() != "" or _answer_wait >= 0.0 or _since_answer < SoundSettings.current().house_answer_gap:
+	var settings := SoundSettings.current()
+	_settle_quiet()
+	_since_loud = 0.0
+	if gate() != "" or _answer_wait >= 0.0 or _since_answer < settings.house_answer_gap:
 		return false
-	_answer_wait = SoundSettings.current().house_answer_delay
+	_answer_raised = _since_accepted < settings.house_escalate_window and answer_step < settings.house_escalate_steps
+	if _answer_raised:
+		answer_step += 1
+	_since_accepted = 0.0
+	_answer_wait = settings.house_answer_delay
 	return true
+
+
+## The loudest the answer may be at its step (LUFS): house_max_lufs at step 0, rising
+## evenly to house_escalate_max_lufs at the top step.
+func answer_cap() -> float:
+	var settings := SoundSettings.current()
+	var steps := maxi(settings.house_escalate_steps, 1)
+	return lerpf(settings.house_max_lufs, settings.house_escalate_max_lufs, clampf(float(answer_step) / steps, 0.0, 1.0))
+
+
+## How loud the answering file may play (dB, 0 or less): turned down to answer_cap(), never up.
+func answer_level_for(lufs: float) -> float:
+	return minf(0.0, answer_cap() - lufs)
+
+
+## Where the next answer may come from: places in rooms she is not in (with no room known,
+## not right beside her), never nearer than house_answer_min_u.
+func answer_places() -> Array[Vector2]:
+	var settings := SoundSettings.current()
+	var here := String(_current_room.call()) if _current_room.is_valid() else ""
+	var far: float = Units.to_px(settings.house_min_distance_u)
+	var least: float = Units.to_px(settings.house_answer_min_u)
+	var places: Array[Vector2] = []
+	for room: String in _rooms:
+		if room == here:
+			continue
+		for spot: Vector2 in _rooms[room]:
+			if is_instance_valid(_listener):
+				var distance := spot.distance_to(_listener.global_position)
+				if distance < least or (here == "" and distance < far):
+					continue
+			places.append(spot)
+	return places
 
 
 ## Every effect the house can make: { file, lufs, caption }. The ones the tutorial always
@@ -222,6 +314,9 @@ func effects() -> Array[Dictionary]:
 func _process(delta: float) -> void:
 	_since_cue += delta
 	_since_answer += delta
+	_since_loud += delta
+	_since_accepted += delta
+	_settle_quiet()
 	if _nothing_left >= 0.0:
 		_nothing_left -= delta
 		if _nothing_left < 0.0 or gate() != "":
@@ -240,6 +335,13 @@ func _process(delta: float) -> void:
 			_answer_wait = -1.0
 			if open:
 				_knock()
+	if _ajar_wait >= 0.0:
+		_ajar_wait -= delta
+		if _ajar_wait < 0.0:
+			_ajar_wait = -1.0
+			# Not while it is alert or near: then this attempt is dropped (a later effect may try).
+			if open:
+				_leave_ajar()
 	if not open:
 		return
 	_open_wait = maxf(_open_wait - delta, 0.0)
@@ -275,30 +377,74 @@ func _effect() -> void:
 	_play_entry(&"effect", choices[randi() % choices.size()])
 
 
-## The answer: one knock from another room.
+## The answer: one knock from another room, closer each step.
 func _knock() -> void:
 	var settings := SoundSettings.current()
 	for entry: Dictionary in settings.house_effects:
 		if entry.file == settings.house_knock:
 			_since_answer = 0.0
-			_play_entry(&"answer", entry)
+			var at := _answer_spot()
+			if _play_entry(&"answer", entry, at, answer_level_for(float(entry.lufs))) and is_instance_valid(_listener):
+				_answer_distance = at.distance_to(_listener.global_position)
 			return
 
 
-func _play_entry(family: StringName, entry: Dictionary) -> void:
-	var at := spot_away()
+## Where this answer comes from. At step 0 (or with nothing remembered) any allowed place, not
+## the one used last; when this answer raised the step, the farthest place that is nearer to
+## her than the last answer was (the nearest, if none is nearer); otherwise the place about
+## as far as the last answer. Vector2.INF with nowhere allowed.
+func _answer_spot() -> Vector2:
+	var places := answer_places()
+	if places.is_empty():
+		return Vector2.INF
+	if answer_step == 0 or _answer_distance == INF or not is_instance_valid(_listener):
+		var fresh := places.filter(func(spot: Vector2) -> bool: return spot != _last_spot)
+		var pool: Array = fresh if not fresh.is_empty() else places
+		_last_spot = pool[randi() % pool.size()]
+		return _last_spot
+	var ears := _listener.global_position
+	var chosen := Vector2.INF
+	var best := INF
+	for spot in places:
+		var distance := spot.distance_to(ears)
+		var score := absf(distance - _answer_distance)
+		if _answer_raised:
+			# Nearer than the last: the farthest of those (a little closer, not a jump).
+			score = _answer_distance - distance if distance < _answer_distance else INF
+		if score < best:
+			best = score
+			chosen = spot
+	if chosen == Vector2.INF:
+		# Nothing nearer is allowed: the nearest allowed place.
+		for spot in places:
+			if chosen == Vector2.INF or spot.distance_to(ears) < chosen.distance_to(ears):
+				chosen = spot
+	_last_spot = chosen
+	return chosen
+
+
+## Plays one entry of house_effects from `at` (a place away from her when left out), at
+## `level_db` (turned down to house_max_lufs when left out). Returns true if it sounded.
+func _play_entry(family: StringName, entry: Dictionary, at := Vector2.INF, level_db := NAN) -> bool:
+	if at == Vector2.INF and family != &"answer":
+		at = spot_away()
 	var stream := load(entry.file) as AudioStream if ResourceLoader.exists(entry.file) else null
 	if stream == null or at == Vector2.INF:
-		return
+		return false
 	_last_effect = entry.file
-	_sound(family, stream, at, level_for(float(entry.lufs)), String(entry.get("caption", "")))
+	var level := level_for(float(entry.lufs)) if is_nan(level_db) else level_db
+	if not _sound(family, stream, at, level, String(entry.get("caption", ""))):
+		return false
+	if family == &"effect":
+		_after_effect(at)
+	return true
 
 
-func _sound(family: StringName, stream: AudioStream, at: Vector2, level_db: float, caption: String) -> void:
+func _sound(family: StringName, stream: AudioStream, at: Vector2, level_db: float, caption: String) -> bool:
 	var held := gate()
 	var variation: float = SoundSettings.current().set_pitch_range
 	if play(stream, at, level_db, randf_range(1.0 - variation, 1.0 + variation)) == null:
-		return
+		return false
 	if held != "":
 		violations += 1
 		push_error("[HouseVoice] %s played while its gates were closed: %s" % [stream.resource_path, held])
@@ -306,6 +452,7 @@ func _sound(family: StringName, stream: AudioStream, at: Vector2, level_db: floa
 	if history.size() > HISTORY:
 		history.pop_front()
 	sounded.emit(family, stream, at, level_db, caption)
+	return true
 
 
 ## Nothing: the ambience thins for a few seconds and returns.
@@ -324,3 +471,114 @@ func _nothing() -> void:
 func _end_nothing(fade: float) -> void:
 	_nothing_left = -1.0
 	MixDirector.release(NOTHING_MIX, fade)
+
+
+## A quiet minute (nothing loud from her) puts the answer back where it started.
+func _settle_quiet() -> void:
+	if _since_loud >= SoundSettings.current().house_escalate_reset:
+		_reset_escalation()
+
+
+func _reset_escalation() -> void:
+	answer_step = 0
+	_answer_raised = false
+	_answer_distance = INF
+	_since_accepted = INF
+	_since_loud = INF
+
+
+## Death and a retry: the answer starts again from afar, and any door still to be left ajar is
+## not. Whether one was left ajar this run is kept.
+func _on_state_reset() -> void:
+	_reset_escalation()
+	_ajar_wait = -1.0
+
+
+## After an effect: maybe, a while later, a door is found ajar (at most once per run).
+func _after_effect(at: Vector2) -> void:
+	var settings := SoundSettings.current()
+	if not settings.house_ajar or ajar_done or _ajar_wait >= 0.0 or _doors.is_empty():
+		return
+	if randf() >= settings.house_ajar_chance:
+		return
+	_ajar_wait = randf_range(settings.house_ajar_delay.x, settings.house_ajar_delay.y)
+	_ajar_from = at
+
+
+## The doors that may be left ajar now: shut and at rest, not locked, nobody in the doorway,
+## far from her and behind a wall; nearest to `from` (where the effect sounded) first.
+func ajar_candidates(from := Vector2.INF) -> Array[Door]:
+	var found: Array[Door] = []
+	if not is_instance_valid(_listener):
+		return found
+	var settings := SoundSettings.current()
+	var ears := _listener.global_position
+	var least: float = Units.to_px(settings.house_ajar_min_u)
+	var skipped: Array[RID] = []
+	for body: Node in [_listener, _listener.get_parent()]:
+		if body is CollisionObject2D:
+			skipped.append((body as CollisionObject2D).get_rid())
+	for door in _doors:
+		if not is_instance_valid(door) or not door.is_inside_tree():
+			continue
+		if door.is_open or not is_zero_approx(door.swing) or door.locked or door.is_doorway_occupied():
+			continue
+		var at := door.get_noise_origin()
+		if at.distance_to(ears) < least:
+			continue
+		# She must not see it happen: a wall between them (the acoustics' own wall ray).
+		if not Acoustics._wall_between(at, ears, door.get_world_2d(), skipped):
+			continue
+		found.append(door)
+	if from != Vector2.INF:
+		found.sort_custom(func(a: Door, b: Door) -> bool: return a.get_noise_origin().distance_to(from) < b.get_noise_origin().distance_to(from))
+	return found
+
+
+## The aftermath: the door nearest the effect is drawn a little open, with a creak she hears.
+## Only the leaf moves: the door is still shut (is_open, its blocker, its light occluders and
+## the way the entity walks are untouched), it sends no signal, its own player stays silent,
+## and the creak is a house sound the entity cannot hear.
+func _leave_ajar() -> void:
+	var settings := SoundSettings.current()
+	var doors := ajar_candidates(_ajar_from)
+	if doors.is_empty():
+		return
+	var door: Door = doors[0]
+	var creak := _creak_for(door)
+	var stream: AudioStream = creak.stream
+	var at := door.get_noise_origin()
+	if stream == null or not _sound(&"aftermath", stream, at, level_for(float(creak.lufs)), settings.house_ajar_caption):
+		return
+	ajar_done = true
+	var target: float = settings.house_ajar_swing
+	# The leaf moves while the creak sounds, and stops if anything else moves the door meanwhile.
+	_ajar_leaf = door.swing
+	create_tween().tween_method(_draw_ajar.bind(door), 0.0, target, stream.get_length())
+	door_left_ajar.emit(door)
+
+
+## One step of the leaf drawn ajar. It stops for good once the door is really opened, put
+## back (a checkpoint) or gone.
+func _draw_ajar(value: float, door: Object) -> void:
+	if is_nan(_ajar_leaf) or not is_instance_valid(door) or (door as Door).is_open or not is_equal_approx((door as Door).swing, _ajar_leaf):
+		_ajar_leaf = NAN
+		return
+	(door as Door).swing = value
+	_ajar_leaf = value
+
+
+## The creak for a door and how loud its file is: the door's own when its loudness is known
+## (it is house_ajar_creak or one of house_effects), otherwise house_ajar_creak.
+## { stream, lufs }; stream is null for a file the house may not play.
+func _creak_for(door: Door) -> Dictionary:
+	var settings := SoundSettings.current()
+	var own: AudioStream = door.creak
+	if own != null and allowed(own):
+		if own.resource_path == settings.house_ajar_creak:
+			return {"stream": own, "lufs": settings.house_ajar_creak_lufs}
+		for entry: Dictionary in settings.house_effects:
+			if entry.file == own.resource_path:
+				return {"stream": own, "lufs": float(entry.lufs)}
+	var fallback := load(settings.house_ajar_creak) as AudioStream if ResourceLoader.exists(settings.house_ajar_creak) else null
+	return {"stream": fallback if fallback != null and allowed(fallback) else null, "lufs": settings.house_ajar_creak_lufs}
