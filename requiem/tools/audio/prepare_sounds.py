@@ -43,11 +43,12 @@ MAX_LIMITING_DB = 6.0    # most a peak may be pushed down to reach a loudness ta
 RUMBLE_HZ = 25           # everything below is inaudible rumble that only eats headroom
 BLOCK_S = 0.4            # the loudness standard listens in blocks this long
 
-LOOP, SLICE, STROKE, SCREAM, PHRASE, WHOLE = "loop", "slice", "stroke", "scream", "phrase", "whole"
+LOOP, SLICE, STROKE, BURST, SCREAM, PHRASE, WHOLE = "loop", "slice", "stroke", "burst", "scream", "phrase", "whole"
 KIND_TEXT = {
     LOOP: "loop (OGG, crossfaded ends, loop on in the import settings)",
     SLICE: "sliced one-shots (one hit per file)",
     STROKE: "sliced one-shots (one scrape stroke per file)",
+    BURST: "sliced one-shots (one sniff per file, cut at the pauses between them)",
     SCREAM: "scream (loudest second first, 1.6 s at most)",
     PHRASE: "idle talking (long takes split at pauses)",
     WHOLE: "one-shot, kept whole",
@@ -71,7 +72,7 @@ SETS = {
     "entity/heard_voice": (WHOLE, -20.0),
     "entity/neck_click": (WHOLE, -20.0),
     "entity/lost": (WHOLE, -20.0),
-    "entity/sniff": (WHOLE, -20.0),
+    "entity/sniff": (BURST, -20.0),
     "entity/cloth_fall": (WHOLE, -20.0),
     "entity/sob_stops": (WHOLE, -20.0),
     "entity/exhale": (WHOLE, -20.0),
@@ -285,6 +286,17 @@ def cut_whole(x: array.array, notes: list[str]) -> list[array.array]:
     return [faded(x[start:end], 0.002, 0.03)]
 
 
+def faintest_kept(strength: list[float]) -> float:
+    """The level of the faintest hit that still belongs to its take. Everything under the
+    first 6 dB drop in strength is a ghost note, once three hits (and a quarter of them) are
+    above that drop. Raising ghost notes to full level would raise the take's hiss with them."""
+    ordered = sorted(strength, reverse=True)
+    for k in range(max(3, math.ceil(len(ordered) / 4)), len(ordered)):
+        if ordered[k - 1] - ordered[k] >= 6.0:
+            return ordered[k - 1]
+    return min(ordered, default=0.0)
+
+
 def find_hits(x: array.array, notes: list[str]) -> list[tuple[int, int, float]]:
     """(start, end, fade_out_s) of every hit, in samples. A hit starts on a click: the level
     jumps 12 dB or more over what it was 10-30 ms earlier, and stands 18 dB clear of what came
@@ -306,15 +318,8 @@ def find_hits(x: array.array, notes: list[str]) -> list[tuple[int, int, float]]:
             groups[-1].append(t)
         else:
             groups.append([t])
-    # A take's ghost notes: everything under the first 6 dB drop in strength, once three hits
-    # (and a quarter of them) are above it. Raising those to full level would raise the hiss too.
     strength = [max(fast[group[0]:group[-1] + 30]) for group in groups]
-    ordered = sorted(strength, reverse=True)
-    faintest = min(ordered, default=0.0)
-    for k in range(max(3, math.ceil(len(ordered) / 4)), len(ordered)):
-        if ordered[k - 1] - ordered[k] >= 6.0:
-            faintest = ordered[k - 1]
-            break
+    faintest = faintest_kept(strength)
     faint = sum(1 for level in strength if level < faintest)
     groups = [group for group, level in zip(groups, strength) if level >= faintest]
     hits, doubles, cut_tails, between = [], 0, 0, list(fast)
@@ -409,6 +414,43 @@ def find_strokes(x: array.array, notes: list[str]) -> list[tuple[int, int, float
     if longest > SLICE_MAX_S:
         notes.append("!the source holds %d continuous drags (up to %.1f s), not separate scrapes: each is cut at its quietest moments into strokes under %.1f s, with soft fades" % (len(stretches), longest, SLICE_MAX_S))
     return strokes
+
+
+def cut_bursts(x: array.array, notes: list[str]) -> list[array.array]:
+    """One file per sniff. Sniffs have no click to cut on: the take is cut at the pauses
+    between them (every dip 12 dB or more under the sound on both sides of it)."""
+    hop = 0.005
+    env = envelope(x, 20.0, hop * 1000)
+    start, end = sound_bounds(x, -40.0)
+    first, last = int(start / RATE / hop), min(len(env) - 1, int(end / RATE / hop))
+    wide = round(0.6 / hop)
+    edges = [first] + [i for i in local_minima(env, round(0.1 / hop)) if first < i < last
+                       and min(max(env[max(0, i - wide):i + 1]), max(env[i:i + wide + 1])) - env[i] >= 12.0] + [last]
+    changed = True
+    while changed and len(edges) > 2:                       # a sliver joins its neighbour across the shallower dip
+        changed = False
+        for i in range(len(edges) - 1):
+            if (edges[i + 1] - edges[i]) * hop < SLICE_MIN_S:
+                del edges[i + 1 if i + 2 < len(edges) and (i == 0 or env[edges[i + 1]] > env[edges[i]]) else i]
+                changed = True
+                break
+    pieces = list(zip(edges, edges[1:]))
+    strength = [max(env[a:b + 1]) for a, b in pieces]
+    faintest = faintest_kept(strength)
+    clips = []
+    for (a, b), level in zip(pieces, strength):
+        if level < faintest:
+            continue
+        piece = x[frames(a * hop):frames(b * hop)]
+        p_start, p_end = sound_bounds(piece, -35.0)
+        clips.append(faded(piece[max(0, p_start - frames(0.002)):p_end], 0.004, 0.025))
+        if DEBUG:
+            print("    sniff %2d  %6.3f-%6.3f s  %.3f s  peak %5.1f dB" % (len(clips), a * hop, b * hop, len(clips[-1]) / RATE, level))
+    if len(pieces) > len(clips):
+        faint = len(pieces) - len(clips)
+        notes.append("!%d faint sniff%s left out (6 dB or more under the rest of the take)" % (faint, "" if faint == 1 else "s"))
+    BACKGROUND["level"] = -120.0
+    return clips
 
 
 def cut_scream(x: array.array, notes: list[str]) -> list[array.array]:
@@ -634,6 +676,8 @@ def build(set_id: str, kind: str, target: float, sources: list[Path], rule: dict
                 clips = [faded(x[a:b], 0.001, fade_out) for a, b, fade_out in find_hits(x, notes)]
             elif kind == STROKE:
                 clips = [faded(x[a:b], fade_in, fade_out) for a, b, fade_in, fade_out in find_strokes(x, notes)]
+            elif kind == BURST:
+                clips = cut_bursts(x, notes)
             elif kind == SCREAM:
                 clips = cut_scream(x, notes)
             elif kind == PHRASE:
@@ -642,8 +686,12 @@ def build(set_id: str, kind: str, target: float, sources: list[Path], rule: dict
                 clips = cut_loop(x, notes)
             else:
                 clips = cut_whole(x, notes)
-        numbered = kind in (SLICE, STROKE) or len(clips) > 1
+        numbered = kind in (SLICE, STROKE, BURST) or len(clips) > 1
         for index, clip in enumerate(clips, 1):
+            for _ in range(3):                             # every one-shot starts within 10 ms
+                if kind == LOOP or lead_ms(clip) < 10.0:
+                    break
+                clip = faded(clip[frames((lead_ms(clip) - 2.0) / 1000):], 0.003, 0.0)
             extension = ".ogg" if kind == LOOP else ".wav"
             file_name = "%s_%02d%s" % (stem, index, extension) if numbered else stem + extension
             path = staging / owner / name / file_name
@@ -668,9 +716,9 @@ def build(set_id: str, kind: str, target: float, sources: list[Path], rule: dict
                 found.append(("quiet", result["gain"], "very quiet source (raised %.0f dB)" % result["gain"]))
             if kind != LOOP and lead >= 10.0:
                 found.append(("lead", lead, "%.0f ms before the sound starts" % lead))
-            if kind == SLICE and hits_inside(clip) > 1:
+            if kind in (SLICE, BURST) and hits_inside(clip) > 1:
                 found.append(("two", 0.0, "may hold two hits"))
-            if kind in (SLICE, STROKE) and not SLICE_MIN_S - 0.005 <= length <= SLICE_MAX_S + 0.035:
+            if kind in (SLICE, STROKE, BURST) and not SLICE_MIN_S - 0.005 <= length <= SLICE_MAX_S + 0.035:
                 found.append(("length", length, "length outside %.2f-%.1f s" % (SLICE_MIN_S, SLICE_MAX_S)))
             if kind == WHOLE and rule is None and hits_inside(clip) >= 8:
                 found.append(("many", hits_inside(clip), "%d separate sounds in a row, kept whole as one file" % hits_inside(clip)))
@@ -781,13 +829,17 @@ def write_report(rows: list[dict], kinds: dict[str, tuple[str, float]], empty: l
            "Rumble under %d Hz is filtered out first: nobody hears it, and it eats the headroom the" % RUMBLE_HZ,
            "audible part needs. To reach a target, peaks are limited by %.0f dB at most; a sound that is one" % MAX_LIMITING_DB,
            "sharp click or thud stays under its target instead.", "",
-           "## Overview", "", "| Set | Files | Kind | Target | Measured | Lengths |", "|---|---|---|---|---|---|"]
+           "**Make-up** is what a set still lacks on average, in dB. It is not squeezed out of the files:",
+           "the game adds it at playback (`set_gain_db` in `audio/sound_settings.tres`).", "",
+           "## Overview", "", "| Set | Files | Kind | Target | Measured | Make-up | Lengths |", "|---|---|---|---|---|---|---|"]
     for set_id, set_rows in by_set.items():
         louds = [row["lufs"] for row in set_rows]
         lengths = [row["seconds"] for row in set_rows]
-        out.append("| `%s` | %d | %s | %.0f | %s | %s |" % (
+        lacking = round(2.0 * (kinds[set_id][1] - sum(louds) / len(louds))) / 2.0
+        out.append("| `%s` | %d | %s | %.0f | %s | %s | %s |" % (
             set_id, len(set_rows), kinds[set_id][0], kinds[set_id][1],
             "%.1f" % louds[0] if max(louds) - min(louds) < 0.05 else "%.1f to %.1f" % (min(louds), max(louds)),
+            "+%.1f" % lacking if lacking >= 0.5 else "",
             "%.2f s" % lengths[0] if len(lengths) == 1 else "%.2f-%.2f s" % (min(lengths), max(lengths))))
     worth = worth_a_listen(by_set, empty)
     out += ["", "## Worth a listen", ""]

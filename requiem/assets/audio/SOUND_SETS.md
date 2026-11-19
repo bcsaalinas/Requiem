@@ -12,38 +12,41 @@ Rumble under 25 Hz is filtered out first: nobody hears it, and it eats the headr
 audible part needs. To reach a target, peaks are limited by 6 dB at most; a sound that is one
 sharp click or thud stays under its target instead.
 
+**Make-up** is what a set still lacks on average, in dB. It is not squeezed out of the files:
+the game adds it at playback (`set_gain_db` in `audio/sound_settings.tres`).
+
 ## Overview
 
-| Set | Files | Kind | Target | Measured | Lengths |
-|---|---|---|---|---|---|
-| `entity/breath_calm` | 1 | loop | -24 | -24.0 | 7.72 s |
-| `entity/breath_hunt` | 2 | loop | -24 | -24.0 | 5.73-7.67 s |
-| `entity/catch_grab` | 1 | whole | -16 | -17.4 | 1.72 s |
-| `entity/claw_scrape` | 21 | stroke | -20 | -24.5 to -20.0 | 0.35-0.83 s |
-| `entity/claws_run` | 36 | slice | -20 | -22.8 to -20.0 | 0.15-0.25 s |
-| `entity/claws_scuttle` | 13 | slice | -20 | -20.8 to -20.0 | 0.16-0.28 s |
-| `entity/claws_walk` | 13 | slice | -20 | -20.3 to -20.0 | 0.18-0.36 s |
-| `entity/cloth_fall` | 1 | whole | -20 | -28.3 | 3.65 s |
-| `entity/drag` | 1 | loop | -24 | -24.0 | 6.15 s |
-| `entity/exhale` | 1 | whole | -20 | -20.0 | 3.92 s |
-| `entity/foot_slam` | 2 | whole | -16 | -22.9 to -18.6 | 1.10-1.17 s |
-| `entity/heard_voice` | 3 | whole | -20 | -20.0 | 1.73-2.00 s |
-| `entity/inhale` | 1 | whole | -16 | -16.0 | 1.90 s |
-| `entity/lost` | 2 | whole | -20 | -20.1 to -20.0 | 4.81-5.90 s |
-| `entity/mumble` | 20 | phrase | -24 | -24.1 to -24.0 | 1.21-7.78 s |
-| `entity/neck_click` | 2 | whole | -20 | -27.4 to -24.7 | 0.34-0.43 s |
-| `entity/pat_tap` | 7 | slice | -20 | -31.5 to -22.5 | 0.15-0.18 s |
-| `entity/scream` | 3 | scream | -12 | -12.1 | 1.60-1.60 s |
-| `entity/sniff` | 2 | whole | -20 | -20.1 to -20.0 | 4.99-8.39 s |
-| `entity/sob_stops` | 1 | whole | -20 | -20.1 | 2.62 s |
-| `viv/calm` | 1 | loop | -32 | -32.0 | 6.91 s |
-| `viv/exhale` | 2 | whole | -28 | -28.0 | 1.66-2.79 s |
-| `viv/forced_gasp` | 3 | whole | -24 | -24.0 | 1.86-4.85 s |
-| `viv/gasp` | 1 | whole | -28 | -28.0 | 1.43 s |
-| `viv/hold_in` | 3 | whole | -28 | -28.0 | 0.43-0.98 s |
-| `viv/nervous` | 1 | loop | -32 | -32.0 | 7.83 s |
-| `viv/panic` | 1 | loop | -24 | -24.0 | 7.17 s |
-| `entity/stand_down` | 1 | whole | -20 | -20.0 | 3.00 s |
+| Set | Files | Kind | Target | Measured | Make-up | Lengths |
+|---|---|---|---|---|---|---|
+| `entity/breath_calm` | 1 | loop | -24 | -24.0 |  | 7.72 s |
+| `entity/breath_hunt` | 2 | loop | -24 | -24.0 |  | 5.73-7.67 s |
+| `entity/catch_grab` | 1 | whole | -16 | -17.4 | +1.5 | 1.72 s |
+| `entity/claw_scrape` | 21 | stroke | -20 | -24.5 to -20.0 |  | 0.35-0.83 s |
+| `entity/claws_run` | 36 | slice | -20 | -22.8 to -20.0 | +0.5 | 0.15-0.25 s |
+| `entity/claws_scuttle` | 13 | slice | -20 | -20.8 to -20.0 |  | 0.16-0.28 s |
+| `entity/claws_walk` | 13 | slice | -20 | -20.3 to -20.0 |  | 0.18-0.36 s |
+| `entity/cloth_fall` | 1 | whole | -20 | -28.3 | +8.5 | 3.65 s |
+| `entity/drag` | 1 | loop | -24 | -24.0 |  | 6.15 s |
+| `entity/exhale` | 1 | whole | -20 | -20.0 |  | 3.92 s |
+| `entity/foot_slam` | 2 | whole | -16 | -22.9 to -18.6 | +5.0 | 1.10-1.17 s |
+| `entity/heard_voice` | 3 | whole | -20 | -20.0 |  | 1.73-2.00 s |
+| `entity/inhale` | 1 | whole | -16 | -16.0 |  | 1.90 s |
+| `entity/lost` | 2 | whole | -20 | -20.1 to -20.0 |  | 4.81-5.90 s |
+| `entity/mumble` | 20 | phrase | -24 | -24.1 to -24.0 |  | 1.21-7.78 s |
+| `entity/neck_click` | 2 | whole | -20 | -27.4 to -24.7 | +6.0 | 0.34-0.43 s |
+| `entity/pat_tap` | 7 | slice | -20 | -31.5 to -22.5 | +5.5 | 0.15-0.18 s |
+| `entity/scream` | 3 | scream | -12 | -12.1 |  | 1.60-1.60 s |
+| `entity/sniff` | 37 | burst | -20 | -20.1 to -20.0 |  | 0.17-0.49 s |
+| `entity/sob_stops` | 1 | whole | -20 | -20.1 |  | 2.62 s |
+| `viv/calm` | 1 | loop | -32 | -32.0 |  | 6.91 s |
+| `viv/exhale` | 2 | whole | -28 | -28.0 |  | 1.66-2.79 s |
+| `viv/forced_gasp` | 3 | whole | -24 | -24.0 |  | 1.86-4.85 s |
+| `viv/gasp` | 1 | whole | -28 | -28.0 |  | 1.43 s |
+| `viv/hold_in` | 3 | whole | -28 | -28.0 |  | 0.43-0.98 s |
+| `viv/nervous` | 1 | loop | -32 | -32.0 |  | 7.83 s |
+| `viv/panic` | 1 | loop | -24 | -24.0 |  | 7.17 s |
+| `entity/stand_down` | 1 | whole | -20 | -20.0 |  | 3.00 s |
 
 ## Worth a listen
 
@@ -76,8 +79,8 @@ sharp click or thud stays under its target instead.
 - `entity/pat_tap` (from `entity_pat_tap_02.mp3`): 2 faint hits left out (6 dB or more under the rest of the take)
 - `entity/pat_tap` (from `entity_pat_tap_02.mp3`): 3 of 3 files are under the loudness target, by up to 11.5 LU (sharp clicks: their peaks are already limited)
 - `entity/scream/entity_scream_full_01.wav`: peaks limited by 5.8 dB
-- `entity/sniff/entity_sniff_steady_01.wav`: 20 separate sounds in a row, kept whole as one file
 - `entity/sniff` (from `entity_sniff_voice_01.mp3`): source clips (191 samples at full scale)
+- `entity/sniff` (from `entity_sniff_voice_01.mp3`): 2 faint sniffs left out (6 dB or more under the rest of the take)
 - `entity/sob_stops/entity_sob_stops_01.wav`: peaks limited by 3.6 dB
 
 ## entity/breath_calm
@@ -354,12 +357,47 @@ Kind: scream (loudest second first, 1.6 s at most). Target: -12 LUFS.
 ## entity/sniff
 
 Plays: While it searches  
-Kind: one-shot, kept whole. Target: -20 LUFS.
+Kind: sliced one-shots (one sniff per file, cut at the pauses between them). Target: -20 LUFS.
 
 | File | Length (s) | Loudness (LUFS) | Peak (dB) | Loop | From | Notes |
 |---|---|---|---|---|---|---|
-| `entity_sniff_steady_01.wav` | 8.39 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` | 20 separate sounds in a row, kept whole as one file |
-| `entity_sniff_voice_01.wav` | 4.99 | -20.0 | -2.7 | no | `entity_sniff_voice_01.mp3` | source clips (191 samples at full scale) |
+| `entity_sniff_steady_01_01.wav` | 0.31 | -20.0 | -2.4 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_02.wav` | 0.34 | -20.0 | -2.1 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_03.wav` | 0.38 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_04.wav` | 0.28 | -20.0 | -1.4 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_05.wav` | 0.41 | -20.0 | -1.7 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_06.wav` | 0.37 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_07.wav` | 0.40 | -20.0 | -2.6 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_08.wav` | 0.29 | -20.0 | -2.1 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_09.wav` | 0.33 | -20.0 | -3.6 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_10.wav` | 0.28 | -20.0 | -2.0 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_11.wav` | 0.43 | -20.0 | -2.9 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_12.wav` | 0.30 | -20.0 | -2.9 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_13.wav` | 0.46 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_14.wav` | 0.32 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_15.wav` | 0.43 | -20.0 | -1.9 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_16.wav` | 0.31 | -20.0 | -2.6 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_17.wav` | 0.31 | -20.0 | -3.4 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_18.wav` | 0.29 | -20.0 | -2.2 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_19.wav` | 0.49 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_20.wav` | 0.39 | -20.1 | -1.3 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_steady_01_21.wav` | 0.35 | -20.0 | -2.8 | no | `entity_sniff_steady_01.mp3` |  |
+| `entity_sniff_voice_01_01.wav` | 0.42 | -20.0 | -3.4 | no | `entity_sniff_voice_01.mp3` | source clips (191 samples at full scale); 2 faint sniffs left out (6 dB or more under the rest of the take) |
+| `entity_sniff_voice_01_02.wav` | 0.28 | -20.0 | -1.4 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_03.wav` | 0.19 | -20.0 | -3.7 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_04.wav` | 0.35 | -20.0 | -5.0 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_05.wav` | 0.26 | -20.0 | -3.8 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_06.wav` | 0.23 | -20.0 | -4.1 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_07.wav` | 0.18 | -20.0 | -3.0 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_08.wav` | 0.31 | -20.0 | -3.8 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_09.wav` | 0.39 | -20.0 | -4.5 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_10.wav` | 0.18 | -20.0 | -3.5 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_11.wav` | 0.17 | -20.1 | -1.2 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_12.wav` | 0.26 | -20.0 | -1.7 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_13.wav` | 0.26 | -20.0 | -3.8 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_14.wav` | 0.24 | -20.0 | -4.6 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_15.wav` | 0.20 | -20.0 | -3.6 | no | `entity_sniff_voice_01.mp3` |  |
+| `entity_sniff_voice_01_16.wav` | 0.40 | -20.0 | -3.7 | no | `entity_sniff_voice_01.mp3` |  |
 
 ## entity/sob_stops
 
