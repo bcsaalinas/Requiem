@@ -36,6 +36,7 @@ PixelDisplay="*uid://bg081nyu5xrq3"
 MixDirector="*uid://186u4krtuyn7"
 Dread="*res://audio/dread.gd"
 Acoustics="*uid://oselo488hwn8"
+HouseVoice="*uid://dbwgt3pie7wjg"
 
 [display]
 

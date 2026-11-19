@@ -164,6 +164,50 @@ static func current() -> SoundSettings:
 ## come back after it. The two never sound together.
 @export_range(0.0, 2.0, 0.05, "suffix:s") var heartbeat_yield_fade := 0.2
 
+@export_group("House: its own voice")
+## No sound of the house may be louder than this (LUFS).
+@export_range(-50.0, -10.0, 0.5, "suffix:LUFS") var house_max_lufs := -26.0
+## The effects the house can make: the file, how loud the file itself is (LUFS, measured), and
+## the caption shown with it. Files dropped in assets/audio/house/effects are added to these.
+@export var house_effects: Array[Dictionary] = [
+	{"file": "res://assets/audio/horror-jam-kit 2/WAV/Foley/door_knock_01.wav", "lufs": -28.9, "caption": "[Knocking, somewhere in the house]"},
+	{"file": "res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav", "lufs": -17.1, "caption": "[A door creaks]"},
+	{"file": "res://assets/audio/horror-jam-kit 2/WAV/Impact/deep_impact_02.wav", "lufs": -14.0, "caption": "[Something falls]"},
+	{"file": "res://tutorial/assets/audio/chair_scrape.wav", "lufs": -26.7, "caption": "[A chair drags]"},
+]
+## The effect used to answer something loud she did. One of house_effects.
+@export_file("*.wav", "*.ogg") var house_knock := "res://assets/audio/horror-jam-kit 2/WAV/Foley/door_knock_01.wav"
+## How loud the files in assets/audio/house/settle and house/effects are made (LUFS).
+@export_range(-50.0, -10.0, 0.5, "suffix:LUFS") var house_set_lufs := -26.0
+## The caption for an effect that comes from assets/audio/house/effects.
+@export var house_effect_caption := "[Something moves, somewhere in the house]"
+## Seconds from one effect to the next (a random time in this span). Never less than about 90.
+@export var house_effect_gap := Vector2(90.0, 150.0)
+## Once it is safe again, the house waits this long (a random time in this span) before an
+## effect, so that it never speaks the moment the danger turns away.
+@export var house_gate_settle := Vector2(4.0, 12.0)
+## Seconds of quiet after any awareness cue of the entity before the house may sound.
+@export_range(0.0, 120.0, 1.0, "suffix:s") var house_after_cue := 20.0
+## One roll in this many is "nothing": the ambience thins instead of an effect.
+@export_range(1, 20) var house_nothing_one_in := 6
+## How far the ambience thins (below wherever the mood of the house already has it), for how
+## long, and how long it takes to go and to return.
+@export_range(-24.0, 0.0, 0.5, "suffix:dB") var house_nothing_db := -8.0
+@export_range(0.5, 15.0, 0.5, "suffix:s") var house_nothing_time := 4.0
+@export_range(0.0, 5.0, 0.1, "suffix:s") var house_nothing_fade := 1.2
+## Seconds from one settling sound to the next (a random time in this span).
+@export var house_settle_gap := Vector2(7.0, 18.0)
+## Settling sounds play this far under the loudest the house may be.
+@export_range(-30.0, 0.0, 0.5, "suffix:dB") var house_settle_db := -10.0
+## A soft start: every house sound rises from this far down, over this long.
+@export_range(-60.0, 0.0, 1.0, "suffix:dB") var house_attack_from_db := -24.0
+@export_range(0.0, 0.5, 0.01, "suffix:s") var house_attack := 0.06
+## The answering knock comes this long after what she did, and not again for this long.
+@export_range(0.1, 5.0, 0.1, "suffix:s") var house_answer_delay := 1.1
+@export_range(0.0, 120.0, 1.0, "suffix:s") var house_answer_gap := 12.0
+## When the room she is in is not known, a house sound is never nearer than this.
+@export_range(0.0, 30.0, 0.5, "suffix:u") var house_min_distance_u := 8.0
+
 @export_group("Acoustics: how far its sound travels")
 ## How many times per second the way from each entity to Viv is measured. Never every frame.
 @export_range(1.0, 20.0, 0.5, "suffix:/s") var acoustics_rate := 5.0

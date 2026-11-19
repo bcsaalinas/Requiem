@@ -227,7 +227,8 @@ func _ready() -> void:
 	var vestibule := Rect2(house_origin+Vector2(400,128),Vector2(416,512))
 	check(game.unease_count>heard_before and game.unease_last==game.UNEASE_KNOCK,"The house answers a rattled door with a knock")
 	check(not vestibule.has_point(game.unease_last_at),"House sounds come from a room she is not in")
-	for tick in range(900):
+	# Two more sounds, 5 to 9 s apart each: up to 18 s, so 20 s of waiting (15 s failed one run in five).
+	for tick in range(1200):
 		await frames(1)
 		if game.unease_count>=heard_before+3: break
 	check(game.unease_count>=heard_before+3 and not game.entity.visible and game.encounter_grace<=0.0,"The house keeps making sounds while she searches, and nothing appears")

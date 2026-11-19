@@ -70,6 +70,15 @@ func watch(entity: Node2D, audio: Node = null) -> void:
 			audio.connect(&"awareness_played", _on_awareness_played)
 
 
+## True while any entity is out in the world (shown), whatever it knows.
+func entity_about() -> bool:
+	for id in _watched:
+		var entity := _watched[id].entity.get_ref() as Node2D
+		if entity != null and entity.is_inside_tree() and entity.is_visible_in_tree():
+			return true
+	return false
+
+
 ## What one entity knows right now.
 func awareness_of(entity: Node2D, audio: Node = null) -> int:
 	# An entity that is not shown knows nothing, whatever state it was left in.

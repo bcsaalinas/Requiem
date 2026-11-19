@@ -448,7 +448,7 @@ func check_sound_audition(lab: Node) -> void:
 	var controls: Rect2 = studio.studio_status.get_parent().get_parent().get_global_rect()
 	var canvas := Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS)
 	check(controls.end.y <= lab.toolbar.position.y and canvas.encloses(controls),
-		"Sound audition controls fit above the lab return toolbar")
+		"Sound audition controls fit above the lab return toolbar (%s, toolbar at %.0f)" % [controls, lab.toolbar.position.y])
 	var folders := 0
 	for family in ["entity", "viv"]:
 		folders += DirAccess.get_directories_at(SoundLibrary.ROOT + family).size()
@@ -468,6 +468,9 @@ func check_sound_audition(lab: Node) -> void:
 		and studio.where_status.text.contains("presence"), "And what that does to its position sounds and to the house")
 	check(canvas.encloses(studio.where_status.get_global_rect()) and studio.where_status.text.contains("Viv:") and studio.where_status.text.contains("listening"),
 		"And how Viv is breathing, listening and covering it with her own steps")
+	check(canvas.encloses(studio.house_status.get_global_rect()) and studio.house_status.text.begins_with("House voice: " + HouseVoice.status())
+		and HouseVoice.in_a_house() and not HouseVoice.story_holds and HouseVoice.status() != "",
+		"And what the house voice is doing, or why it is silent: %s" % studio.house_status.text)
 	var length: float = studio.play_set_once("entity/scream")
 	check(length > 0.0 and studio._entity_voice.playing and studio._entity_voice.bus == AudioBus.ENTITY
 		and not studio._viv_voice.playing, "An entity set plays from the entity, on its bus")

@@ -258,6 +258,7 @@ func _ready() -> void:
 		thrower.piedra_clips.clear()
 		flashlight.click_clips.clear()
 	NoiseManager.noise_emitted.connect(_on_noise)
+	HouseVoice.sounded.connect(_on_house_sounded)
 	var window_mullion: Node2D = world.zones["house"].get_node("Lights/WindowSpill/Mullion")
 	(world.interactables["window"]["node"] as WallWindow).broken_changed.connect(func(is_broken: bool): window_mullion.visible = not is_broken)
 	window_beacon = HintBeacon.new()
@@ -295,6 +296,7 @@ func _ready() -> void:
 		caption("[Phone buzzes]")
 
 func _exit_tree() -> void:
+	HouseVoice.leave()
 	PauseMenu.set_open(false)
 	get_tree().paused=false
 	for audio in get_tree().get_nodes_in_group("tutorial_audio"):
@@ -357,6 +359,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 			prayer_captioned=true
 			caption("[Low praying]")
 	_configure_entity()
+	_enter_house_voice()
 	_sync_altar_door_glow()
 	world.zones["forest"].get_node("Ranger").active = zone == "forest"
 	if zone == "forest":
@@ -414,18 +417,38 @@ func in_unease() -> bool:
 func in_presence() -> bool:
 	return zone=="house" and (encounter_grace>0 or arrival_place!=Vector2.INF)
 
+## One sound of the house, from a place. The house voice (audio/house_voice.gd) plays it: on
+## World, with a soft start, and never a file the house may not use.
 func _play_stream(stream: AudioStream, at: Vector2, volume: float) -> void:
 	if test_mode or stream == null: return
-	var audio := AudioStreamPlayer2D.new()
-	audio.position=at
-	audio.bus=AudioBus.WORLD
-	audio.stream=stream
-	audio.volume_db=volume
-	audio.pitch_scale=randf_range(0.92,1.06)
-	add_child(audio)
-	audio.add_to_group("tutorial_audio")
-	audio.finished.connect(audio.queue_free)
-	audio.play()
+	var audio := HouseVoice.play(stream,at,volume,randf_range(0.92,1.06),self)
+	if audio != null: audio.add_to_group("tutorial_audio")
+
+## The house voice speaks only in the house: tell it where its rooms are. Before the key and
+## while the thing arrives, this script tells the story itself (the unease and the presence
+## below) and the house voice keeps out of it; after that the house is its own.
+func _enter_house_voice() -> void:
+	if zone!="house":
+		HouseVoice.leave()
+		return
+	var house: Vector2=world.zones["house"].global_position
+	var rooms := {}
+	for room: String in UNEASE_SPOTS:
+		rooms[room]=UNEASE_SPOTS[room].map(func(spot: Vector2) -> Vector2: return house+spot)
+	HouseVoice.enter(rooms,_room_name,player)
+	HouseVoice.story_holds=house_story()
+
+## The room of the house she is in ("" when she is in none of them).
+func _room_name() -> String:
+	var rooms: RoomVisibility = world.rooms("house")
+	return String(rooms.current.name) if rooms != null and rooms.current != null else ""
+
+## True while this script is telling the house's part of the story itself.
+func house_story() -> bool:
+	return zone=="house" and (not attack_finished or in_unease() or in_presence() or resetting or complete)
+
+func _on_house_sounded(family: StringName, _stream: AudioStream, _at: Vector2, _level: float, text: String) -> void:
+	if family!=&"story" and text!="": caption(text)
 
 ## The house, heard and never seen. Sounds come from rooms she is not in, a little oftener as
 ## the search goes on; now and then a board gives right behind her, where the beam is not.
@@ -456,18 +479,16 @@ func _unease_spot(behind: bool) -> Vector2:
 	if behind:
 		var facing := Vector2.from_angle(flashlight.global_rotation) if flashlight.enabled else Vector2.DOWN
 		return player.global_position-facing*UNEASE_BEHIND_DISTANCE
-	var current: Room = world.rooms("house").current
-	var here := String(current.name) if current != null else ""
-	var choices: Array[Vector2] = []
-	for room: String in UNEASE_SPOTS:
-		if room==here: continue
-		for spot: Vector2 in UNEASE_SPOTS[room]:
-			if house+spot!=unease_last_at: choices.append(house+spot)
-	return choices[randi()%choices.size()]
+	# A room she is not in, and not the place used last: the house voice knows the rooms.
+	var away := HouseVoice.spot_away()
+	return away if away!=Vector2.INF else house+UNEASE_SPOTS["Vestibule"][0]
 
 ## Something she did was loud enough to be answered: the next sound comes soon, and is a knock.
 func _house_answers() -> void:
-	if not in_unease(): return
+	if not in_unease():
+		# Later, with the thing in the house, the house answers by itself, if it is safe to.
+		HouseVoice.answer()
+		return
 	unease_reply=UNEASE_KNOCK
 	unease_next=minf(unease_next,unease_time+UNEASE_REPLY)
 
@@ -493,6 +514,7 @@ func _process(delta: float) -> void:
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
 	hud.set_key(has_key and not key_used)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
+	HouseVoice.story_holds=house_story()
 	if not dialogue.is_empty() or resetting: return
 	if zone == "forest":
 		_tick_ranger_checkpoint()

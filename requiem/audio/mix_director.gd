@@ -19,8 +19,9 @@ extends Node
 
 ## Who wins when two moments want the same bus. Higher wins.
 ## LISTEN is the soft low-pass of holding her breath; BREATH (running out of air) takes it
-## further on the buses it muffles.
-enum Priority { THREAT = 10, PRAYER = 20, LISTEN = 25, BREATH = 30, SCREAM = 40, DEATH = 50 }
+## further on the buses it muffles. HOUSE is the house thinning its own ambience for a few
+## seconds: it wins over the slow mood of the house, and anything she does wins over it.
+enum Priority { THREAT = 10, HOUSE = 15, PRAYER = 20, LISTEN = 25, BREATH = 30, SCREAM = 40, DEATH = 50 }
 
 const GAIN_NAME := "MixGain"
 const MUFFLE_NAME := "MixMuffle"

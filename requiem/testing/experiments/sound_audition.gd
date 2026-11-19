@@ -30,6 +30,7 @@ const CATCH_REACH := 28.0
 var safe := true
 var studio_status: Label
 var mix_status: Label
+var house_status: Label
 var where_status: Label
 var safe_button: Button
 var set_buttons := {}
@@ -111,8 +112,8 @@ func _build_controls() -> void:
 	LegacyUi.fit_layer(layer)
 	add_child(layer)
 	var panel := VBoxContainer.new()
-	panel.position = Vector2(20, 12)
-	panel.add_theme_constant_override("separation", 3)
+	panel.position = Vector2(20, 4)
+	panel.add_theme_constant_override("separation", 1)
 	layer.add_child(panel)
 	var heading := HBoxContainer.new()
 	heading.add_theme_constant_override("separation", 24)
@@ -122,6 +123,8 @@ func _build_controls() -> void:
 	heading.add_child(studio_status)
 	mix_status = _label("", 13)
 	panel.add_child(mix_status)
+	house_status = _label("", 12)
+	panel.add_child(house_status)
 	panel.add_child(_label("WASD move · Space hold breath · F light · E doors · Esc pause · F1 Test Lab", 12))
 	var controls := HBoxContainer.new()
 	controls.add_theme_constant_override("separation", 8)
@@ -132,6 +135,10 @@ func _build_controls() -> void:
 	_button(controls, "3 · Give up now", give_up).tooltip_text = "While it searches: skip to the moment it gives up."
 	_button(controls, "4 · Catch", audition_catch).tooltip_text = "The catch and the game over screen. R starts over."
 	_button(controls, "R · Start over", reset_audition)
+	_button(controls, "H · House effect", house_hurry).tooltip_text = \
+		"Brings the house's next effect forward. Its gates still apply: nothing plays while the entity is alert or near."
+	_button(controls, "K · House answers", house_answer).tooltip_text = \
+		"As if Viv had slammed a trunk lid: one knock from another room about a second later, if it is safe."
 	safe_button = _button(controls, "", func() -> void: set_safe(not safe))
 	safe_button.tooltip_text = "On: the entity cannot hear Viv's own noises and cannot catch her."
 	# The sound sets, down the right edge.
@@ -303,6 +310,25 @@ func where_text() -> String:
 		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, Dread.presence, MixDirector.recede(), her]
 
 
+## H. The house's next effect is due now (if its gates are open).
+func house_hurry() -> void:
+	HouseVoice.hurry()
+
+
+## K. Viv did something loud: the house may answer with one knock.
+func house_answer() -> void:
+	HouseVoice.answer()
+
+
+## What the house voice is doing and why, and the last thing it did.
+func house_text() -> String:
+	var last := "nothing yet"
+	if not HouseVoice.history.is_empty():
+		var entry: Dictionary = HouseVoice.history.back()
+		last = String(entry.family) + ("" if entry.file == "" else " · " + String(entry.file).get_file())
+	return "House voice: %s · last: %s" % [HouseVoice.status(), last]
+
+
 ## What the entity is doing, in the words of the design.
 func phase() -> String:
 	if not entity.active or not entity.visible:
@@ -329,6 +355,7 @@ func _process(delta: float) -> void:
 	var cue: String = String(entity.audio.last_awareness.get("moment", "none")) if entity.audio != null else "none"
 	studio_status.text = "It: %s · last cue: %s%s" % [phase(), cue, "" if _playing_set == "" else " · set: " + _playing_set]
 	where_status.text = where_text()
+	house_status.text = house_text()
 	mix_status.text = "threat %.2f (%s) · music %s · Ambience %+.1f dB · World %+.1f dB · Body %+.1f dB · Music bus %+.1f dB" % [
 		Dread.threat, Dread.awareness_name(), MusicDirector.STATE_NAMES[MusicDirector.current_state],
 		MixDirector.gain_db(AudioBus.AMBIENCE), MixDirector.gain_db(AudioBus.WORLD), MixDirector.gain_db(AudioBus.BODY), MixDirector.gain_db(AudioBus.MUSIC)]
@@ -344,6 +371,8 @@ func _input(event: InputEvent) -> void:
 			KEY_3: give_up()
 			KEY_4: audition_catch()
 			KEY_0: play_every_set()
+			KEY_H: house_hurry()
+			KEY_K: house_answer()
 			KEY_T: set_safe(not safe)
 			KEY_R: reset_audition()
 			KEY_F1:
