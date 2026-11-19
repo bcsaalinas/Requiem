@@ -17,7 +17,8 @@ const STEP_RADIANS := PI / 8.0
 ## Where the right arm hangs from the torso, in art px of the 160x160 frame.
 const ARM_SHOULDER := Vector2(49, 90)
 
-## Displayed rotation snaps to 22.5 degrees when true (gameplay facing is unchanged).
+## Displayed rotation snaps to 22.5 degrees when true (gameplay facing is unchanged). The player's
+## rig takes this from Preferences.turn_mode, where steps are the default.
 var steps_mode := false
 var facing := PI / 2.0
 var head_turn_deg := 0.0
@@ -159,6 +160,17 @@ func flashlight_angle_global() -> float:
 	if _part_mirrored(&"arm_right"):
 		degrees = -degrees
 	return global_rotation + PI / 2.0 + deg_to_rad(degrees) + _arm_swing_local()
+
+
+## Where the torch would point with no swing at the shoulder (global radians): the clip's own
+## drawn angle. VivAnimator swings the arm from here to the aim.
+func flashlight_rest_angle_global() -> float:
+	return flashlight_angle_global() - _arm_swing_local()
+
+
+## Sets the shoulder swing by how far the drawn torch should turn (radians, clockwise on screen).
+func set_torch_turn(turn: float) -> void:
+	arm_swing = -turn if _part_mirrored(&"arm_right") else turn
 
 
 ## The drawn anchor in art pixels of the 160x160 frame (before pivot, mirror and scale), for

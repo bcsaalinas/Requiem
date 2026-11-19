@@ -41,6 +41,8 @@ const ARM_SWING_OUT := deg_to_rad(60.0)
 const ARM_SWING_IN := deg_to_rad(48.0)
 ## Seconds for the arm to take up or give back its swing when a clip of its own starts or ends.
 const ARM_SWING_BLEND_SECONDS := 0.12
+## Actions in which the hand aims the torch (the rest move the arm for their own reasons).
+const HAND_AIMS_IN: Array[StringName] = [&"idle", &"walk", &"hold_breath"]
 const MAX_BEAM_OFFSET := deg_to_rad(12.0)
 
 @onready var player: CharacterBody2D = get_parent()
@@ -77,6 +79,7 @@ var _beam_jolt := 0.0
 var _beam_clock := 0.0
 var _beam_stride_frame := -1
 var _arm_swing_weight := 0.0
+var _torch_turn := 0.0
 var _written_facing: StringName = &"s"
 
 
@@ -105,6 +108,7 @@ func reset() -> void:
 	_beam_jolt = 0.0
 	_arm_swing_weight = 0.0
 	_rig.arm_swing = 0.0
+	_torch_turn = 0.0
 	flashlight.reach_ratio = 1.0
 	_carry = _carry_state()
 	_rig.set_facing(facing)
@@ -163,22 +167,28 @@ func _physics_process(delta: float) -> void:
 	appearance.actor_frame = _rig.frame_of(&"lower")
 
 
-## The hand follows the cursor, not only the light. PlayerAim turns the body in whole steps and
-## only once the aim is well off it, so between those turns the raised torch arm swings at the
-## shoulder to the aim heading. Clips that move the arm themselves (the sprint pump, a throw, the
-## gasp, a pickup, the switch click) keep it: the swing blends out for them and back in after.
+## The hand carries the light. PlayerAim says where the beam should go; the torch arm swings at
+## the shoulder until the drawn torch points exactly there, whatever the clip on the arm has drawn
+## (idle sway, the held breath, the breath let go), so the two can never disagree. The arm only
+## reaches so far: past that the torch stops, the beam stays with it, and the body turns to catch
+## up. Clips that throw the arm about themselves (sprint pump, throw, gasp, pickup, the switch
+## click) keep it: the swing blends out for them and back in after, and the beam goes where the
+## drawn torch does all the while (see _drive_beam).
 func _swing_arm(delta: float, action: StringName) -> void:
 	var praying: bool = prayer_feedback != null and prayer_feedback.phase != &"idle"
-	var free: bool = _carry == "on" and action in [&"idle", &"walk", &"hold_breath"] and not praying \
-		and _sequence.is_empty() and _arm_sequence.is_empty() and _rig.has_anchor("flashlight_tip")
+	var breathing_clip: bool = _sequence.is_empty() or String(_sequence[0]).begins_with("breath_")
+	var free: bool = _carry == "on" and action in HAND_AIMS_IN and not praying \
+		and breathing_clip and _arm_sequence.is_empty() and _rig.has_anchor("flashlight_tip")
 	_arm_swing_weight = move_toward(_arm_swing_weight, 1.0 if free else 0.0, delta / ARM_SWING_BLEND_SECONDS)
-	var swing := 0.0
+	var turn := 0.0
 	if _arm_swing_weight > 0.0:
 		var heading := _rig.global_rotation + PI / 2.0
-		swing = clampf(angle_difference(heading, aim.get_arm_heading()), -ARM_SWING_IN, ARM_SWING_OUT) * _arm_swing_weight
-	if is_equal_approx(swing, _rig.arm_swing):
+		var wanted := heading + clampf(angle_difference(heading, aim.aim_angle), -ARM_SWING_IN, ARM_SWING_OUT)
+		turn = angle_difference(_rig.flashlight_rest_angle_global(), wanted) * _arm_swing_weight
+	if is_equal_approx(turn, _torch_turn):
 		return
-	_rig.arm_swing = swing
+	_torch_turn = turn
+	_rig.set_torch_turn(turn)
 	# The muzzle moved with the hand: the light starts from where it is drawn now.
 	aim.refresh_beam_origin()
 
@@ -218,7 +228,10 @@ func _drive_beam(delta: float, action: StringName) -> void:
 	if absf(_beam_offset) < deg_to_rad(0.02): _beam_offset = 0.0
 	if absf(_beam_reach - 1.0) < 0.002: _beam_reach = 1.0
 	flashlight.reach_ratio = _beam_reach
-	if _beam_offset != 0.0:
+	if equipped and _carry == "on" and action in HAND_AIMS_IN:
+		# The light leaves the torch the way the torch is drawn, never the way the cursor lies.
+		flashlight.global_rotation = _rig.flashlight_angle_global() + _beam_offset
+	elif _beam_offset != 0.0:
 		flashlight.global_rotation = aim.aim_angle + _beam_offset
 
 

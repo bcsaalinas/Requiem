@@ -1,0 +1,60 @@
+{
+  "name": "vfx_breath_in",
+  "category": "vfx",
+  "description": "Stand-in: cold air drawn in to the mouth as she starts to hold her breath; 4 frames converging. Art faces south, mouth at the anchor.",
+  "placeholder": true,
+  "sheet": {
+    "file": "vfx_breath_in.png",
+    "hframes": 4,
+    "vframes": 1
+  },
+  "canvas": [
+    192,
+    48
+  ],
+  "frame_size": [
+    48,
+    48
+  ],
+  "frame_count": 4,
+  "ms_per_frame": [
+    70,
+    70,
+    70,
+    70
+  ],
+  "durations_ms": [
+    70,
+    70,
+    70,
+    70
+  ],
+  "total_ms": 280,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 70
+    },
+    {
+      "frame": 1,
+      "ms": 70
+    },
+    {
+      "frame": 2,
+      "ms": 70
+    },
+    {
+      "frame": 3,
+      "ms": 70
+    }
+  ],
+  "pivot": [
+    24,
+    8
+  ],
+  "anchor": [
+    24,
+    8
+  ],
+  "loop": false
+}

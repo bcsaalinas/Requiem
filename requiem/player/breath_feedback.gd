@@ -2,6 +2,7 @@ extends Node
 ## Presentation follows accepted mechanic events. It never owns air, noise or locks.
 
 const BreathVfx := preload("res://player/breath_vfx.gd")
+const BreathStrainAudio := preload("res://player/breath_strain_audio.gd")
 const INHALE_SECONDS := 0.20
 const RELEASE_SECONDS := 0.46
 const LATE_RELEASE_SECONDS := 0.55
@@ -23,6 +24,8 @@ var exertion_pressure := 0.0
 var pulse := 0.0
 ## A lub-dub on the same clock as `pulse` (0..1): what the tunnel throbs to.
 var heartbeat := 0.0
+## Where the pulse is in its beat (0..1): wraps to 0 on every heartbeat.
+var beat_phase := 0.0
 var cue: StringName = &""
 var cue_age := 10.0
 var recovery_fraction := 0.0
@@ -32,6 +35,7 @@ var _forced_duration := 0.0
 var _was_locked := false
 var _previous_position := Vector2.ZERO
 var _vfx: Control
+var strain_audio: Node
 var _layer: CanvasLayer
 
 
@@ -52,6 +56,10 @@ func _ready() -> void:
 	_vfx = BreathVfx.new()
 	_vfx.feedback = self
 	_layer.add_child(_vfx)
+	strain_audio = BreathStrainAudio.new()
+	strain_audio.name = "BreathStrainAudio"
+	strain_audio.feedback = self
+	add_child(strain_audio)
 	reset_feedback()
 
 
@@ -64,6 +72,7 @@ func reset_feedback() -> void:
 	exertion_pressure = 0.0
 	pulse = 0.0
 	heartbeat = 0.0
+	beat_phase = 0.0
 	_elapsed = 0.0
 	_pulse_clock = 0.0
 	_forced_duration = 0.0
@@ -93,6 +102,7 @@ func _physics_process(delta: float) -> void:
 	_pulse_clock = fposmod(_pulse_clock + delta * TAU * lerpf(0.8, 1.55, strain), TAU)
 	pulse = (1.0 - cos(_pulse_clock)) * 0.5
 	var beat := _pulse_clock / TAU
+	beat_phase = beat
 	heartbeat = exp(-pow((beat - 0.12) / 0.06, 2.0)) + 0.6 * exp(-pow((beat - 0.34) / 0.07, 2.0))
 	if breath.is_locked:
 		# Recovery stays visible even though the mechanic clears exertion on gasp.

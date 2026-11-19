@@ -142,6 +142,12 @@ func check_hold_and_release() -> void:
 		"Accepted Space input immediately starts the inhale pose and inward visual cue")
 	check(appearance.breath_track == &"inhale" and String(appearance.rig.clip_name(&"upper")).begins_with("girl_breath_hold"),
 		"The real player plays the authored hold-in upper-body clip")
+	var drawn_in: Array = breath_effects(&"in")
+	var mouth_side: Vector2 = Vector2.DOWN.rotated(appearance.rig.global_rotation)
+	check(drawn_in.size() == 1 and (drawn_in[0].global_position - appearance.rig.anchor_global("head_center")).dot(mouth_side) > 4.0,
+		"Starting a hold draws one breath of air in at her mouth, on the side she faces")
+	check(breath_effects(&"strain").is_empty() and feedback.strain_audio.level <= 0.0,
+		"With air to spare there are no strain marks and no heartbeat")
 	await frames(18)
 	check(feedback.phase == &"hold" and feedback.hold_focus > 0.95 and breath.is_holding,
 		"Inhale settles into a sustained hold with responsive focus feedback")
@@ -154,10 +160,28 @@ func check_hold_and_release() -> void:
 	check(feedback._vfx._edge.material.get_shader_parameter("amount") > 0.9
 		and feedback._vfx._edge.material.get_shader_parameter("radius") < feedback._vfx.RADIUS_HELD,
 		"Held breath closes the view into a tunnel that tightens as the air runs low")
+	var marks_seen := 0
+	var easy_level: float = feedback.strain_audio.level
+	breath.lung_percent = 24.0
+	for tick in range(90):
+		await frames(1)
+		marks_seen = maxi(marks_seen, breath_effects(&"strain").size())
+		if breath.lung_percent < 12.0: breath.lung_percent = 12.0
+	check(marks_seen >= 2, "Air running short shows on her: strain marks on both sides of her head with her heartbeat")
+	check(feedback.strain_audio.level > 0.6 and feedback.strain_audio.level > easy_level
+		and feedback.strain_audio._filters.all(func(filter: AudioEffectLowPassFilter) -> bool: return filter.cutoff_hz < 4000.0),
+		"The longer she holds, the louder her heart and the duller the world")
+	check(noises.is_empty(), "Strain effects and their sound add no hearing event")
+	breath.lung_percent = 30.0
 	Input.action_release("hold_breath")
 	await frames(2)
 	check(feedback.phase == &"release" and feedback.cue == &"release" and not breath.is_holding,
 		"A safe voluntary release starts the controlled exhale and release cue")
+	check(breath_effects(&"out").size() == 1, "Letting go breathes out one puff in front of her")
+	await frames(40)
+	check(feedback.strain_audio.level <= 0.01
+		and feedback.strain_audio._filters.all(func(filter: AudioEffectLowPassFilter) -> bool: return filter.cutoff_hz > 15000.0),
+		"Breathing again lets the heartbeat go and opens the world's sound back up")
 	check(noises.size() == 1 and is_equal_approx(noises[0].radius, Units.to_px(1.0)),
 		"Controlled exhale preserves its single 1-unit gameplay noise")
 	await frames(32)
@@ -344,3 +368,9 @@ func check_all_breath_shapes() -> void:
 	check(String(rig.clip_name(&"upper")).begins_with("girl_breath_"),
 		"Every sampled action ends on a dedicated breath clip rather than an idle substitute")
 	completed_scenarios += 1
+
+
+## Kinds of the breath effect sprites alive right now ("in", "strain", "leak", "out", "pant").
+func breath_effects(kind: StringName) -> Array:
+	return get_tree().get_nodes_in_group(&"breath_vfx").filter(func(fx: Node) -> bool:
+		return not fx.is_queued_for_deletion() and fx.get_meta(&"kind") == kind)

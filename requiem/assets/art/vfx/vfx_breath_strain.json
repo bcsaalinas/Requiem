@@ -1,0 +1,54 @@
+{
+  "name": "vfx_breath_strain",
+  "category": "vfx",
+  "description": "Stand-in: tension marks beside the head and a bead of sweat while the held breath runs short; 3 frames, her right side (mirrored in game for the left). Anchor is the head centre.",
+  "placeholder": true,
+  "sheet": {
+    "file": "vfx_breath_strain.png",
+    "hframes": 3,
+    "vframes": 1
+  },
+  "canvas": [
+    192,
+    64
+  ],
+  "frame_size": [
+    64,
+    64
+  ],
+  "frame_count": 3,
+  "ms_per_frame": [
+    80,
+    100,
+    120
+  ],
+  "durations_ms": [
+    80,
+    100,
+    120
+  ],
+  "total_ms": 300,
+  "frames": [
+    {
+      "frame": 0,
+      "ms": 80
+    },
+    {
+      "frame": 1,
+      "ms": 100
+    },
+    {
+      "frame": 2,
+      "ms": 120
+    }
+  ],
+  "pivot": [
+    32,
+    32
+  ],
+  "anchor": [
+    32,
+    32
+  ],
+  "loop": false
+}
