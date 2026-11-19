@@ -126,11 +126,17 @@ func check_in_the_house() -> void:
 		"The tutorial entity has an EntityAudio child listening to its animation cues")
 	if audio == null:
 		return
-	var players: Array = audio.get_children()
+	# What it knows (the awareness voices) plays from the entity; where it is plays from Heard.
+	var players: Array = audio.get_children().filter(func(node: Node) -> bool: return node != audio.heard) + audio.heard.get_children()
 	var far_twins: Array = [audio._breath_far, audio._drag_far]
 	check(players.size() == SoundSettings.current().entity_voices + 5 + EntityAudio.AWARENESS_VOICES and players.all(func(player: Node) -> bool:
 		return player is AudioStreamPlayer2D and player.bus == (AudioBus.ENTITY_FAR if player in far_twins else AudioBus.ENTITY)),
 		"A pool of players, plus breath, drag, voice and the awareness voices on the Entity bus, and the dulled twins of breath and drag on EntityFar")
+	check(audio.heard != null and audio.heard.top_level and audio.get_children().size() == EntityAudio.AWARENESS_VOICES + 1
+		and audio._aware.all(func(player: Node) -> bool: return player.get_parent() == audio)
+		and audio.heard.get_children().size() == SoundSettings.current().entity_voices + 5
+		and (audio._voices + [audio._breath, audio._drag, audio._breath_far, audio._drag_far, audio._talk]).all(func(player: Node) -> bool: return player.get_parent() == audio.heard),
+		"What it knows plays from the entity itself; where it is plays from Heard, which can be placed on its own")
 	check(entity.breath_calm_clips.is_empty() and entity.breath_hunt_clips.is_empty() and entity.hunt_stinger_clips.is_empty()
 		and entity.search_cue_clips.is_empty() and entity.investigate_cue_clips.is_empty() and entity.catch_clips.is_empty()
 		and entity.drag_clip == null and entity.feel_clip == null,

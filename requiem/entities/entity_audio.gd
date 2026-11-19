@@ -20,6 +20,9 @@ extends Node2D
 ## every one is heard, sharp and exactly placed; a room away they are quieter, dulled, vaguely
 ## placed, and some of them are lost on the way; further off there is nothing. What it knows
 ## (Channel A) is never dulled, thinned out or cut off like this.
+## Behind a wall they come from the doorway the sound really travels through, not straight
+## through the wall: they play from a holder (Heard) placed in the direction of that opening, at
+## the distance the entity really is. What it knows is always heard from where it stands.
 ##
 ## Its idle voice says it is alive and unaware: a mumbled phrase now and then while it walks its
 ## patrol, trailing off when it pauses. While it searches the voice is lower and rarer, and it
@@ -106,6 +109,15 @@ var last_gap := ""
 ## dB every position sound loses on the way right now, and how exactly it is placed (0..1).
 var _reach_db := 0.0
 var _panning := 1.0
+## Where its position sounds (Channel B) play from: the entity itself, or behind a wall the
+## direction of the opening its sound comes through (Acoustics), at the entity's own distance.
+var heard: Node2D
+## 0..1: after where it comes from jumped (another doorway, or into view), the placing comes
+## back from dead centre to its full amount. What is placed is _panning times this.
+var heard_settle := 1.0
+## Where Heard is meant to be, relative to the ears, last frame (for telling a jump).
+var _heard_target := Vector2.ZERO
+var _heard_known := false
 var _reach_known := false
 var _voices: Array[AudioStreamPlayer2D] = []
 var _next_voice := 0
@@ -148,15 +160,22 @@ var _sniff_next := 0.0
 
 func _ready() -> void:
 	entity = get_parent() as CharacterBody2D
+	# Channel B plays from Heard, which is placed on its own (top_level) and need not be where
+	# the entity stands. Channel A stays here, on the entity.
+	heard = Node2D.new()
+	heard.name = "Heard"
+	heard.top_level = true
+	add_child(heard)
+	heard.global_position = entity.global_position
 	for index in SoundSettings.current().entity_voices:
-		_voices.append(_player("Voice%d" % index))
-	_breath = _player("Breath")
-	_drag = _player("Drag")
-	_breath_far = _player("BreathFar")
-	_drag_far = _player("DragFar")
+		_voices.append(_player("Voice%d" % index, heard))
+	_breath = _player("Breath", heard)
+	_drag = _player("Drag", heard)
+	_breath_far = _player("BreathFar", heard)
+	_drag_far = _player("DragFar", heard)
 	_breath_far.bus = AudioBus.ENTITY_FAR
 	_drag_far.bus = AudioBus.ENTITY_FAR
-	_talk = _player("Talk")
+	_talk = _player("Talk", heard)
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
 	for index in AWARENESS_VOICES:
 		_aware.append(_player("Awareness%d" % index))
@@ -175,14 +194,14 @@ func _ready() -> void:
 	Acoustics.watch(entity, self)
 
 
-func _player(player_name: String) -> AudioStreamPlayer2D:
+func _player(player_name: String, holder: Node = self) -> AudioStreamPlayer2D:
 	var player := AudioStreamPlayer2D.new()
 	player.name = player_name
 	player.bus = AudioBus.ENTITY
 	# The engine only knows the straight line. Levels are set here, from the way sound travels.
 	player.max_distance = NO_ENGINE_FALLOFF_PX
 	player.attenuation = 1.0
-	add_child(player)
+	holder.add_child(player)
 	return player
 
 
@@ -240,7 +259,7 @@ func play_set(set_id: String, extra_db := 0.0, pitch := 1.0) -> AudioStreamPlaye
 	voice.bus = _one_shot_bus()
 	voice.set_meta(&"level", SoundLibrary.gain_db(set_id) + extra_db)
 	voice.volume_db = _heard_db(float(voice.get_meta(&"level")))
-	voice.panning_strength = _panning
+	voice.panning_strength = placing()
 	voice.pitch_scale = pitch
 	voice.play()
 	plays[set_id] = int(plays.get(set_id, 0)) + 1
@@ -569,6 +588,10 @@ func _tick_reach(delta: float) -> void:
 	var settings := SoundSettings.current()
 	var listening: bool = Acoustics.listener() != null
 	var audible := is_audible()
+	# Put somewhere by hand, just heard again, or it has her: placed at once, with no glide and
+	# no moment of vagueness.
+	if not _reach_known or not audible:
+		_heard_known = false
 	# With nobody to hear it, it sounds as if she stood right here.
 	var target := 0.0
 	if listening:
@@ -593,6 +616,50 @@ func _tick_reach(delta: float) -> void:
 		_reach_db += masked_db()
 	_panning = position_panning(heard_u, limit)
 	Dread.report_presence(self, heard_clarity if audible and listening and not GameState.is_dead else 0.0)
+	_place_heard(delta)
+
+
+## How exactly its position sounds are placed right now (0 = dead centre, 1 = exact): the
+## weakening with distance, times the moment of vagueness after a jump.
+func placing() -> float:
+	return _panning * heard_settle
+
+
+## Where its position sounds come from, as far as direction goes (Heard): the entity itself,
+## unless a wall is in the way and the sound comes round through an opening. Then Heard lies in
+## the direction of that opening, at the distance the entity really is: Godot pans a 2D sound by
+## how far it is to the side of the ears (relative to the screen width), so this keeps the
+## amount of panning and changes only the side. Small changes glide; a jump (another opening,
+## or it stepped into view) is not swept across the wall: Heard goes there at once and the
+## placing goes vague for a moment.
+func _place_heard(delta: float) -> void:
+	var settings := SoundSettings.current()
+	var at := entity.global_position
+	var ears := Acoustics.listener()
+	var reading := Acoustics.reading(entity)
+	var through: bool = settings.doorway_panning and ears != null and reading.valid and reading.through_opening \
+		and not is_catching()
+	var target := Vector2.ZERO
+	if ears != null:
+		target = at - ears.global_position
+		if through:
+			target = (reading.heard_from - ears.global_position).normalized() * target.length()
+	if not _heard_known:
+		heard_settle = 1.0
+	elif _heard_target.distance_to(target) > Units.to_px(settings.doorway_switch_u):
+		heard_settle = 0.0
+	else:
+		heard_settle = minf(1.0, heard_settle + delta / settings.doorway_settle)
+	if not through or ears == null:
+		heard.global_position = at       # nothing in the way: exactly where it is, every frame
+	elif not _heard_known or heard_settle == 0.0:
+		heard.global_position = ears.global_position + target
+	else:
+		# Glides relative to the ears, so Viv walking does not drag it behind her.
+		var offset := heard.global_position - ears.global_position
+		heard.global_position = ears.global_position + offset.lerp(target, 1.0 - exp(-delta / settings.doorway_glide))
+	_heard_target = target
+	_heard_known = true
 
 
 ## Sets what reaches Viv of every position sound that is playing: level, blur and placing.
@@ -600,10 +667,10 @@ func _apply_reach() -> void:
 	for voice in _voices:
 		if voice.playing:
 			voice.volume_db = _heard_db(float(voice.get_meta(&"level", SILENT_DB)))
-			voice.panning_strength = _panning
+			voice.panning_strength = placing()
 	if _talk.playing:
 		_talk.volume_db = _heard_db(float(_talk.get_meta(&"level", SILENT_DB)))
-		_talk.panning_strength = _panning
+		_talk.panning_strength = placing()
 	# Loops: the near and the far player share the level, crossfaded by clarity (equal power).
 	var near_db := linear_to_db(maxf(sqrt(heard_clarity), 0.0001))
 	var far_db := linear_to_db(maxf(sqrt(1.0 - heard_clarity), 0.0001))
@@ -611,8 +678,8 @@ func _apply_reach() -> void:
 		var level := float(pair[0].get_meta(&"level", SILENT_DB))
 		pair[0].volume_db = _heard_db(level + near_db)
 		pair[1].volume_db = _heard_db(level + far_db)
-		pair[0].panning_strength = _panning
-		pair[1].panning_strength = _panning
+		pair[0].panning_strength = placing()
+		pair[1].panning_strength = placing()
 
 
 func _process(delta: float) -> void:
@@ -692,7 +759,7 @@ func _say(searching: bool) -> void:
 	_talk.bus = _one_shot_bus()
 	_talk.set_meta(&"level", SoundLibrary.gain_db(MUMBLE) + randf_range(-settings.set_volume_range_db, settings.set_volume_range_db))
 	_talk.volume_db = _heard_db(float(_talk.get_meta(&"level")))
-	_talk.panning_strength = _panning
+	_talk.panning_strength = placing()
 	_talk_fade = 0.0
 	_talk.play()
 	# The next phrase waits its interval, and at least a breath after this one has ended.

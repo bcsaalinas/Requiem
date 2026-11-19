@@ -35,6 +35,9 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 const JumpScareAudit := preload("res://testing/tools/jump_scare_audit.gd")
 ## How often the scene is searched for entities that make sound.
 const AUDIO_SEARCH_EVERY := 0.5
+## The read-out says a doorway is "ahead" when it is less than this far to either side of Viv
+## (in units): the sound then comes from neither side.
+const HEARD_AHEAD_U := 0.5
 
 
 ## Nodo interno que hace el dibujo. Vive dentro del CanvasLayer.
@@ -304,6 +307,18 @@ func heart_text() -> String:
 	return "heart 0.00"
 
 
+## Where the entity's position sounds come from: the doorway (and on which side of Viv), or
+## where it is.
+func heard_from_text(voice: EntityAudio, reading: AcousticReading) -> String:
+	var ears := Acoustics.listener()
+	if voice.heard == null or ears == null or not reading.through_opening or not SoundSettings.current().doorway_panning:
+		return "where it is"
+	var side := voice.heard.global_position.x - ears.global_position.x
+	if absf(side) < Units.to_px(HEARD_AHEAD_U):
+		return "the doorway (ahead)"
+	return "the doorway (%s)" % ("left" if side < 0.0 else "right")
+
+
 func audio_text() -> String:
 	var lines: Array[String] = []
 	lines.append("AUDIO [F3] · threat %.2f (%s) · presence %.2f · %s" % [Dread.threat, Dread.awareness_name(), Dread.presence, heart_text()])
@@ -312,7 +327,8 @@ func audio_text() -> String:
 	if voice == null or not reading.valid:
 		lines.append("it: nothing to hear (ring 0 · clarity 0.00 · wall in the way: no)")
 	else:
-		lines.append("it: ring %d, %s · clarity %.2f · wall in the way: %s" % [reading.ring, reading.ring_name(), reading.clarity, "yes" if reading.blocked else "no"])
+		lines.append("it: ring %d, %s · clarity %.2f · wall in the way: %s · heard from: %s" % [reading.ring, reading.ring_name(),
+			reading.clarity, "yes" if reading.blocked else "no", heard_from_text(voice, reading)])
 	lines.append("last cue · what it knows (A): %s · where it is (B): %s" % [_cue_text(_last_knows), _cue_text(_last_where)])
 	lines.append("house voice: %s" % HouseVoice.status())
 	lines.append("jump audit: %s" % audit.summary())

@@ -323,6 +323,21 @@ static func current() -> SoundSettings:
 ## Direction: in rings 3 and 2 its sounds are placed exactly. Across ring 1 the placing
 ## weakens down to this at the far edge (1 = exact, 0 = dead centre). Vague, never wrong.
 @export_range(0.0, 1.0, 0.01) var far_panning := 0.35
+## Direction behind a wall: on, its position sounds (breath, steps, talking) come from the
+## doorway the sound really travels through, not straight through the wall. Off: from where
+## it stands (only weakened with distance, as above). What it knows is never moved.
+@export var doorway_panning := true
+## A point of the walking path nearer to Viv than this gives no direction (she is standing on
+## it), so the doorway is looked for further along.
+@export_range(0.0, 4.0, 0.05, "suffix:u") var doorway_min_u := 0.75
+## Small changes of where it comes from (Viv or the entity moving) glide over about this long.
+@export_range(0.01, 2.0, 0.01, "suffix:s") var doorway_glide := 0.25
+## Where it comes from moves more than this in one go (another doorway, or it stepped into
+## view): no sweep across the wall. It jumps there at once and the placing goes vague, then
+## comes back.
+@export_range(0.1, 20.0, 0.1, "suffix:u") var doorway_switch_u := 2.0
+## After such a jump, the placing comes back from dead centre to its full amount over this long.
+@export_range(0.01, 3.0, 0.01, "suffix:s") var doorway_settle := 0.5
 ## Gaps: in ring 1 each body sound (a step, a tap, a scrape) only plays with a chance between
 ## these two: the first at the far edge, the second where ring 1 begins. Nearer, all play.
 @export var gap_chance_body := Vector2(0.3, 0.7)

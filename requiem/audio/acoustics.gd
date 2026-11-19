@@ -10,6 +10,9 @@ extends Node
 ## Entities report themselves with watch() (EntityAudio does it). Each one is measured a few
 ## times per second, never every frame; reading() returns the last measurement.
 ##
+## Behind a wall it also finds the opening the sound comes through (heard_from), so its sounds
+## can be placed there instead of straight through the wall.
+##
 ## Nothing here makes a sound, changes the mix, or makes noise the entity can hear. It only
 ## measures. Every threshold is in audio/sound_settings.tres (Acoustics).
 
@@ -159,7 +162,30 @@ func measure_between(from: Vector2, to: Vector2, world: World2D, map: RID, skipp
 			result.acoustic_u = result.straight_u * settings.acoustics_no_path_factor
 	result.clarity = clarity_for(result.acoustic_u)
 	result.ring = ring_for(result.acoustic_u)
+	_find_opening(result, world, skipped)
 	return result
+
+
+## Where its sound comes from, as far as direction goes. With nothing in the way, the emitter
+## itself. Behind a wall, the opening it really comes through: walking the path back from the
+## listener, the first point of it she has a clear line to (the path's corners are the door
+## jambs and wall corners the sound bends round). Points she is standing on give no direction
+## and are skipped; the emitter's own end of the path is never the opening. Only points of the
+## path are ever chosen. With none, the emitter itself.
+func _find_opening(result: AcousticReading, world: World2D, skipped: Array[RID]) -> void:
+	result.through_opening = false
+	result.heard_from = result.emitter_at
+	if not result.blocked or result.path.size() < 2:
+		return
+	var nearest_px: float = Units.to_px(SoundSettings.current().doorway_min_u)
+	for index in range(result.path.size() - 1, 0, -1):
+		var point: Vector2 = result.path[index]
+		if point.distance_to(result.listener_at) < nearest_px:
+			continue
+		if not _wall_between(point, result.listener_at, world, skipped):
+			result.through_opening = true
+			result.heard_from = point
+			return
 
 
 ## One ray on the wall layer. Furniture and bodies on that layer are looked past.

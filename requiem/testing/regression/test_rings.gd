@@ -5,6 +5,8 @@ extends Node
 ## nothing. What it knows (heard-you, scream) is never dulled, thinned out or cut off.
 ## How near it is also reaches the mood of the house (presence), late and smoothly: the
 ## world recedes a little, and the music ignores it.
+## Behind a wall its position sounds come from the doorway the sound really travels through, at
+## the distance the entity really is; what it knows is still heard from where it stands.
 
 ## Positions relative to the house zone, in pixels (see test_acoustics.gd for the rooms).
 const VESTIBULE_A := Vector2(520, 400)
@@ -12,8 +14,25 @@ const VESTIBULE_NEXT := Vector2(552, 400)           # 1 u from A: on top of her
 const VESTIBULE_B := Vector2(680, 400)              # 5 u from A, same room: near
 const KITCHEN_BY_WALL := Vector2(368, 176)
 const VESTIBULE_BY_WALL := Vector2(432, 176)        # 2 u apart, the wall between: somewhere
+const ALTAR_BY_WALL := Vector2(848, 176)           # the altar room, reached through the other doorway
 const BODY := "entity/claws_walk"
 const TRIES := 400
+## A made-up pair of rooms far from the house, one above the other: a wall across, with a
+## doorway at its left end. The entity stands to Viv's right behind the wall; the doorway is to
+## her left. (In the house every wall runs north-south, so a doorway is always on the entity's
+## side of her.) Positions are relative to the arena, in pixels.
+const ARENA := Vector2(-20000, -20000)
+const ARENA_SIZE := Vector2(640, 640)
+const ARENA_WALL_Y := 300.0
+const ARENA_WALL_HALF := 10.0
+const ARENA_DOOR := Vector2(160, 240)               # the doorway runs from x to x
+const ARENA_AGENT_RADIUS := 8.0
+const ARENA_VIV := Vector2(300, 330)
+const ARENA_ENTITY := Vector2(460, 270)
+## How far off the line to the opening Heard may lie (degrees), and how many dB the doorway's
+## side of the Entity bus must be louder.
+const ANGLE_TOLERANCE := 3.0
+const SIDE_DB := 0.5
 
 var failures: Array[String] = []
 var checks := 0
@@ -53,6 +72,8 @@ func _ready() -> void:
 	await set_up()
 	await check_same_room()
 	await check_a_room_away()
+	await check_doorway()
+	await check_doorway_steady()
 	await check_far_away()
 	await check_glide()
 	await check_presence()
@@ -140,11 +161,38 @@ func set_up() -> void:
 
 ## Puts the entity and Viv in place; it is heard from there at once.
 func place(entity_at: Vector2, viv_at: Vector2) -> void:
-	entity.global_position = house + entity_at
-	game.player.global_position = house + viv_at
+	await place_at(house + entity_at, house + viv_at)
+
+
+## The same in world pixels.
+func place_at(entity_at: Vector2, viv_at: Vector2) -> void:
+	entity.global_position = entity_at
+	game.player.global_position = viv_at
 	await frames(2)       # moved bodies reach the physics space on the next physics frame
 	audio.placed()
 	await frames(1)
+
+
+func ears() -> Vector2:
+	return Acoustics.listener().global_position
+
+
+## Angle in degrees between two directions.
+func angle_between(a: Vector2, b: Vector2) -> float:
+	return rad_to_deg(absf(a.angle_to(b)))
+
+
+## What the Entity bus's left and right meters read at their loudest over `time` seconds.
+func meters(time: float) -> Vector2:
+	var bus := AudioServer.get_bus_index(AudioBus.ENTITY)
+	var loudest := Vector2(-200.0, -200.0)
+	var clock := 0.0
+	while clock < time:
+		await get_tree().process_frame
+		clock += get_process_delta_time()
+		loudest.x = maxf(loudest.x, AudioServer.get_bus_peak_volume_left_db(bus, 0))
+		loudest.y = maxf(loudest.y, AudioServer.get_bus_peak_volume_right_db(bus, 0))
+	return loudest
 
 
 ## Plays one set `count` times; returns how many got through.
@@ -161,6 +209,8 @@ func check_same_room() -> void:
 	await place(VESTIBULE_A, VESTIBULE_B)
 	check(audio.heard_ring == 2 and audio.heard_clarity > 0.9 and near(audio.heard_u, 5.0, 0.2),
 		"Across the room it is near: ring %d, %.1f u" % [audio.heard_ring, audio.heard_u])
+	check(audio.heard.global_position == entity.global_position and audio.heard_settle == 1.0 and not Acoustics.reading(entity).through_opening,
+		"In the same room its position sounds come from exactly where it is")
 	lost = 0
 	check(play_many(BODY, 100) == 100 and play_many(EntityAudio.SNIFF, 100) == 100 and lost == 0 and audio.gaps.is_empty(),
 		"In the same room every sound it makes is heard")
@@ -237,6 +287,132 @@ func check_a_room_away() -> void:
 			cues += 1
 			plain = plain and cue.bus == AudioBus.ENTITY and cue.panning_strength == 1.0
 	check(cues == 60 and plain, "The heard-you cue is never lost on the way, dulled or made vague")
+	# Where it comes from: the doorway, at the distance it really is.
+	var reading := Acoustics.reading(entity)
+	var offset: Vector2 = audio.heard.global_position - ears()
+	var to_entity: Vector2 = entity.global_position - ears()
+	check(reading.through_opening and angle_between(offset, reading.heard_from - ears()) < ANGLE_TOLERANCE
+		and near(offset.length(), to_entity.length(), 1.0) and angle_between(offset, to_entity) > 20.0,
+		"Its steps come from the doorway (%.0f degrees off it), not through the wall (%.0f degrees from it), at its own distance"
+			% [angle_between(offset, reading.heard_from - ears()), angle_between(offset, to_entity)])
+	check(audio._aware.all(func(player: AudioStreamPlayer2D) -> bool: return player.global_position == entity.global_position),
+		"What it knows is still heard from where it stands")
+	audio.stop_all()
+
+
+## Two rooms, one above the other, joined by a doorway at the left end of the wall.
+func build_arena() -> Node2D:
+	var arena := Node2D.new()
+	arena.name = "DoorwayArena"
+	game.add_child(arena)
+	arena.global_position = ARENA
+	var top := ARENA_WALL_Y - ARENA_WALL_HALF
+	var bottom := ARENA_WALL_Y + ARENA_WALL_HALF
+	var source := NavigationMeshSourceGeometryData2D.new()
+	source.add_traversable_outline(PackedVector2Array([Vector2.ZERO, Vector2(ARENA_SIZE.x, 0.0), ARENA_SIZE, Vector2(0.0, ARENA_SIZE.y)]))
+	for span: Vector2 in [Vector2(0.0, ARENA_DOOR.x), Vector2(ARENA_DOOR.y, ARENA_SIZE.x)]:
+		var wall := StaticBody2D.new()
+		wall.collision_layer = settings.acoustics_wall_mask
+		wall.add_to_group(Acoustics.WALL_GROUP)
+		var shape := CollisionShape2D.new()
+		var rect := RectangleShape2D.new()
+		rect.size = Vector2(span.y - span.x, bottom - top)
+		shape.shape = rect
+		wall.add_child(shape)
+		arena.add_child(wall)
+		wall.position = Vector2((span.x + span.y) * 0.5, ARENA_WALL_Y)
+		source.add_obstruction_outline(PackedVector2Array([Vector2(span.x, top), Vector2(span.y, top), Vector2(span.y, bottom), Vector2(span.x, bottom)]))
+	var polygon := NavigationPolygon.new()
+	polygon.agent_radius = ARENA_AGENT_RADIUS
+	NavigationServer2D.bake_from_source_geometry_data(polygon, source)
+	var region := NavigationRegion2D.new()
+	region.navigation_polygon = polygon
+	arena.add_child(region)
+	return arena
+
+
+## The entity behind the wall to Viv's right, the doorway to her left: its position sounds come
+## from her left. Loudness and blur do not care where they come from.
+func check_doorway() -> void:
+	var arena := build_arena()
+	await frames(3)
+	await place_at(ARENA + ARENA_ENTITY, ARENA + ARENA_VIV)
+	var reading := Acoustics.reading(entity)
+	var offset: Vector2 = audio.heard.global_position - ears()
+	var to_entity: Vector2 = entity.global_position - ears()
+	print("[Ring tests] arena: heard from %s, path %s, heard at %s, %.1f u" % [reading.heard_from - ARENA, Array(reading.path).map(func(p: Vector2) -> Vector2: return p - ARENA), offset, audio.heard_u])
+	check(reading.blocked and reading.through_opening and reading.heard_from.x < ears().x and entity.global_position.x > ears().x,
+		"Made-up rooms: it stands to her right behind the wall, the doorway is to her left (%s)" % (reading.heard_from - ARENA))
+	check(angle_between(offset, reading.heard_from - ears()) < ANGLE_TOLERANCE and near(offset.length(), to_entity.length(), 1.0)
+		and audio.heard.global_position.x < ears().x - Units.to_px(1.0),
+		"So its sounds are placed to her left, toward the doorway, at its own distance (%s from her)" % offset)
+	check(audio._aware.all(func(player: AudioStreamPlayer2D) -> bool: return player.global_position == entity.global_position),
+		"What it knows stays where it stands")
+	# Loudness and blur are the same with the doorway placing off.
+	await frames(3)
+	var on := [audio.heard_u, audio._reach_db, audio.heard_clarity, audio.heard_ring]
+	settings.doorway_panning = false
+	await frames(3)
+	var off := [audio.heard_u, audio._reach_db, audio.heard_clarity, audio.heard_ring]
+	check(on == off, "Where it comes from changes nothing of how loud or how dulled it is (%s, %s)" % [on, off])
+	check(audio.heard.global_position == entity.global_position, "Switched off, it is heard from where it stands, even behind the wall")
+	# The meters: with a position sound playing, the Entity bus is louder on the doorway's side.
+	await seconds(settings.loop_fade + 0.3)
+	var straight := await meters(1.0)
+	settings.doorway_panning = true
+	await seconds(settings.doorway_settle + 0.2)
+	var doorway := await meters(1.0)
+	print("[Ring tests] arena meters: straight %s, doorway %s" % [straight, doorway])
+	check(audio._breath.playing and doorway.x > -60.0 and doorway.x > doorway.y + SIDE_DB,
+		"Its breath comes from the left, the doorway's side (left %.1f, right %.1f dB)" % [doorway.x, doorway.y])
+	check(straight.y > straight.x + SIDE_DB, "Through the wall it would have come from the right (left %.1f, right %.1f dB)" % [straight.x, straight.y])
+	audio.stop_all()
+	arena.queue_free()
+	await frames(2)
+
+
+## Behind the wall it stays put while Viv walks along it; a jump to another doorway is not swept
+## across the wall: the placing goes to the centre and comes back.
+func check_doorway_steady() -> void:
+	await place(KITCHEN_BY_WALL, VESTIBULE_BY_WALL)
+	var biggest := 0.0
+	var previous: Vector2 = audio.heard.global_position
+	var steps := 48
+	for step in steps:
+		game.player.global_position += Vector2(0.0, 2.0)
+		await get_tree().physics_frame
+		var moved: float = audio.heard.global_position.distance_to(previous)
+		if audio.heard_settle >= 1.0:
+			biggest = maxf(biggest, moved)
+		previous = audio.heard.global_position
+	check(Acoustics.reading(entity).through_opening and biggest < Units.to_px(0.5),
+		"Walking %.0f u along the wall, where it comes from never jumps (at most %.1f px a frame)" % [Units.to_u(steps * 2.0), biggest])
+	# She stops: it glides the last bit, then holds still.
+	await seconds(settings.doorway_glide * 6.0 + 0.3)
+	var still := audio.heard.global_position
+	var drift := 0.0
+	for tick in 60:
+		await get_tree().physics_frame
+		drift = maxf(drift, audio.heard.global_position.distance_to(still))
+	check(drift < 1.0 and audio.heard_settle == 1.0, "Standing still, it does not drift or flicker (%.2f px)" % drift)
+	# Another room, through the other doorway, without telling its voice.
+	entity.global_position = house + ALTAR_BY_WALL
+	var centre := false
+	var swept := false
+	var clock := 0.0
+	previous = audio.heard.global_position
+	while clock < 1.0:
+		await get_tree().process_frame
+		clock += get_process_delta_time()
+		centre = centre or (audio.heard_settle == 0.0 and audio.placing() == 0.0)
+		var moved: float = audio.heard.global_position.distance_to(previous)
+		swept = swept or (moved > Units.to_px(0.5) and audio.heard_settle > 0.0)
+		previous = audio.heard.global_position
+	var reading := Acoustics.reading(entity)
+	print("[Ring tests] other doorway: heard from %s" % (reading.heard_from - house))
+	check(reading.through_opening and reading.heard_from.x > house.x + ALTAR_BY_WALL.x - Units.to_px(4.0) and centre and not swept,
+		"Behind the other wall it jumps to the other doorway with no sweep, vague for a moment")
+	check(audio.heard_settle == 1.0 and audio.placing() == audio._panning, "And %.1f s later it is placed as before" % settings.doorway_settle)
 	audio.stop_all()
 
 

@@ -47,6 +47,7 @@ func _ready() -> void:
 	check_rings()
 	await set_up()
 	await check_house()
+	await check_opening()
 	await check_cache()
 	check(noises == 0, "Measuring made no noise the entity could hear (%d)" % noises)
 	game.queue_free()
@@ -163,6 +164,36 @@ func check_house() -> void:
 	var hidden := Acoustics.measure(entity)
 	check(not hidden.valid and hidden.ring == 0, "An entity that is not shown is ring 0")
 	entity.show()
+
+
+## Behind a wall its sound comes round through an opening: where it is heard from, as far as
+## direction goes, is the first point of the walking path (counting from Viv) she can see.
+func check_opening() -> void:
+	check(settings.doorway_panning and is_equal_approx(settings.doorway_min_u, 0.75), "Behind a wall it is heard from the doorway (points under 0.75 u from her give no direction)")
+	var open := await place(VESTIBULE_A, VESTIBULE_B)
+	check(not open.through_opening and open.heard_from == open.emitter_at, "With nothing in the way it is heard from where it is")
+	for pair: Array in [[KITCHEN_BY_WALL, VESTIBULE_BY_WALL], [VESTIBULE_BY_WALL, KITCHEN_BY_WALL]]:
+		var wall := await place(pair[0], pair[1])
+		var space: World2D = entity.get_world_2d()
+		var nearest: float = Units.to_px(settings.doorway_min_u)
+		check(wall.blocked and wall.through_opening and wall.path.has(wall.heard_from),
+			"Through the wall it is heard from a point of the walking path (%s, path %s)" % [wall.heard_from - house, wall.path])
+		check(not Acoustics._wall_between(wall.heard_from, wall.listener_at, space, []) and wall.heard_from.distance_to(wall.listener_at) >= nearest
+			and wall.heard_from.distance_to(wall.emitter_at) > nearest,
+			"A point she has a clear line to, not under her feet and not where it stands (%.1f u from her)" % Units.to_u(wall.heard_from.distance_to(wall.listener_at)))
+		var first := true
+		for index in range(wall.path.size() - 1, wall.path.find(wall.heard_from), -1):
+			var point: Vector2 = wall.path[index]
+			first = first and (point.distance_to(wall.listener_at) < nearest or Acoustics._wall_between(point, wall.listener_at, space, []))
+		check(first, "It is the first such point counting from her")
+		print("[Acoustics tests] opening for %s -> %s: %s, path %s" % [pair[0], pair[1], wall.heard_from - house, Array(wall.path).map(func(p: Vector2) -> Vector2: return p - house)])
+	# A made-up case: a wall in the way and no path at all.
+	var lost := Acoustics.measure_between(house + KITCHEN_BY_WALL, house + VESTIBULE_BY_WALL, entity.get_world_2d(), RID())
+	check(lost.blocked and lost.path.is_empty() and not lost.through_opening and lost.heard_from == lost.emitter_at,
+		"With no way round, it is heard from where it is")
+	# Furniture is not a wall: no opening needed.
+	var table := await place(KITCHEN_WEST, KITCHEN_EAST)
+	check(not table.through_opening and table.heard_from == table.emitter_at, "Across the table it is heard from where it is")
 
 
 func check_cache() -> void:

@@ -23,6 +23,12 @@ var listener_at := Vector2.ZERO
 var emitter_at := Vector2.ZERO
 ## The walking path that was measured, from the emitter to the listener (empty: none).
 var path := PackedVector2Array()
+## Behind a wall: its sound comes through an opening Viv has a clear line to (a point of the
+## path). False when nothing is in the way, or no point of the path qualifies.
+var through_opening := false
+## Where its sound comes from, as far as direction goes, in world pixels: the opening when
+## through_opening, otherwise the emitter itself.
+var heard_from := Vector2.ZERO
 
 
 func ring_name() -> String:

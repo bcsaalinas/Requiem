@@ -252,14 +252,14 @@ func check_read_out() -> void:
 	game.player.global_position = house + VESTIBULE_BY_WALL
 	await place(house + KITCHEN_BY_WALL)
 	var reading: AcousticReading = Acoustics.reading(entity)
-	check(reading.blocked and reading.ring == 1 and line(1) == "it: ring 1, somewhere · clarity %.2f · wall in the way: yes" % reading.clarity,
-		"Behind the wall: %s" % line(1))
+	check(reading.blocked and reading.ring == 1 and line(1).begins_with("it: ring 1, somewhere · clarity %.2f · wall in the way: yes · heard from: the doorway (" % reading.clarity),
+		"Behind the wall, heard from the doorway: %s" % line(1))
 	# In the same room.
 	game.player.global_position = house + VESTIBULE_A
 	await place(house + VESTIBULE_B)
 	reading = Acoustics.reading(entity)
-	check(not reading.blocked and reading.ring == 2 and line(1) == "it: ring 2, near · clarity %.2f · wall in the way: no" % reading.clarity,
-		"In the same room: %s" % line(1))
+	check(not reading.blocked and reading.ring == 2 and line(1) == "it: ring 2, near · clarity %.2f · wall in the way: no · heard from: where it is" % reading.clarity,
+		"In the same room, heard from where it is: %s" % line(1))
 	check(line(3).begins_with("house voice: silent: it is near (ring 2)"), "And that is why the house is silent: %s" % line(3))
 	var canvas := Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS)
 	check(canvas.encloses(overlay.audio_label.get_global_rect()) and overlay.audio_label.position.x < 40.0
