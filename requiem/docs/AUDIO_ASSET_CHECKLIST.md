@@ -1,6 +1,6 @@
 # Audio Asset Checklist
 
-The project includes a Horror Jam Kit in `assets/audio/horror-jam-kit`, `assets/audio/horror-jam-kit 2`, and `assets/audio/horror-jam-kit 3`. The implementation now uses those supplied files for transitional state beds, threat heartbeat, hunt/death stingers, and door creaks. The original WAV and OGG copies are kept in their supplied folders; no assets were invented. These short textures work as a minimum reactive layer, but they are not a replacement for a composed long-form score.
+The project includes a Horror Jam Kit in `assets/audio/horror-jam-kit`, `assets/audio/horror-jam-kit 2`, and `assets/audio/horror-jam-kit 3`. The implementation now uses those supplied files for transitional state beds, Viv's one heartbeat, and door creaks; the hunt and death stingers and the search riser are no longer used. The original WAV and OGG copies are kept in their supplied folders; no assets were invented. These short textures work as a minimum reactive layer, but they are not a replacement for a composed long-form score.
 
 The included kit license allows use in commercial and non-commercial projects and does not require credit. Suggested credit: “Sound effects: Horror Jam Kit by ahustga (ahustga.itch.io).” Do not redistribute the source files as a separate sound pack; the supplied license is included beside the assets.
 
@@ -10,14 +10,14 @@ The included kit license allows use in commercial and non-commercial projects an
 | `horror-jam-kit/WAV/Drone/drone_tension_03.wav` | Investigate bed | Supplied 11.11 s rising tension drone; currently looped by MusicDirector |
 | `horror-jam-kit 3/OGG/Tonal/high_tension_tone_01.ogg` | Search bed | Supplied 6.55 s tonal texture; currently looped at SEARCH |
 | `horror-jam-kit 3/OGG/Drone/drone_tension_03.ogg` | Hunt bed | Supplied compressed tension drone; currently looped at HUNT |
-| `horror-jam-kit 3/OGG/Tonal/eerie_music_box_02.ogg` | Prayer bed | Supplied 3.50 s tonal texture; currently looped while an actual altar prayer is active |
-| `horror-jam-kit 3/OGG/Body/heartbeat_01.ogg` | Search / hunt tension cue | Supplied heartbeat loop; lower level in SEARCH, raised in HUNT, ducks while holding breath; not heard by entity logic |
-| `horror-jam-kit 3/OGG/Body/breath_texture_01.ogg` | Entity INVESTIGATE cue | Positional one-shot when the entity enters INVESTIGATE |
-| `horror-jam-kit 3/OGG/Riser/riser_02.ogg` | Entity SEARCH cue | Positional one-shot when the entity enters SEARCH |
-| `horror-jam-kit 3/OGG/Stinger/dread_stinger_01.ogg` | Entity hunt stinger | Assigned to the existing EntityAI hunt-stinger slot |
-| `horror-jam-kit 2/WAV/Stinger/jump_scare_02.wav` | Death stinger | Assigned to the existing GameOverUi one-shot player |
+| `horror-jam-kit 3/OGG/Tonal/eerie_music_box_02.ogg` | Prayer bed | Supplied 3.50 s tonal texture; currently looped while an actual altar prayer is active, low-passed with the rest of the music (the prayer itself has no voices: `player/prayer_audio.gd`) |
+| `horror-jam-kit 2/WAV/Body/heartbeat_01.wav` | Viv's heartbeat | The one heartbeat in the game (`player/heart_audio.gd`, Body bus): it beats harder with the highest of four reasons (running out of air, what the entity knows, how near it is, praying) and steps back while she holds her breath; not heard by entity logic. The OGG copy in kit 3 is no longer used |
+| `horror-jam-kit 3/OGG/Body/breath_texture_01.ogg` | Not used | INVESTIGATE is never entered; nothing plays this file |
+| `horror-jam-kit 3/OGG/Riser/riser_02.ogg` | Not used | No stingers: "it lost you" is the entity's own `entity/lost` groan and a sniff |
+| `horror-jam-kit 3/OGG/Stinger/dread_stinger_01.ogg` | Not used | No stingers: the hunt begins with the entity's own inhale, scream and stomp |
+| `horror-jam-kit 2/WAV/Stinger/jump_scare_02.wav` | Not used | No stinger on death: the catch cues carry the moment, then the house falls silent |
 | `horror-jam-kit 2/WAV/Foley/creak_02.wav` | Door open/close creak | Assigned to current Door creak slot; the existing noise radius/event remains unchanged |
-| Entity breath variations | Existing entity SFX | Monster breathing already exists; additional calm/hunted recordings with varied length/pitch would improve variation |
+| Entity breath variations | Existing entity SFX | The entity breathes with its own sets (`assets/audio/entity/breath_calm`, one take, and `breath_hunt`, two); more calm takes would improve variation |
 | UI navigation/select/back sounds | UI SFX | Optional 80–400 ms soft, low transient sounds; route only to UI bus and never to NoiseManager |
 | Zone ambience recordings | Existing ambience | Current four zone loops are present; ensure loop points are seamless and headroom retained |
 

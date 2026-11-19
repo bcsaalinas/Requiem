@@ -12,3 +12,22 @@ Run the project with Godot 4.7 or newer from `requiem/project.godot`.
 8. Add a temporary exported test loop to `MusicDirector.music_tracks` and exercise crossfades. Without authored music, silence in Music is expected and no missing-file error should occur.
 
 Audible clipping and perceived balance require listening with authored music assets; automated/headless validation can check state, buses and references but cannot judge mix quality.
+
+## Automated suites
+
+`python3 testing/run_checks.py` (or `--suite <name>`) runs these audio suites with the rest; `testing/README.md` says what each one checks.
+
+- `test_audio_mix`: the bus layout and MixDirector, the only script that changes the mix.
+- `test_entity_audio`: every animation cue of the entity maps to a sound set or is listed as silent.
+- `test_awareness`: the four awareness cues; no detection is ever silent; the 0.7 s warning before the scream.
+- `test_idle_voice`: the entity's idle talking and sniffing.
+- `test_dread`: threat, and what the music and the world do at each moment of an encounter.
+- `test_acoustics`: rings, walls and doorways in the real house.
+- `test_rings`: what the rings and the doorway do to the entity's position sounds.
+- `test_body_audio`: Viv's breathing, listening, self-masking and her heart in play.
+- `test_heart`: the one heartbeat and its four reasons.
+- `test_house_voice`: the house's own sounds, their gates, the answering knock and the door found ajar.
+- `test_sparse_music`: the exploration drone coming and going on its own clock.
+- `test_jump_scare_audit`: the audit of sudden rises and of house sounds played while gated.
+- `test_prayer_audio`: prayer without voices, and its noise exactly as before.
+- `test_entity_knock`: the entity's knock, behind its switch.
