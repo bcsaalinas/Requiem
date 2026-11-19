@@ -6,6 +6,14 @@ extends Node2D
 ## Its breath and the drag of its shroud are loops that follow what it is doing.
 ## Each sound is a set of variations (SoundLibrary); a small pool of players lets steps overlap
 ## without cutting each other off. Nothing here makes noise the entity can hear.
+##
+## What it knows (Channel A) is heard from far away, and never falls silent with distance:
+##   it heard something  - everything it was sounding stops dead, then the voice and the neck
+##                         click together, one scrape, and silence until the scream;
+##   it is hunting       - the inhale, then the scream and the stomp, with the music and the
+##                         house ducked under them;
+##   it lost the trail   - a groan, then one sniff;
+##   it gave up          - a long breath out.
 
 ## Animation cue -> sound set. Every cue name in the entity-lab JSON files is here or in
 ## SILENT_CUES (the regression test checks it).
@@ -34,10 +42,32 @@ const SILENT_CUES: Array[String] = ["ear_flick"]
 const BREATH_CALM := "entity/breath_calm"
 const BREATH_HUNT := "entity/breath_hunt"
 const DRAG := "entity/drag"
+const HEARD_VOICE := "entity/heard_voice"
+const NECK_CLICK := "entity/neck_click"
+const INHALE := "entity/inhale"
+const SCREAM := "entity/scream"
+const FOOT_SLAM := "entity/foot_slam"
+const LOST := "entity/lost"
+const SNIFF := "entity/sniff"
+const STAND_DOWN := "entity/stand_down"
 const SILENT_DB := -60.0
+## EntityAI.State, as state_changed reports it.
+const PATROL := 0
+const SEARCH := 2
+const HUNT := 3
+## Awareness players do their own falling off with distance; this switches the engine's off.
+const NO_ENGINE_FALLOFF_PX := 1000000.0
+const AWARENESS_VOICES := 6
+## Name of the request made to MixDirector under the scream.
+const SCREAM_DUCK := &"entity_scream"
+## The hunt-start animation screams this long after its inhale.
+const SCREAM_AFTER_INHALE := 0.2
 
 ## A sound started: which set, on which player. For the debug read-out and the tests.
 signal played(set_id: String, voice: AudioStreamPlayer2D)
+## An awareness cue started. moment: heard, heard_again, inhale, scream, foot_slam, lost,
+## lost_sniff, stand_down. level_db: how far under its full level it reaches the listener.
+signal awareness_played(moment: StringName, set_id: String, stream: AudioStream, level_db: float)
 
 var entity: CharacterBody2D
 var rig: Node
@@ -53,6 +83,21 @@ var _breath: AudioStreamPlayer2D
 var _drag: AudioStreamPlayer2D
 var _unknown_cues := {}
 var _was_shown := false
+## The last awareness cue: { moment, set, stream, level_db, at } (debug read-out, tests).
+var last_awareness := {}
+var _aware: Array[AudioStreamPlayer2D] = []
+var _next_aware := 0
+var _clock := 0.0
+## Counts down to playing the heard-you cue without the animation's head snap (-1: not waiting).
+var _heard_wait := -1.0
+var _scraped := false
+## Counts down to playing the scream without the animation (-1: not waiting).
+var _scream_wait := -1.0
+var _last_scream := -INF
+var _duck_left := -1.0
+var _sniff_wait := -1.0
+var _exhale_covered_until := -INF
+var _listener: Node2D
 
 
 func _ready() -> void:
@@ -61,9 +106,20 @@ func _ready() -> void:
 		_voices.append(_player("Voice%d" % index))
 	_breath = _player("Breath")
 	_drag = _player("Drag")
+	for index in AWARENESS_VOICES:
+		var voice := _player("Awareness%d" % index)
+		voice.max_distance = NO_ENGINE_FALLOFF_PX
+		voice.attenuation = 1.0
+		_aware.append(voice)
 	rig = entity.get_node_or_null("SpriteRig")
 	if rig != null and rig.has_signal(&"cue"):
 		rig.connect(&"cue", play_cue)
+	if entity.has_signal(&"state_changed"):
+		entity.connect(&"state_changed", _on_state_changed)
+	if entity.has_signal(&"listen_started"):
+		entity.connect(&"listen_started", _on_listen_started)
+	if entity.has_signal(&"stood_down"):
+		entity.connect(&"stood_down", _on_stood_down)
 
 
 func _player(player_name: String) -> AudioStreamPlayer2D:
@@ -78,9 +134,34 @@ func _player(player_name: String) -> AudioStreamPlayer2D:
 
 
 ## Plays the sound an animation frame calls for. Unknown names warn once and stay silent.
+## The cues that say what it knows go out on Channel A.
 func play_cue(cue_name: String) -> AudioStreamPlayer2D:
 	if SILENT_CUES.has(cue_name):
 		return null
+	match cue_name:
+		"neck_click":
+			if _is(&"is_listening"):
+				if _heard_wait >= 0.0:
+					return _play_heard()
+				# It turned its head to a second sound: the click again, never a second voice.
+				return play_awareness(&"heard_again", NECK_CLICK, _heard_reach())
+		"claw_scrape":
+			if _is(&"is_listening"):
+				if _scraped:
+					return null     # one scrape, then silence until the scream
+				_scraped = true
+		"inhale":
+			_duck_for_scream()
+			return play_awareness(&"inhale", INHALE, _scream_reach())
+		"scream":
+			return _play_scream()
+		"foot_slam":
+			return play_awareness(&"foot_slam", FOOT_SLAM, _scream_reach())
+		"launch_step":
+			_release_scream_duck()
+		"exhale":
+			if _clock < _exhale_covered_until:
+				return null         # the breath out of standing down is this same breath
 	if not CUE_SETS.has(cue_name):
 		if not _unknown_cues.has(cue_name):
 			_unknown_cues[cue_name] = true
@@ -111,12 +192,181 @@ func set_breathing(on: bool) -> void:
 	breathes_unseen = on
 
 
-## Cuts everything it is sounding (a reset, a zone change).
+## Cuts everything it is sounding, at once.
 func stop_all() -> void:
-	for voice in _voices:
+	for voice in _voices + _aware:
 		voice.stop()
 	_breath.stop()
 	_drag.stop()
+	_sniff_wait = -1.0
+
+
+## Back to silence, with nothing pending (an encounter was reset).
+func reset() -> void:
+	stop_all()
+	_heard_wait = -1.0
+	_scream_wait = -1.0
+	_exhale_covered_until = -INF
+	if _duck_left >= 0.0:
+		_duck_left = -1.0
+		MixDirector.release(SCREAM_DUCK)
+
+
+## Plays an awareness cue: one variation of a set (never the one played last), from the entity,
+## at a level that falls with distance down to a floor and no further. reach is
+## [full level out to (u), drop per u beyond (dB), floor (dB)].
+func play_awareness(moment: StringName, set_id: String, reach: Array, extra_db := 0.0) -> AudioStreamPlayer2D:
+	var stream := SoundLibrary.pick(set_id)
+	if stream == null:
+		return null
+	var voice := _aware[_next_aware]
+	for offset in _aware.size():
+		var candidate := _aware[(_next_aware + offset) % _aware.size()]
+		if not candidate.playing:
+			voice = candidate
+			break
+	_next_aware = (_aware.find(voice) + 1) % _aware.size()
+	var variation: float = SoundSettings.current().set_pitch_range
+	voice.stream = stream
+	voice.pitch_scale = randf_range(1.0 - variation, 1.0 + variation)
+	voice.set_meta(&"base", SoundLibrary.gain_db(set_id) + extra_db)
+	voice.set_meta(&"reach", reach)
+	voice.set_meta(&"moment", moment)
+	voice.set_meta(&"fade", 0.0)
+	var level := reach_db(listener_distance_u(), reach)
+	voice.volume_db = float(voice.get_meta(&"base")) + level
+	voice.play()
+	plays[set_id] = int(plays.get(set_id, 0)) + 1
+	last_awareness = {"moment": moment, "set": set_id, "stream": stream, "level_db": level, "at": _clock}
+	awareness_played.emit(moment, set_id, stream, level)
+	return voice
+
+
+## How far under its full level an awareness cue arrives at a distance: nothing lost out to
+## reach[0] u, then reach[1] dB per u, never below reach[2].
+static func reach_db(distance_u: float, reach: Array) -> float:
+	return maxf(float(reach[2]), -maxf(0.0, distance_u - float(reach[0])) * float(reach[1]))
+
+
+## Straight distance from the entity to Viv, in units (0 when there is nobody listening).
+func listener_distance_u() -> float:
+	if not is_instance_valid(_listener):
+		_listener = get_tree().get_first_node_in_group(&"player") as Node2D
+	return Units.to_u(entity.global_position.distance_to(_listener.global_position)) if _listener != null else 0.0
+
+
+func _heard_reach() -> Array:
+	var settings := SoundSettings.current()
+	return [settings.heard_full_u, settings.heard_fall_db_per_u, settings.heard_floor_db]
+
+
+func _scream_reach() -> Array:
+	var settings := SoundSettings.current()
+	return [settings.scream_full_u, settings.scream_fall_db_per_u, settings.scream_floor_db]
+
+
+func _far_reach() -> Array:
+	var settings := SoundSettings.current()
+	return [settings.far_full_u, settings.far_fall_db_per_u, settings.far_floor_db]
+
+
+## It froze to listen: everything it was sounding stops dead. The voice and the click follow
+## on the animation's head snap, or after heard_click_wait without it.
+func _on_listen_started() -> void:
+	stop_all()
+	_scraped = false
+	_heard_wait = SoundSettings.current().heard_click_wait
+
+
+## The heard-you cue: the voice and the neck click, always together.
+func _play_heard() -> AudioStreamPlayer2D:
+	_heard_wait = -1.0
+	play_awareness(&"heard", NECK_CLICK, _heard_reach())
+	return play_awareness(&"heard", HEARD_VOICE, _heard_reach(), SoundSettings.current().heard_voice_gain_db)
+
+
+func _on_state_changed(previous: int, current: int) -> void:
+	var settings := SoundSettings.current()
+	if current == HUNT and previous != HUNT:
+		# The animation screams 0.2 s after its inhale. With no animation running, the scream
+		# still comes: no scream, no hunt.
+		var animated: bool = rig != null and rig.is_visible_in_tree() and rig.is_processing()
+		_scream_wait = settings.scream_cue_wait + SCREAM_AFTER_INHALE if animated else 0.0
+	if current != SEARCH:
+		_sniff_wait = -1.0
+	if previous == HUNT and current == SEARCH:
+		play_awareness(&"lost", LOST, _far_reach())
+		_sniff_wait = settings.lost_then_sniff
+	if previous == SEARCH and current == PATROL and not entity.has_signal(&"stood_down"):
+		_on_stood_down()
+
+
+func _play_scream() -> AudioStreamPlayer2D:
+	var settings := SoundSettings.current()
+	_scream_wait = -1.0
+	var again := _clock - _last_scream < settings.scream_repeat_window
+	_last_scream = _clock
+	return play_awareness(&"scream", SCREAM, _scream_reach(), settings.scream_gain_db + (settings.scream_repeat_db if again else 0.0))
+
+
+## Music, Ambience and World step down under the scream, from the inhale to the launch.
+func _duck_for_scream() -> void:
+	var settings := SoundSettings.current()
+	MixDirector.duck(SCREAM_DUCK, MixDirector.Priority.SCREAM, {AudioBus.MUSIC: settings.scream_duck_db,
+		AudioBus.AMBIENCE: settings.scream_duck_db, AudioBus.WORLD: settings.scream_duck_db}, settings.scream_duck_attack, self)
+	_duck_left = settings.scream_duck_longest
+
+
+func _release_scream_duck() -> void:
+	if _duck_left >= 0.0:
+		_duck_left = -1.0
+		MixDirector.release(SCREAM_DUCK, SoundSettings.current().scream_duck_release)
+
+
+## It gave up the search: one long breath out. A groan still sounding fades under it.
+func _on_stood_down() -> void:
+	var settings := SoundSettings.current()
+	for voice in _aware:
+		if voice.playing and voice.get_meta(&"moment", &"") in [&"lost", &"lost_sniff"]:
+			voice.set_meta(&"fade", -SILENT_DB / maxf(settings.awareness_fade, 0.001))
+	_sniff_wait = -1.0
+	_exhale_covered_until = _clock + settings.stand_down_covers_exhale
+	play_awareness(&"stand_down", STAND_DOWN, _far_reach())
+
+
+func _tick_awareness(delta: float) -> void:
+	_clock += delta
+	if _heard_wait >= 0.0:
+		_heard_wait -= delta
+		if _heard_wait < 0.0:
+			_play_heard()
+	if _scream_wait >= 0.0:
+		_scream_wait -= delta
+		if _scream_wait < 0.0:
+			if _duck_left < 0.0:
+				_duck_for_scream()
+			_play_scream()
+			play_awareness(&"foot_slam", FOOT_SLAM, _scream_reach())
+	if _duck_left >= 0.0:
+		_duck_left -= delta
+		if _duck_left < 0.0:
+			_duck_left = 0.0
+			_release_scream_duck()
+	if _sniff_wait >= 0.0:
+		_sniff_wait -= delta
+		if _sniff_wait < 0.0:
+			play_awareness(&"lost_sniff", SNIFF, _far_reach())
+	var distance := listener_distance_u()
+	for voice in _aware:
+		if not voice.playing:
+			continue
+		var base := float(voice.get_meta(&"base")) - float(voice.get_meta(&"fade", 0.0)) * delta
+		if float(voice.get_meta(&"fade", 0.0)) > 0.0:
+			voice.set_meta(&"base", base)
+			if base <= SILENT_DB:
+				voice.stop()
+				continue
+		voice.volume_db = base + reach_db(distance, voice.get_meta(&"reach"))
 
 
 ## The set its breath loop is playing right now ("" when it is not breathing).
@@ -141,8 +391,13 @@ func _free_voice() -> AudioStreamPlayer2D:
 	return oldest
 
 
+func _exit_tree() -> void:
+	MixDirector.release(SCREAM_DUCK)
+
+
 func _process(delta: float) -> void:
 	var settings := SoundSettings.current()
+	_tick_awareness(delta)
 	var dead: bool = GameState.is_dead
 	var shown := entity.is_visible_in_tree()
 	if shown:

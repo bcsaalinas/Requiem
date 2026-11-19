@@ -16,6 +16,10 @@ extends "res://entities/entity_ai.gd"
 signal caught
 ## Emitted with the exact position it now walks to.
 signal heard_noise(at: Vector2, source: int)
+## Emitted when it freezes to listen: the moment it knows something made a sound.
+signal listen_started
+## Emitted when it gives up a search and goes back to its patrol (SEARCH -> PATROL).
+signal stood_down
 
 @export_group("Readability")
 ## Random range (s) it stands still, head turned toward a new sound, before it starts the hunt.
@@ -60,12 +64,15 @@ var _drag: AudioStreamPlayer2D
 var _feel_player: AudioStreamPlayer2D
 var _feel_left := 0.0
 var _tap_wait := 0.0
+var _resetting := false
 
 func _ready() -> void:
 	super._ready()
 	_sprite.hide()
 	sprite_rig = $SpriteRig
 	audio = get_node_or_null("EntityAudio") as EntityAudio
+	state_changed.connect(func(previous: int, current: int) -> void:
+		if previous == State.SEARCH and current == State.PATROL and not _resetting: stood_down.emit())
 	color_by_state = false
 	log_state_changes = false
 	_drag = AudioStreamPlayer2D.new()
@@ -132,6 +139,7 @@ func _on_noise_emitted(at: Vector2, radius: float, source: int, _duration: float
 	# Its breathing stops while it listens: the silence is the tell. The hunt stinger follows.
 	_listening = randf_range(listen_time_range.x, listen_time_range.y)
 	_breath_player.stop()
+	listen_started.emit()
 	if _listening <= 0.0:
 		_listening = 0.0
 		_resume_breathing()
@@ -148,6 +156,7 @@ func notice(at: Vector2) -> void:
 	heard_noise.emit(at, NoiseManager.SourceType.PRAY)
 	_listening = randf_range(listen_time_range.x, listen_time_range.y)
 	_breath_player.stop()
+	listen_started.emit()
 
 ## Multiplier applied to a sound's radius at this moment (x1.6 while it hunts or searches).
 func hearing_multiplier() -> float:
@@ -267,9 +276,11 @@ func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	_state_timer = 0.0
 	_patrol_wait = 1.5
 	last_heard_source = -1
+	_resetting = true
 	_change_state(State.PATROL)
+	_resetting = false
 	active = false
 	_feel_left = 0.0
 	sprite_rig.reset()
 	if audio != null:
-		audio.stop_all()
+		audio.reset()

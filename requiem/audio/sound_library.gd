@@ -14,6 +14,7 @@ const TYPES: Array[String] = ["wav", "ogg", "mp3"]
 static var _sets := {}
 static var _files := {}
 static var _warned := {}
+static var _last_pick := {}
 
 
 ## The variations of a set, in file-name order. Empty when the folder is missing or empty.
@@ -53,6 +54,20 @@ static func stream(set_id: String) -> AudioStreamRandomizer:
 	return _sets[set_id]
 
 
+## One variation of a set, never the one picked last time (null when the set is empty). For
+## sounds that must be told apart file by file, like the scream.
+static func pick(set_id: String) -> AudioStream:
+	var variations := files(set_id)
+	if variations.is_empty():
+		stream(set_id)      # warns once
+		return null
+	var index := randi() % variations.size()
+	if variations.size() > 1 and index == int(_last_pick.get(set_id, -1)):
+		index = (index + 1 + randi() % (variations.size() - 1)) % variations.size()
+	_last_pick[set_id] = index
+	return variations[index]
+
+
 static func has_set(set_id: String) -> bool:
 	return _sets[set_id] != null if _sets.has(set_id) else not files(set_id).is_empty()
 
@@ -67,3 +82,4 @@ static func clear() -> void:
 	_sets.clear()
 	_files.clear()
 	_warned.clear()
+	_last_pick.clear()

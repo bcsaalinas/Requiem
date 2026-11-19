@@ -14,9 +14,11 @@ var checks := 0
 var game: Node2D
 var entity: CharacterBody2D
 var audio: EntityAudio
-## Every cue the rig fired, with the set that played for it on that same call ("" = none).
+## Every cue the rig fired, with what played for it on that same call:
+## { cue, set (the first sound, "" = none), sets (all of them), gain (dB before distance) }.
 var heard: Array[Dictionary] = []
-var _plays_seen := 0
+## Every sound EntityAudio started since the last cue: [set, gain].
+var _started: Array = []
 
 
 func check(condition: bool, message: String) -> void:
@@ -125,18 +127,24 @@ func check_in_the_house() -> void:
 	if audio == null:
 		return
 	var players: Array = audio.get_children()
-	check(players.size() == SoundSettings.current().entity_voices + 2 and players.all(func(player: Node) -> bool:
-		return player is AudioStreamPlayer2D and player.bus == AudioBus.ENTITY), "A pool of players, plus breath and drag, all on the Entity bus")
+	check(players.size() == SoundSettings.current().entity_voices + 2 + EntityAudio.AWARENESS_VOICES and players.all(func(player: Node) -> bool:
+		return player is AudioStreamPlayer2D and player.bus == AudioBus.ENTITY), "A pool of players, plus breath, drag and the awareness voices, all on the Entity bus")
 	check(entity.breath_calm_clips.is_empty() and entity.breath_hunt_clips.is_empty() and entity.hunt_stinger_clips.is_empty()
 		and entity.search_cue_clips.is_empty() and entity.investigate_cue_clips.is_empty() and entity.catch_clips.is_empty()
 		and entity.drag_clip == null and entity.feel_clip == null,
 		"The old clip slots are empty: no stinger, no search riser, no borrowed drag, nothing on INVESTIGATE")
+	entity.sprite_rig.cue.disconnect(audio.play_cue)
+	entity.sprite_rig.cue.connect(func(_cue: String) -> void: _started.clear())
+	entity.sprite_rig.cue.connect(audio.play_cue)
 	entity.sprite_rig.cue.connect(_on_cue)
+	audio.played.connect(func(set_id: String, voice: AudioStreamPlayer2D) -> void: _started.append([set_id, voice.volume_db]))
+	audio.awareness_played.connect(func(_moment: StringName, set_id: String, stream: AudioStream, _level: float) -> void:
+		var voice: AudioStreamPlayer2D = audio._aware.filter(func(v: AudioStreamPlayer2D) -> bool: return v.playing and v.stream == stream)[0]
+		_started.append([set_id, float(voice.get_meta(&"base"))]))
 	for door in game.world.zones["house"].get_node("Doors").get_children():
 		if door is Door:
 			door.noise_radius_u = 0.0
 			door.quiet_noise_radius_u = 0.0
-	audio.played.connect(func(_set_id: String, _voice: AudioStreamPlayer2D) -> void: _plays_seen += 1)
 
 	# Out in the house, patrolling, with Viv far away and silent.
 	game.attack_finished = true
@@ -176,6 +184,8 @@ func check_in_the_house() -> void:
 		await frames(1)
 		if count("neck_click") > 0 and count("claw_scrape") > 0: break
 	check(all_played("neck_click", "entity/neck_click") and count("neck_click") >= 1, "The head snap plays the neck click")
+	check(heard.any(func(entry: Dictionary) -> bool: return entry.cue == "neck_click" and entry.sets == ["entity/neck_click", "entity/heard_voice"]),
+		"The first head snap carries the heard-you voice with it")
 	check(heard.any(func(entry: Dictionary) -> bool: return entry.cue == "neck_click" and is_equal_approx(entry.gain, SoundLibrary.gain_db("entity/neck_click"))),
 		"The neck click plays with its make-up gain")
 	check(count("ear_flick") >= 1 and heard.all(func(entry: Dictionary) -> bool: return entry.cue != "ear_flick" or entry.set == ""),
@@ -223,8 +233,8 @@ func check_in_the_house() -> void:
 	check(all_played("catch_grab", "entity/catch_grab") and all_played("cloth_fall", "entity/cloth_fall") and all_played("sob_stops", "entity/sob_stops")
 		and count("catch_grab") == 1 and count("cloth_fall") == 1 and count("sob_stops") == 1, "The catch plays the grab, the cloth and the sob that stops, once each")
 	check(audio.breath_set() == "" and not audio.is_dragging(), "Under the catch there is no breath and no drag")
-	var sounded := heard.filter(func(entry: Dictionary) -> bool: return entry.set != "").size()
-	check(_plays_seen >= sounded and heard.all(func(entry: Dictionary) -> bool: return entry.plays <= 1), "No cue ever played twice")
+	check(heard.all(func(entry: Dictionary) -> bool:
+		return entry.sets.all(func(set_id: String) -> bool: return entry.sets.count(set_id) == 1)), "No cue ever played the same sound twice")
 	var route: Array[Vector2] = [patrol]
 	entity.reset_encounter(patrol, route)
 	await frames(2)
@@ -241,18 +251,12 @@ func check_in_the_house() -> void:
 	await frames(3)
 
 
-## Runs right after EntityAudio handled the same cue (it connected first).
+## Runs right after EntityAudio handled the same cue; _started was emptied right before it.
 func _on_cue(cue_name: String) -> void:
-	var expected: String = EntityAudio.CUE_SETS.get(cue_name, "")
-	var played_now := expected != "" and audio.last_set == expected and _last_voice() != null
-	heard.append({"cue": cue_name, "set": expected if played_now else "", "plays": int(played_now),
-		"gain": _last_voice().volume_db if played_now else 0.0})
-	audio.last_set = ""
-
-
-func _last_voice() -> AudioStreamPlayer2D:
-	var index := (audio._next_voice - 1 + audio._voices.size()) % audio._voices.size()
-	return audio._voices[index] if audio._voices[index].playing else null
+	var sets: Array = _started.map(func(sound: Array) -> String: return sound[0])
+	heard.append({"cue": cue_name, "set": sets[0] if not sets.is_empty() else "", "sets": sets,
+		"gain": _started[0][1] if not _started.is_empty() else 0.0})
+	_started.clear()
 
 
 func count(cue_name: String) -> int:

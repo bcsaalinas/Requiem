@@ -94,3 +94,55 @@ static func current() -> SoundSettings:
 @export_range(0.0, 2.0, 0.01, "suffix:s") var loop_fade := 0.2
 ## Above this speed it counts as moving, and its shroud drags.
 @export_range(0.0, 2.0, 0.005, "suffix:u/s") var moving_speed_u := 0.125
+
+@export_group("Entity: what it knows (Channel A)")
+## The heard-you cue plays at full level out to this distance. It must cover every place a
+## detection can come from: the largest noise Viv can make (8 u: a thrown object, the prayer
+## pulse) x its sharpest hearing (1.6) x 1.25 = 16 u. The fairness test fails if this is less.
+@export_range(4.0, 60.0, 0.5, "suffix:u") var heard_full_u := 16.0
+## Beyond that distance the heard-you cue drops by this much per unit...
+@export_range(0.0, 3.0, 0.05, "suffix:dB/u") var heard_fall_db_per_u := 0.5
+## ...but never below this: it never falls silent, wherever Viv stands.
+@export_range(-40.0, 0.0, 0.5, "suffix:dB") var heard_floor_db := -12.0
+## What the voice of the heard-you cue gets on top of its file level, so it stands over any idle talking.
+@export_range(-6.0, 12.0, 0.5, "suffix:dB") var heard_voice_gain_db := 2.0
+## How long the cue waits for the animation's head snap before it plays without it.
+@export_range(0.05, 1.0, 0.01, "suffix:s") var heard_click_wait := 0.25
+## The scream (with its inhale and stomp) plays at full level out to this distance...
+@export_range(1.0, 60.0, 0.5, "suffix:u") var scream_full_u := 6.0
+## ...then drops by this much per unit...
+@export_range(0.0, 3.0, 0.05, "suffix:dB/u") var scream_fall_db_per_u := 0.4
+## ...and never below this: it reaches the whole house.
+@export_range(-40.0, 0.0, 0.5, "suffix:dB") var scream_floor_db := -14.0
+## What the scream gets on top of its file level.
+@export_range(-6.0, 12.0, 0.5, "suffix:dB") var scream_gain_db := 3.0
+## A scream this soon after the last one...
+@export_range(0.0, 120.0, 1.0, "suffix:s") var scream_repeat_window := 20.0
+## ...plays this much quieter, so a second scream does not wear the first one out.
+@export_range(-12.0, 0.0, 0.5, "suffix:dB") var scream_repeat_db := -4.0
+## How far Music, Ambience and World drop under the scream, from its inhale on.
+@export_range(-30.0, 0.0, 0.5, "suffix:dB") var scream_duck_db := -14.0
+## How fast they drop.
+@export_range(0.0, 1.0, 0.01, "suffix:s") var scream_duck_attack := 0.1
+## How slowly they come back once it launches into the hunt.
+@export_range(0.0, 6.0, 0.05, "suffix:s") var scream_duck_release := 1.5
+## The duck lets go after this long even if the launch never comes (it was caught mid-scream).
+@export_range(0.5, 6.0, 0.05, "suffix:s") var scream_duck_longest := 2.5
+## How long a hunt start waits for the animation's inhale and scream before it plays them itself.
+@export_range(0.05, 1.0, 0.01, "suffix:s") var scream_cue_wait := 0.25
+## "It lost you" and "it gave up" play at full level out to this distance...
+@export_range(1.0, 60.0, 0.5, "suffix:u") var far_full_u := 12.0
+## ...then drop by this much per unit...
+@export_range(0.0, 3.0, 0.05, "suffix:dB/u") var far_fall_db_per_u := 0.5
+## ...and never below this.
+@export_range(-40.0, 0.0, 0.5, "suffix:dB") var far_floor_db := -15.0
+## After "it lost you" starts, the one sniff follows this much later.
+@export_range(0.0, 6.0, 0.05, "suffix:s") var lost_then_sniff := 2.4
+## "It gave up" is an exhale. An exhale the animation asks for within this long of it is the
+## same breath, and is not played a second time.
+@export_range(0.0, 6.0, 0.05, "suffix:s") var stand_down_covers_exhale := 2.0
+## When "it gave up" starts, a "lost you" groan still sounding fades out over this long.
+@export_range(0.0, 2.0, 0.01, "suffix:s") var awareness_fade := 0.3
+## A cue more than this far under its full level counts as too quiet to hear. No awareness
+## cue may ever play below it (fairness test).
+@export_range(-40.0, 0.0, 0.5, "suffix:dB") var audible_db := -20.0
