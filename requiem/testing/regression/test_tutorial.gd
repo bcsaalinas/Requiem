@@ -25,6 +25,8 @@ func _ready() -> void:
 	old_captions=Preferences.captions
 	Preferences.captions=true
 	await frames(5)
+	var step_audio: Node = game.player.get_node("FootstepAudio")
+	check(game.zone=="bedroom" and step_audio.surface==&"wood","In the bedroom Viv walks on wood")
 	check(game.world.navigation_regions.size()==3,"Three bounded navigation regions exist")
 	check(game.breath.drain_rate_percent==20.0 and game.breath.exertion_rise_rate_percent==6.0,"Existing breathing rates preserved")
 	check(game.player.walk_speed_u==3.2 and game.player.hold_breath_speed_u==2.5,"Existing movement rates preserved")
@@ -42,6 +44,7 @@ func _ready() -> void:
 	check(bedroom_door.is_open,"A collected but empty battery still lets the player open the bedroom door")
 	await frames(4)
 	check(game.zone=="hallway","Walking through the open bedroom door enters the hallway")
+	check(step_audio.surface==&"wood","In the hallway she walks on wood")
 	game.flashlight.battery_percent=100.0
 	var door_a: ParentListener = game._parent_listeners()[0]
 	game.player.position=door_a.global_position+Vector2(-150,48)
@@ -109,6 +112,7 @@ func _ready() -> void:
 	check(game.hall_lesson_done and game.hud.key_hint.text=="","Past both doors the lesson ends and the key hint goes")
 	await frames(4)
 	check(game.zone=="forest" and game.stage=="sho","Walking through the open back door begins the forest stage")
+	check(step_audio.surface==&"forest","In the forest she walks on the forest floor")
 	check(not back_door.is_open,"The back door is shut behind the player")
 	check(not game.entity.visible and not game.entity.active,"Forest uses indirect presence without an invisible active capture entity")
 	NoiseManager.emit_noise(Vector2(3580,350),32,NoiseManager.SourceType.CROUCH)
@@ -130,6 +134,7 @@ func _ready() -> void:
 	game.encounter_grace=999
 	at_interaction("forest_exit")
 	check(game.zone=="house" and game.stage=="ten","House begins the turn")
+	check(step_audio.surface==&"wood","In the house she walks on wood again")
 	at_interaction("porch_rocks")
 	at_interaction("front_door")
 	check(not game.door_unlocked,"Front door initially stays locked")
@@ -265,6 +270,7 @@ func _ready() -> void:
 	game.interact("front_door")
 	await frames(4)
 	check(game.zone=="loop","Return doorway leads to the impossible room")
+	check(step_audio.surface==&"wood" and game.ZONE_SURFACE.size()==5,"In the last room she walks on wood: every zone has its surface")
 	check(not game.entity.active,"Return visit preserves the aftermath")
 	at_interaction("loop_end",Vector2(-45,0))
 	check(game.complete and not game.entity.active,"Final doorway completes tutorial and stops encounter")

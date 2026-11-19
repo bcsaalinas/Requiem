@@ -1,8 +1,15 @@
 extends Node
 ## Audible one-shots follow resolved foot plants. FootstepNoise independently
 ## owns the established AI-hearing cadence and never calls this presentation.
+##
+## What her steps sound like depends on what she walks on (`surface`). Each surface has its
+## own sound set, the folder assets/audio/viv/steps_<surface>/. While that folder has no
+## files, or no surface is known, the steps are the concrete bank set on FootstepNoise.
 
 signal step_played(side: String, at: Vector2, mode: String, clip: AudioStream, pitch: float, gain_db: float)
+
+## The sound set of a surface: "wood" is the folder assets/audio/viv/steps_wood/.
+const STEP_SET := "viv/steps_%s"
 
 @export var enabled := true
 @export var sprint_gain_db := 2.5
@@ -15,7 +22,12 @@ signal step_played(side: String, at: Vector2, mode: String, clip: AudioStream, p
 @onready var footsteps: Node = player.get_node("FootstepNoise")
 @onready var actions: Node = player.get_node("ActionState")
 
+## What she is walking on (&"wood", &"forest"...). The level sets it; nothing here knows the
+## levels. Empty: no surface known, the concrete bank.
+var surface: StringName = &""
 var played_steps := 0
+## The set the last step came from ("viv/steps_wood"), or "" when it was the concrete bank.
+var last_step_set := ""
 var _voices: Array[AudioStreamPlayer2D] = []
 var _voice_index := 0
 var _previous_position := Vector2.ZERO
@@ -76,6 +88,15 @@ func _play_step(side: String, at: Vector2, mode: String) -> void:
 	# A configured walk bank also supplies sprint until a dedicated bank is set.
 	if clips.is_empty() and mode == "Sprint":
 		clips = footsteps.walk_clips
+	# The surface's own set replaces the bank in every gait, once its folder has files. An
+	# empty bank means her steps are switched off (automated runs do this): they stay off.
+	var step_set := ""
+	if surface != &"" and not clips.is_empty():
+		var surface_set := STEP_SET % surface
+		var surface_clips := SoundLibrary.files(surface_set)
+		if not surface_clips.is_empty():
+			clips = surface_clips
+			step_set = surface_set
 	var candidates: Array[AudioStream] = []
 	for clip in clips:
 		if clip != null and clip != _last_clip:
@@ -92,8 +113,11 @@ func _play_step(side: String, at: Vector2, mode: String) -> void:
 	voice.stream = selected
 	voice.pitch_scale = 1.0 + _random.randf_range(-footsteps.pitch_variation, footsteps.pitch_variation)
 	var mode_gain := held_gain_db if mode == "Held breath" else (sprint_gain_db if mode == "Sprint" else 0.0)
-	voice.volume_db = footsteps.volume_db + mode_gain + _random.randf_range(-gain_variation_db, gain_variation_db)
+	# A surface set can be trimmed like any other set (set_gain_db in the sound settings).
+	var set_gain := SoundLibrary.gain_db(step_set) if step_set != "" else 0.0
+	voice.volume_db = footsteps.volume_db + mode_gain + set_gain + _random.randf_range(-gain_variation_db, gain_variation_db)
 	voice.play()
 	_last_clip = selected
+	last_step_set = step_set
 	played_steps += 1
 	step_played.emit(side, at, mode, selected, voice.pitch_scale, voice.volume_db)

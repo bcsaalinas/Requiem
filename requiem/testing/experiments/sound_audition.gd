@@ -143,17 +143,18 @@ func _build_controls() -> void:
 		"The exploration drone comes and goes on its own clock (40 to 90 s each way). This turns it now."
 	safe_button = _button(controls, "", func() -> void: set_safe(not safe))
 	safe_button.tooltip_text = "On: the entity cannot hear Viv's own noises and cannot catch her."
-	# The sound sets, down the right edge.
+	# The sound sets, down the right edge: just under the controls, packed tight so that every
+	# set and the read-out under them stay on screen (30 sets, 15 rows, today).
 	var list := VBoxContainer.new()
-	list.position = Vector2(PixelDisplay.UI_CANVAS.x - 330.0, 124.0)
-	list.add_theme_constant_override("separation", 3)
+	list.position = Vector2(PixelDisplay.UI_CANVAS.x - 330.0, 118.0)
+	list.add_theme_constant_override("separation", 2)
 	layer.add_child(list)
 	list.add_child(_label("SOUND SETS · a click plays the next variation", 12))
 	_button(list, "0 · Play every set once", play_every_set)
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 4)
-	grid.add_theme_constant_override("v_separation", 2)
+	grid.add_theme_constant_override("v_separation", 1)
 	list.add_child(grid)
 	for set_id: String in sets:
 		var button := _button(grid, "%s (%d)" % [set_id.replace("/", " · "), SoundLibrary.files(set_id).size()], play_set_once.bind(set_id))
@@ -164,6 +165,7 @@ func _build_controls() -> void:
 	# How far its sound travels to Viv, under the list.
 	list.add_child(_label("WHERE IT IS, BY EAR", 12))
 	where_status = _label("", 12)
+	where_status.add_theme_constant_override("line_spacing", 0)
 	list.add_child(where_status)
 
 
@@ -250,7 +252,8 @@ func retry_from_game_over() -> void:
 ## Plays one variation of a set (the next one, never the one before). Entity sets play from
 ## where the entity is, on its bus; Viv's play on Body. Returns how long it will sound.
 func play_set_once(set_id: String) -> float:
-	var stream := SoundLibrary.pick(set_id)
+	# A folder still waiting for its files (her steps by surface) is not a fault: no warning.
+	var stream: AudioStream = null if SoundLibrary.files(set_id).is_empty() else SoundLibrary.pick(set_id)
 	if stream == null:
 		_playing_set = "%s is empty" % set_id
 		return 0.0

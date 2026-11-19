@@ -69,6 +69,15 @@ const ZONE_AMBIENCE_PATHS := {
 	"house": "res://assets/audio/410746__simo170075__basement-ambience.wav",
 	"loop": "res://assets/audio/410746__simo170075__basement-ambience.wav",
 }
+## What Viv walks on in each zone. Her steps take their sounds from the set of that surface
+## (assets/audio/viv/steps_wood/, steps_forest/); see player/footstep_audio.gd.
+const ZONE_SURFACE := {
+	"bedroom": &"wood",
+	"hallway": &"wood",
+	"forest": &"forest",
+	"house": &"wood",
+	"loop": &"wood",
+}
 ## Compensacion de volumen POR PISTA (no por zona: house/loop comparten
 ## archivo y compensacion). Cada archivo real trae un nivel de grabacion muy
 ## distinto -- el de bedroom es literalmente "room tone" de post-produccion
@@ -336,6 +345,7 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	player.position=spawn
 	player.velocity=Vector2.ZERO
 	player.get_node("FootstepNoise").reset_steps()
+	player.get_node("FootstepAudio").surface = ZONE_SURFACE[zone]
 	heard_flash.clear()
 	var rooms: RoomVisibility = world.rooms(zone)
 	if rooms != null:

@@ -144,6 +144,7 @@ func _ready() -> void:
 	seed(7721)
 	audio._play_step("left", player.position, "Walk")
 	check(randi() == expected_random, "Sound variation does not consume global RNG")
+	await surface_checks()
 	release_inputs()
 	GameState.reset()
 	player.queue_free()
@@ -253,3 +254,140 @@ func parity_run(with_audio: bool) -> Dictionary:
 	await frames(110)
 	return {"noises": noises.duplicate(true), "position": player.position,
 		"exertion": breath.exertion_percent, "steps": audio.played_steps - start}
+
+
+func surface_walk(ticks: int, sprint := false, held := false) -> void:
+	await reset_case()
+	observing = true
+	Input.action_press("move_right")
+	if sprint: Input.action_press("sprint")
+	if held: Input.action_press("hold_breath")
+	await frames(ticks)
+
+
+func noise_radii() -> Array:
+	return noises.map(func(n: Dictionary) -> float: return n.radius)
+
+
+func all_from(bank: Array[AudioStream], from := 0) -> bool:
+	var ok := events.size() > from
+	for index in range(from, events.size()):
+		ok = ok and bank.has(events[index].clip)
+	return ok
+
+
+## Viv's steps by surface (assets/audio/viv/steps_wood, steps_forest). The real folders may be
+## empty or full: these checks put their own files in SoundLibrary's memory, and forget them
+## at the end, so they hold whatever the designer has put there.
+func surface_checks() -> void:
+	const WOOD := "viv/steps_wood"
+	const FOREST := "viv/steps_forest"
+	var settings := SoundSettings.current()
+	var had_gain: bool = settings.set_gain_db.has(WOOD)
+	var old_gain: float = float(settings.set_gain_db.get(WOOD, 0.0))
+	var had_forest_gain: bool = settings.set_gain_db.has(FOREST)
+	var old_forest_gain: float = float(settings.set_gain_db.get(FOREST, 0.0))
+	settings.set_gain_db.erase(FOREST)
+	var concrete: Array[AudioStream] = footsteps.walk_clips.duplicate()
+	var wood: Array[AudioStream] = []
+	wood.assign(SoundLibrary.files("entity/claws_walk").slice(0, 4))
+	var forest: Array[AudioStream] = []
+	forest.assign(SoundLibrary.files("entity/pat_tap").slice(0, 3))
+	var nothing: Array[AudioStream] = []
+	check(wood.size() == 4 and forest.size() == 3 and audio.surface == &"" and audio.STEP_SET % "wood" == WOOD,
+		"A surface names its own set: wood is viv/steps_wood")
+	check(DirAccess.dir_exists_absolute(SoundLibrary.ROOT + WOOD) and DirAccess.dir_exists_absolute(SoundLibrary.ROOT + FOREST),
+		"The wood and forest step folders exist, waiting for files")
+	# No surface known: the concrete bank, as before.
+	await surface_walk(120)
+	check(all_from(concrete) and events.size() >= 3 and audio.last_step_set == "", "Without a surface her steps are the concrete bank")
+	# The real folders, whatever they hold today: empty gives concrete, files give those files.
+	for surface: StringName in [&"wood", &"forest"]:
+		SoundLibrary.clear()
+		var on_disk := SoundLibrary.files(audio.STEP_SET % surface)
+		audio.surface = surface
+		await surface_walk(120)
+		check(all_from(concrete if on_disk.is_empty() else on_disk) and events.size() >= 3
+			and audio.last_step_set == ("" if on_disk.is_empty() else audio.STEP_SET % surface),
+			"On %s her steps follow what its folder holds today (%d files)" % [surface, on_disk.size()])
+	# An empty folder: still the concrete bank, at the same level, and nothing is reported.
+	SoundLibrary.clear()
+	SoundLibrary._files[WOOD] = nothing
+	audio.surface = &"wood"
+	await surface_walk(120)
+	var plain_level := true
+	for e: Dictionary in events:
+		plain_level = plain_level and (e.mode != "Walk" or absf(e.gain - footsteps.volume_db) <= 0.701)
+	check(all_from(concrete) and events.size() >= 3 and audio.last_step_set == "", "An empty surface set falls back to the concrete bank")
+	check(plain_level, "The fallback plays at the level the steps always had")
+	check(not SoundLibrary._warned.has(WOOD) and not SoundLibrary._sets.has(WOOD), "An empty surface set is not reported as a fault")
+	# Files in the folder: they are her steps in every gait, at the usual level plus the set's own trim.
+	SoundLibrary._files[WOOD] = wood
+	settings.set_gain_db[WOOD] = -3.0
+	for gait: Array in [["Walk", false, false, 180, -6.0, 3.0], ["Sprint", true, false, 180, -3.5, 6.0], ["Held breath", true, true, 210, -14.0, 1.0]]:
+		var mode: String = gait[0]
+		await surface_walk(gait[3], gait[1], gait[2])
+		check(all_from(wood) and events.size() >= 3 and audio.last_step_set == WOOD, mode + " on wood plays only the files of viv/steps_wood")
+		var varied := true
+		var in_mode := 0
+		for index in range(events.size()):
+			var e: Dictionary = events[index]
+			varied = varied and e.pitch >= 0.965 and e.pitch <= 1.035
+			if index > 0: varied = varied and e.clip != events[index - 1].clip
+			if e.mode == mode:
+				in_mode += 1
+				varied = varied and absf(e.gain - (float(gait[4]) - 3.0)) <= 0.701
+		check(varied and in_mode >= 3, mode + " on wood never repeats a file and plays at the usual level plus the set's trim")
+		check(events.size() == expected_plants and mismatches == 0, mode + " on wood still has one sound per visible plant")
+		var heard: Array = noises.filter(func(n): return is_equal_approx(n.radius, Units.to_px(float(gait[5]))))
+		check(heard.size() >= 3, mode + " on wood keeps the hearing radius it had")
+	# A new surface is heard from the very next step.
+	SoundLibrary._files[FOREST] = forest
+	await surface_walk(90)
+	var on_wood := events.size()
+	audio.surface = &"forest"
+	await frames(90)
+	var before_ok := true
+	for index in range(on_wood):
+		before_ok = before_ok and wood.has(events[index].clip)
+	check(before_ok and on_wood >= 2 and all_from(forest, on_wood) and audio.last_step_set == FOREST,
+		"Walking onto the forest floor changes her steps from the next one")
+	var forest_level := true
+	for index in range(on_wood, events.size()):
+		forest_level = forest_level and absf(events[index].gain - footsteps.volume_db) <= 0.701
+	check(forest_level, "A set with no trim of its own plays at the usual level")
+	# A surface nobody made a folder for.
+	audio.surface = &"stone"
+	await surface_walk(120)
+	check(all_from(concrete) and events.size() >= 3 and audio.last_step_set == ""
+		and not SoundLibrary._warned.has(audio.STEP_SET % "stone"), "An unknown surface falls back to the concrete bank without a fault")
+	# What the entity hears never depends on the surface.
+	audio.surface = &""
+	await surface_walk(110, true)
+	var concrete_radii := noise_radii()
+	var concrete_steps := events.size()
+	var concrete_matched := events.size() == expected_plants and mismatches == 0
+	audio.surface = &"wood"
+	await surface_walk(110, true)
+	check(concrete_radii.size() > 2 and concrete_radii == noise_radii(),
+		"The surface changes no hearing event: same number, same radii")
+	check(audio.last_step_set == WOOD and concrete_steps > 4 and concrete_matched and events.size() == expected_plants and mismatches == 0,
+		"And one step per foot plant on either surface")
+	# Steps that are switched off (an empty bank: automated runs do this) stay off on any surface.
+	var count: int = audio.played_steps
+	footsteps.walk_clips.clear()
+	audio._play_step("left", player.position, "Walk")
+	audio._play_step("right", player.position, "Sprint")
+	footsteps.walk_clips.assign(concrete)
+	check(audio.played_steps == count, "A surface set does not switch silenced steps back on")
+	seed(7721)
+	var expected_random := randi()
+	seed(7721)
+	audio._play_step("left", player.position, "Walk")
+	check(randi() == expected_random and audio.played_steps == count + 1, "Picking from a surface set does not consume global RNG")
+	audio.surface = &""
+	if had_gain: settings.set_gain_db[WOOD] = old_gain
+	else: settings.set_gain_db.erase(WOOD)
+	if had_forest_gain: settings.set_gain_db[FOREST] = old_forest_gain
+	SoundLibrary.clear()
+	await reset_case()
