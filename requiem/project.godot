@@ -34,6 +34,7 @@ Kiosk="*uid://bpyfjo7fw5roa"
 MusicDirector="*res://autoloads/music_director.gd"
 PixelDisplay="*uid://bg081nyu5xrq3"
 MixDirector="*uid://186u4krtuyn7"
+Dread="*res://audio/dread.gd"
 
 [display]
 

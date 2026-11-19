@@ -6,19 +6,28 @@ extends Node
 ## low-pass ("MixMuffle"), and everything a moment asks of the mix goes through them.
 ##
 ## Other scripts ask by name: duck() or focus() to move a bus level, muffle() to dull a bus,
-## release() when the moment is over. Each request has a priority. On every bus the request with
+## follow() for a level that drifts all the time, release() when the moment is over. Each request has a priority. On every bus the request with
 ## the highest priority decides; when it ends, the next one down takes over. Changes are faded.
 ##
 ## Muffling is only ever applied to Music, Ambience and World (AudioBus.MUFFLEABLE): never to
 ## the entity, never to Viv's body.
+##
+## Two requests are its own. The mood of the house (Dread.threat): as it rises, Ambience and
+## World pull back and Viv's body comes forward, so she hears herself. And death: on the game
+## over screen Music, Ambience and World fall silent.
 
 ## Who wins when two moments want the same bus. Higher wins.
-enum Priority { THREAT = 10, PRAYER = 20, BREATH = 30, SCREAM = 40 }
+enum Priority { THREAT = 10, PRAYER = 20, BREATH = 30, SCREAM = 40, DEATH = 50 }
 
 const GAIN_NAME := "MixGain"
 const MUFFLE_NAME := "MixMuffle"
+## The request that follows the mood of the house.
+const THREAT_MIX := &"threat"
+## The request that silences the house on the game over screen.
+const DEATH_MIX := &"death"
 
-## name -> { priority, order, gains: {bus: dB}, cutoffs: {bus: Hz}, holder: weakref or null }
+## name -> { priority, order, gains: {bus: dB}, cutoffs: {bus: Hz}, holder: weakref or null,
+##           drifting: true for a follow() request }
 var _requests := {}
 ## "gain/Music", "cutoff/World"... -> { now, from, to, time, length }
 var _moves := {}
@@ -31,6 +40,9 @@ var _set_up := false
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	ensure_buses()
+	Dread.threat_changed.connect(_on_threat_changed)
+	GameState.player_died.connect(_on_player_died)
+	GameState.state_reset.connect(_on_state_reset)
 
 
 ## Makes sure every bus and every effect of the layout exists (default_bus_layout.tres has
@@ -76,6 +88,13 @@ func focus(request: StringName, priority: int, gains_db: Dictionary, fade := 0.0
 	_ask(request, priority, gains_db, {}, fade, holder)
 
 
+## A level that drifts all the time (the mood of the house): call it every time the value moves.
+## The bus goes straight to the new value, unless a fade is already bringing the bus to this
+## request (a stronger one just ended, say): then that fade is kept, never cut short.
+func follow(request: StringName, priority: int, gains_db: Dictionary) -> void:
+	_ask(request, priority, gains_db, {}, 0.0, null, true)
+
+
 ## Dulls buses: cutoffs_hz is { bus name: Hz }. Buses that may not be muffled are left out;
 ## returns false if any was asked for.
 func muffle(request: StringName, priority: int, cutoffs_hz: Dictionary, fade := 0.0, holder: Node = null) -> bool:
@@ -106,6 +125,12 @@ func gain_db(bus_name: StringName) -> float:
 	return _moves[key].now if _moves.has(key) else 0.0
 
 
+## The level a bus is heading for, in dB: where gain_db() will be once its fade is over.
+func target_db(bus_name: StringName) -> float:
+	var key := "gain/%s" % bus_name
+	return _moves[key].to if _moves.has(key) else 0.0
+
+
 ## The cutoff of a bus right now, in Hz (open_hz at rest; buses that are never muffled too).
 func cutoff_hz(bus_name: StringName) -> float:
 	var key := "cutoff/%s" % bus_name
@@ -117,6 +142,29 @@ func cutoff_hz(bus_name: StringName) -> float:
 func muffle_filter(bus_name: StringName) -> AudioEffectLowPassFilter:
 	ensure_buses()
 	return _muffles.get(bus_name)
+
+
+## The mood of the house: Ambience and World recede with it, Viv's body comes forward.
+func _on_threat_changed(threat: float) -> void:
+	if threat <= 0.0:
+		release(THREAT_MIX)
+		return
+	var settings := SoundSettings.current()
+	var world: float = settings.threat_world_db * threat
+	follow(THREAT_MIX, Priority.THREAT, {AudioBus.AMBIENCE: world, AudioBus.WORLD: world,
+		AudioBus.BODY: settings.threat_body_db * threat})
+
+
+## The game over screen: the house falls silent. What the entity is still sounding is left to
+## ring out.
+func _on_player_died() -> void:
+	var settings := SoundSettings.current()
+	_ask(DEATH_MIX, Priority.DEATH, {AudioBus.MUSIC: settings.death_duck_db, AudioBus.AMBIENCE: settings.death_duck_db,
+		AudioBus.WORLD: settings.death_duck_db}, {}, settings.death_fade, null)
+
+
+func _on_state_reset() -> void:
+	release(DEATH_MIX, SoundSettings.current().death_release)
 
 
 func _process(delta: float) -> void:
@@ -134,15 +182,21 @@ func _process(delta: float) -> void:
 		_apply(key, move.now)
 
 
-func _ask(request: StringName, priority: int, gains: Dictionary, cutoffs: Dictionary, fade: float, holder: Node) -> void:
+func _ask(request: StringName, priority: int, gains: Dictionary, cutoffs: Dictionary, fade: float, holder: Node,
+		drifting := false) -> void:
 	ensure_buses()
 	var touched_gains := gains.keys()
 	var touched_cutoffs := cutoffs.keys()
 	var order := _order + 1
 	if _requests.has(request):
 		# Asking again changes the request; it keeps its place among requests of equal priority.
-		touched_gains.append_array(_requests[request].gains.keys())
-		touched_cutoffs.append_array(_requests[request].cutoffs.keys())
+		# Buses it no longer asks for are handed back.
+		for bus_name in _requests[request].gains:
+			if not touched_gains.has(bus_name):
+				touched_gains.append(bus_name)
+		for bus_name in _requests[request].cutoffs:
+			if not touched_cutoffs.has(bus_name):
+				touched_cutoffs.append(bus_name)
 		order = _requests[request].order
 	_order = maxi(_order, order)
 	var kept := {}
@@ -150,38 +204,56 @@ func _ask(request: StringName, priority: int, gains: Dictionary, cutoffs: Dictio
 		if AudioBus.MIXABLE.has(StringName(bus_name)):
 			kept[StringName(bus_name)] = float(gains[bus_name])
 	_requests[request] = {"priority": priority, "order": order, "gains": kept, "cutoffs": cutoffs,
-		"holder": weakref(holder) if holder != null else null}
-	_retarget(touched_gains, touched_cutoffs, fade)
+		"holder": weakref(holder) if holder != null else null, "drifting": drifting}
+	_retarget(touched_gains, touched_cutoffs, fade, request)
 
 
-## Works out what each touched bus should be now and starts moving there.
-func _retarget(gain_buses: Array, cutoff_buses: Array, fade: float) -> void:
+## Works out what each touched bus should be now and starts moving there. `asker` is the
+## request that just changed (none when one ended).
+func _retarget(gain_buses: Array, cutoff_buses: Array, fade: float, asker := &"") -> void:
 	for bus_name in gain_buses:
-		_move_to("gain/%s" % bus_name, _winner("gains", bus_name, 0.0), fade)
+		_move_to("gains", bus_name, fade, asker)
 	for bus_name in cutoff_buses:
-		# Cutoffs move in octaves, so a fade sounds even from open to shut.
-		_move_to("cutoff/%s" % bus_name, _winner("cutoffs", bus_name, SoundSettings.current().open_hz), fade)
+		_move_to("cutoffs", bus_name, fade, asker)
 
 
-func _winner(what: String, bus_name: StringName, rest: float) -> float:
-	var best: Dictionary = {}
-	for request in _requests.values():
-		if request[what].has(bus_name) and (best.is_empty() or request.priority > best.priority \
-				or (request.priority == best.priority and request.order > best.order)):
+## The name of the request that decides a bus (&"" when no request wants it).
+func _winner(what: String, bus_name: StringName) -> StringName:
+	var best := &""
+	for request: StringName in _requests:
+		var candidate: Dictionary = _requests[request]
+		if not candidate[what].has(bus_name):
+			continue
+		var held: Dictionary = _requests[best] if best != &"" else {}
+		if best == &"" or candidate.priority > held.priority \
+				or (candidate.priority == held.priority and candidate.order > held.order):
 			best = request
-	return best[what][bus_name] if not best.is_empty() else rest
+	return best
 
 
-func _move_to(key: String, target: float, fade: float) -> void:
-	var cutoff := key.begins_with("cutoff/")
+## Starts moving a bus to what its winning request asks for (or to rest, with none).
+func _move_to(what: String, bus_name: StringName, fade: float, asker: StringName) -> void:
+	var cutoff := what == "cutoffs"
+	var key := ("cutoff/%s" if cutoff else "gain/%s") % bus_name
+	# Cutoffs move in octaves, so a fade sounds even from open to shut.
+	var rest := _scale(SoundSettings.current().open_hz, true) if cutoff else 0.0
 	if not _moves.has(key):
-		var rest := _scale(SoundSettings.current().open_hz, true) if cutoff else 0.0
 		_moves[key] = {"now": rest, "from": rest, "to": rest, "time": 0.0, "length": 0.0}
 	var move: Dictionary = _moves[key]
-	var to := _scale(target, cutoff)
-	# Already on its way there: only a faster fade changes anything.
-	if is_equal_approx(move.to, to) and fade >= move.length - move.time:
-		return
+	var owner := _winner(what, bus_name)
+	var to: float = _scale(_requests[owner][what][bus_name], cutoff) if owner != &"" else rest
+	var left: float = maxf(move.length - move.time, 0.0) if move.now != move.to else 0.0
+	# A drifting request that decides this bus and has just moved its own value (follow()).
+	var drifting: bool = asker != &"" and asker == owner and _requests[owner].drifting
+	if is_equal_approx(move.to, to):
+		# Already on its way there. A request that does not decide this bus changes nothing,
+		# nor does a drifting one; otherwise only a faster fade changes anything.
+		if (asker != &"" and asker != owner) or drifting or fade >= left:
+			return
+	elif drifting:
+		# The value moved a little: the fade that is bringing the bus to it goes on, to the
+		# new value, and is never cut short.
+		fade = maxf(fade, left)
 	move.from = move.now
 	move.to = to
 	move.time = 0.0

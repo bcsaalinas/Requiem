@@ -127,6 +127,9 @@ func check_priorities() -> void:
 		"A bus can be brought forward; Master and UI are never moved")
 	MixDirector.release(&"test_focus")
 	check(bus_volumes() == volumes_before, "None of it moved a bus volume: those belong to the player's sliders")
+	check(MixDirector.Priority.DEATH > MixDirector.Priority.SCREAM and MixDirector.Priority.SCREAM > MixDirector.Priority.BREATH
+		and MixDirector.Priority.BREATH > MixDirector.Priority.PRAYER and MixDirector.Priority.PRAYER > MixDirector.Priority.THREAT,
+		"The order is: death, the scream, hold-breath, prayer, threat")
 	# A request dies with the node that made it.
 	var holder := Node.new()
 	add_child(holder)
@@ -158,6 +161,30 @@ func check_fades() -> void:
 	await seconds(0.3)
 	check(is_equal_approx(MixDirector.muffle_filter(AudioBus.WORLD).cutoff_hz, 2500.0), "And settles on its cutoff")
 	MixDirector.release(&"test_muffle_fade")
+	# A fade in progress is not cut short by requests that keep changing underneath it or
+	# after it: the mood of the house moves every frame.
+	MixDirector.follow(&"test_mood", MixDirector.Priority.THREAT, {AudioBus.AMBIENCE: -6.0})
+	MixDirector.duck(&"test_over", MixDirector.Priority.SCREAM, {AudioBus.AMBIENCE: -14.0}, 0.4)
+	for step in 6:
+		await get_tree().physics_frame
+		MixDirector.follow(&"test_mood", MixDirector.Priority.THREAT, {AudioBus.AMBIENCE: -6.0 - step * 0.1})
+	var attack: float = MixDirector.gain_db(AudioBus.AMBIENCE)
+	check(attack < -6.0 and attack > -13.5, "A lower request that keeps changing does not cut short the fade above it (%.1f dB)" % attack)
+	await seconds(0.45)
+	MixDirector.release(&"test_over", 0.6)
+	for step in 6:
+		await get_tree().physics_frame
+		MixDirector.follow(&"test_mood", MixDirector.Priority.THREAT, {AudioBus.AMBIENCE: -7.0 + step * 0.1})
+		# Said twice in one frame, it still changes nothing.
+		MixDirector.follow(&"test_mood", MixDirector.Priority.THREAT, {AudioBus.AMBIENCE: -7.0 + step * 0.1})
+	var release_db: float = MixDirector.gain_db(AudioBus.AMBIENCE)
+	check(release_db < -8.0 and release_db > -14.0, "Nor does it cut short the release that hands the bus back to it (%.1f dB)" % release_db)
+	await seconds(0.65)
+	check(is_equal_approx(MixDirector.gain_db(AudioBus.AMBIENCE), MixDirector.target_db(AudioBus.AMBIENCE))
+		and is_equal_approx(MixDirector.target_db(AudioBus.AMBIENCE), -6.5), "And the bus ends on the value it asks for")
+	MixDirector.follow(&"test_mood", MixDirector.Priority.THREAT, {AudioBus.AMBIENCE: -3.0})
+	check(is_equal_approx(MixDirector.gain_db(AudioBus.AMBIENCE), -3.0), "With no fade in progress, a request moving its own value applies at once")
+	MixDirector.release(&"test_mood")
 
 
 func bus_volumes() -> Array:

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://testing/regression/test_dread.gd" id="1_test"]
+
+[node name="ThreatTests" type="Node"]
+script = ExtResource("1_test")

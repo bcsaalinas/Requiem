@@ -1394,8 +1394,8 @@ func _begin_game_over() -> void:
 	hud.dismiss_alert()
 	dialogue_done=Callable()
 	sequence=""
-	play_sound("presence",player.position)
 	# The catch plays first: the arms snap shut, the shroud folds over her, a beat of stillness.
+	# Its own sounds carry the moment (EntityAudio: the grab, the cloth, the sob that stops).
 	entity.sprite_rig.hide_player.connect(_hide_caught_player,CONNECT_ONE_SHOT)
 	entity.play_catch(player.global_position)
 	get_tree().create_timer(entity.catch_screen_delay if not test_mode else .01,false).timeout.connect(_show_game_over,CONNECT_ONE_SHOT)

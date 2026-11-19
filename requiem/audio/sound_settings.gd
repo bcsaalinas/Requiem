@@ -62,6 +62,59 @@ static func current() -> SoundSettings:
 ## Cutoff of Music and Ambience with no air left. It slides here from open_hz as the air runs out.
 @export_range(200.0, 8000.0, 10.0, "suffix:Hz") var strain_shut_hz := 700.0
 
+@export_group("Threat: the mood of the house")
+## Threat is one number from 0 to 1 that the mix follows. It only says what the entity knows,
+## never how near it is. This is its value while the entity walks its patrol, unaware...
+@export_range(0.0, 1.0, 0.01) var threat_unaware := 0.0
+## ...while it stands still on its patrol (it may be about to hear something)...
+@export_range(0.0, 1.0, 0.01) var threat_paused := 0.1
+## ...once it has heard something and stands listening...
+@export_range(0.0, 1.0, 0.01) var threat_heard := 0.6
+## ...while it searches...
+@export_range(0.0, 1.0, 0.01) var threat_searching := 0.7
+## ...and while it hunts (and while it catches her).
+@export_range(0.0, 1.0, 0.01) var threat_hunting := 1.0
+## Threat rises quickly: how long it would take to climb all the way from 0 to 1.
+@export_range(0.05, 5.0, 0.05, "suffix:s") var threat_rise_time := 0.5
+## And falls slowly: how long it would take to sink all the way from 1 to 0. After a search
+## (0.7) the house is back in about 7 s, the same time the music takes.
+@export_range(0.5, 60.0, 0.5, "suffix:s") var threat_fall_time := 10.0
+## A mood lags behind the facts: threat waits a random time in this range before it starts to
+## follow a change (shortest, longest).
+@export var threat_lag := Vector2(0.15, 0.5)
+## At full threat Ambience and World are this much lower; in between, in proportion.
+@export_range(-30.0, 0.0, 0.5, "suffix:dB") var threat_world_db := -10.0
+## At full threat Viv's own body is this much louder, so she hears herself.
+@export_range(0.0, 9.0, 0.5, "suffix:dB") var threat_body_db := 3.0
+
+@export_group("Music")
+## How long the music takes to change when nothing below says otherwise (menu, prayer, a new zone).
+@export_range(0.0, 10.0, 0.05, "suffix:s") var music_fade := 1.4
+## It heard something: the music is gone in this long. The silence is part of the warning.
+@export_range(0.0, 2.0, 0.01, "suffix:s") var music_fade_heard := 0.1
+## The hunt music comes in with the scream, over this long (under the scream's duck).
+@export_range(0.0, 5.0, 0.05, "suffix:s") var music_fade_hunt := 0.25
+## If a hunt begins and no scream is heard within this long, the hunt music starts anyway.
+@export_range(0.1, 5.0, 0.05, "suffix:s") var music_hunt_latest := 0.8
+## Level of the rising tone (pitch_riser_01) that starts with the scream.
+@export_range(-40.0, 6.0, 0.5, "suffix:dB") var music_riser_db := -6.0
+## It lost the trail: the hunt music gives way to the thin search tone over this long.
+@export_range(0.0, 10.0, 0.05, "suffix:s") var music_fade_search := 2.5
+## Level of that thin tone. Low: while it searches there is almost no music.
+@export_range(-40.0, 6.0, 0.5, "suffix:dB") var music_search_db := -14.0
+## It gave up: the exploration drone returns over a random time in this range (shortest, longest).
+@export var music_fade_stand_down := Vector2(6.0, 8.0)
+## It caught her: the music is gone in this long, under the sounds of the catch.
+@export_range(0.0, 5.0, 0.05, "suffix:s") var music_fade_catch := 0.3
+
+@export_group("Death")
+## On the game over screen Music, Ambience and World are lowered by this much: silence.
+@export_range(-80.0, 0.0, 1.0, "suffix:dB") var death_duck_db := -60.0
+## How long they take to fall silent once the screen is up.
+@export_range(0.0, 5.0, 0.05, "suffix:s") var death_fade := 1.2
+## How long they take to come back when she tries again.
+@export_range(0.0, 5.0, 0.05, "suffix:s") var death_release := 1.0
+
 @export_group("Sound sets")
 ## Each time a set plays, its pitch moves at random by up to this much either way (0.06 = 0.94 to 1.06).
 @export_range(0.0, 0.3, 0.01) var set_pitch_range := 0.06

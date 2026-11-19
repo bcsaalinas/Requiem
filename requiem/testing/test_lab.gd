@@ -8,6 +8,7 @@ const BREATH_STUDIO := "res://testing/experiments/breath_studio.tscn"
 const THROW_STUDIO := "res://testing/experiments/throw_studio.tscn"
 const PRAYER_STUDIO := "res://testing/experiments/prayer_studio.tscn"
 const SPRINT_STUDIO := "res://testing/experiments/sprint_studio.tscn"
+const SOUND_AUDITION := "res://testing/experiments/sound_audition.tscn"
 const NoiseOverlay := preload("res://testing/tools/noise_debug.gd")
 
 var active_scene: Node
@@ -58,6 +59,7 @@ func _ready() -> void:
 	add_button(choices, "Throw · anticipation, release and follow-through", func(): launch(THROW_STUDIO))
 	add_button(choices, "Prayer · entry, sustained ritual and interruption", func(): launch(PRAYER_STUDIO))
 	add_button(choices, "Sprint · running rhythm, foot placement and dust", func(): launch(SPRINT_STUDIO))
+	add_button(choices, "Sound audition · every sound set, and a whole encounter with its mix", func(): launch(SOUND_AUDITION))
 	add_button(choices, "Mechanics sandbox · breath, throwing, prayer and hearing", func(): launch(SANDBOX))
 	var help := Label.new()
 	help.text = "Automated checks and capture tools: testing/README.md\nResults are written to user://test-results/, never to game assets.\nA noise ring shows an emitted event; it does not prove an enemy heard it."

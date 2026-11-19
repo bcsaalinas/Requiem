@@ -48,6 +48,7 @@ func _ready() -> void:
 	await check_throw_studio(lab)
 	await check_prayer_studio(lab)
 	await check_sprint_studio(lab)
+	await check_sound_audition(lab)
 	await lab.show_menu()
 	check(not GameState.is_dead and not GameState.is_praying and GameOverUi.screen == null, "Scenario exit clears shared death and prayer state")
 	check(not lab.noise.enabled and not lab.noise.is_processing_unhandled_input(), "Debug keyboard handling is disabled in the menu")
@@ -433,3 +434,96 @@ func check_sprint_studio(lab: Node) -> void:
 	check(not get_tree().paused and lab.active_scene == null and lab.menu.visible
 		and not Input.is_action_pressed("sprint") and not Input.is_action_pressed("move_right"),
 		"F1 leaves paused sprint studio without leaking sprint, movement or pause state")
+
+
+func check_sound_audition(lab: Node) -> void:
+	await lab.launch(lab.SOUND_AUDITION)
+	await frames(8)
+	var studio: Node = lab.active_scene
+	var entity: Node = studio.entity
+	var hears := Callable(entity, "_on_noise_emitted")
+	check(studio.zone == "house" and entity.active and entity.visible and entity.get_state_name() == "PATROL"
+		and studio.safe and not NoiseManager.noise_emitted.is_connected(hears) and not studio.thrower.available,
+		"Sound audition opens in the real house with the entity on patrol and deaf to Viv")
+	var controls: Rect2 = studio.studio_status.get_parent().get_parent().get_global_rect()
+	var canvas := Rect2(Vector2.ZERO, PixelDisplay.UI_CANVAS)
+	check(controls.end.y <= lab.toolbar.position.y and canvas.encloses(controls),
+		"Sound audition controls fit above the lab return toolbar")
+	var folders := 0
+	for family in ["entity", "viv"]:
+		folders += DirAccess.get_directories_at(SoundLibrary.ROOT + family).size()
+	var every_button_fits := true
+	for set_id: String in studio.sets:
+		var button: Button = studio.set_buttons[set_id]
+		every_button_fits = every_button_fits and canvas.encloses(button.get_global_rect()) \
+			and button.focus_mode == Control.FOCUS_NONE
+	check(studio.sets.size() == folders and folders > 0 and every_button_fits,
+		"Every sound set folder has its own button on screen")
+	var length: float = studio.play_set_once("entity/scream")
+	check(length > 0.0 and studio._entity_voice.playing and studio._entity_voice.bus == AudioBus.ENTITY
+		and not studio._viv_voice.playing, "An entity set plays from the entity, on its bus")
+	studio.play_set_once("viv/gasp")
+	check(studio._viv_voice.playing and studio._viv_voice.bus == AudioBus.BODY and not studio._entity_voice.playing,
+		"A Viv set plays on Body and replaces the set before it")
+	studio.play_every_set()
+	await frames(3)
+	check(studio._list.size() == studio.sets.size() - 1, "Play every set starts at the top of the list")
+	studio.reset_audition()
+	await frames(3)
+	check(studio._list.is_empty() and not studio._entity_voice.playing and not studio._viv_voice.playing,
+		"Start over silences the audition")
+
+	Input.action_press("sprint")
+	Input.action_press("move_right")
+	await frames(60)
+	Input.action_release("sprint")
+	Input.action_release("move_right")
+	check(entity.get_state_name() == "PATROL" and not entity.is_listening(),
+		"While Viv is safe her sprint does not reach the entity")
+	studio.make_it_hear()
+	check(entity.is_listening(), "Key 1 makes it stop and listen")
+	await frames(6)
+	check(Dread.awareness == Dread.Awareness.HEARD and MusicDirector.current_state == MusicDirector.MusicState.HEARD
+		and studio.phase() == "LISTEN" and studio.mix_status.text.contains("HEARD"),
+		"The readout follows the listen: the music has cut")
+	studio.lose_trail()
+	check(entity.is_listening(), "Losing the trail waits for a hunt")
+	for index in range(120):
+		if entity.is_screaming():
+			break
+		await frames(1)
+	check(entity.is_screaming() and studio.phase().begins_with("HUNT START"), "The scream follows by itself")
+	for index in range(140):
+		if not entity.is_screaming():
+			break
+		await frames(1)
+	await frames(4)
+	check(entity.get_state_name() == "HUNT" and MusicDirector.current_state == MusicDirector.MusicState.HUNT,
+		"After the scream it hunts, with the hunt music")
+	studio.lose_trail()
+	await frames(4)
+	check(entity.get_state_name() == "SEARCH" and Dread.awareness == Dread.Awareness.SEARCHING
+		and MusicDirector.current_state == MusicDirector.MusicState.SEARCH, "Key 2 skips to the lost trail")
+	studio.give_up()
+	await frames(4)
+	check(entity.get_state_name() == "PATROL" and MusicDirector.current_state == MusicDirector.MusicState.EXPLORE
+		and String(entity.audio.last_awareness.get("moment", "")) == "stand_down",
+		"Key 3 skips to the stand-down, with its own cue")
+
+	studio.set_safe(false)
+	check(NoiseManager.noise_emitted.is_connected(hears) and studio.safe_button.text.contains("OFF"),
+		"Turning safe off gives the entity its hearing back")
+	studio.audition_catch()
+	await frames(4)
+	check(studio.resetting and not entity.active and entity.audio.is_catching() and studio.test_mode
+		and studio.phase() == "CAUGHT", "Key 4 plays the real catch")
+	studio.reset_audition()
+	await frames(6)
+	check(not studio.resetting and not GameState.is_dead and entity.active and entity.visible
+		and entity.get_state_name() == "PATROL" and not studio.safe and Dread.threat <= 0.1,
+		"Start over returns to an unaware patrol and keeps the safe choice")
+	await frames(130)
+	check(not GameState.is_dead and GameOverUi.screen == null,
+		"A catch that was started over never reaches the game over screen")
+	await lab.show_menu()
+

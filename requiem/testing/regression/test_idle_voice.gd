@@ -235,7 +235,11 @@ func check_search() -> void:
 		paced = paced and gaps.all(func(gap: float) -> bool: return gap > settings.sniff_run_pace.x - 0.06 and gap < settings.sniff_run_pace.y + 0.06)
 		steady = steady and (gaps.is_empty() or gaps.max() - gaps.min() < 0.06)
 	check(paced and steady, "Inside a run the sniffs come at one steady pace")
-	check(audio._sniff_run_wait >= settings.sniff_run_interval.x - 0.5 or audio._sniffs_left > 0, "And the next run waits its turn")
+	# The wait for the next run started when this one did, and only counts down once the run is
+	# over: after the time listened here, at least this much of the shortest wait is left.
+	var listened: float = settings.sniff_run_count.y * settings.sniff_run_pace.y + 0.5
+	check((audio._sniff_run_wait >= settings.sniff_run_interval.x - listened - 0.1 and audio._sniff_run_wait <= settings.sniff_run_interval.y)
+		or audio._sniffs_left > 0, "And the next run waits its turn")
 	# Standing down ends the sniffing and brings the idle talk back later.
 	sniffs.clear()
 	entity._change_state(entity.State.PATROL)

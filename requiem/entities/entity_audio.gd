@@ -140,6 +140,8 @@ func _ready() -> void:
 		entity.connect(&"listen_started", _on_listen_started)
 	if entity.has_signal(&"stood_down"):
 		entity.connect(&"stood_down", _on_stood_down)
+	# The mood of the house follows what this entity knows (audio/dread.gd).
+	Dread.watch(entity, self)
 
 
 func _player(player_name: String) -> AudioStreamPlayer2D:
@@ -411,6 +413,11 @@ func is_dragging() -> bool:
 	return _drag.playing
 
 
+## True while it plays the catch: it has her.
+func is_catching() -> bool:
+	return rig != null and rig.get(&"mode") == "catch"
+
+
 ## A player that is not busy; when all are, the one that started longest ago.
 func _free_voice() -> AudioStreamPlayer2D:
 	for offset in _voices.size():
@@ -439,7 +446,7 @@ func _process(delta: float) -> void:
 	_was_shown = shown
 	# It holds its breath while it listens and while it screams: the silence is the tell.
 	# The catch has its own sounds, and nothing under them.
-	var reacting: bool = _is(&"is_listening") or _is(&"is_screaming") or (rig != null and rig.get(&"mode") == "catch")
+	var reacting: bool = _is(&"is_listening") or _is(&"is_screaming") or is_catching()
 	var breathes: bool = not dead and (shown or breathes_unseen)
 	var wanted_breath := BREATH_HUNT if _state() == "HUNT" else BREATH_CALM
 	_drive_loop(_breath, wanted_breath if breathes and not reacting else "", delta, reacting)

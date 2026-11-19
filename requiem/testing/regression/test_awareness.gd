@@ -233,7 +233,7 @@ func check_without_animation() -> void:
 	check(not states.is_empty() and states[0].to == entity.State.HUNT and moments(&"scream").size() == 1
 		and moments(&"scream")[0].time - states[0].time < 0.1 and moments(&"scream")[0].level >= settings.audible_db,
 		"Without the hunt-start animation the scream still comes: no scream, no hunt")
-	check(is_equal_approx(MixDirector._winner("gains", AudioBus.MUSIC, 0.0), settings.scream_duck_db), "And the mix still ducks for it")
+	check(is_equal_approx(MixDirector.target_db(AudioBus.MUSIC), settings.scream_duck_db), "And the mix still ducks for it")
 	entity.sprite_rig.set_process(true)
 	await arm(home)
 	check(not MixDirector.is_active(EntityAudio.SCREAM_DUCK), "Resetting the encounter lets the duck go")
@@ -257,8 +257,9 @@ func check_encounter() -> void:
 		if not moments(&"scream").is_empty() and ducked.is_empty() and now() - moments(&"scream")[0].time > 0.4:
 			for bus_name in [AudioBus.MUSIC, AudioBus.AMBIENCE, AudioBus.WORLD]:
 				ducked[bus_name] = MixDirector.gain_db(bus_name)
+			# The mood of the house brings Viv's body forward (Step 6); nothing ever lowers it.
 			body_untouched = is_zero_approx(MixDirector.gain_db(AudioBus.ENTITY)) and is_zero_approx(MixDirector.gain_db(AudioBus.ENTITY_FAR)) \
-				and is_zero_approx(MixDirector.gain_db(AudioBus.BODY))
+				and MixDirector.gain_db(AudioBus.BODY) >= 0.0
 		if body.any(func(sound: Dictionary) -> bool: return sound.set == "entity/claws_run"): break
 	var heard := moments(&"heard")
 	var inhale := moments(&"inhale")
@@ -284,11 +285,13 @@ func check_encounter() -> void:
 		and inhale[0].level >= settings.audible_db, "The hunt starts with its scream, heard from where Viv stands")
 	check(is_equal_approx(scream[0].base, SoundLibrary.gain_db(EntityAudio.SCREAM) + settings.scream_gain_db), "The scream plays 3 dB up")
 	check(ducked.size() == 3 and ducked.values().all(func(gain: float) -> bool: return is_equal_approx(gain, settings.scream_duck_db)) and body_untouched,
-		"Under the scream Music, Ambience and World are 14 dB down; the entity and Viv's body are not touched (%s)" % [ducked])
+		"Under the scream Music, Ambience and World are 14 dB down; the entity is not touched and Viv's body is never lowered (%s)" % [ducked])
 	check(not MixDirector.is_active(EntityAudio.SCREAM_DUCK), "The duck lets go when it launches")
 	await get_tree().create_timer(settings.scream_duck_release + 0.2).timeout
-	check(is_zero_approx(MixDirector.gain_db(AudioBus.MUSIC)) and is_zero_approx(MixDirector.gain_db(AudioBus.WORLD)),
-		"And the world is back %.1f s later" % settings.scream_duck_release)
+	# The music is back in full; the world comes back to where the mood of the house holds it.
+	check(is_zero_approx(MixDirector.gain_db(AudioBus.MUSIC))
+		and absf(MixDirector.gain_db(AudioBus.WORLD) - settings.threat_world_db * Dread.threat) < 0.05,
+		"And the duck is over %.1f s later (World %.1f dB, threat %.2f)" % [settings.scream_duck_release, MixDirector.gain_db(AudioBus.WORLD), Dread.threat])
 	# A new sound during the hunt moves the target; it does not scream again.
 	if entity.get_state_name() == "HUNT":
 		NoiseManager.emit_noise(game.world.marker("house", "Patrol3"), Units.to_px(40.0), NoiseManager.SourceType.ENVIRONMENT)

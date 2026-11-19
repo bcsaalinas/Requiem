@@ -4,20 +4,18 @@ extends CanvasLayer
 #
 # Cuando GameState avisa que el jugador murio, instancia la pantalla de game
 # over (ui/game_over.tscn), que ofrece reintentar o volver al menu.
+#
+# The screen makes no sound of its own. The catch is carried by the entity's own sounds
+# (entities/entity_audio.gd: the grab, the cloth, the sob that stops), and after them the house
+# is silent (audio/mix_director.gd).
 
 const GAME_OVER_SCENE := preload("res://ui/game_over.tscn")
-const DEATH_STINGER_PATH := "res://assets/audio/horror-jam-kit 2/WAV/Stinger/jump_scare_02.wav"
 
 var screen: Control
-var _audio_player: AudioStreamPlayer
 
 
 func _ready() -> void:
 	layer = 100
-	_audio_player = AudioStreamPlayer.new()
-	_audio_player.bus = "SFX"
-	add_child(_audio_player)
-
 	GameState.player_died.connect(_on_player_died)
 	GameState.state_reset.connect(_reset)
 
@@ -28,7 +26,6 @@ func _on_player_died() -> void:
 	screen = GAME_OVER_SCENE.instantiate()
 	LegacyUi.fit_root(screen)
 	add_child(screen)
-	play_death_stinger()
 
 
 func _exit_tree() -> void:
@@ -39,17 +36,3 @@ func _reset() -> void:
 	if is_instance_valid(screen):
 		screen.queue_free()
 		screen = null
-	_audio_player.stop()
-	_audio_player.stream = null
-
-
-## Publico a proposito: el tutorial NUNCA llama GameState.kill_player() (su
-## captura usa su propio Entity.caught -> request_reset(), que resetea al
-## checkpoint en vez de "matar" de verdad), asi que player_died jamas se
-## dispara ahi. tutorial.gd llama esto directo desde _caught() para que la
-## captura siga sonando igual sin duplicar la logica de carga del stinger.
-func play_death_stinger() -> void:
-	if not ResourceLoader.exists(DEATH_STINGER_PATH):
-		return
-	_audio_player.stream = load(DEATH_STINGER_PATH)
-	_audio_player.play()
