@@ -2,15 +2,18 @@ extends AudioStreamPlayer
 ## Viv's heart: the only heartbeat in the game. A child of BodyAudio called "Heart", and itself
 ## the voice (not positional, on the Body bus).
 ##
-## How hard it beats is one number, `amount` (0 = silent, 1 = as hard as it ever beats). Three
+## How hard it beats is one number, `amount` (0 = silent, 1 = as hard as it ever beats). Four
 ## reasons can push it up, each only as far as its own range in audio/sound_settings.tres
 ## ("Viv: her heart"), and the heart follows the highest of them:
 ##   strain    she holds her breath and is running out of air (BreathStrainAudio.level);
 ##   threat    what the entity knows (Dread.threat): it heard something, it searches, it hunts;
 ##   presence  an entity is near by ear, in any state, also unaware (Dread.presence). It lags
-##             and drifts on purpose, so it is a feeling and never a direction.
+##             and drifts on purpose, so it is a feeling and never a direction;
+##   prayer    she prays: a quiet, steady beat that follows how deep she is in the prayer
+##             (heart_prayer times the depth of BodyAudio's "Prayer", player/prayer_audio.gd).
 ## While she holds her breath she is listening, so the threat and presence heart steps back as
-## the music does (breath_duck_db). Running out of air is never stepped back.
+## the music does (breath_duck_db). Running out of air and prayer are never stepped back.
+## When two reasons push exactly as far, the first in the list above is named.
 ##
 ## The level and the speed both follow `amount`. It rises and falls smoothly, never above its
 ## cap, and comes in from silence, so it never starts with a step. Dead: it stops; a new
@@ -23,17 +26,20 @@ const SILENT_DB := -60.0
 const STRAIN := &"strain"
 const THREAT := &"threat"
 const PRESENCE := &"presence"
+const PRAYER := &"prayer"
 
 ## The BodyAudio this heart belongs to (her listening, and the player).
 var body: Node
 ## 0..1: how hard it beats right now.
 var amount := 0.0
-## Which reason is winning right now: &"strain", &"threat", &"presence", or &"" when none is.
+## Which reason is winning right now: &"strain", &"threat", &"presence", &"prayer", or &"" when
+## none is.
 var reason := &""
 ## 0..1: how far each reason pushes right now (for the tests and the read-outs).
 var strain_amount := 0.0
 var threat_amount := 0.0
 var presence_amount := 0.0
+var prayer_amount := 0.0
 
 
 func _ready() -> void:
@@ -87,13 +93,14 @@ func _process(delta: float) -> void:
 		play()
 
 
-## The highest of the three reasons, with the threat and presence heart stepped back while
+## The highest of the four reasons, with the threat and presence heart stepped back while
 ## she listens.
 func _target(settings: SoundSettings) -> float:
 	if GameState.is_dead:
 		strain_amount = 0.0
 		threat_amount = 0.0
 		presence_amount = 0.0
+		prayer_amount = 0.0
 		return 0.0
 	var level := _strain_level()
 	strain_amount = lerpf(settings.heart_strain.x, settings.heart_strain.y, level) if level > 0.0 else 0.0
@@ -104,13 +111,25 @@ func _target(settings: SoundSettings) -> float:
 	# Listening steps it back by breath_duck_db, on the heart's own dB scale.
 	var step := listening * absf(settings.breath_duck_db) / maxf(settings.heart_db.y - settings.heart_db.x, 0.001)
 	outside = maxf(outside - step, 0.0)
-	if strain_amount <= 0.0 and outside <= 0.0:
+	prayer_amount = settings.heart_prayer * _prayer_depth()
+	if strain_amount <= 0.0 and outside <= 0.0 and prayer_amount <= 0.0:
 		return 0.0
-	if strain_amount >= outside:
+	if strain_amount >= outside and strain_amount >= prayer_amount:
 		reason = STRAIN
 		return strain_amount
-	reason = THREAT if threat_amount >= presence_amount else PRESENCE
-	return outside
+	if outside >= prayer_amount:
+		reason = THREAT if threat_amount >= presence_amount else PRESENCE
+		return outside
+	reason = PRAYER
+	return prayer_amount
+
+
+## How deep she is in the prayer (BodyAudio's "Prayer"; 0 without one).
+func _prayer_depth() -> float:
+	var prayer: Variant = body.get(&"prayer") if body != null else null
+	if not is_instance_valid(prayer):
+		return 0.0
+	return float((prayer as Node).get(&"depth"))
 
 
 ## How short of air she is, as the strain sound already has it (0 while she breathes).
@@ -135,4 +154,5 @@ func _on_state_reset() -> void:
 	strain_amount = 0.0
 	threat_amount = 0.0
 	presence_amount = 0.0
+	prayer_amount = 0.0
 	_silence()

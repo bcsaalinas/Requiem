@@ -17,7 +17,14 @@ extends Node
 ## sharp and comes up a little, its far-off sounds carry further and fewer of them are lost.
 ##
 ## Her heart: the one heartbeat in the game, a child called "Heart" (player/heart_audio.gd).
-## It follows the highest of running out of air, what the entity knows and how near it is.
+## It follows the highest of running out of air, what the entity knows, how near it is and
+## whether she prays.
+##
+## Her prayer: a child called "Prayer" (player/prayer_audio.gd). While she prays the house sinks
+## slowly into a low-pass, her calm and nervous breathing slow down (a little lower too: the
+## only way to slow a loop without new files), her heart beats quietly, and the world comes
+## back once the prayer is over. Holding her breath while she prays outranks it: her listening
+## starts from where the prayer has the house and goes back there, so nothing jumps.
 ##
 ## Nothing here makes a noise the entity can hear, and nothing here ever dulls the entity.
 ## Every number is in audio/sound_settings.tres.
@@ -38,6 +45,7 @@ const LISTEN_FOCUS := &"listen_focus"
 const SOFTENED: Array[StringName] = [AudioBus.MUSIC, AudioBus.AMBIENCE, AudioBus.WORLD]
 const SILENT_DB := -60.0
 const HeartAudio := preload("res://player/heart_audio.gd")
+const PrayerAudio := preload("res://player/prayer_audio.gd")
 
 ## The mood breathing she is heading for ("" = none: she is dead).
 var mood := ""
@@ -53,6 +61,8 @@ var listen := 0.0
 var mask_db := 0.0
 ## Her heart (player/heart_audio.gd): its `amount`, `reason` and `level_db()` say how it beats.
 var heart: AudioStreamPlayer
+## Her prayer (player/prayer_audio.gd): its `depth` says how far she is into the prayer state.
+var prayer: Node
 
 var _loops := {}
 ## 0..1 per mood: the slow crossfade between calm and nervous, before the panting takes its share.
@@ -78,6 +88,9 @@ func _ready() -> void:
 	heart.name = "Heart"
 	heart.set(&"body", self)
 	add_child(heart)
+	prayer = PrayerAudio.new()
+	prayer.name = "Prayer"
+	add_child(prayer)
 	if breath != null:
 		breath.forced_gasp_started.connect(_on_forced_gasp)
 
@@ -89,11 +102,18 @@ func _exit_tree() -> void:
 	MixDirector.release(LISTEN_FOCUS)
 
 
-## The soft low-pass of listening, in Hz, for an amount of listening (0 = open, 1 = full).
-## Cutoffs move in octaves, so the change sounds even.
-static func listen_hz(amount: float) -> float:
+## The soft low-pass of listening, in Hz, for an amount of listening (0 = where the house is
+## without it, 1 = full). `from` is where the house is without it: open, or where her prayer
+## has it. Cutoffs move in octaves, so the change sounds even.
+static func listen_hz(amount: float, from := -1.0) -> float:
 	var settings := SoundSettings.current()
-	return settings.open_hz * pow(settings.listen_cutoff_hz / settings.open_hz, clampf(amount, 0.0, 1.0))
+	var rest: float = settings.open_hz if from <= 0.0 else from
+	return rest * pow(settings.listen_cutoff_hz / rest, clampf(amount, 0.0, 1.0))
+
+
+## 0..1: how far she is into the prayer state (0 without a prayer node).
+func prayer_depth() -> float:
+	return float(prayer.get(&"depth")) if is_instance_valid(prayer) else 0.0
 
 
 ## The mood breathing that fits what the entity knows: calm, or nervous once it has heard
@@ -168,6 +188,10 @@ func _tick_breathing(delta: float, settings: SoundSettings) -> void:
 	for set_id in MOODS:
 		weights[set_id] = float(_moods[set_id]) * (1.0 - pant)
 	weights[PANT] = pant
+	# Praying, her mood breathing slows (her panting never plays then: she cannot sprint).
+	var slowed := lerpf(1.0, settings.viv_breath_prayer_pitch, prayer_depth())
+	for set_id in MOODS:
+		(_loops[set_id] as AudioStreamPlayer).pitch_scale = slowed
 	for set_id in LOOPS:
 		var loop: AudioStreamPlayer = _loops[set_id]
 		if weights[set_id] <= 0.0:
@@ -213,9 +237,14 @@ func _apply_listening() -> void:
 		MixDirector.release(LISTEN_FOCUS)
 		return
 	var settings := SoundSettings.current()
+	# She may hold her breath while she prays: listening starts from where the prayer has the
+	# house, so it never jumps open, and hands it back there.
+	var rest := settings.open_hz
+	if prayer_depth() > 0.0:
+		rest = float(PrayerAudio.prayer_hz(prayer_depth()))
 	var cutoffs := {}
 	for bus_name in SOFTENED:
-		cutoffs[bus_name] = listen_hz(listen)
+		cutoffs[bus_name] = listen_hz(listen, rest)
 	MixDirector.muffle(LISTEN, MixDirector.Priority.LISTEN, cutoffs)
 	var forward: float = settings.listen_entity_db * listen
 	MixDirector.focus(LISTEN_FOCUS, MixDirector.Priority.LISTEN, {AudioBus.ENTITY: forward, AudioBus.ENTITY_FAR: forward})

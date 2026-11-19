@@ -124,8 +124,11 @@ func set_up_alone() -> void:
 	body = player.get_node("BodyAudio")
 	breath.forced_gasp_started.connect(func(_reason: StringName, _duration: float) -> void: gasps += 1)
 	await frames(3)
-	check(breath._audio_player.bus == AudioBus.BODY and body.get_children().size() == 4 and body.get_children().all(func(loop: Node) -> bool:
-		return loop is AudioStreamPlayer and loop.bus == AudioBus.BODY) and body.heart.get_parent() == body,
+	# Besides her voices, BodyAudio holds her prayer (a Node, player/prayer_audio.gd), which plays nothing on Body.
+	var voices := body.get_children().filter(func(child: Node) -> bool: return child != body.prayer)
+	check(breath._audio_player.bus == AudioBus.BODY and voices.size() == 4 and voices.all(func(loop: Node) -> bool:
+		return loop is AudioStreamPlayer and loop.bus == AudioBus.BODY) and body.heart.get_parent() == body
+		and body.prayer.get_parent() == body and body.get_child_count() == 5,
 		"Her breath clips, her three breathing loops and her heart play on Body")
 
 

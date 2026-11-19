@@ -208,6 +208,30 @@ static func current() -> SoundSettings:
 ## ...and from just above it up to on top of her, the amount goes from here to here: at most
 ## about -24 dB, clearly quieter than a search.
 @export var heart_presence := Vector2(0.0, 0.22)
+## While she prays her heart is audible: the amount at the deepest of the prayer (0.35 is a
+## quiet, steady beat of about -20 dB). Anything the entity does that beats harder still wins.
+@export_range(0.0, 1.0, 0.01) var heart_prayer := 0.35
+
+@export_group("Viv: prayer")
+## Praying is a state of its own (player/prayer_audio.gd). Music, Ambience and World are
+## low-passed down to this at the deepest of the prayer. Holding her breath stops at 2500 Hz
+## (listen_cutoff_hz): prayer goes further. The entity is never dulled.
+@export_range(200.0, 8000.0, 10.0, "suffix:Hz") var prayer_cutoff_hz := 900.0
+## Seconds for the house to sink all the way into the prayer once she starts. Slower than
+## holding her breath (listen_in): it is a state she settles into, not a reflex.
+@export_range(0.1, 10.0, 0.1, "suffix:s") var prayer_in := 2.5
+## Seconds for the world to come all the way back once a whole prayer is over (completed or
+## let go). A prayer let go early has less to come back from, so it is back sooner.
+@export_range(0.1, 10.0, 0.1, "suffix:s") var prayer_return := 3.0
+## Seconds for the world to come back when the prayer is cut: death, a new attempt, a teleport.
+@export_range(0.0, 2.0, 0.01, "suffix:s") var prayer_cut := 0.2
+## Her calm and nervous breathing play slower (and so a little lower) at the deepest of the
+## prayer: 1 = as recorded, 0.85 = 15% slower. Their level does not change.
+@export_range(0.5, 1.0, 0.01) var viv_breath_prayer_pitch := 0.85
+## The prayer tone (any file in assets/audio/house/prayer_tone; empty = silent): what is added
+## to it, in dB, at the start of the prayer (x) and at its end (y). It rises with her progress
+## and leaves with the world.
+@export var prayer_tone_db := Vector2(-18.0, -4.0)
 
 @export_group("House: its own voice")
 ## No sound of the house may be louder than this (LUFS).

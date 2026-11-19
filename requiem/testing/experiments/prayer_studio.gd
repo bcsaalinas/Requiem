@@ -159,8 +159,7 @@ func _spawn_altar() -> void:
 	progress.position = Vector2(-35, 28)
 	progress.size = Vector2(70, 6)
 	progress.hide()
-	altar.pray_clips.assign([sound("prayer")])
-	altar.pray_volume_db = -13.0
+	# The altar plays what the game's altar plays: no voice (its pray_clips stay empty).
 
 
 func _process(delta: float) -> void:
@@ -173,9 +172,23 @@ func _process(delta: float) -> void:
 	var action: String = String(player.get_node("ActionState").get_action())
 	var elapsed: float = altar.tiempo_interaccion if is_instance_valid(altar) else (12.0 if ritual_completed else 0.0)
 	var duration: float = altar.pray_duration if is_instance_valid(altar) else 12.0
-	studio_status.text = "%s · %.1f / %.0f s · %s · Air %d%%" % [
-		"Complete" if ritual_completed else phase.capitalize(), elapsed, duration, action, roundi(breath.lung_percent)]
+	studio_status.text = "%s · %.1f / %.0f s · %s · Air %d%% · %s" % [
+		"Complete" if ritual_completed else phase.capitalize(), elapsed, duration, action, roundi(breath.lung_percent),
+		_prayer_audio_text()]
 	_update_equipment_label()
+
+
+## What praying sounds like right now: "praying · world dulled 62% · tone: no file · heart 0.22 (prayer)".
+func _prayer_audio_text() -> String:
+	var body := player.get_node_or_null("BodyAudio")
+	var prayer: Node = body.get(&"prayer") if body != null else null
+	var heart: Node = body.get(&"heart") if body != null else null
+	if not is_instance_valid(prayer) or not is_instance_valid(heart):
+		return ""
+	var amount := float(heart.get(&"amount"))
+	var reason := String(heart.get(&"reason"))
+	var beat := "heart %.2f (%s)" % [amount, reason] if amount > 0.0 and reason != "" else "heart %.2f" % amount
+	return "%s · %s" % [prayer.call("status"), beat]
 
 
 func _input(event: InputEvent) -> void:

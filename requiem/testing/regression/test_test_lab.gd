@@ -227,6 +227,7 @@ func check_prayer_studio(lab: Node) -> void:
 	check(is_instance_valid(studio.altar) and studio.altar.get_script() == preload("res://altar/body_altar.gd")
 		and studio.altar.pray_duration == 12.0 and studio.altar.jugador_cerca,
 		"Prayer studio places the shared player inside the real twelve-second altar's proximity area")
+	check(studio.altar.pray_clips.is_empty(), "Prayer studio's altar has no voice, as in the game")
 	check(studio.has_flashlight and appearance.actor_equipped and studio.flashlight.enabled,
 		"Prayer studio begins with the shared equipped player and live flashlight")
 	check(studio.equipment_button.focus_mode == Control.FOCUS_NONE
