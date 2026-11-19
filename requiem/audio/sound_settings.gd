@@ -113,6 +113,14 @@ static func current() -> SoundSettings:
 @export_range(-40.0, 6.0, 0.5, "suffix:dB") var music_search_db := -14.0
 ## It gave up: the exploration drone returns over a random time in this range (shortest, longest).
 @export var music_fade_stand_down := Vector2(6.0, 8.0)
+## The exploration drone comes and goes by itself, whatever the entity is doing, so that
+## music or no music tells the player nothing. Seconds it stays each time (shortest, longest).
+@export var music_drone_stay := Vector2(40.0, 90.0)
+## Seconds it is away each time (shortest, longest). Its fade out is part of this time.
+@export var music_drone_away := Vector2(40.0, 90.0)
+## How long the drone takes to come in by itself, and to go. Slow: neither is an event.
+@export_range(0.0, 30.0, 0.5, "suffix:s") var music_drone_fade_in := 8.0
+@export_range(0.0, 30.0, 0.5, "suffix:s") var music_drone_fade_out := 10.0
 ## It caught her: the music is gone in this long, under the sounds of the catch.
 @export_range(0.0, 5.0, 0.05, "suffix:s") var music_fade_catch := 0.3
 

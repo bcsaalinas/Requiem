@@ -139,6 +139,8 @@ func _build_controls() -> void:
 		"Brings the house's next effect forward. Its gates still apply: nothing plays while the entity is alert or near."
 	_button(controls, "K · House answers", house_answer).tooltip_text = \
 		"As if Viv had slammed a trunk lid: one knock from another room about a second later, if it is safe."
+	_button(controls, "M · Drone", turn_drone).tooltip_text = \
+		"The exploration drone comes and goes on its own clock (40 to 90 s each way). This turns it now."
 	safe_button = _button(controls, "", func() -> void: set_safe(not safe))
 	safe_button.tooltip_text = "On: the entity cannot hear Viv's own noises and cannot catch her."
 	# The sound sets, down the right edge.
@@ -315,6 +317,19 @@ func house_hurry() -> void:
 	HouseVoice.hurry()
 
 
+## M. The exploration drone turns now instead of on its own clock: in if it is away, away if it is in.
+func turn_drone() -> void:
+	MusicDirector.turn_drone(not MusicDirector.drone_in)
+
+
+## The music of the moment; during exploration, also where the drone is on its own clock.
+func music_text() -> String:
+	var state: String = MusicDirector.STATE_NAMES[MusicDirector.current_state]
+	if MusicDirector.current_state != MusicDirector.MusicState.EXPLORE:
+		return state
+	return "%s (%s %.0f s)" % [state, "drone in, goes in" if MusicDirector.drone_in else "no drone, back in", MusicDirector.drone_wait]
+
+
 ## K. Viv did something loud: the house may answer with one knock.
 func house_answer() -> void:
 	HouseVoice.answer()
@@ -357,7 +372,7 @@ func _process(delta: float) -> void:
 	where_status.text = where_text()
 	house_status.text = house_text()
 	mix_status.text = "threat %.2f (%s) · music %s · Ambience %+.1f dB · World %+.1f dB · Body %+.1f dB · Music bus %+.1f dB" % [
-		Dread.threat, Dread.awareness_name(), MusicDirector.STATE_NAMES[MusicDirector.current_state],
+		Dread.threat, Dread.awareness_name(), music_text(),
 		MixDirector.gain_db(AudioBus.AMBIENCE), MixDirector.gain_db(AudioBus.WORLD), MixDirector.gain_db(AudioBus.BODY), MixDirector.gain_db(AudioBus.MUSIC)]
 
 
@@ -373,6 +388,7 @@ func _input(event: InputEvent) -> void:
 			KEY_0: play_every_set()
 			KEY_H: house_hurry()
 			KEY_K: house_answer()
+			KEY_M: turn_drone()
 			KEY_T: set_safe(not safe)
 			KEY_R: reset_audition()
 			KEY_F1:

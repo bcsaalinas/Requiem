@@ -7,11 +7,17 @@ extends Node
 ##   it gave up          - the exploration drone comes back slowly;
 ##   it caught her       - silence.
 ## Each of those changes has its own fade time (audio/sound_settings.tres, "Music").
+##
+## While nothing is happening the exploration drone comes and goes by itself: it stays a
+## while, leaves a while, on its own clock, whatever the entity is doing or wherever it is.
+## So music or no music tells the player nothing. The reactions above always win over it.
 
 ## HEARD has no track: it is the silence between the heard-you cue and the scream.
 enum MusicState { MENU, EXPLORE, INVESTIGATE, SEARCH, HUNT, PRAYER, DEATH, HEARD }
 
 signal music_state_changed(previous: int, current: int)
+## The exploration drone turned by itself: it is coming in (true) or going (false).
+signal drone_turned(coming_in: bool)
 
 const STATE_NAMES := ["MENU", "EXPLORE", "INVESTIGATE", "SEARCH", "HUNT", "PRAYER", "DEATH", "HEARD"]
 ## Name of the request this script makes to MixDirector while Viv holds her breath.
@@ -43,6 +49,10 @@ const SILENT_DB := -60.0
 
 var current_state: int = -1
 var breath_held := false
+## True while the exploration drone is there (or coming in); false while it is away.
+var drone_in := true
+## Seconds until the drone next turns by itself.
+var drone_wait := 0.0
 var _banks: Array = []
 var _active_bank := 0
 var _active_state := MusicState.MENU
@@ -94,6 +104,7 @@ func _ready() -> void:
 	if ResourceLoader.exists(RISER_PATH):
 		_riser.stream = load(RISER_PATH)
 	add_child(_riser)
+	_set_drone(true)
 	set_music_state(MusicState.MENU)
 	GameState.prayer_started.connect(_on_prayer_started)
 	GameState.prayer_ended.connect(_on_prayer_ended)
@@ -118,7 +129,16 @@ func set_music_state(state: int, seconds := -1.0) -> void:
 	if seconds < 0.0:
 		seconds = fade_for(previous, state)
 	music_state_changed.emit(previous, current_state)
-	_crossfade_to(_streams_for(state), state, seconds)
+	var streams := _streams_for(state)
+	if state == MusicState.EXPLORE:
+		if previous != MusicState.PRAYER:
+			# Back from anything the entity did (it gave up: the slow return), from the menu or
+			# from a death: the drone comes back, whatever its own clock said.
+			_set_drone(true)
+		elif not drone_in:
+			# The drone is away on its own clock: exploration begins in silence.
+			streams = []
+	_crossfade_to(streams, state, seconds)
 	if state != MusicState.HUNT and _riser.playing:
 		_fade(_riser, SILENT_DB, seconds)
 	_set_threat_heartbeat()
@@ -205,8 +225,35 @@ func _fade(player: AudioStreamPlayer, to_db: float, seconds: float) -> void:
 		return
 	_fades[player] = {"from": player.volume_db, "to": to_db, "time": 0.0, "length": seconds}
 
+## The drone's own clock. It asks nothing about the entity: only time passes here.
+func _tick_drone(delta: float) -> void:
+	drone_wait -= delta
+	if drone_wait <= 0.0:
+		turn_drone(not drone_in)
+
+## Brings the exploration drone in, or sends it away, slowly, and starts its next wait.
+## Heard only during exploration: any other music is left exactly as it is.
+func turn_drone(coming_in: bool) -> void:
+	_set_drone(coming_in)
+	drone_turned.emit(coming_in)
+	if current_state != MusicState.EXPLORE or _dead:
+		return
+	var settings := SoundSettings.current()
+	var streams: Array[AudioStream] = []
+	if coming_in:
+		streams = _streams_for(MusicState.EXPLORE)
+	_crossfade_to(streams, MusicState.EXPLORE, settings.music_drone_fade_in if coming_in else settings.music_drone_fade_out)
+
+## Where the drone is from now on, and for how long before it turns again.
+func _set_drone(coming_in: bool) -> void:
+	var settings := SoundSettings.current()
+	var wait: Vector2 = settings.music_drone_stay if coming_in else settings.music_drone_away
+	drone_in = coming_in
+	drone_wait = randf_range(wait.x, wait.y)
+
 func _process(delta: float) -> void:
 	_tick_heartbeat(delta)
+	_tick_drone(delta)
 	if _hunt_wait >= 0.0:
 		_hunt_wait -= delta
 		if _hunt_wait < 0.0:
@@ -391,6 +438,8 @@ func _on_game_reset() -> void:
 	_entity_music_state = MusicState.EXPLORE
 	set_breath_held(false)
 	_prayer_source = null
+	# A new attempt opens with the drone, as it always did.
+	turn_drone(true)
 	set_music_state(MusicState.EXPLORE)
 
 ## A track that reaches its end starts again: while it is the music of the moment, and also

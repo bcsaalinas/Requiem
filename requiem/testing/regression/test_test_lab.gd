@@ -471,6 +471,12 @@ func check_sound_audition(lab: Node) -> void:
 	check(canvas.encloses(studio.house_status.get_global_rect()) and studio.house_status.text.begins_with("House voice: " + HouseVoice.status())
 		and HouseVoice.in_a_house() and not HouseVoice.story_holds and HouseVoice.status() != "",
 		"And what the house voice is doing, or why it is silent: %s" % studio.house_status.text)
+	check(MusicDirector.current_state == MusicDirector.MusicState.EXPLORE and studio.mix_status.text.contains("music EXPLORE (drone in, goes in")
+		and canvas.encloses(studio.mix_status.get_global_rect()), "And where the exploration drone is on its own clock: %s" % studio.mix_status.text)
+	studio.turn_drone()
+	await frames(2)
+	check(not MusicDirector.drone_in and studio.mix_status.text.contains("music EXPLORE (no drone, back in"), "M sends the drone away (and brings it back)")
+	studio.turn_drone()
 	var length: float = studio.play_set_once("entity/scream")
 	check(length > 0.0 and studio._entity_voice.playing and studio._entity_voice.bus == AudioBus.ENTITY
 		and not studio._viv_voice.playing, "An entity set plays from the entity, on its bus")
