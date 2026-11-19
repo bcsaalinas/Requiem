@@ -55,7 +55,7 @@ func _ready() -> void:
 	add_child(_beacon)
 	_audio = AudioStreamPlayer2D.new()
 	_audio.name = "Audio"
-	_audio.bus = &"SFX"
+	_audio.bus = AudioBus.WORLD
 	_audio.position = Vector2(0.0, -20.0)
 	add_child(_audio)
 	_refresh()

@@ -102,6 +102,7 @@ var _battery_bar: ProgressBar
 
 func _ready() -> void:
 	_audio_player = AudioStreamPlayer2D.new()
+	_audio_player.bus = AudioBus.BODY
 	add_child(_audio_player)
 
 	_bar_layer = CanvasLayer.new()

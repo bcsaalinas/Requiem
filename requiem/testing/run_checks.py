@@ -9,7 +9,7 @@ import sys
 
 PROJECT = Path(__file__).resolve().parents[1]
 SUITES = ("test_menu_flow", "test_kiosk", "test_tutorial", "test_doors_rooms", "test_breath_events", "test_breath_feedback", "test_throw_feedback", "test_prayer_feedback", "test_sprint_feedback", "test_footstep_audio", "test_player_actions", "test_player_motion",
-          "test_player_pose", "test_phantom_camera", "test_level_template", "test_test_lab")
+          "test_player_pose", "test_phantom_camera", "test_level_template", "test_test_lab", "test_audio_mix")
 
 
 def main():

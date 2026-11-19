@@ -12,10 +12,10 @@ const TONE_FROM := 0.45
 const HEART_DB := Vector2(-22.0, -3.0)
 const HEART_PITCH := Vector2(0.95, 1.45)
 const TONE_DB := Vector2(-30.0, -11.0)
-## Low-pass on the world while she strains: open, then down to this many Hz with no air left.
-const MUFFLE_OPEN_HZ := 20500.0
-const MUFFLE_SHUT_HZ := 700.0
-const MUFFLED_BUSES := [&"Music", &"Ambience"]
+## The world goes dull while she strains: these buses, from open down to strain_shut_hz with no
+## air left (audio/sound_settings.tres). MixDirector owns the buses; this script only asks.
+const MUFFLED_BUSES: Array[StringName] = [AudioBus.MUSIC, AudioBus.AMBIENCE]
+const MUFFLE := &"breath_strain"
 const SILENT_DB := -60.0
 
 var feedback: Node
@@ -23,6 +23,7 @@ var feedback: Node
 var level := 0.0
 var _heart: AudioStreamPlayer
 var _tone: AudioStreamPlayer
+## The low-passes MixDirector drives on MUFFLED_BUSES. Read here (and by the tests), never set.
 var _filters: Array[AudioEffectLowPassFilter] = []
 
 
@@ -31,25 +32,14 @@ func _ready() -> void:
 	_heart = _voice("Heart", HEARTBEAT)
 	_tone = _voice("Tone", TONE)
 	for bus_name in MUFFLED_BUSES:
-		var bus := AudioServer.get_bus_index(bus_name)
-		if bus < 0: continue
-		var filter: AudioEffectLowPassFilter = null
-		for slot in AudioServer.get_bus_effect_count(bus):
-			var effect := AudioServer.get_bus_effect(bus, slot)
-			if effect is AudioEffectLowPassFilter and effect.resource_name == "BreathStrain": filter = effect
-		if filter == null:
-			filter = AudioEffectLowPassFilter.new()
-			filter.resource_name = "BreathStrain"
-			filter.cutoff_hz = MUFFLE_OPEN_HZ
-			AudioServer.add_bus_effect(bus, filter)
-		_filters.append(filter)
+		_filters.append(MixDirector.muffle_filter(bus_name))
 
 
 func _voice(voice_name: String, stream: AudioStream) -> AudioStreamPlayer:
 	var voice := AudioStreamPlayer.new()
 	voice.name = voice_name
 	voice.stream = stream
-	voice.bus = &"SFX"
+	voice.bus = AudioBus.BODY
 	voice.volume_db = SILENT_DB
 	add_child(voice)
 	# The clips are not imported as loops: start them again for as long as they are wanted.
@@ -59,7 +49,7 @@ func _voice(voice_name: String, stream: AudioStream) -> AudioStreamPlayer:
 
 
 func _exit_tree() -> void:
-	for filter in _filters: filter.cutoff_hz = MUFFLE_OPEN_HZ
+	MixDirector.release(MUFFLE)
 
 
 func _process(delta: float) -> void:
@@ -72,8 +62,14 @@ func _process(delta: float) -> void:
 	_drive(_heart, level, lerpf(HEART_DB.x, HEART_DB.y, level))
 	_heart.pitch_scale = lerpf(HEART_PITCH.x, HEART_PITCH.y, level)
 	_drive(_tone, urgent, lerpf(TONE_DB.x, TONE_DB.y, urgent))
-	var cutoff := MUFFLE_OPEN_HZ * pow(MUFFLE_SHUT_HZ / MUFFLE_OPEN_HZ, level)
-	for filter in _filters: filter.cutoff_hz = cutoff
+	if level <= 0.0:
+		MixDirector.release(MUFFLE)
+		return
+	var settings := SoundSettings.current()
+	var cutoff := settings.open_hz * pow(settings.strain_shut_hz / settings.open_hz, level)
+	var cutoffs := {}
+	for bus_name in MUFFLED_BUSES: cutoffs[bus_name] = cutoff
+	MixDirector.muffle(MUFFLE, MixDirector.Priority.BREATH, cutoffs)
 
 
 func _drive(voice: AudioStreamPlayer, amount: float, volume_db: float) -> void:

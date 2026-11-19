@@ -32,11 +32,17 @@ func load_preferences() -> void:
 	if turn_mode != TURN_FREE:
 		turn_mode = TURN_STEPS
 	captions = bool(config.get_value("display", "captions", false))
+	apply_volumes()
+	apply_display()
+
+## Puts the saved volume sliders on the buses. The SFX slider is the volume of every
+## sound-effect bus (AudioBus.SFX_FAMILY): World, Body, Entity and EntityFar follow it.
+func apply_volumes() -> void:
 	for index in AudioServer.bus_count:
 		var bus_name := AudioServer.get_bus_name(index)
-		var volume := clampf(float(config.get_value("audio", bus_name, 1.0)), 0.0, 1.0)
+		var slider := String(AudioBus.SFX) if AudioBus.SFX_FAMILY.has(StringName(bus_name)) else bus_name
+		var volume := clampf(float(config.get_value("audio", slider, 1.0)), 0.0, 1.0)
 		_apply_volume(index, volume)
-	apply_display()
 
 func _apply_volume(index: int, volume: float) -> void:
 	AudioServer.set_bus_mute(index, volume <= 0.001)
@@ -48,6 +54,11 @@ func set_volume(bus_name: String, volume: float) -> void:
 		return
 	volume = clampf(volume, 0.0, 1.0)
 	_apply_volume(index, volume)
+	if bus_name == String(AudioBus.SFX):
+		for family_bus in AudioBus.SFX_FAMILY:
+			var family_index := AudioServer.get_bus_index(family_bus)
+			if family_index >= 0:
+				_apply_volume(family_index, volume)
 	config.set_value("audio", bus_name, volume)
 	_save()
 

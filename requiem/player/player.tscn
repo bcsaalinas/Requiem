@@ -21,6 +21,9 @@
 [ext_resource type="Script" uid="uid://1ykujjgcevm8" path="res://player/footstep_audio.gd" id="18_step_audio"]
 [ext_resource type="Script" uid="uid://81smuji6omv8" path="res://player/viv_appearance.gd" id="19_2uvqg"]
 [ext_resource type="Script" uid="uid://dh0foh4ql8mf5" path="res://player/viv_animator.gd" id="31_1s1yo"]
+[ext_resource type="Script" uid="uid://deoos5mv5578x" path="res://player/ears.gd" id="32_1s1yo"]
+[ext_resource type="Texture2D" uid="uid://cgnxeeq8f67ks" path="res://assets/art/lights/light_flashlight_beam_solid.png" id="light_cone"]
+[ext_resource type="Texture2D" uid="uid://8lt6dl7kdtyr" path="res://assets/art/lights/light_step_circle.png" id="light_step_circle"]
 [ext_resource type="AudioStream" uid="uid://cbg5c8japhqh5" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
 [ext_resource type="AudioStream" uid="uid://dcowx5kfeasrk" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
 [ext_resource type="AudioStream" uid="uid://4e5eua575dy3" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
@@ -29,9 +32,6 @@
 [ext_resource type="AudioStream" uid="uid://b8d7ectfh4j43" path="res://assets/audio/footsteps/concrete_step_06.wav" id="step_6"]
 [ext_resource type="AudioStream" uid="uid://c71m11vomxou3" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
 [ext_resource type="AudioStream" uid="uid://bqymjmvxgjtkk" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
-
-[ext_resource type="Texture2D" path="res://assets/art/lights/light_flashlight_beam_solid.png" id="light_cone"]
-[ext_resource type="Texture2D" path="res://assets/art/lights/light_step_circle.png" id="light_step_circle"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
@@ -99,7 +99,6 @@ color = Color(0.7882353, 0.7647059, 0.69411767, 1)
 energy = 0.6
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 0
 shadow_item_cull_mask = 3
 texture = ExtResource("light_step_circle")
 texture_scale = 1.6
@@ -108,7 +107,6 @@ texture_scale = 1.6
 enabled = false
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_filter = 0
 shadow_item_cull_mask = 3
 texture = ExtResource("light_cone")
 offset = Vector2(146.4, 0)
@@ -136,3 +134,6 @@ script = ExtResource("18_step_audio")
 
 [node name="VivAnimator" type="Node" parent="." unique_id=1393768799]
 script = ExtResource("31_1s1yo")
+
+[node name="Ears" type="AudioListener2D" parent="." unique_id=1436266656]
+script = ExtResource("32_1s1yo")

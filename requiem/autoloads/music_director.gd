@@ -7,7 +7,8 @@ signal music_state_changed(previous: int, current: int)
 
 const STATE_NAMES := ["MENU", "EXPLORE", "INVESTIGATE", "SEARCH", "HUNT", "PRAYER", "DEATH"]
 const CROSSFADE_SECONDS := 1.4
-const BREATH_DUCK_DB := -5.0
+## Name of the request this script makes to MixDirector while Viv holds her breath.
+const BREATH_DUCK := &"breath_hold_music"
 const KIT_TRACKS := {
 	"MENU": "res://assets/audio/menumusic.mp3",
 	"EXPLORE": "res://assets/audio/horror-jam-kit/WAV/Drone/drone_tension_02.wav",
@@ -46,7 +47,7 @@ func _ready() -> void:
 		var bank: Array[AudioStreamPlayer] = []
 		for voice_index in 4:
 			var player := AudioStreamPlayer.new()
-			player.bus = "Music"
+			player.bus = AudioBus.MUSIC
 			player.volume_db = -80.0
 			player.finished.connect(_on_track_finished.bind(player))
 			add_child(player)
@@ -55,7 +56,7 @@ func _ready() -> void:
 		_banks.append(bank)
 	_heartbeat = AudioStreamPlayer.new()
 	_heartbeat.name = "ThreatHeartbeat"
-	_heartbeat.bus = "SFX"
+	_heartbeat.bus = AudioBus.BODY
 	_heartbeat.volume_db = -80.0
 	if ResourceLoader.exists(HEARTBEAT_PATH):
 		_heartbeat.stream = load(HEARTBEAT_PATH)
@@ -67,14 +68,9 @@ func _ready() -> void:
 	GameState.player_died.connect(_on_player_died)
 	GameState.state_reset.connect(_on_game_reset)
 
+## The bus layout has one owner: MixDirector (audio/mix_director.gd).
 func _ensure_buses() -> void:
-	for bus_name in ["Music", "Ambience", "SFX", "UI"]:
-		if AudioServer.get_bus_index(bus_name) >= 0:
-			continue
-		var idx := AudioServer.bus_count
-		AudioServer.add_bus(idx)
-		AudioServer.set_bus_name(idx, bus_name)
-		AudioServer.set_bus_send(idx, "Master")
+	MixDirector.ensure_buses()
 
 func set_music_state(state: int) -> void:
 	if state < 0 or state >= STATE_NAMES.size():
@@ -154,21 +150,20 @@ func _bank_matches(bank: Array, streams: Array[AudioStream]) -> bool:
 		if not player.playing or player.stream != streams[index]: return false
 	return true
 
-func _effective_music_db() -> float:
-	return BREATH_DUCK_DB if breath_held else 0.0
-
+## The music steps back while she holds her breath. The Music bus is MixDirector's to move;
+## the threat heartbeat is this script's own player, so it follows here.
 func set_breath_held(held: bool) -> void:
 	if breath_held == held:
 		return
 	breath_held = held
-	var tween := create_tween().set_parallel(true)
-	for index in _banks[_active_bank].size():
-		var player: AudioStreamPlayer = _banks[_active_bank][index]
-		if player.playing:
-			tween.tween_property(player, "volume_db", _stem_target_db(_active_state, index), 0.18)
+	var settings := SoundSettings.current()
+	if held:
+		MixDirector.duck(BREATH_DUCK, MixDirector.Priority.BREATH, {AudioBus.MUSIC: settings.breath_duck_db}, settings.breath_duck_fade)
+	else:
+		MixDirector.release(BREATH_DUCK, settings.breath_duck_fade)
 	if is_instance_valid(_heartbeat) and _heartbeat.playing:
-		var heartbeat_target := _heartbeat_base_db + (BREATH_DUCK_DB if held else 0.0)
-		tween.tween_property(_heartbeat, "volume_db", heartbeat_target, 0.18)
+		var heartbeat_target := _heartbeat_base_db + (settings.breath_duck_db if held else 0.0)
+		create_tween().tween_property(_heartbeat, "volume_db", heartbeat_target, settings.breath_duck_fade)
 
 ## Called by gameplay when the tutorial hides/deactivates its entity for a zone transition.
 func clear_entity_threat() -> void:
@@ -194,7 +189,7 @@ func _stem_target_db(state: int, layer: int) -> float:
 	var gains: Array = music_stem_gains.get(key, music_stem_gains.get(STATE_NAMES[state], []))
 	var gain := float(gains[layer]) if layer < gains.size() else 1.0
 	if gain <= 0.0001: return -80.0
-	return _effective_music_db() + linear_to_db(gain)
+	return linear_to_db(gain)
 
 func bind_gameplay(entity: Node, breath: Node) -> void:
 	if is_instance_valid(_bound_entity) and _bound_entity.has_signal("state_changed"):
@@ -207,6 +202,8 @@ func bind_gameplay(entity: Node, breath: Node) -> void:
 			if _bound_breath.has_signal(sig) and _bound_breath.is_connected(sig, cb): _bound_breath.disconnect(sig, cb)
 	_bound_entity = entity
 	_bound_breath = breath
+	if not is_instance_valid(breath):
+		set_breath_held(false)
 	if is_instance_valid(entity) and entity.has_signal("state_changed"):
 		entity.connect(&"state_changed", Callable(self, "_on_entity_state_changed"))
 		_on_entity_state_changed(-1, int(entity.get("current_state")))
@@ -236,7 +233,7 @@ func _set_threat_heartbeat(entity_state: int) -> void:
 	if _heartbeat_base_db <= -80.0:
 		_heartbeat.stop()
 	else:
-		_heartbeat.volume_db = _heartbeat_base_db + (BREATH_DUCK_DB if breath_held else 0.0)
+		_heartbeat.volume_db = _heartbeat_base_db + (SoundSettings.current().breath_duck_db if breath_held else 0.0)
 		if not _heartbeat.playing: _heartbeat.play()
 
 func _on_heartbeat_finished() -> void:

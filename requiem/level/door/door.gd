@@ -88,7 +88,7 @@ var _leaf_body_pending := false
 func _ready() -> void:
 	var door_audio := get_node_or_null("Audio") as AudioStreamPlayer2D
 	if door_audio != null:
-		door_audio.bus = "SFX"
+		door_audio.bus = AudioBus.WORLD
 	if start_open:
 		is_open = true
 		swing = 1.0

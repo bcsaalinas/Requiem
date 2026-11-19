@@ -106,6 +106,7 @@ func _ready() -> void:
 	_previous_position = player.global_position
 
 	_audio_player = AudioStreamPlayer2D.new()
+	_audio_player.bus = AudioBus.WORLD
 	add_child(_audio_player)
 
 

@@ -63,6 +63,7 @@ var _teleport_physics_frame := -1
 
 func _ready() -> void:
 	_audio_player = AudioStreamPlayer2D.new()
+	_audio_player.bus = AudioBus.WORLD
 	add_child(_audio_player)
 	_color_base = sprite.modulate
 	barra_progreso.hide()

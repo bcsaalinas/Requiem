@@ -246,7 +246,7 @@ func _ready() -> void:
 	hud.fullscreen_requested.connect(_toggle_fullscreen)
 	PauseMenu.resume_pressed.connect(_toggle_pause)
 	prayer_audio.stream=sound("prayer")
-	prayer_audio.bus="SFX"
+	prayer_audio.bus=AudioBus.WORLD
 	prayer_audio.finished.connect(func():
 		if zone=="house" and not attack_finished: prayer_audio.play())
 	flashlight.click_clips.assign([load("res://assets/audio/629008__realgtro__flashlight-click.wav")])
@@ -313,7 +313,7 @@ func play_sound(id: String, at: Vector2, volume := -8.0) -> AudioStreamPlayer2D:
 	if test_mode: return null
 	var audio:=AudioStreamPlayer2D.new()
 	audio.position=at
-	audio.bus="SFX"
+	audio.bus=AudioBus.WORLD
 	audio.stream=sound(id)
 	audio.volume_db=volume
 	add_child(audio)
@@ -418,7 +418,7 @@ func _play_stream(stream: AudioStream, at: Vector2, volume: float) -> void:
 	if test_mode or stream == null: return
 	var audio := AudioStreamPlayer2D.new()
 	audio.position=at
-	audio.bus="SFX"
+	audio.bus=AudioBus.WORLD
 	audio.stream=stream
 	audio.volume_db=volume
 	audio.pitch_scale=randf_range(0.92,1.06)

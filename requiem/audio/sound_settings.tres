@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="SoundSettings" format=3 uid="uid://3hl1hvffa0h6"]
+
+[ext_resource type="Script" uid="uid://db6fu7wo2vxh3" path="res://audio/sound_settings.gd" id="1_xrqsd"]
+
+[resource]
+script = ExtResource("1_xrqsd")
