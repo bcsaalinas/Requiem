@@ -103,6 +103,9 @@ var nav_agent: NavigationAgent2D
 var _sprite: Sprite2D
 var _breath_player: AudioStreamPlayer2D
 var _stinger_player: AudioStreamPlayer2D
+## The EntityAudio child, when the scene has one. It then makes every sound of the entity, and
+## the clip arrays above stay unused, so nothing ever plays twice.
+var _entity_audio: Node
 var _spawn_position: Vector2
 var _state_timer: float = 0.0
 var _hunt_timer: float = 0.0
@@ -126,13 +129,14 @@ func _ready() -> void:
 
 	# Hijos directos del CharacterBody2D: heredan su transform solos, no hace
 	# falta actualizar global_position a mano como en los componentes del Player.
+	_entity_audio = get_node_or_null("EntityAudio")
 	_breath_player = AudioStreamPlayer2D.new()
-	_breath_player.bus = "SFX"
+	_breath_player.bus = AudioBus.ENTITY
 	add_child(_breath_player)
 	_breath_player.finished.connect(_on_breath_finished)
 
 	_stinger_player = AudioStreamPlayer2D.new()
-	_stinger_player.bus = "SFX"
+	_stinger_player.bus = AudioBus.ENTITY
 	add_child(_stinger_player)
 
 	_play_breath_clip()
@@ -382,7 +386,7 @@ func get_state_name() -> String:
 ## instante). Asi un cambio de estado a mitad de clip se refleja solo en el
 ## proximo ciclo, salvo en la frontera calma<->caza que se fuerza al toque.
 func _play_breath_clip() -> void:
-	if GameState.is_dead:
+	if GameState.is_dead or _entity_audio != null:
 		return
 
 	var hunting := current_state == State.HUNT
@@ -404,7 +408,7 @@ func _on_breath_finished() -> void:
 
 
 func _play_stinger(clips: Array[AudioStream]) -> void:
-	if clips.is_empty():
+	if clips.is_empty() or _entity_audio != null:
 		return
 	_stinger_player.volume_db = stinger_volume_db
 	_stinger_player.stream = clips[randi() % clips.size()]
@@ -412,7 +416,7 @@ func _play_stinger(clips: Array[AudioStream]) -> void:
 
 
 func _play_state_cue(clips: Array[AudioStream]) -> void:
-	if clips.is_empty():
+	if clips.is_empty() or _entity_audio != null:
 		return
 	_stinger_player.volume_db = state_cue_volume_db
 	_stinger_player.pitch_scale = randf_range(0.96, 1.04)

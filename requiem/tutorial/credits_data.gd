@@ -128,7 +128,6 @@ const AUDIO := [
 	["simo170075", "Basement ambience"],
 	["realgtro", "Flashlight click"],
 	["geoneo0", "Four voices whispering 6"],
-	["dcsfx", "Monster breathing"],
 	["thesoundfxguy_yt", "Piano jump scare stinger"],
 	["joedeshon", "Alarm clock ringing 01"],
 	["freesound_community · Pixabay", "Concrete footsteps 1 · edited into footstep samples"],

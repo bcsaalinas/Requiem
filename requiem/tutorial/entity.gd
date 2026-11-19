@@ -35,7 +35,8 @@ signal heard_noise(at: Vector2, source: int)
 ## Chance that the next patrol point is a place where it heard something before.
 @export_range(0.0, 1.0, 0.05) var revisit_chance := 0.35
 @export_group("Audio")
-@export var drag_clip: AudioStream = preload("res://tutorial/assets/audio/behind_wall.wav")
+## Left empty: the drag loop is EntityAudio's now (entities/entity_audio.gd).
+@export var drag_clip: AudioStream
 @export var drag_volume_db := -14.0
 ## Optional soft pat/tap while it feels the floor (empty: silent).
 @export var feel_clip: AudioStream
@@ -48,6 +49,8 @@ var route_index := 0
 var active := false
 ## The sprite rig that draws it (child SpriteRig, entity_sprite_rig.gd).
 var sprite_rig: Node2D
+## Everything it sounds like (child EntityAudio, entities/entity_audio.gd).
+var audio: EntityAudio
 ## Source type of the last sound it heard (for the "it heard your ..." explanation).
 var last_heard_source := -1
 var _listening := 0.0
@@ -62,14 +65,17 @@ func _ready() -> void:
 	super._ready()
 	_sprite.hide()
 	sprite_rig = $SpriteRig
+	audio = get_node_or_null("EntityAudio") as EntityAudio
 	color_by_state = false
 	log_state_changes = false
 	_drag = AudioStreamPlayer2D.new()
+	_drag.bus = AudioBus.ENTITY
 	_drag.stream = drag_clip
 	_drag.volume_db = drag_volume_db
 	_drag.max_distance = 900.0
 	add_child(_drag)
 	_feel_player = AudioStreamPlayer2D.new()
+	_feel_player.bus = AudioBus.ENTITY
 	_feel_player.stream = feel_clip
 	_feel_player.volume_db = feel_volume_db
 	_feel_player.max_distance = 600.0
@@ -215,6 +221,8 @@ func _remember(at: Vector2) -> void:
 		_memory.pop_front()
 
 func set_breathing(on: bool) -> void:
+	if audio != null:
+		audio.set_breathing(on)
 	if on:
 		_resume_breathing()
 	else:
@@ -225,14 +233,14 @@ func _resume_breathing() -> void:
 		_play_breath_clip()
 
 func _update_drag(moving: bool) -> void:
-	if moving and not _drag.playing and drag_clip != null:
+	if moving and not _drag.playing and drag_clip != null and audio == null:
 		_drag.pitch_scale = randf_range(0.8, 0.95)
 		_drag.play()
 	elif not moving and _drag.playing:
 		_drag.stop()
 
 func _update_feel_audio(delta: float) -> void:
-	if feel_clip == null or not is_feeling():
+	if feel_clip == null or audio != null or not is_feeling():
 		_tap_wait = 0.3
 		return
 	_tap_wait -= delta
@@ -263,3 +271,5 @@ func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	active = false
 	_feel_left = 0.0
 	sprite_rig.reset()
+	if audio != null:
+		audio.stop_all()
