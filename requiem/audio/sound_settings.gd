@@ -337,9 +337,13 @@ static func current() -> SoundSettings:
 @export_range(0.0, 0.3, 0.01) var set_pitch_range := 0.06
 ## Each time a set plays, its level moves at random by up to this much either way.
 @export_range(0.0, 6.0, 0.1, "suffix:dB") var set_volume_range_db := 2.0
-## What the game adds to a set when it plays, in dB. Sharp clicks and thuds cannot be made
-## loud enough in the file without squashing them (assets/audio/SOUND_SETS.md, "Make-up"), so
-## the difference is made up here. Any set can be listed to turn it up or down.
+## What the game adds to a set when it plays, in dB: more than 0 turns it up, less turns it
+## down. Sharp clicks and thuds cannot be made loud enough in the file without squashing them
+## (assets/audio/SOUND_SETS.md, "Make-up"), so the difference is made up here; a set that is
+## too present is turned down here the same way. Any set can be listed.
+## The entity's walking claw steps (entity/claws_walk) are turned down: at their file level a
+## step beside Viv was as loud as its heard-you voice and covered its mumbling. Move it towards
+## 0 to make its steps louder, further down to make them quieter.
 @export var set_gain_db := {
 	"entity/neck_click": 6.0,
 	"entity/foot_slam": 5.0,
@@ -347,6 +351,7 @@ static func current() -> SoundSettings:
 	"entity/cloth_fall": 8.5,
 	"entity/catch_grab": 1.5,
 	"entity/claws_run": 0.5,
+	"entity/claws_walk": -9.0,
 }
 
 @export_group("Entity: body")
@@ -355,6 +360,14 @@ static func current() -> SoundSettings:
 ## Level change of single animation cues that reuse another cue's set: the grope while it
 ## scuttles is a softer scrape, the idle tick a much softer tap.
 @export var cue_gain_db := {"claw_grope": -4.0, "claw_tick": -8.0}
+## Its walking steps (entity/claws_walk, while it walks its patrol) do not all sound: each one
+## sounds with this chance (0.6 = about 6 steps in 10). Higher: more of its steps are heard
+## (1 = every step, as it was). Lower: its walk is sparser. Its running and scuttling steps
+## always sound.
+@export_range(0.0, 1.0, 0.05) var walk_step_chance := 0.6
+## But never more than this many walking steps in a row are silent, so its walk never goes
+## quiet for long. 0 = every step sounds.
+@export_range(0, 10) var walk_step_max_skips := 2
 ## How long its breath and drag loops take to fade in or out.
 @export_range(0.0, 2.0, 0.01, "suffix:s") var loop_fade := 0.2
 ## Above this speed it counts as moving, and its shroud drags.
@@ -372,6 +385,18 @@ static func current() -> SoundSettings:
 @export_range(0.3, 3.0, 0.05) var position_falloff := 1.0
 ## Over the last stretch before ring 1 ends they fade to nothing, so nothing pops in or out.
 @export_range(0.0, 8.0, 0.25, "suffix:u") var position_fade_u := 2.0
+## While it knows nothing (unaware, or standing still on its patrol), its position sounds right
+## beside her are held down by this much, so a tap in a silent house is near, not a jump. The
+## difference shrinks with distance and is gone where ring 2 ends (ring_near_u); a room away
+## nothing changes. While she holds her breath to listen that edge moves out with ring 1
+## (listen_reach_factor), as the rest of the distance curve does, so nearer is never quieter.
+## Once it has heard something its sounds are at their full level. 0 = off; no lower than
+## about -7.5, or nearer would be quieter than further.
+## The default is the smallest that keeps every calm sound beside her under the jump-scare
+## audit's threshold, also while she holds her breath (testing/regression/test_calm_beside_her).
+@export_range(-7.5, 0.0, 0.5, "suffix:dB") var position_calm_near_db := -6.5
+## How long that holding down takes to come and to go when it stops or starts being calm.
+@export_range(0.0, 5.0, 0.05, "suffix:s") var position_calm_fade := 1.0
 ## The way is measured 5 times per second; in between, what is heard glides over this long.
 @export_range(0.0, 2.0, 0.01, "suffix:s") var position_smooth := 0.25
 ## Blur: below this clarity a single sound (a step, a tap, a phrase) plays on the far,

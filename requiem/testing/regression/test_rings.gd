@@ -77,6 +77,7 @@ func _ready() -> void:
 	await check_far_away()
 	await check_glide()
 	await check_presence()
+	await check_calm_trim()
 	check(noises == 0, "None of it made a noise the entity could hear (%d)" % noises)
 	game.queue_free()
 	await frames(3)
@@ -217,7 +218,9 @@ func check_same_room() -> void:
 	var voice := audio.play_set(BODY)
 	var limit: float = audio.reach_limit_u()
 	check(voice != null and voice.bus == AudioBus.ENTITY and voice.panning_strength == 1.0, "Sharp, and placed exactly")
-	check(voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY) + EntityAudio.position_db(audio.heard_u, limit))
+	# Calm (it stands still on its patrol), so the calm trim is part of it (check_calm_trim).
+	check(voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY) + EntityAudio.position_db(audio.heard_u, limit)
+		+ EntityAudio.calm_near_db(audio.heard_u, limit, 1.0))
 		and voice.volume_db < SoundLibrary.gain_db(BODY) and voice.max_distance >= EntityAudio.NO_ENGINE_FALLOFF_PX,
 		"A little under its full level, set from the way its sound travels (%.1f dB)" % (voice.volume_db if voice != null else 0.0))
 	await seconds(settings.loop_fade + 0.3)
@@ -229,10 +232,12 @@ func check_same_room() -> void:
 	# On top of her.
 	await place(VESTIBULE_A, VESTIBULE_NEXT)
 	voice = audio.play_set(BODY)
-	check(audio.heard_ring == 3 and audio.heard_clarity == 1.0 and voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY)),
-		"Right beside her it is at its full level")
+	check(audio.heard_ring == 3 and audio.heard_clarity == 1.0 and voice != null
+		and near(voice.volume_db, SoundLibrary.gain_db(BODY) + settings.position_calm_near_db),
+		"Right beside her, calm, it is at its full level less the calm trim (%.1f dB)" % settings.position_calm_near_db)
 	await frames(3)
-	check(audio._breath_far.volume_db <= EntityAudio.GONE_DB and near(audio._breath.volume_db, SoundLibrary.gain_db(EntityAudio.BREATH_CALM), 0.1)
+	check(audio._breath_far.volume_db <= EntityAudio.GONE_DB
+		and near(audio._breath.volume_db, SoundLibrary.gain_db(EntityAudio.BREATH_CALM) + settings.position_calm_near_db, 0.1)
 		and audio._breath.volume_db > near_breath, "And nothing of it is dulled")
 	audio.stop_all()
 
@@ -505,3 +510,69 @@ func check_presence() -> void:
 	check(is_zero_approx(Dread.presence) and not MixDirector.is_active(MixDirector.THREAT_MIX) and is_zero_approx(MixDirector.gain_db(AudioBus.WORLD)),
 		"And the house comes back")
 	entity.show()
+
+
+## While it knows nothing its position sounds beside her are held down a little; once it has
+## heard something they are at their full level. Nearer is never quieter. Channel A is untouched.
+func check_calm_trim() -> void:
+	var trim: float = settings.position_calm_near_db
+	check(trim < 0.0 and trim >= -7.5 and near(settings.position_calm_fade, 1.0), "The calm trim is on: %.1f dB, coming and going over %.1f s" % [trim, settings.position_calm_fade])
+	var hearing := settings.ring_somewhere_u
+	var listening := settings.ring_somewhere_u * settings.listen_reach_factor
+	check(near(EntityAudio.calm_near_db(0.0, hearing, 1.0), trim, 0.001) and near(EntityAudio.calm_near_db(settings.position_full_u, hearing, 1.0), trim, 0.001),
+		"Calm and right beside her, the whole trim")
+	check(is_zero_approx(EntityAudio.calm_near_db(settings.ring_near_u, hearing, 1.0)) and is_zero_approx(EntityAudio.calm_near_db(settings.ring_near_u + 3.0, hearing, 1.0))
+		and is_zero_approx(EntityAudio.calm_near_db(settings.ring_somewhere_u - 1.0, hearing, 1.0)),
+		"Gone where ring 2 ends, and nothing a room away")
+	check(is_zero_approx(EntityAudio.calm_near_db(settings.ring_near_u * settings.listen_reach_factor, listening, 1.0))
+		and EntityAudio.calm_near_db(settings.ring_near_u, listening, 1.0) < 0.0,
+		"While she holds her breath that edge moves out with ring 1 (to %.1f u)" % (settings.ring_near_u * settings.listen_reach_factor))
+	check(is_zero_approx(EntityAudio.calm_near_db(1.0, hearing, 0.0)) and near(EntityAudio.calm_near_db(1.0, hearing, 0.5), trim * 0.5, 0.001),
+		"Once it has heard something, none of it")
+	for limit: float in [hearing, listening]:
+		var falling := true
+		var last := 0.0
+		for step in range(0, int(limit * 20.0)):
+			var at := step * 0.05
+			var level: float = EntityAudio.position_db(at, limit) + EntityAudio.calm_near_db(at, limit, 1.0)
+			falling = falling and level <= last + 0.0001
+			last = level
+		check(falling, "Calm, nearer is never quieter (ring 1 ending at %.1f u): %.1f dB at %.0f u, %.1f dB at %.0f u" % [limit,
+			EntityAudio.position_db(settings.position_full_u, limit) + EntityAudio.calm_near_db(settings.position_full_u, limit, 1.0), settings.position_full_u,
+			EntityAudio.position_db(settings.ring_near_u, limit), settings.ring_near_u])
+	# In the house: right beside her, calm.
+	await place(VESTIBULE_A, VESTIBULE_NEXT)
+	check(Dread.awareness_of(entity, audio) <= Dread.Awareness.PAUSED and near(audio.calm_trim_db(), trim, 0.001) and near(audio.position_level_db(), trim, 0.001),
+		"Calm beside her, its position sounds are held down by the trim (%.1f dB)" % audio.position_level_db())
+	var voice := audio.play_set(BODY)
+	check(voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY) + trim), "A step plays at its level less the trim (%.1f dB)" % (voice.volume_db if voice != null else 0.0))
+	var calm_heard := audio._play_heard()
+	var calm_heard_db: float = calm_heard.volume_db if calm_heard != null else 0.0
+	audio.stop_all()
+	# It has heard something (searching): at once at its full level, as before.
+	entity.current_state = EntityAudio.SEARCH
+	audio.placed()
+	voice = audio.play_set(BODY)
+	check(Dread.awareness_of(entity, audio) == Dread.Awareness.SEARCHING and is_zero_approx(audio.calm_trim_db())
+		and voice != null and near(voice.volume_db, SoundLibrary.gain_db(BODY)),
+		"Right beside her, once it has heard something, it is at its full level")
+	var alert_heard := audio._play_heard()
+	check(calm_heard != null and alert_heard != null and near(alert_heard.volume_db, calm_heard_db, 0.001)
+		and near(alert_heard.volume_db, float(alert_heard.get_meta(&"base")) + EntityAudio.reach_db(audio.listener_distance_u(), audio._heard_reach()), 0.001),
+		"What it knows is never trimmed: the heard-you cue is as loud calm or not (%.1f dB)" % calm_heard_db)
+	audio.stop_all()
+	# Calm again: the trim comes back over the fade, never in one step.
+	entity.current_state = EntityAudio.PATROL
+	await seconds(settings.position_calm_fade * 0.5)
+	var halfway: float = audio.calm_trim_db()
+	check(halfway < -0.5 and halfway > trim + 0.5, "Calm again, the trim comes back gradually (%.1f dB halfway)" % halfway)
+	await seconds(settings.position_calm_fade * 0.5 + 0.3)
+	check(near(audio.calm_trim_db(), trim, 0.001), "And is whole after %.1f s" % settings.position_calm_fade)
+	# And it goes the same way.
+	entity.current_state = EntityAudio.SEARCH
+	await seconds(settings.position_calm_fade * 0.5)
+	halfway = audio.calm_trim_db()
+	check(halfway < -0.5 and halfway > trim + 0.5, "Alert, it goes gradually too (%.1f dB halfway)" % halfway)
+	entity.current_state = EntityAudio.PATROL
+	audio.placed()
+	audio.stop_all()

@@ -237,7 +237,8 @@ func check_knock() -> void:
 	var path: String = knock.stream.resource_path
 	check(path.begins_with(EntityAudio.KNOCK_FOLDER) and path != settings.house_knock and not stand_ins.filter(func(s: AudioStream) -> bool: return s == knock.stream).is_empty(),
 		"From its own knock set, not the house's knock (%s)" % path)
-	var expected: float = SoundLibrary.gain_db(KNOCK) + settings.entity_knock_db + EntityAudio.position_db(audio.heard_u, audio.reach_limit_u()) + audio.masked_db()
+	var expected: float = SoundLibrary.gain_db(KNOCK) + settings.entity_knock_db + EntityAudio.position_db(audio.heard_u, audio.reach_limit_u()) \
+		+ audio.calm_trim_db() + audio.masked_db()
 	check(near(knock.volume_db, expected, 0.01) and knock.volume_db < settings.entity_knock_db,
 		"At the set's level, %.0f dB, less what it loses on the way (%.1f dB, expected %.1f)" % [settings.entity_knock_db, knock.volume_db, expected])
 	check(near(knock.panning, audio._panning, 0.001) and voice.max_distance >= EntityAudio.NO_ENGINE_FALLOFF_PX,

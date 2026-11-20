@@ -24,6 +24,12 @@ extends Node2D
 ## through the wall: they play from a holder (Heard) placed in the direction of that opening, at
 ## the distance the entity really is. What it knows is always heard from where it stands.
 ##
+## Its walking claw steps are quiet and do not all sound (about 6 in 10, never more than two
+## silent in a row), so its walk is felt without covering its voice.
+## While it knows nothing, its position sounds right beside her are held down a little
+## (position_calm_near_db, gone where ring 2 ends), so nothing it does calm is a sudden jump in a
+## silent house. Once it has heard something they are at their full level. Channel A never is.
+##
 ## Its idle voice says it is alive and unaware: a mumbled phrase now and then while it walks its
 ## patrol, trailing off when it pauses. While it searches the voice is lower and rarer, and it
 ## sniffs in short runs as it scuttles. It never speaks while it listens, screams or hunts.
@@ -71,6 +77,8 @@ const SNIFF := "entity/sniff"
 const STAND_DOWN := "entity/stand_down"
 const MUMBLE := "entity/mumble"
 const EXHALE := "entity/exhale"
+## Its walking claw steps: not every one sounds (walk_step_chance).
+const WALK := "entity/claws_walk"
 ## Its knock on a door. Every knock file comes from this folder, never the house's knock.
 const KNOCK := "entity/knock"
 const KNOCK_FOLDER := SoundLibrary.ROOT + KNOCK + "/"
@@ -115,9 +123,18 @@ var heard_ring := 3
 ## How many position sounds of each set were lost on the way, and the last one.
 var gaps := {}
 var last_gap := ""
+## How many walking steps were left silent on purpose (walk_step_chance), and how many in a row
+## right now. Not gaps: these are not lost on the way.
+var walk_steps_skipped := 0
+var _walk_skips_in_row := 0
 ## dB every position sound loses on the way right now, and how exactly it is placed (0..1).
 var _reach_db := 0.0
 var _panning := 1.0
+## How calm it is for its position sounds (1 = it knows nothing, 0 = it has heard something),
+## gliding over position_calm_fade, and what that holds its sounds down by right now (dB).
+var _calm := 1.0
+var _calm_known := false
+var _calm_trim_db := 0.0
 ## Where its position sounds (Channel B) play from: the entity itself, or behind a wall the
 ## direction of the opening its sound comes through (Acoustics), at the entity's own distance.
 var heard: Node2D
@@ -263,7 +280,24 @@ func play_cue(cue_name: String) -> AudioStreamPlayer2D:
 			_unknown_cues[cue_name] = true
 			push_warning("[EntityAudio] animation cue '%s' has no sound set" % cue_name)
 		return null
-	return play_set(CUE_SETS[cue_name], float(SoundSettings.current().cue_gain_db.get(cue_name, 0.0)))
+	var set_id: String = CUE_SETS[cue_name]
+	if set_id == WALK and not _walk_step_sounds():
+		return null
+	return play_set(set_id, float(SoundSettings.current().cue_gain_db.get(cue_name, 0.0)))
+
+
+## Whether this walking step sounds: each one with walk_step_chance, but never more than
+## walk_step_max_skips silent in a row. A skipped step is counted here, never as lost on the
+## way (that is what distance does, and it still applies to the steps that do sound).
+func _walk_step_sounds() -> bool:
+	var settings := SoundSettings.current()
+	if settings.walk_step_chance >= 1.0 or _walk_skips_in_row >= settings.walk_step_max_skips \
+			or randf() < settings.walk_step_chance:
+		_walk_skips_in_row = 0
+		return true
+	_walk_skips_in_row += 1
+	walk_steps_skipped += 1
+	return false
 
 
 ## Plays one variation of a set from the entity's position, as a position sound (Channel B):
@@ -314,12 +348,14 @@ func stop_all() -> void:
 func reset() -> void:
 	stop_all()
 	_reach_known = false         # it was moved by hand: no glide from where it was
+	_calm_known = false
 	_heard_wait = -1.0
 	_scream_wait = -1.0
 	_exhale_covered_until = -INF
 	_sniff_run_wait = -1.0
+	_walk_skips_in_row = 0
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
-	_end_pause(true)            # a new encounter: no knock in its first moments
+	_end_pause(true)           # a new encounter: no knock in its first moments
 	if _duck_left >= 0.0:
 		_duck_left = -1.0
 		MixDirector.release(SCREAM_DUCK)
@@ -528,6 +564,7 @@ func _exit_tree() -> void:
 func placed() -> void:
 	Acoustics.remeasure(entity)
 	_reach_known = false
+	_calm_known = false
 	_tick_reach(0.0)
 
 
@@ -548,6 +585,43 @@ static func position_db(acoustic_u: float, limit_u: float) -> float:
 	if acoustic_u > fade_from:
 		level = lerpf(level, SILENT_DB, inverse_lerp(fade_from, limit_u, acoustic_u))
 	return level
+
+
+## How much a position sound is held down because it is calm (`calm`, 0..1) and near, when
+## ring 1 ends at `limit_u`: the whole of position_calm_near_db out to position_full_u,
+## shrinking evenly to nothing where ring 2 ends (ring_near_u). While she listens ring 1 reaches
+## further and that end moves out with it, so the distance curve under it keeps falling at
+## least as fast and nearer is never quieter. Further off, and once it has heard something, 0.
+static func calm_near_db(acoustic_u: float, limit_u: float, calm: float) -> float:
+	var settings := SoundSettings.current()
+	var gone_u: float = settings.ring_near_u * maxf(limit_u / settings.ring_somewhere_u, 1.0)
+	var near := 1.0 - clampf(inverse_lerp(settings.position_full_u, gone_u, acoustic_u), 0.0, 1.0)
+	return settings.position_calm_near_db * clampf(calm, 0.0, 1.0) * near
+
+
+## What its position sounds are held down by right now because it is calm and near (dB, 0 or
+## less; debug read-outs, tests).
+func calm_trim_db() -> float:
+	return _calm_trim_db
+
+
+## What every position sound loses on the way to Viv right now, all told (dB; GONE_DB when
+## nothing of it reaches her): distance, the calm trim and her own steps (debug read-outs).
+func position_level_db() -> float:
+	return _reach_db
+
+
+## Calm glides towards 1 while it knows nothing (unaware, or standing still on its patrol) and
+## towards 0 once it has heard something, over position_calm_fade. Put somewhere by hand (a
+## reset, a test), it is set at once.
+func _tick_calm(delta: float) -> void:
+	var settings := SoundSettings.current()
+	var calm_now := 1.0 if Dread.awareness_of(entity, self) <= Dread.Awareness.PAUSED else 0.0
+	if not _calm_known or settings.position_calm_fade <= 0.0:
+		_calm = calm_now
+		_calm_known = true
+	else:
+		_calm = move_toward(_calm, calm_now, delta / settings.position_calm_fade)
 
 
 ## How exactly a position sound is placed after travelling `acoustic_u`: exact in rings 3 and
@@ -637,9 +711,11 @@ func _tick_reach(delta: float) -> void:
 	var limit := reach_limit_u()
 	heard_ring = 0 if heard_u >= limit else Acoustics.ring_for(heard_u)
 	heard_clarity = Acoustics.clarity_for(heard_u)
+	_tick_calm(delta)
+	_calm_trim_db = calm_near_db(heard_u, limit, _calm)
 	_reach_db = position_db(heard_u, limit)
 	if _reach_db > GONE_DB:
-		_reach_db += masked_db()
+		_reach_db += _calm_trim_db + masked_db()
 	_panning = position_panning(heard_u, limit)
 	Dread.report_presence(self, heard_clarity if audible and listening and not GameState.is_dead else 0.0)
 	_place_heard(delta)

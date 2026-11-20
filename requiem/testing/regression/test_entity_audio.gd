@@ -180,13 +180,15 @@ func check_in_the_house() -> void:
 		dragged = dragged or (audio.is_dragging() and entity.velocity.length() > 4.0)
 		if count("footstep_left") + count("footstep_right") >= 4: break
 	check(walked and count("footstep_left") >= 1 and count("footstep_right") >= 1, "On patrol the walk clip fires its footstep cues")
-	check(all_played("footstep_left", "entity/claws_walk") and all_played("footstep_right", "entity/claws_walk"),
-		"Each footstep plays a claw step on the very call that fired it")
+	check(sounded_or_skipped("footstep_left", "entity/claws_walk") and sounded_or_skipped("footstep_right", "entity/claws_walk")
+		and heard.any(func(entry: Dictionary) -> bool: return entry.set == "entity/claws_walk"),
+		"Each footstep that sounds plays a claw step on the very call that fired it (the others are skipped on purpose)")
 	check(audio.breath_set() == EntityAudio.BREATH_CALM and dragged, "It breathes calmly, and its shroud drags while it moves")
 	check(not entity._breath_player.playing and not entity._drag.playing and not entity._stinger_player.playing and not entity._feel_player.playing,
 		"The old players stay silent: nothing sounds twice")
 	check(audio._voices.any(func(voice: AudioStreamPlayer2D) -> bool: return voice.global_position.distance_to(entity.global_position) < 1.0),
 		"Sounds come from where the entity is")
+	await check_walk_steps()
 
 	# A noise: it freezes, its breath and drag stop at once, the head snaps.
 	heard.clear()
@@ -279,6 +281,70 @@ func _on_cue(cue_name: String) -> void:
 	heard.append({"cue": cue_name, "set": sets[0] if not sets.is_empty() else "", "sets": sets,
 		"gain": _started[0][1] if not _started.is_empty() else 0.0})
 	_started.clear()
+
+
+## Its walking steps: quieter, and not every one sounds (never more than a few silent in a row).
+## Its running and scuttling steps always sound. Played through play_cue, beside her.
+func check_walk_steps() -> void:
+	var settings := SoundSettings.current()
+	check(is_equal_approx(SoundLibrary.gain_db(EntityAudio.WALK), -9.0) and is_equal_approx(settings.walk_step_chance, 0.6)
+		and settings.walk_step_max_skips == 2, "Walking steps play 9 dB down, 6 in 10, never more than 2 silent in a row")
+	check(is_zero_approx(SoundLibrary.gain_db("entity/claws_run") - 0.5) and is_zero_approx(SoundLibrary.gain_db("entity/claws_scuttle")),
+		"Its running and scuttling claws keep their levels")
+	var lost := [0]
+	var on_lost := func(_set_id: String) -> void: lost[0] += 1
+	audio.lost_on_the_way.connect(on_lost)
+	var gaps_before := int(audio.gaps.get(EntityAudio.WALK, 0))
+	var skipped_before := audio.walk_steps_skipped
+	var plays_before := int(audio.plays.get(EntityAudio.WALK, 0))
+	var sounded := 0
+	var silent_run := 0
+	var longest_run := 0
+	for index in 200:
+		var voice := audio.play_cue("footstep_left" if index % 2 == 0 else "footstep_right")
+		if voice != null:
+			sounded += 1
+			silent_run = 0
+		else:
+			silent_run += 1
+			longest_run = maxi(longest_run, silent_run)
+	# With at most `m` silent in a row, a sounding step is followed by k silent ones with chance
+	# (1-p)^k for k up to m: the share that sounds is 1 / (1 + the sum of those).
+	var after := 0.0
+	for k in range(1, settings.walk_step_max_skips + 1):
+		after += pow(1.0 - settings.walk_step_chance, k)
+	var expected := 1.0 / (1.0 + after)
+	check(absf(sounded / 200.0 - expected) < 0.08, "Of 200 walking steps %d sounded (about %.0f expected, chance %.1f)" % [sounded, expected * 200.0, settings.walk_step_chance])
+	check(longest_run <= settings.walk_step_max_skips and longest_run >= 1, "Never more than %d silent in a row (longest %d)" % [settings.walk_step_max_skips, longest_run])
+	check(audio.walk_steps_skipped - skipped_before == 200 - sounded and int(audio.plays.get(EntityAudio.WALK, 0)) - plays_before == sounded,
+		"A skipped step is counted as skipped (%d), the others as played" % (audio.walk_steps_skipped - skipped_before))
+	check(lost[0] == 0 and int(audio.gaps.get(EntityAudio.WALK, 0)) == gaps_before, "A skipped step is not lost on the way")
+	var kept_chance := settings.walk_step_chance
+	settings.walk_step_chance = 1.0
+	var every := 0
+	for index in 100:
+		every += int(audio.play_cue("footstep_right") != null)
+	settings.walk_step_chance = kept_chance
+	check(every == 100, "At chance 1 every step sounds, as before (%d of 100)" % every)
+	var others := 0
+	for index in 50:
+		for cue in ["footstep_right_hard", "scuttle_step_left", "scuttle_step_right"]:
+			others += int(audio.play_cue(cue) != null)
+	check(others == 150, "Its running and scuttling steps always sound (%d of 150)" % others)
+	audio.lost_on_the_way.disconnect(on_lost)
+	var step: AudioStreamPlayer2D = null
+	while step == null:
+		step = audio.play_cue("footstep_left")
+	check(is_equal_approx(float(step.get_meta(&"level")), -9.0) and is_equal_approx(step.volume_db, -9.0 + audio.position_level_db()),
+		"A walking step is 9 dB under where it was (%.1f dB beside her)" % step.volume_db)
+	audio._say(false)
+	check(audio._talk.playing and audio._talk.volume_db > step.volume_db + 9.0 - settings.set_volume_range_db - 0.01,
+		"A mumbled phrase beside her is louder than a walking step (%.1f against %.1f dB)" % [audio._talk.volume_db, step.volume_db])
+	audio.stop_all()
+
+
+func sounded_or_skipped(cue_name: String, set_id: String) -> bool:
+	return heard.all(func(entry: Dictionary) -> bool: return entry.cue != cue_name or entry.set == set_id or entry.set == "")
 
 
 func count(cue_name: String) -> int:
