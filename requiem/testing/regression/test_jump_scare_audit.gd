@@ -22,6 +22,14 @@ const KITCHEN_FAR := Vector2(150, 200)
 const SOAK_ROUTE: Array[Vector2] = [Vector2(440, 456), Vector2(552, 440), Vector2(700, 456), Vector2(552, 456)]
 const SOAK_TIME := 60.0
 const WALK := "entity/claws_walk"
+## Reading the Master meter for a house knock: readings per frame (the meter holds one mixer
+## block, about 10 ms; read once a frame it misses some), the gap between them, how long it is
+## watched before and after the file, and how many knocks are measured.
+const SAMPLES_PER_FRAME := 16
+const SAMPLE_GAP_USEC := 500
+const LEAD := 0.15
+const TAIL := 0.2
+const KNOCK_TRIES := 3
 
 var failures: Array[String] = []
 var checks := 0
@@ -69,6 +77,7 @@ func _ready() -> void:
 	check_house_breach()
 	await set_up()
 	await check_calm_soak()
+	await check_knock_rise()
 	await check_read_out()
 	await check_real_jump()
 	await check_calm_and_house()
@@ -274,6 +283,96 @@ func check_calm_soak() -> void:
 	audit.clear()
 
 
+## The house's knock at its new level (the loudest a house sound may be), from the nearest place
+## a house sound can come from, in a silent house (the drone away, the entity out of the house):
+## it must rise no more than 17 dB on Master, one under what the audit logs.
+func check_knock_rise() -> void:
+	var audit: Node = overlay.audit
+	MusicDirector.turn_drone(false)
+	MusicDirector.drone_wait = INF
+	var music := AudioServer.get_bus_index(AudioBus.MUSIC)
+	var deadline := now() + settings.music_drone_fade_out + 1.0
+	while now() < deadline and peak(music) > settings.audit_floor_db - 20.0:
+		await get_tree().process_frame
+	entity.hide()
+	entity.active = false
+	await seconds(1.0 / settings.acoustics_rate + 0.2)
+	HouseVoice._since_cue = INF
+	HouseVoice._open_wait = 0.0
+	HouseVoice._effect_wait = INF            # nothing else of the house meanwhile
+	HouseVoice._settle_wait = INF
+	var here: String = game._room_name()
+	var ears: Vector2 = game.player.global_position
+	var nearest := Vector2.INF
+	for room: String in HouseVoice._rooms:
+		if room == here: continue
+		for spot: Vector2 in HouseVoice._rooms[room]:
+			if nearest == Vector2.INF or spot.distance_to(ears) < nearest.distance_to(ears):
+				nearest = spot
+	var entry: Dictionary = HouseVoice.knocks()[0]
+	var level := HouseVoice.knock_level_for(float(entry.lufs))
+	var stream := load(entry.file) as AudioStream
+	audit.clear()
+	var rise := 0.0
+	var top := -INF
+	var played: Array[int] = [0]          # a list: the callable below adds to it
+	for attempt in KNOCK_TRIES:
+		var reading := await measure(func() -> void: played[0] += int(HouseVoice._play_entry(&"knock", entry, nearest, level)), stream.get_length() / (1.0 - settings.set_pitch_range) + TAIL)
+		rise = maxf(rise, reading.rise)
+		top = maxf(top, reading.peak)
+	print("[Jump-scare audit] the house's knock at %+.1f dB (%.1f LUFS), %.1f u away in %s, drone away, no entity: peak on Master %.1f dB, rise %.1f dB (at most %.0f)" % [
+		level, float(entry.lufs) + level, Units.to_u(nearest.distance_to(ears)), here, top, rise, settings.audit_jump_db - 1.0])
+	check(played[0] == KNOCK_TRIES and HouseVoice.history.back().family == &"knock" and nearest != Vector2.INF and near_level(float(entry.lufs) + level, settings.house_max_lufs),
+		"The house's knock plays at the loudest the house may be (%.1f LUFS), from the nearest place a house sound can come from (%.1f u)" % [float(entry.lufs) + level, Units.to_u(nearest.distance_to(ears))])
+	check(rise <= settings.audit_jump_db - 1.0 and audit.unexplained().is_empty() and HouseVoice.violations == 0,
+		"In a silent house it rises %.1f dB on Master, no more than %.0f: no jump (%s)" % [rise, settings.audit_jump_db - 1.0, audit.summary()])
+	HouseVoice._effect_wait = settings.house_effect_gap.x
+	HouseVoice._settle_wait = settings.house_settle_gap.x
+	MusicDirector.turn_drone(true)
+	entity.active = true
+	await place(far)
+	audit.clear()
+
+
+func near_level(a: float, b: float) -> bool:
+	return absf(a - b) <= 0.01
+
+
+func peak(bus: int) -> float:
+	return maxf(AudioServer.get_bus_peak_volume_left_db(bus, 0), AudioServer.get_bus_peak_volume_right_db(bus, 0))
+
+
+## Starts a sound and watches Master for the largest rise within the audit's window, as the
+## audit does (from its floor), read many times a frame: { peak, rise } in dB.
+func measure(start: Callable, watch: float) -> Dictionary:
+	var master := AudioServer.get_bus_index(AudioBus.MASTER)
+	var recent: Array = []
+	var deadline := now() + LEAD
+	while now() < deadline:
+		recent.append([now(), maxf(peak(master), settings.audit_floor_db)])
+		await get_tree().process_frame
+	start.call()
+	var top := -INF
+	var rise := 0.0
+	deadline = now() + watch
+	while now() < deadline:
+		await get_tree().process_frame
+		for sample in SAMPLES_PER_FRAME:
+			var time := Time.get_ticks_usec() / 1000000.0
+			var level := peak(master)
+			top = maxf(top, level)
+			level = maxf(level, settings.audit_floor_db)
+			while not recent.is_empty() and time - float(recent[0][0]) > settings.audit_jump_window:
+				recent.pop_front()
+			var lowest := level
+			for reading: Array in recent:
+				lowest = minf(lowest, float(reading[1]))
+			rise = maxf(rise, level - lowest)
+			recent.append([time, level])
+			OS.delay_usec(SAMPLE_GAP_USEC)
+	return {"peak": top, "rise": rise}
+
+
 ## Puts the entity somewhere, shown, active, unaware and standing still.
 func place(at: Vector2) -> void:
 	var route: Array[Vector2] = [at]
@@ -379,7 +478,7 @@ func check_calm_and_house() -> void:
 		HouseVoice.hurry()
 		await seconds(0.35)
 	for entry: Dictionary in HouseVoice.history:
-		played += int(entry.family == &"effect")
+		played += int(entry.family == &"effect" or entry.family == &"knock")
 	check(HouseVoice.gate() == "" and played >= 3 and HouseVoice.history.size() >= before, "The house makes its sounds (%d effects)" % played)
 	check(audit.unexplained().is_empty() and audit.house_breaches.is_empty() and HouseVoice.violations == 0,
 		"No house sound is a jump, and none played while its gates were closed: %s" % audit.summary())

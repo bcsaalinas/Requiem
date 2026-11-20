@@ -7,6 +7,11 @@ extends Node
 ##   effects  a knock, a door creak, something falling, a chair dragged: rare, far apart;
 ##   nothing  now and then, instead of an effect, the ambience thins for a few seconds.
 ##
+## The knock is its signature: most effects (house_knock_share) are a knock, picked from
+## knocks() (house_knock and assets/audio/house/knock), at the loudest a house sound may be
+## (knock_level_for()), reported as &"knock". Never the same knock file twice running when
+## there are several; with one file, never three effects in a row that are that file.
+##
 ## Every sound comes from a room she is not in, on the World bus, quietly, with a soft start.
 ## None may play unless the entity is unaware, out of earshot of the room (outside ring 2), no
 ## awareness cue has sounded lately, and she is not praying; effects are also kept far apart
@@ -29,6 +34,10 @@ extends Node
 
 const SETTLE := "house/settle"
 const EFFECTS := "house/effects"
+## The house's own knocks, besides house_knock: any file dropped here is a knock.
+const KNOCK := "house/knock"
+## With a single knock file, at most this many effects in a row may be that file.
+const KNOCKS_IN_A_ROW := 2
 ## Name of the request made to MixDirector while the ambience thins.
 const NOTHING_MIX := &"house_nothing"
 const GROUP := &"house_voice"
@@ -39,8 +48,8 @@ const ENTITY_FILES := "res://assets/audio/entity/"
 const BEHIND_WALL := "behind_wall"
 const HISTORY := 12
 
-## Something sounded: family is &"settle", &"effect", &"answer", &"aftermath" (a door found
-## ajar) or &"story" (a level's own).
+## Something sounded: family is &"settle", &"effect", &"knock" (an effect that is a knock),
+## &"answer", &"aftermath" (a door found ajar) or &"story" (a level's own).
 signal sounded(family: StringName, stream: AudioStream, at: Vector2, level_db: float, caption: String)
 ## The ambience thinned instead of an effect.
 signal thinned()
@@ -72,6 +81,13 @@ var _since_cue := INF
 var _nothing_left := -1.0
 var _was_open := false
 var _last_effect := ""
+## The knock file played last as an effect, and how many effects in a row were that file.
+var _last_knock := ""
+var _knocks_running := 0
+## The other effect (not a knock) played last.
+var _last_other := ""
+## True when the next effect is to be a knock (auditioning: hurry_knock()).
+var _knock_next := false
 var _last_spot := Vector2.INF
 ## Seconds since she last did something loud (since answer() was last called, answered or not).
 var _since_loud := INF
@@ -116,6 +132,7 @@ func enter(rooms: Dictionary, current_room: Callable, listener: Node2D, doors: A
 	_answer_wait = -1.0
 	_since_answer = INF
 	_was_open = false
+	_knock_next = false
 
 
 ## She left the house: everything it was sounding stops.
@@ -127,6 +144,7 @@ func leave() -> void:
 	_ajar_wait = -1.0
 	_reset_escalation()
 	_answer_wait = -1.0
+	_knock_next = false
 	story_holds = false
 	_end_nothing(0.0)
 	for voice in get_children():
@@ -180,6 +198,8 @@ func begin_run() -> void:
 func status() -> String:
 	var held := effect_gate()
 	var line := "silent: %s" % held if gate() != "" else ("settling · %s" % held if held != "" else "may speak")
+	if in_a_house() and gate() == "":
+		line += " · " + knock_text()
 	if answer_step > 0:
 		var settings := SoundSettings.current()
 		line += " · answers: step %d of %d (quiet resets it in %.0f s)" % [answer_step, settings.house_escalate_steps,
@@ -191,6 +211,30 @@ func status() -> String:
 func hurry() -> void:
 	_effect_wait = 0.0
 	_open_wait = 0.0
+
+
+## Brings a knock forward to now (auditioning): the next effect is a knock, not a "nothing" and
+## not another effect, unless that would be the same single knock file three times in a row.
+## The gates still apply.
+func hurry_knock() -> void:
+	_knock_next = true
+	hurry()
+
+
+## What the next effect can be, in words, for a read-out.
+func knock_text() -> String:
+	var settings := SoundSettings.current()
+	var count := knocks().size()
+	var files := "%d knock file%s" % [count, "" if count == 1 else "s"]
+	if count == 0:
+		return "no knock file"
+	if settings.house_knock_share <= 0.0 and not _knock_next:
+		return "knocks: one effect among the others, %s" % files
+	if count == 1 and _knocks_running >= KNOCKS_IN_A_ROW:
+		return "next effect not a knock (%d knocks in a row), %s" % [_knocks_running, files]
+	if _knock_next:
+		return "next effect a knock, %s" % files
+	return "knocks %.0f%% of effects, %s" % [settings.house_knock_share * 100.0, files]
 
 
 ## A place in a room she is not in (and not the place used last). Vector2.INF with no house.
@@ -217,6 +261,14 @@ func spot_away() -> Vector2:
 ## (0 or less): `lufs` is how loud the file itself is.
 static func level_for(lufs: float) -> float:
 	return minf(0.0, SoundSettings.current().house_max_lufs - lufs)
+
+
+## How loud a knock file plays (dB): brought to the loudest the house may be (house_max_lufs),
+## turned down if it is louder, and turned up if it is quieter, but by no more than
+## house_knock_max_gain_db. `lufs` is how loud the file itself is.
+static func knock_level_for(lufs: float) -> float:
+	var settings := SoundSettings.current()
+	return minf(settings.house_max_lufs - lufs, settings.house_knock_max_gain_db)
 
 
 ## Plays one sound of the house from a place, on World, with a soft start. Returns the player
@@ -311,6 +363,58 @@ func effects() -> Array[Dictionary]:
 	return found
 
 
+## Every knock the house can make: { file, lufs, caption }. house_knock (its entry in
+## house_effects: its measured loudness and caption), then whatever is in assets/audio/house/knock.
+func knocks() -> Array[Dictionary]:
+	var settings := SoundSettings.current()
+	var found: Array[Dictionary] = []
+	for entry: Dictionary in settings.house_effects:
+		if entry.file == settings.house_knock:
+			found.append(entry)
+			break
+	for stream in SoundLibrary.files(KNOCK):
+		found.append({"file": stream.resource_path, "lufs": settings.house_set_lufs, "caption": settings.house_knock_caption})
+	return found
+
+
+## The next effect: { entry, family } (family &"knock" or &"effect"), or {} for none. It does
+## not play it or remember it (_remember_effect() does, once it has sounded).
+## With house_knock_share 0, one of effects(), never the one before, as before there were knocks.
+## Otherwise a knock with that chance (never the same file twice running; with one file, not a
+## third time in a row), else one of the other effects (never the other one before).
+func pick_effect() -> Dictionary:
+	var settings := SoundSettings.current()
+	var share := clampf(settings.house_knock_share, 0.0, 1.0)
+	if share <= 0.0 and not _knock_next:
+		var choices := effects().filter(func(entry: Dictionary) -> bool: return entry.file != _last_effect)
+		return {} if choices.is_empty() else {"entry": choices[randi() % choices.size()], "family": &"effect"}
+	var all_knocks := knocks()
+	var knock_files := all_knocks.map(func(entry: Dictionary) -> String: return entry.file)
+	var knock_choices: Array = all_knocks
+	if all_knocks.size() >= 2:
+		knock_choices = all_knocks.filter(func(entry: Dictionary) -> bool: return entry.file != _last_knock)
+	elif all_knocks.size() == 1 and _knocks_running >= KNOCKS_IN_A_ROW:
+		knock_choices = []
+	if not knock_choices.is_empty() and (_knock_next or randf() < share):
+		return {"entry": knock_choices[randi() % knock_choices.size()], "family": &"knock"}
+	var others := effects().filter(func(entry: Dictionary) -> bool: return not knock_files.has(entry.file))
+	var fresh := others.filter(func(entry: Dictionary) -> bool: return entry.file != _last_other)
+	# With a single other effect, it may follow itself (knocks come between).
+	var pool: Array = fresh if not fresh.is_empty() else others
+	return {} if pool.is_empty() else {"entry": pool[randi() % pool.size()], "family": &"effect"}
+
+
+## An effect sounded: the knock rules and "never the one before" go by it.
+func _remember_effect(entry: Dictionary, family: StringName) -> void:
+	_last_effect = entry.file
+	if family == &"knock":
+		_knocks_running = _knocks_running + 1 if entry.file == _last_knock else 1
+		_last_knock = entry.file
+	else:
+		_knocks_running = 0
+		_last_other = entry.file
+
+
 func _process(delta: float) -> void:
 	_since_cue += delta
 	_since_answer += delta
@@ -352,7 +456,7 @@ func _process(delta: float) -> void:
 		_settle()
 	if _effect_wait <= 0.0 and _open_wait <= 0.0:
 		_effect_wait = randf_range(settings.house_effect_gap.x, settings.house_effect_gap.y)
-		if randi() % maxi(settings.house_nothing_one_in, 1) == 0:
+		if randi() % maxi(settings.house_nothing_one_in, 1) == 0 and not _knock_next:
 			_nothing()
 		else:
 			_effect()
@@ -369,12 +473,17 @@ func _settle() -> void:
 	_sound(&"settle", stream, at, level, "")
 
 
-## One of the rare effects, never the one before.
+## One of the rare effects (most often a knock): pick_effect().
 func _effect() -> void:
-	var choices := effects().filter(func(entry: Dictionary) -> bool: return entry.file != _last_effect)
-	if choices.is_empty():
+	var picked := pick_effect()
+	_knock_next = false
+	if picked.is_empty():
 		return
-	_play_entry(&"effect", choices[randi() % choices.size()])
+	var entry: Dictionary = picked.entry
+	var family: StringName = picked.family
+	var level := knock_level_for(float(entry.lufs)) if family == &"knock" else NAN
+	if _play_entry(family, entry, Vector2.INF, level):
+		_remember_effect(entry, family)
 
 
 ## The answer: one knock from another room, closer each step.
@@ -435,7 +544,7 @@ func _play_entry(family: StringName, entry: Dictionary, at := Vector2.INF, level
 	var level := level_for(float(entry.lufs)) if is_nan(level_db) else level_db
 	if not _sound(family, stream, at, level, String(entry.get("caption", ""))):
 		return false
-	if family == &"effect":
+	if family == &"effect" or family == &"knock":
 		_after_effect(at)
 	return true
 

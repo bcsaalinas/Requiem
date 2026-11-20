@@ -129,7 +129,7 @@ func _build_controls() -> void:
 	panel.add_child(mix_status)
 	house_status = _label("", 12)
 	panel.add_child(house_status)
-	panel.add_child(_label("WASD move · Space hold breath · F light · E doors · N its knocking · Esc pause · F1 Test Lab", 12))
+	panel.add_child(_label("WASD move · Space hold breath · F light · E doors · N its knocking · J a house knock · Esc pause · F1 Test Lab", 12))
 	var controls := HBoxContainer.new()
 	controls.add_theme_constant_override("separation", 8)
 	panel.add_child(controls)
@@ -373,6 +373,11 @@ func house_hurry() -> void:
 	HouseVoice.hurry()
 
 
+## J. The house's next effect is a knock, due now (if its gates are open).
+func house_knock() -> void:
+	HouseVoice.hurry_knock()
+
+
 ## M. The exploration drone turns now instead of on its own clock: in if it is away, away if it is in.
 func turn_drone() -> void:
 	MusicDirector.turn_drone(not MusicDirector.drone_in)
@@ -443,6 +448,7 @@ func _input(event: InputEvent) -> void:
 			KEY_4: audition_catch()
 			KEY_0: play_every_set()
 			KEY_H: house_hurry()
+			KEY_J: house_knock()
 			KEY_K: house_answer()
 			KEY_M: turn_drone()
 			KEY_N: toggle_knocks()
