@@ -17,6 +17,11 @@ const VESTIBULE_A := Vector2(520, 400)
 const VESTIBULE_B := Vector2(680, 400)
 ## Far in the kitchen: the altar door is 22 u away, behind the kitchen wall.
 const KITCHEN_FAR := Vector2(150, 200)
+## The calm soak: its patrol across the vestibule, passing her and stopping right by her
+## (1.6 u), then away again. Viv stands at VESTIBULE_A.
+const SOAK_ROUTE: Array[Vector2] = [Vector2(440, 456), Vector2(552, 440), Vector2(700, 456), Vector2(552, 456)]
+const SOAK_TIME := 60.0
+const WALK := "entity/claws_walk"
 
 var failures: Array[String] = []
 var checks := 0
@@ -63,6 +68,7 @@ func _ready() -> void:
 	check_causes()
 	check_house_breach()
 	await set_up()
+	await check_calm_soak()
 	await check_read_out()
 	await check_real_jump()
 	await check_calm_and_house()
@@ -224,6 +230,50 @@ func set_up() -> void:
 	await place(far)
 
 
+## A minute of its patrol past and up to her, with the drone away: its steps, taps, breath and
+## mumbling in a silent house. It knows nothing all along, so nothing explains a sudden rise:
+## there must be none.
+func check_calm_soak() -> void:
+	var audit: Node = overlay.audit
+	MusicDirector.turn_drone(false)
+	MusicDirector.drone_wait = INF
+	var music := AudioServer.get_bus_index(AudioBus.MUSIC)
+	var deadline := now() + settings.music_drone_fade_out + 1.0
+	while now() < deadline and AudioServer.get_bus_peak_volume_left_db(music, 0) > settings.audit_floor_db - 20.0:
+		await get_tree().process_frame
+	var route: Array[Vector2] = []
+	for point in SOAK_ROUTE:
+		route.append(house + point)
+	entity.reset_encounter(route[0], route)
+	entity.show()
+	entity.active = true
+	await frames(3)
+	entity.audio.placed()
+	var audio: EntityAudio = entity.audio
+	var steps_before := int(audio.plays.get(WALK, 0))
+	var taps_before := int(audio.plays.get("entity/pat_tap", 0))
+	var said_before := int(audio.plays.get(EntityAudio.MUMBLE, 0))
+	var nearest := INF
+	var calm := true
+	audit.clear()
+	deadline = now() + SOAK_TIME
+	while now() < deadline:
+		await get_tree().process_frame
+		nearest = minf(nearest, Units.to_u(entity.global_position.distance_to(game.player.global_position)))
+		calm = calm and Dread.awareness_of(entity, audio) <= Dread.Awareness.PAUSED
+	var steps := int(audio.plays.get(WALK, 0)) - steps_before
+	print("[Jump-scare audit] calm soak, %.0f s, no drone: %d walking steps, %d taps, %d phrases, nearest %.1f u · %s · loudest %.1f dB" % [
+		SOAK_TIME, steps, int(audio.plays.get("entity/pat_tap", 0)) - taps_before, int(audio.plays.get(EntityAudio.MUMBLE, 0)) - said_before,
+		nearest, audit.summary(), audit.loudest_db])
+	for entry: Dictionary in audit.rises:
+		print("[Jump-scare audit]   +%.1f dB (%.0f to %.0f dB) on %s, after %s · %s" % [entry.jump_db, entry.from_db, entry.to_db, entry.bus, entry.sound, entry.cause])
+	check(calm and nearest < 2.0 and steps > 10, "A minute of its calm patrol, past and up to her (nearest %.1f u, %d steps heard)" % [nearest, steps])
+	check(audit.unexplained().is_empty(), "With the drone away, nothing it does calm beside her is a sudden rise: %s" % audit.summary())
+	MusicDirector.turn_drone(true)
+	await place(far)
+	audit.clear()
+
+
 ## Puts the entity somewhere, shown, active, unaware and standing still.
 func place(at: Vector2) -> void:
 	var route: Array[Vector2] = [at]
@@ -278,7 +328,7 @@ func check_read_out() -> void:
 	overlay.enabled = true
 	await place(far)
 	entity.hide()
-	await frames(3)
+	await seconds(1.0 / settings.acoustics_rate + 0.1)       # Acoustics measures 5 times a second
 	check(line(1) == "it: nothing to hear (ring 0 · clarity 0.00 · wall in the way: no)", "With no entity out, it says so: %s" % line(1))
 	entity.show()
 	await frames(2)

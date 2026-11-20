@@ -24,6 +24,13 @@ extends Node2D
 ## through the wall: they play from a holder (Heard) placed in the direction of that opening, at
 ## the distance the entity really is. What it knows is always heard from where it stands.
 ##
+## Its calm breathing is quiet and comes and goes: a spell of breathing, then a rest, so it is
+## never a steady rattle under everything (it breathes on without rests before it is shown,
+## once it has heard something, and while Viv holds her breath to listen).
+## While it knows nothing, its position sounds right beside her are held down a little
+## (position_calm_near_db, gone where ring 2 ends), so nothing it does calm is a sudden jump in a
+## silent house. Once it has heard something they are at their full level. Channel A never is.
+##
 ## Its idle voice says it is alive and unaware: a mumbled phrase now and then while it walks its
 ## patrol, trailing off when it pauses. While it searches the voice is lower and rarer, and it
 ## sniffs in short runs as it scuttles. It never speaks while it listens, screams or hunts.
@@ -121,6 +128,17 @@ var last_gap := ""
 ## dB every position sound loses on the way right now, and how exactly it is placed (0..1).
 var _reach_db := 0.0
 var _panning := 1.0
+## How calm it is for its position sounds (1 = it knows nothing, 0 = it has heard something),
+## gliding over position_calm_fade, and what that holds its sounds down by right now (dB).
+var _calm := 1.0
+var _calm_known := false
+var _calm_trim_db := 0.0
+## Its calm breathing's rhythm: resting or in a spell, how far the rest holds it down (dB), how
+## long this spell or rest still lasts, and whether something keeps it breathing right now.
+var _breath_resting := false
+var _breath_rest_db := 0.0
+var _breath_left := 0.0
+var _breath_held := false
 ## Where its position sounds (Channel B) play from: the entity itself, or behind a wall the
 ## direction of the opening its sound comes through (Acoustics), at the entity's own distance.
 var heard: Node2D
@@ -205,6 +223,7 @@ func _ready() -> void:
 	_drag_far.bus = AudioBus.ENTITY_FAR
 	_talk = _player("Talk", heard)
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
+	_start_breath_spell()
 	for index in AWARENESS_VOICES:
 		_aware.append(_player("Awareness%d" % index))
 	_knock = _player("Knock")
@@ -330,12 +349,14 @@ func reset() -> void:
 	stop_all()
 	_killed = false
 	_reach_known = false         # it was moved by hand: no glide from where it was
+	_calm_known = false
+	_start_breath_spell()
 	_heard_wait = -1.0
 	_scream_wait = -1.0
 	_exhale_covered_until = -INF
 	_sniff_run_wait = -1.0
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
-	_end_pause(true)            # a new encounter: no knock in its first moments
+	_end_pause(true)           # a new encounter: no knock in its first moments
 	if _duck_left >= 0.0:
 		_duck_left = -1.0
 		MixDirector.release(SCREAM_DUCK)
@@ -544,6 +565,8 @@ func _exit_tree() -> void:
 func placed() -> void:
 	Acoustics.remeasure(entity)
 	_reach_known = false
+	_calm_known = false
+	_start_breath_spell()
 	_tick_reach(0.0)
 
 
@@ -564,6 +587,43 @@ static func position_db(acoustic_u: float, limit_u: float) -> float:
 	if acoustic_u > fade_from:
 		level = lerpf(level, SILENT_DB, inverse_lerp(fade_from, limit_u, acoustic_u))
 	return level
+
+
+## How much a position sound is held down because it is calm (`calm`, 0..1) and near, when
+## ring 1 ends at `limit_u`: the whole of position_calm_near_db out to position_full_u,
+## shrinking evenly to nothing where ring 2 ends (ring_near_u). While she listens ring 1 reaches
+## further and that end moves out with it, so the distance curve under it keeps falling at
+## least as fast and nearer is never quieter. Further off, and once it has heard something, 0.
+static func calm_near_db(acoustic_u: float, limit_u: float, calm: float) -> float:
+	var settings := SoundSettings.current()
+	var gone_u: float = settings.ring_near_u * maxf(limit_u / settings.ring_somewhere_u, 1.0)
+	var near := 1.0 - clampf(inverse_lerp(settings.position_full_u, gone_u, acoustic_u), 0.0, 1.0)
+	return settings.position_calm_near_db * clampf(calm, 0.0, 1.0) * near
+
+
+## What its position sounds are held down by right now because it is calm and near (dB, 0 or
+## less; debug read-outs, tests).
+func calm_trim_db() -> float:
+	return _calm_trim_db
+
+
+## What every position sound loses on the way to Viv right now, all told (dB; GONE_DB when
+## nothing of it reaches her): distance, the calm trim and her own steps (debug read-outs).
+func position_level_db() -> float:
+	return _reach_db
+
+
+## Calm glides towards 1 while it knows nothing (unaware, or standing still on its patrol) and
+## towards 0 once it has heard something, over position_calm_fade. Put somewhere by hand (a
+## reset, a test), it is set at once.
+func _tick_calm(delta: float) -> void:
+	var settings := SoundSettings.current()
+	var calm_now := 1.0 if Dread.awareness_of(entity, self) <= Dread.Awareness.PAUSED else 0.0
+	if not _calm_known or settings.position_calm_fade <= 0.0:
+		_calm = calm_now
+		_calm_known = true
+	else:
+		_calm = move_toward(_calm, calm_now, delta / settings.position_calm_fade)
 
 
 ## How exactly a position sound is placed after travelling `acoustic_u`: exact in rings 3 and
@@ -653,9 +713,11 @@ func _tick_reach(delta: float) -> void:
 	var limit := reach_limit_u()
 	heard_ring = 0 if heard_u >= limit else Acoustics.ring_for(heard_u)
 	heard_clarity = Acoustics.clarity_for(heard_u)
+	_tick_calm(delta)
+	_calm_trim_db = calm_near_db(heard_u, limit, _calm)
 	_reach_db = position_db(heard_u, limit)
 	if _reach_db > GONE_DB:
-		_reach_db += masked_db()
+		_reach_db += _calm_trim_db + masked_db()
 	_panning = position_panning(heard_u, limit)
 	Dread.report_presence(self, heard_clarity if audible and listening and not GameState.is_dead else 0.0)
 	_place_heard(delta)
@@ -722,6 +784,9 @@ func _apply_reach() -> void:
 	var far_db := linear_to_db(maxf(sqrt(1.0 - heard_clarity), 0.0001))
 	for pair: Array in [[_breath, _breath_far], [_drag, _drag_far]]:
 		var level := float(pair[0].get_meta(&"level", SILENT_DB))
+		# Its calm breathing comes and goes (spells and rests); the loop runs on underneath.
+		if pair[0] == _breath and _loop_set(_breath) == BREATH_CALM:
+			level += _breath_rest_db
 		pair[0].volume_db = _heard_db(level + near_db)
 		pair[1].volume_db = _heard_db(level + far_db)
 		pair[0].panning_strength = placing()
@@ -745,6 +810,7 @@ func _process(delta: float) -> void:
 	var breathes: bool = not dead and (shown or breathes_unseen)
 	var wanted_breath := BREATH_HUNT if _state() == "HUNT" else BREATH_CALM
 	_drive_loop(_breath, _breath_far, wanted_breath if breathes and not reacting else "", delta, reacting)
+	_tick_breath_rhythm(delta, shown)
 	# The shroud drags while it moves.
 	var active: bool = entity.get(&"active") != false
 	var moving: bool = shown and active and not dead and not reacting \
@@ -755,6 +821,66 @@ func _process(delta: float) -> void:
 		_knock.stop()
 	_tick_knock(delta)
 	_apply_reach()
+
+
+## Its calm breathing comes and goes: a spell of breathing (breath_calm_spell), then it sinks
+## away over breath_calm_fade and rests (breath_calm_rest), then it comes back over the same
+## fade. The loop is never stopped for a rest, only held down, so each spell enters the take at
+## a different point. It breathes without rests while it is not shown yet (the tutorial's unseen
+## arrival), once it has heard something (near an encounter she must be able to follow it),
+## while Viv holds her breath to listen (breath_found_by_listening) and when the rest is (0, 0).
+## When any of those ends, a fresh spell begins.
+func _tick_breath_rhythm(delta: float, shown: bool) -> void:
+	var settings := SoundSettings.current()
+	var unseen := breathes_unseen and not shown
+	var alert := Dread.awareness_of(entity, self) > Dread.Awareness.PAUSED
+	var listening := settings.breath_found_by_listening and Acoustics.focus > 0.0
+	var never_rests := settings.breath_calm_rest.y <= 0.0
+	var glide := delta * -SILENT_DB / maxf(settings.breath_calm_fade, 0.001)
+	if unseen or alert or listening or never_rests:
+		_breath_resting = false
+		_breath_held = true
+		# Listening brings a resting breath in over the fade; otherwise it is simply there.
+		_breath_rest_db = move_toward(_breath_rest_db, 0.0, glide) if listening and not (unseen or alert) else 0.0
+		return
+	if _breath_held:
+		_breath_held = false
+		_start_breath_spell(false)      # a fresh spell; a level still coming in goes on gliding
+	_breath_left -= delta
+	if _breath_left <= 0.0:
+		_breath_resting = not _breath_resting
+		_breath_left = _between(settings.breath_calm_rest if _breath_resting else settings.breath_calm_spell)
+	_breath_rest_db = move_toward(_breath_rest_db, SILENT_DB if _breath_resting else 0.0, glide)
+
+
+## A spell of calm breathing starts now; `at_once`: at its full level at once (it was put
+## somewhere by hand, or an encounter was reset), otherwise from where its fade has it.
+func _start_breath_spell(at_once := true) -> void:
+	_breath_resting = false
+	if at_once:
+		_breath_rest_db = 0.0
+	_breath_left = _between(SoundSettings.current().breath_calm_spell)
+
+
+## True while its calm breathing rests (sinking away, or away).
+func breath_resting() -> bool:
+	return _breath_resting
+
+
+## How far its calm breathing is held down by its rhythm right now (0 in a spell, down to
+## SILENT_DB in a rest), and how long this spell or rest still lasts (debug read-outs, tests).
+func breath_rest_db() -> float:
+	return _breath_rest_db
+
+
+func breath_left() -> float:
+	return _breath_left
+
+
+## True while something keeps its calm breathing going with no rests (not shown yet, it has
+## heard something, she holds her breath to listen, or rests are off).
+func breath_held() -> bool:
+	return _breath_held
 
 
 ## The idle voice. `silent`: it is listening, screaming, catching, hidden, inactive or dead.

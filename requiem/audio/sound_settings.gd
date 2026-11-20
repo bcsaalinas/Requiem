@@ -352,9 +352,15 @@ static func current() -> SoundSettings:
 @export_range(0.0, 0.3, 0.01) var set_pitch_range := 0.06
 ## Each time a set plays, its level moves at random by up to this much either way.
 @export_range(0.0, 6.0, 0.1, "suffix:dB") var set_volume_range_db := 2.0
-## What the game adds to a set when it plays, in dB. Sharp clicks and thuds cannot be made
-## loud enough in the file without squashing them (assets/audio/SOUND_SETS.md, "Make-up"), so
-## the difference is made up here. Any set can be listed to turn it up or down.
+## What the game adds to a set when it plays, in dB: more than 0 turns it up, less turns it
+## down. Sharp clicks and thuds cannot be made loud enough in the file without squashing them
+## (assets/audio/SOUND_SETS.md, "Make-up"), so the difference is made up here; a set that is
+## too present is turned down here the same way. Any set can be listed.
+## The entity's calm breathing (entity/breath_calm) is turned down so it sits well under its
+## mumbled phrases instead of covering them; towards 0 it is louder (0 is its file level).
+## Its walking claw steps (entity/claws_walk) stay at their file level: with the calm trim
+## (position_calm_near_db) a step right beside Viv in a silent house is not a sudden jump. List
+## "entity/claws_walk" here with a value below 0 to turn them down.
 @export var set_gain_db := {
 	"entity/neck_click": 6.0,
 	"entity/foot_slam": 5.0,
@@ -362,6 +368,7 @@ static func current() -> SoundSettings:
 	"entity/cloth_fall": 8.5,
 	"entity/catch_grab": 1.5,
 	"entity/claws_run": 0.5,
+	"entity/breath_calm": -8.0,
 	# Sounds that came in with the Hacienda, as recorded (not yet through tools/audio/prepare_sounds.py).
 	# The bite that ends a catch (entity/kill): about as loud as the grab before it.
 	"entity/kill": -1.0,
@@ -375,6 +382,20 @@ static func current() -> SoundSettings:
 ## Level change of single animation cues that reuse another cue's set: the grope while it
 ## scuttles is a softer scrape, the idle tick a much softer tap.
 @export var cue_gain_db := {"claw_grope": -4.0, "claw_tick": -8.0}
+## Its calm breathing (while it knows nothing) does not play all the time: it breathes for a
+## spell of this long (shortest, longest)...
+@export var breath_calm_spell := Vector2(6.0, 12.0)
+## ...then sinks away and rests this long (shortest, longest), then breathes again. Longer
+## rests: it breathes less often. (0, 0) = it never rests: it breathes all the time, as before.
+@export var breath_calm_rest := Vector2(10.0, 22.0)
+## How slowly it sinks away into a rest and comes back from one. Slow on purpose, so its return
+## is never a sudden rise. Its loop keeps running underneath, so each spell starts at a
+## different point of the take.
+@export_range(0.1, 6.0, 0.1, "suffix:s") var breath_calm_fade := 2.0
+## On: while Viv holds her breath to listen, a rest ends (over breath_calm_fade) and it keeps
+## breathing at least as long as she holds, so listening always finds it. Off: its rests ignore
+## her. (It breathes without rests anyway before it is shown and once it has heard something.)
+@export var breath_found_by_listening := true
 ## How long its breath and drag loops take to fade in or out.
 @export_range(0.0, 2.0, 0.01, "suffix:s") var loop_fade := 0.2
 ## Above this speed it counts as moving, and its shroud drags.
@@ -392,6 +413,18 @@ static func current() -> SoundSettings:
 @export_range(0.3, 3.0, 0.05) var position_falloff := 1.0
 ## Over the last stretch before ring 1 ends they fade to nothing, so nothing pops in or out.
 @export_range(0.0, 8.0, 0.25, "suffix:u") var position_fade_u := 2.0
+## While it knows nothing (unaware, or standing still on its patrol), its position sounds right
+## beside her are held down by this much, so a tap in a silent house is near, not a jump. The
+## difference shrinks with distance and is gone where ring 2 ends (ring_near_u); a room away
+## nothing changes. While she holds her breath to listen that edge moves out with ring 1
+## (listen_reach_factor), as the rest of the distance curve does, so nearer is never quieter.
+## Once it has heard something its sounds are at their full level. 0 = off; no lower than
+## about -7.5, or nearer would be quieter than further.
+## The default is the smallest that keeps every calm sound beside her under the jump-scare
+## audit's threshold, also while she holds her breath (testing/regression/test_calm_beside_her).
+@export_range(-7.5, 0.0, 0.5, "suffix:dB") var position_calm_near_db := -6.5
+## How long that holding down takes to come and to go when it stops or starts being calm.
+@export_range(0.0, 5.0, 0.05, "suffix:s") var position_calm_fade := 1.0
 ## The way is measured 5 times per second; in between, what is heard glides over this long.
 @export_range(0.0, 2.0, 0.01, "suffix:s") var position_smooth := 0.25
 ## Blur: below this clarity a single sound (a step, a tap, a phrase) plays on the far,

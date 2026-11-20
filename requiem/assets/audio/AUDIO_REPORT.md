@@ -1,6 +1,6 @@
 # Requiem — Audio report
 
-The sound system of the brief, Steps 1 to 18, on the branch `audio/sound-system`. Nothing is pushed.
+The sound system of the brief, Steps 1 to 18, on the branch `audio/sound-system`, and one follow-up (19 November 2026: the entity's calm breathing quieter and coming and going, everything calm softer right beside her; marked **Follow-up** below). Nothing is pushed.
 
 How to read it. "Viv" is the player. "The entity" is the blind creature. Distances are in units: 1 u = 32 px, about one step and a half. Levels are in dB (decibels: 6 dB is about twice as loud, 10 dB sounds about twice as loud to the ear, 18 dB is a big jump). LUFS is a measure of how loud a sound feels over its whole length (−12 LUFS is loud, −32 LUFS is a whisper). "Set" means one folder of sounds under `assets/audio/`: the game picks one file of the folder at random each time, never the same one twice in a row.
 
@@ -88,6 +88,13 @@ Each line: what was chosen, and how to change it. Values named here are in `audi
 | 16 | Holding her breath mid-prayer starts listening from where the prayer has the house (no jump from 900 Hz to open and back). | — |
 | 17 | "A short window" = 40 s between two answered loud things; "a quiet minute" = 60 s. "A little closer" = the farthest allowed place that is nearer than the last answer. The level limit rises −26 → −22 LUFS with the step; the knock is only turned down to it, never up. | `house_escalate_window`, `house_escalate_reset`, `house_escalate_steps`, `house_escalate_max_lufs`. |
 | 17 | The door "found ajar" is only drawn 20 % open, never really opened (`level/door/door.gd` untouched), so it stays shut for bodies, light and the entity. Its creak is `creak_02` at the house level; the entity cannot hear it. Once per run: a retry is not a new run. On by default, half the times after an effect. | `house_ajar`, `house_ajar_chance`, `house_ajar_swing`, `house_ajar_delay`. |
+| follow-up | "The teeth-chattering sound" is its **calm breathing loop** (`entity/breath_calm`), as you said. (A first version of this follow-up read it as the walking claw steps and made them quieter and sparser; that was undone: every walking step sounds again.) | — |
+| follow-up | Its calm breathing plays **8 dB quieter** (`set_gain_db` `"entity/breath_calm": -8.0`), about 8 dB under a mumbled phrase. Its hunting breath is not touched. | `set_gain_db`. |
+| follow-up | Its calm breathing **comes and goes**: it breathes for a spell of 6 to 12 s, sinks away over 2 s, rests 10 to 22 s, and comes back over 2 s. The loop keeps running underneath, so each spell starts at a different point of the 7.7 s take and the same breaths do not come round in the same order. | `breath_calm_spell`, `breath_calm_rest` ((0, 0) = never rests), `breath_calm_fade`. |
+| follow-up | It breathes **without rests** before it is shown (the tutorial's unseen arrival depends on hearing it), once it has heard something and while it searches (near an encounter she must be able to follow it), and **while Viv holds her breath to listen** (a rest ends over 2 s and it breathes as long as she holds, then a full spell): so listening always finds it. A new placing or a new encounter starts with a spell, and so does becoming calm again after a search. Listening, screaming and catching still cut it at once, as before. | `breath_found_by_listening`. |
+| follow-up | **Softer right beside her, calm only**: while it knows nothing, everything it sounds where it is (steps, taps, mumbling, breathing, drag) is held down 6.5 dB right beside her, shrinking to nothing where ring 2 ends (9 u; 11.7 u while she holds her breath, so nearer is never quieter). Once it has heard something they are at full level. The heard-you cue, scream, lost and stand-down are never held down. | `position_calm_near_db` (0 = off), `position_calm_fade`. |
+| follow-up | −6.5 dB is the smallest 0.5 dB step that keeps every calm sound beside her at least 1 dB under the audit's threshold, holding her breath included. The mumbled phrases decide it (a chuckle, `entity_mumble_chuckle_02.wav`). | — |
+| follow-up | **The walking claw steps keep their file level.** Measured over a resting breath, with the 6.5 dB beside her, a full-level step rises at most about 14.7 dB, under the rule, so no turning down was needed (a room away, its steps are how she follows it). | `set_gain_db` (add `"entity/claws_walk"` below 0 to turn them down). |
 | 18 | Off by default. Heard from where it stands, also through a wall (the brief says "true position"), not from the doorway like its other position sounds. Rings 2 and 1 only. One knock per pause. No animation. The 30 s first wait counts calm time (unaware, on patrol), restarting after any alert. | `entity_knocks_enabled`, `entity_knock_first`, `entity_knock_gap`, `entity_knock_door_u`, `entity_knock_db`. |
 
 ---
@@ -159,6 +166,20 @@ All 53 audio files in `tutorial/assets/audio/new_audio/` (in 27 set folders, 20 
 | `gap_chance_body` | 0.3–0.7 | In ring 1, the chance a step, tap or scrape gets through (far edge – near edge). |
 | `far_panning` | 0.35 | How exactly sounds are placed at the far edge of ring 1 (1 exact, 0 centre). |
 | `set_gain_db` | see §2 | Turn one set up or down, e.g. `"entity/pat_tap": 5.5`. |
+| `position_calm_near_db` | −6.5 dB | **Follow-up.** While it knows nothing, how much everything it sounds where it is, right beside her, is held down (gone where ring 2 ends). Closer to 0: louder beside her, but above about −6 dB its mumbled phrases beside her become sudden rises again. 0 = off. No lower than −7.5. |
+| `position_calm_fade` | 1 s | How long that holding-down takes to come and go when it stops or starts being calm. |
+
+**"Its calm breathing, its steps, its idle talk"** (groups "Sound sets", "Entity: body", "Entity: idle voice"). **Follow-up.**
+
+| Value | Now | What moving it does |
+|---|---|---|
+| `set_gain_db` → `"entity/breath_calm"` | −8 dB | How loud its calm breathing is. Towards 0: louder (0 is where it was). Further down: quieter. |
+| `breath_calm_spell` | 6–12 s | How long it breathes before it rests (shortest, longest). |
+| `breath_calm_rest` | 10–22 s | How long it rests before it breathes again. Longer: it breathes less often. (0, 0): it never rests, as before. |
+| `breath_calm_fade` | 2 s | How slowly it sinks away and comes back. Shorter is more noticeable; keep it slow so its return is never a jump. |
+| `breath_found_by_listening` | on | Holding her breath ends a rest and keeps it breathing while she holds. Off: its rests ignore her. |
+| `set_gain_db` → `"entity/claws_walk"` | not listed (0 dB) | Its walking claw steps. Add it with a value below 0 to make them quieter. |
+| `talk_interval_patrol` | 6–15 s | The wait between two mumbled phrases on its patrol. **Shorter = it talks more.** (A phrase also waits until the last one has ended plus `talk_min_gap`, 2 s.) |
 
 **"Her breathing / her listening"** (group "Viv: her body and her listening")
 
@@ -271,6 +292,23 @@ How often: in the 18 s with Viv still and the entity walking up to her with **th
 This is Step 18's finding, reproduced, with one difference: Step 18 saw it from its breathing and idle taps (`pat_tap`) while it stood; here it came almost all from its steps while it walked, and its taps did not cause one this time. Same cause: in the quietest house its near sounds rise more than 18 dB in one go. **Not fixed**: it is yours to decide (see section 9). One teleport-free way to hear it: Sound Audition, M until the read-out says "no drone", stand still on Viv's starting spot and let it walk up to her.
 For your ears: whether a claw step a metre away in a silent house feels like a scare or like the near sound the design wants.
 
+**Follow-up, 19 November 2026.** You named the sound that was too loud and too constant: its calm breathing (`entity/breath_calm`, one 7.7 s take at −24 LUFS with peaks at −2 dB, playing without a break, as loud as its mumbling). And you chose "Soften them" for the sudden rises beside her. Now its calm breathing is 8 dB quieter and comes and goes (spells of 6–12 s, rests of 10–22 s, 2 s fades), and while it knows nothing, everything it sounds right beside her is held down 6.5 dB (section 2). What was measured after the change:
+- **In the suites, every file of every sound it can make while calm**, played one by one 1.5 u from her in a silent house (drone away, its breathing in a rest), each at the top of its random level, through the game's real path (`test_calm_beside_her`). Also its breathing starting where it is put and coming back from a rest. The rule: no rise above 17 dB (the audit's 18 dB less 1 dB to spare), also while she holds her breath (it comes up 2 dB, and its breathing comes in). Without the holding-down beside her the mumbled phrases would rise about 21 dB (23 dB while she holds her breath); the steps about 21 dB. After:
+
+| Sound | Loudest file | Peak on Master | Rise | Rise while she holds her breath |
+|---|---|---|---|---|
+| walking claw steps (`entity/claws_walk`, file level) | `entity_claws_walk_01_04.wav` | −11.3 dB | 14.7 dB | 13.9 dB |
+| idle taps (`entity/pat_tap`, its `claw_tick`, 8 dB under the set) | `entity_pat_tap_01_03.wav` | −13.9 dB | 12.1 dB | 14.1 dB |
+| mumbled phrases (`entity/mumble`) | `entity_mumble_chuckle_02.wav` | −11.4 dB | 14.6 dB | 16.2 dB |
+| calm breathing starting, a whole turn of the take (`entity/breath_calm`, −8 dB) | `entity_breath_calm_01.ogg` | −21.2 dB | 4.8 dB | 5.5 dB |
+| calm breathing coming back from a rest (2 s fade) | `entity_breath_calm_01.ogg` | −24.3 dB | 1.7 dB | 1.7 dB |
+| cloth drag starting, a whole turn (`entity/drag`) | `entity_drag_01.ogg` | −19.3 dB | 6.5 dB | 8.7 dB |
+
+  (One run; readings move by a few tenths of a dB from run to run, and which step or tap file comes out loudest changes. The mumbled chuckle is always the loudest and sets the holding-down: across runs it needed 5.7–6.3 dB, so 6.0 dB failed once and 6.5 dB is set.) A note on the first version's table: there the steps were measured with the breathing playing under them at full level, and part of what was read as the steps was the breathing.
+- **A minute of its real patrol past and up to her** (nearest 1.4 u), drone away, in the suites: **no sudden rise**, loudest −12.6 dB on Master; 66 walking steps, 9 taps, 6 phrases.
+- **Live, the report's own reproduction** (Sound Audition, drone away and held away, Viv still on her starting spot, "Viv is safe" on, 172 s of its patrol): **0 sudden rises, 0 UNEXPLAINED** (before: 19 in about 3 minutes), loudest −8.8 dB on Master. Its breathing went through 5 whole spells (6.6, 8.7, 9.3, 10.5 and 11 s) and 6 rests (13.9, 14.1, 16.9, 19.6, 20.1 and 20.7 s). 239 walking steps, 14 mumbled phrases and 4 taps sounded. Beside her (0.8 u) the read-out said `position sounds: -6.5 dB (calm -6.5)` and showed the breath's state (`breath rests 16 s`, `breath on 11 s`, `breath on, held`).
+- **Holding her breath during a rest**: the breath came in (halfway after about 1 s, fully after about 3 s), with no rise logged.
+- **One encounter** (key 1): heard-you (voice +2 dB, neck click +6 dB), inhale (0 dB), scream (+3 dB) and stomp (+5 dB) at their old levels, less only what distance takes (−0.4 dB at 7 u, as before). One sudden rise, the heard-you cue, explained. Its breathing never rested from the moment it heard to the stand-down, then a fresh spell started; 74 s more beside her after the stand-down gave nothing unexplained. (With the first version of this follow-up, once, 4 unexplained rises came 10–55 s after a stand-down beside her; they never came back, then or with this version.)
 **5. Does any house sound play while the entity is alert or near?**
 Measured: no. The audit counted **0 house sounds while gated** over the whole session, and `HouseVoice.violations` stayed **0**. What `HouseVoice.gate()` said at each moment: before, settling (the next effect 108 s away); heard, "it is alert (heard)"; hunting, "it is alert (hunting)"; searching, "it is alert (searching)"; after the stand-down, "it is near (ring 3)" then "(ring 2)" as it walked off; once safe, "it only just became safe" for a few seconds. `test_house_voice` and `test_jump_scare_audit` check every gate in the suites.
 
@@ -314,6 +352,8 @@ One full run of all 30 suites (`python3 testing/run_checks.py`), 19 November 202
 | Prayer audio | 48/48 | 48/48 |
 | Entity knock | 57/57 | 57/57 |
 
+**Follow-up, 19 November 2026** (only the suites that cover the change were run, one at a time; no full run): Entity audio **60/60** (45 + 15 new: 14 for the calm breathing's level, spells, rests, fades and when it never rests, 1 that the hunting breath is untouched), Rings **82/82** (68 + 14 new: the holding-down while calm), Jump-scare audit **66/66** (64 + 2 new: a minute of its calm patrol up to her with the drone away), a new suite, Calm beside her **25/25** (`test_calm_beside_her`: every file of every calm sound beside her, normal and holding her breath, about 2½ minutes), Entity knock 57/57, Awareness 76/76 (unchanged, no check edited), Idle voice 34/34, Body audio 100/100, Tutorial 123/123 (the unseen arrival still breathes), Test Lab 120/121 (the known failure). The game's log stayed clean through the live checks.
+
 **Known failures** (they predate the audio work or sit outside it; unchanged):
 - Kiosk: "The last shot brings out the entity".
 - Sprint feedback: "Every sprint source, movement, effect and interruption scenario completes" (a script error in the test itself: `test_sprint_feedback.gd` line 253 reads `position` on a Dictionary).
@@ -331,7 +371,7 @@ One full run of all 30 suites (`python3 testing/run_checks.py`), 19 November 202
 
 **For your ears or your decision (audio):**
 
-- **Claw taps and breathing next to her (fairness, open).** With the music drone away (the house at its quietest), an unaware entity standing right next to Viv (ring 3) can rise more than 18 dB out of the quiet with its idle claw taps (`entity/pat_tap`) and its breathing; the audit logs these as UNEXPLAINED. You said of the pat_tap rise "Leave it for now". Measured again for this report: see section 7, question 4.
+- **Claw taps and breathing next to her (fairness).** **Follow-up, 19 November 2026: softened** (section 7, question 4: no calm sound beside her rises more than about 16 dB, and the 3-minute reproduction gave no rise). What was found before, kept for reference: with the music drone away (the house at its quietest), an unaware entity standing right next to Viv (ring 3) can rise more than 18 dB out of the quiet with its idle claw taps (`entity/pat_tap`) and its breathing; the audit logs these as UNEXPLAINED. You said of the pat_tap rise "Leave it for now". Measured again for this report: see section 7, question 4.
 - **The heard-you cue is loud by design.** It rises about 20–25 dB to about −1 dB peak. It is the learnable warning itself, so the audit counts it as explained; listen whether it is too much.
 - **Eli's praying** in the tutorial (`tutorial/assets/audio/prayer.wav`) was left alone: is it a "voice saying words"?
 - **The answering knock** gets nearer, not louder, because its file is already quieter than every limit (Step 17).
@@ -349,7 +389,7 @@ One full run of all 30 suites (`python3 testing/run_checks.py`), 19 November 202
 
 **New in this final check:**
 
-- **The fairness rise is wider than thought** (question 4): with the drone away, its own claw steps as it walks beside or up to her rise +18 to +21 dB (to about −5 to −8 dB peak) and are logged UNEXPLAINED, about one every few seconds while it is within 2 u. Before, this was known for its breathing and idle taps while standing. Possible directions, for you to choose (nothing was changed): a slightly lower level for its sounds in ring 3 (`position_full_u`, or `set_gain_db` for `entity/claws_walk`), the house never fully silent while it is near (a quiet bed under the drone's absence), or accept it as the intended "it is right here" and teach the audit that a near entity explains it.
+- **The fairness rise is wider than thought** (question 4). **Follow-up, 19 November 2026: done.** Its calm breathing (the sound you found too loud and constant) is 8 dB quieter and comes and goes; while it knows nothing, everything it sounds right beside her is held down 6.5 dB, gone by the end of ring 2; its steps keep their level; nothing in an encounter changed. Measured after: section 7, question 4. What was found before: with the drone away, its own claw steps as it walks beside or up to her rise +18 to +21 dB (to about −5 to −8 dB peak) and are logged UNEXPLAINED, about one every few seconds while it is within 2 u. Before, this was known for its breathing and idle taps while standing. Possible directions, for you to choose (nothing was changed): a slightly lower level for its sounds in ring 3 (`position_full_u`, or `set_gain_db` for `entity/claws_walk`), the house never fully silent while it is near (a quiet bed under the drone's absence), or accept it as the intended "it is right here" and teach the audit that a near entity explains it.
 - **Driving the tutorial's first message through the Godot connection**: a simulated E did not dismiss Eli's opening line; calling the tutorial's own `advance_dialogue` did. A tool limit, not a game fault.
 
 ---
@@ -409,7 +449,7 @@ The list comes from `git diff --stat e850ec0..HEAD`: `e850ec0` is the commit jus
 ### Development only (`testing/`, not in builds)
 - **`testing/experiments/sound_audition.gd/.tscn`** (new): the Sound Audition. **`testing/test_lab.gd`**: its button, and F3 mentions the audio read-out. **`testing/experiments/prayer_studio.gd`**: no voice, a prayer status line.
 - **`testing/tools/noise_debug.gd`**: the F3 audio read-out. **`testing/tools/jump_scare_audit.gd`** (new): the audit.
-- **Tests** — new suites (each a `.gd` + `.tscn`): `test_audio_mix`, `test_entity_audio`, `test_awareness`, `test_idle_voice`, `test_dread`, `test_acoustics`, `test_rings`, `test_body_audio`, `test_house_voice`, `test_sparse_music`, `test_jump_scare_audit`, `test_heart`, `test_prayer_audio`, `test_entity_knock`. Extended: `test_footstep_audio` (surfaces), `test_tutorial` (surfaces, longer wait for two house sounds), `test_test_lab` (the audition, the prayer studio). `testing/run_checks.py`: the new suites registered.
+- **Tests** — new suites (each a `.gd` + `.tscn`): `test_audio_mix`, `test_entity_audio`, `test_awareness`, `test_idle_voice`, `test_dread`, `test_acoustics`, `test_rings`, `test_body_audio`, `test_house_voice`, `test_sparse_music`, `test_jump_scare_audit`, `test_heart`, `test_prayer_audio`, `test_entity_knock`. Extended: `test_footstep_audio` (surfaces), `test_tutorial` (surfaces, longer wait for two house sounds), `test_test_lab` (the audition, the prayer studio). `testing/run_checks.py`: the new suites registered. **Follow-up**: `entities/entity_audio.gd` (its calm breathing comes and goes; the holding-down while calm; `breath_resting()`, `breath_rest_db()`, `breath_left()`, `breath_held()`, `calm_trim_db()`, `position_level_db()`), `audio/sound_settings.gd` (`"entity/breath_calm": -8`, `breath_calm_spell`, `breath_calm_rest`, `breath_calm_fade`, `breath_found_by_listening`, `position_calm_near_db`, `position_calm_fade`), the Sound Audition read-out, `test_entity_audio`, `test_rings`, `test_jump_scare_audit`, `test_entity_knock`, new `test_calm_beside_her`.
 
 ### Docs
 - **`assets/audio/AUDIO_REPORT.md`** (new): this report.

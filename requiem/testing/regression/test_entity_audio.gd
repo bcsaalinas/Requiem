@@ -187,6 +187,7 @@ func check_in_the_house() -> void:
 		"The old players stay silent: nothing sounds twice")
 	check(audio._voices.any(func(voice: AudioStreamPlayer2D) -> bool: return voice.global_position.distance_to(entity.global_position) < 1.0),
 		"Sounds come from where the entity is")
+	check_calm_breath()
 
 	# A noise: it freezes, its breath and drag stop at once, the head snaps.
 	heard.clear()
@@ -219,6 +220,12 @@ func check_in_the_house() -> void:
 		if count("footstep_right_hard") >= 2 and audio.breath_set() == EntityAudio.BREATH_HUNT: break
 	check(all_played("footstep_right_hard", "entity/claws_run") and count("footstep_right_hard") >= 1, "In pursuit its hard steps are running claws")
 	check(audio.breath_set() == EntityAudio.BREATH_HUNT, "While it hunts it breathes its hunting breath")
+	# Its hunting breath is not touched by the calm breathing's rests or its new level.
+	audio._breath_rest_db = EntityAudio.SILENT_DB
+	audio._apply_reach()
+	check(is_zero_approx(SoundLibrary.gain_db(EntityAudio.BREATH_HUNT)) and not audio.breath_resting()
+		and is_equal_approx(audio._breath.volume_db, audio._heard_db(float(audio._breath.get_meta(&"level")))),
+		"Its hunting breath is at its old level and never rests")
 
 	# The trail goes cold: it scuttles, gropes, and feels the floor.
 	heard.clear()
@@ -286,6 +293,108 @@ func _on_cue(cue_name: String) -> void:
 	heard.append({"cue": cue_name, "set": sets[0] if not sets.is_empty() else "", "sets": sets,
 		"gain": _started[0][1] if not _started.is_empty() else 0.0})
 	_started.clear()
+
+
+## Its calm breathing: 8 dB under its file, and it comes and goes (spells and rests, with a slow
+## fade between), except before it is shown, once it has heard something and while Viv holds
+## her breath to listen. Ticked here by hand in steps of STEP seconds (nothing else runs in
+## between), so a few minutes take no time.
+func check_calm_breath() -> void:
+	var settings := SoundSettings.current()
+	const STEP := 0.05
+	check(is_equal_approx(SoundLibrary.gain_db(EntityAudio.BREATH_CALM), -8.0) and is_equal_approx(float(audio._breath.get_meta(&"level")), -8.0),
+		"Its calm breathing plays 8 dB under its file (%.1f dB)" % float(audio._breath.get_meta(&"level")))
+	check(settings.breath_calm_spell == Vector2(6.0, 12.0) and settings.breath_calm_rest == Vector2(10.0, 22.0)
+		and is_equal_approx(settings.breath_calm_fade, 2.0) and settings.breath_found_by_listening,
+		"Spells of 6 to 12 s, rests of 10 to 22 s, a 2 s fade, and listening finds it")
+	Acoustics.focus = 0.0
+	check(Dread.awareness_of(entity, audio) <= Dread.Awareness.PAUSED, "It knows nothing")
+	audio.placed()
+	check(not audio.breath_resting() and is_zero_approx(audio.breath_rest_db()), "Placed, it starts in a spell, at once")
+	# A few minutes, calm.
+	var spells: Array[float] = []
+	var rests: Array[float] = []
+	var since := 0.0
+	var was_resting := false
+	var biggest_step := 0.0
+	var last_db := audio.breath_rest_db()
+	var fade_down := -1.0
+	var fade_up := -1.0
+	for tick in int(300.0 / STEP):
+		audio._tick_breath_rhythm(STEP, true)
+		since += STEP
+		biggest_step = maxf(biggest_step, absf(audio.breath_rest_db() - last_db))
+		last_db = audio.breath_rest_db()
+		if audio.breath_resting() != was_resting:
+			(spells if was_resting == false else rests).append(since)
+			since = 0.0
+			was_resting = audio.breath_resting()
+		if was_resting and fade_down < 0.0 and audio.breath_rest_db() <= EntityAudio.SILENT_DB:
+			fade_down = since
+		if not was_resting and not rests.is_empty() and fade_up < 0.0 and is_zero_approx(audio.breath_rest_db()):
+			fade_up = since
+	var inside := func(lengths: Array[float], span: Vector2) -> bool:
+		return lengths.all(func(length: float) -> bool: return length >= span.x - STEP * 1.5 and length <= span.y + STEP * 1.5)
+	check(spells.size() >= 5 and rests.size() >= 5, "Over five calm minutes it both breathes and rests (%d spells, %d rests)" % [spells.size(), rests.size()])
+	check(inside.call(spells, settings.breath_calm_spell) and inside.call(rests, settings.breath_calm_rest),
+		"Each spell lasts 6 to 12 s and each rest 10 to 22 s (%s; %s)" % [spells, rests])
+	check(absf(fade_down - settings.breath_calm_fade) <= STEP * 1.5 and absf(fade_up - settings.breath_calm_fade) <= STEP * 1.5
+		and biggest_step <= -EntityAudio.SILENT_DB / settings.breath_calm_fade * STEP + 0.001,
+		"It sinks away and comes back over %.0f s, never in a step (%.2f s down, %.2f s up, at most %.2f dB per %.2f s)" % [
+			settings.breath_calm_fade, fade_down, fade_up, biggest_step, STEP])
+	# In a rest, held down all the way; the loop itself goes on.
+	while not audio.breath_resting() or audio.breath_rest_db() > EntityAudio.SILENT_DB:
+		audio._tick_breath_rhythm(STEP, true)
+	audio._apply_reach()
+	check(audio.breath_set() == EntityAudio.BREATH_CALM and audio._breath.playing and audio._breath.volume_db <= EntityAudio.SILENT_DB - 8.0 + 0.01,
+		"Resting, its loop runs on, held down to silence (%.1f dB)" % audio._breath.volume_db)
+	# She holds her breath in a rest: it comes in over the fade and stays while she holds.
+	Acoustics.focus = 1.0
+	for tick in int(settings.breath_calm_fade * 0.5 / STEP):
+		audio._tick_breath_rhythm(STEP, true)
+	var halfway := audio.breath_rest_db()
+	var stayed := true
+	for tick in int((settings.breath_calm_spell.y + settings.breath_calm_rest.y) / STEP):
+		audio._tick_breath_rhythm(STEP, true)
+		stayed = stayed and not audio.breath_resting()
+	check(halfway < -1.0 and halfway > EntityAudio.SILENT_DB + 1.0 and stayed and is_zero_approx(audio.breath_rest_db()),
+		"While she holds her breath a rest ends, over the fade (%.0f dB halfway), and it breathes as long as she holds" % halfway)
+	Acoustics.focus = 0.0
+	var after_hold := 0.0
+	while not audio.breath_resting() and after_hold < 60.0:
+		audio._tick_breath_rhythm(STEP, true)
+		after_hold += STEP
+	check(after_hold >= settings.breath_calm_spell.x - STEP * 1.5 and after_hold <= settings.breath_calm_spell.y + STEP * 1.5,
+		"Once she lets go it runs on for a whole spell (%.1f s) before it rests" % after_hold)
+	# placed() and reset() start a spell at once.
+	audio.reset()
+	check(not audio.breath_resting() and is_zero_approx(audio.breath_rest_db()), "A reset starts it in a spell, at once")
+	# Never rests: rest (0, 0), before it is shown, once it has heard something.
+	var kept_rest := settings.breath_calm_rest
+	settings.breath_calm_rest = Vector2.ZERO
+	check(never_rests(STEP, true), "With a rest of (0, 0) it never rests, as before")
+	settings.breath_calm_rest = kept_rest
+	audio.breathes_unseen = true
+	check(never_rests(STEP, false), "Not shown yet (the tutorial's unseen arrival), it never rests")
+	audio.breathes_unseen = false
+	var state: int = entity.current_state
+	entity.current_state = EntityAudio.SEARCH
+	check(Dread.awareness_of(entity, audio) == Dread.Awareness.SEARCHING and never_rests(STEP, true), "Searching, it never rests")
+	entity.current_state = state
+	audio.placed()
+
+
+## Ticks its breathing for longer than any spell and rest; true if it never rested.
+func never_rests(step: float, shown: bool) -> bool:
+	var settings := SoundSettings.current()
+	audio._breath_resting = true          # even from the middle of a rest
+	audio._breath_rest_db = EntityAudio.SILENT_DB
+	var always := true
+	audio._tick_breath_rhythm(step, shown)
+	for tick in int((settings.breath_calm_spell.y + settings.breath_calm_rest.y + 5.0) / step):
+		audio._tick_breath_rhythm(step, shown)
+		always = always and not audio.breath_resting() and is_zero_approx(audio.breath_rest_db())
+	return always
 
 
 func count(cue_name: String) -> int:
