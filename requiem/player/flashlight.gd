@@ -1,5 +1,8 @@
 extends PointLight2D
 
+signal toggled(is_on: bool)
+signal toggle_rejected
+
 # Flashlight (linterna de mano del jugador)
 #
 # Es un PointLight2D con textura de cono (light_flashlight_beam_solid.png): una
@@ -153,10 +156,13 @@ func toggle() -> void:
 	if GameState.is_dead:
 		return
 	if actions != null and (not actions.has_flashlight or not actions.can_aim()):
+		toggle_rejected.emit()
 		return
 	if not is_on and battery_percent <= 0.0:
+		toggle_rejected.emit()
 		return
 	is_on = not is_on
+	toggled.emit(is_on)
 	_play_click()
 	# Solo el click del jugador hace ruido; el que suena al morir la bateria no.
 	NoiseManager.emit_noise(global_position, click_noise_radius_u * PX_PER_UNIT, NoiseManager.SourceType.FLASHLIGHT)

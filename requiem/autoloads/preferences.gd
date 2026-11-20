@@ -28,9 +28,8 @@ func load_preferences() -> void:
 	display_mode = str(config.get_value("display", "mode", DISPLAY_FILL))
 	if display_mode != DISPLAY_PIXEL_PERFECT:
 		display_mode = DISPLAY_FILL
-	turn_mode = str(config.get_value("display", "turn_mode", TURN_STEPS))
-	if turn_mode != TURN_FREE:
-		turn_mode = TURN_STEPS
+	var stored_turn_mode := str(config.get_value("display", "turn_mode", TURN_STEPS))
+	turn_mode = stored_turn_mode if stored_turn_mode in [TURN_FREE, TURN_STEPS] else TURN_STEPS
 	captions = bool(config.get_value("display", "captions", false))
 	apply_volumes()
 	apply_display()

@@ -10,6 +10,8 @@ const REGIONS := {
 	"forest": Rect2(3200, 0, 1440, 800),
 	"house": Rect2(5200, 0, 1280, 960),
 	"loop": Rect2(7200, 0, 960, 640),
+	"mansion_ground": Rect2(8800, 0, 2304, 1856),
+	"mansion_upper": Rect2(11600, 0, 2304, 1856),
 }
 
 const FriendVisual := preload("res://tutorial/friend_visual.gd")

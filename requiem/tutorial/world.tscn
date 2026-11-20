@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://dr74sv1m43cak" path="res://tutorial/zones/hallway.tscn" id="6_0cr26"]
 [ext_resource type="PackedScene" uid="uid://rxh1jsprxf5i" path="res://tutorial/zones/house.tscn" id="8_02dwp"]
 [ext_resource type="PackedScene" uid="uid://dcvofc14fr660" path="res://tutorial/zones/loop.tscn" id="9_p4681"]
+[ext_resource type="PackedScene" uid="uid://m4ns10ngr0und" path="res://tutorial/zones/mansion_ground.tscn" id="11_ground"]
+[ext_resource type="PackedScene" uid="uid://m4ns10nupp3r" path="res://tutorial/zones/mansion_upper.tscn" id="12_upper"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_5ylgn"]
 shader = ExtResource("1_i6v53")
@@ -33,3 +35,9 @@ position = Vector2(5200, 0)
 
 [node name="Loop" parent="." unique_id=936012459 instance=ExtResource("9_p4681")]
 position = Vector2(7200, 0)
+
+[node name="Mansion_Ground" parent="." unique_id=936012461 instance=ExtResource("11_ground")]
+position = Vector2(8800, 0)
+
+[node name="Mansion_Upper" parent="." unique_id=936012462 instance=ExtResource("12_upper")]
+position = Vector2(11600, 0)

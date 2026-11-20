@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://cae67e73a892f"]
+[gd_scene format=3 uid="uid://cae67e73baa2f"]
 
 [ext_resource type="Script" uid="uid://bkv8v0pfo20ws" path="res://level/props/tree.gd" id="1_tree"]
 [ext_resource type="Texture2D" path="res://assets/art/props/tree_bare_c_trunk_base.png" id="2_trunk"]

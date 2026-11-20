@@ -1,0 +1,151 @@
+[gd_scene format=3 uid="uid://cx4x0altar7m"]
+
+[ext_resource type="Script" path="res://level/props/mansion_altar.gd" id="1_altar"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_altar.png" id="2_altar_art"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_crucifix_flat.png" id="3_cross_art"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_copal_burner.png" id="4_copal_art"]
+[ext_resource type="Texture2D" uid="uid://b3esraqqb1hy1" path="res://assets/lighting/lamp_pool.tres" id="5_lamp"]
+[ext_resource type="Texture2D" path="res://assets/art/vfx/vfx_copal_smoke.png" id="6_smoke"]
+[ext_resource type="Script" path="res://level/vfx_sheet.gd" id="7_vfx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_altar"]
+size = Vector2(96, 64)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_altar"]
+closed = false
+polygon = PackedVector2Array(-48, -64, 48, -64)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pray"]
+radius = 140.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_label_bg"]
+bg_color = Color(0.06, 0.05, 0.04, 0.88)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.92, 0.68, 0.22, 0.75)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 6.0
+expand_margin_top = 3.0
+expand_margin_right = 6.0
+expand_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bg"]
+bg_color = Color(0.06, 0.06, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.32, 0.16, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.98, 0.74, 0.22, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[node name="MansionAltar" type="StaticBody2D" groups=["mansion_altar"]]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1_altar")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, -32)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_altar_art")
+
+[node name="Crucifix" type="Sprite2D" parent="."]
+position = Vector2(0, -36)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_cross_art")
+
+[node name="CopalBurner" type="Sprite2D" parent="."]
+position = Vector2(0, -13.6)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("4_copal_art")
+
+[node name="CopalSmoke" type="Sprite2D" parent="."]
+position = Vector2(0, -13.6)
+script = ExtResource("7_vfx")
+sheet = ExtResource("6_smoke")
+frame_count = 6
+frame_ms = [140, 150, 160, 170, 180, 200]
+anchor = Vector2(32, 32)
+loops = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -34)
+shape = SubResource("RectangleShape2D_altar")
+
+[node name="Occluder" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_altar")
+
+[node name="LightLeft" type="PointLight2D" parent="."]
+position = Vector2(-52, -45)
+color = Color(1, 0.72, 0.28, 1)
+energy = 1.6
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("5_lamp")
+texture_scale = 1.6
+
+[node name="LightRight" type="PointLight2D" parent="."]
+position = Vector2(52, -45)
+color = Color(1, 0.72, 0.28, 1)
+energy = 1.6
+shadow_enabled = true
+shadow_filter = 1
+shadow_filter_smooth = 1.5
+texture = ExtResource("5_lamp")
+texture_scale = 1.6
+
+[node name="LightCenter" type="PointLight2D" parent="."]
+position = Vector2(0, -50)
+color = Color(1, 0.65, 0.2, 1)
+energy = 1.5
+texture = ExtResource("5_lamp")
+texture_scale = 2.0
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 1
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_pray")
+
+[node name="Label" type="Label" parent="."]
+z_index = 10
+offset_left = -96.0
+offset_top = -160.0
+offset_right = 96.0
+offset_bottom = -132.0
+theme_override_colors/font_color = Color(1, 0.9, 0.65, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 14
+theme_override_styles/normal = SubResource("StyleBoxFlat_label_bg")
+text = "E  ·  Rezar (Mantener)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+z_index = 10
+offset_left = -65.0
+offset_top = -124.0
+offset_right = 65.0
+offset_bottom = -110.0
+theme_override_styles/background = SubResource("StyleBoxFlat_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
+step = 0.1
+show_percentage = false

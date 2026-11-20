@@ -122,6 +122,11 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 # Author handles and titles preserved from audio filenames referenced by runtime scenes.
 const AUDIO := [
+	["drotzruhn · Freesound · CC BY 4.0", "whisper ave maria in Swedish for georden_west · 12 s excerpt, normalized and faded · freesound.org/s/448704/"],
+	["WakuWakuWakuWaku · CC0", "Wooden Chest Lid Open · normalized · sfxfree.com/audio/fs-422975"],
+	["Sclolex · Freesound · CC0", "ZombieEatingFlesh · capture sound layer"],
+	["aust_paul · Freesound · CC0", "rip_tear FLESH! · capture sound layer"],
+	["Ogrebane · OpenGameArt · CC0", "Monster Sound Effects Pack · state vocal cues"],
 	["juane170058", "Room tone ambiance in empty warehouse"],
 	["ianstargem", "Spook wind ambience"],
 	["owlstorm", "Night crickets ambience on rural property"],
@@ -131,4 +136,8 @@ const AUDIO := [
 	["thesoundfxguy_yt", "Piano jump scare stinger"],
 	["joedeshon", "Alarm clock ringing 01"],
 	["freesound_community · Pixabay", "Concrete footsteps 1 · edited into footstep samples"],
+	["NBJDLukasAbsolute · OpenGameArt · CC0", "Chase - Diamond Dust · pursuit music"],
+	["Iochi Glaucus · OpenGameArt · CC0", "Fabric Rustling · edited into soft pickup foley variations"],
+	["Spring Spring · OpenGameArt · CC0", "Various Sound Effects · snd_throw1 · stone launch"],
+	["pauliuw · OpenGameArt · CC0", "Gun reload, lock or click sound · edited for flashlight battery insertion"],
 ]

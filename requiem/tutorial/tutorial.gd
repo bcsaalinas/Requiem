@@ -68,6 +68,8 @@ const ZONE_AMBIENCE_PATHS := {
 	"forest": "res://assets/audio/320145__owlstorm__night-crickets-ambience-on-rural-property.wav",
 	"house": "res://assets/audio/410746__simo170075__basement-ambience.wav",
 	"loop": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+	"mansion_ground": "res://assets/audio/410746__simo170075__basement-ambience.wav",
+	"mansion_upper": "res://assets/audio/410746__simo170075__basement-ambience.wav",
 }
 ## What Viv walks on in each zone. Her steps take their sounds from the set of that surface
 ## (assets/audio/viv/steps_wood/, steps_forest/); see player/footstep_audio.gd.
@@ -77,6 +79,8 @@ const ZONE_SURFACE := {
 	"forest": &"forest",
 	"house": &"wood",
 	"loop": &"wood",
+	"mansion_ground": &"wood",
+	"mansion_upper": &"wood",
 }
 ## Compensacion de volumen POR PISTA (no por zona: house/loop comparten
 ## archivo y compensacion). Cada archivo real trae un nivel de grabacion muy
@@ -96,6 +100,8 @@ const ZONE_AMBIENCE_VOLUME_DB := {
 	"forest": -11.5,
 	"house": 3.5,
 	"loop": 3.5,
+	"mansion_ground": 3.5,
+	"mansion_upper": 3.5,
 }
 ## Sounds the player makes; the parents and the forest only react to these.
 const PLAYER_SOUNDS := [NoiseManager.SourceType.FOOTSTEP, NoiseManager.SourceType.SPRINT,
@@ -109,9 +115,21 @@ const PARENT_FILL_ENERGY := 1.0
 ## the step's reach (walking 3 u: 72 px; held 1 u: 24 px), so holding the breath visibly settles it.
 const HALL_STIR_MARGIN := 0.75
 ## Doors that lead to another zone when the player walks through the open doorway.
-const ZONE_DOORS := ["bedroom_exit", "hall_back", "hall_exit", "forest_back", "front_door"]
+const ZONE_DOORS := ["bedroom_exit", "hall_back", "hall_exit", "forest_back", "front_door", "loop_end"]
+## The Hacienda: the first night after the tutorial, on two floors joined by the stairs.
+const MANSION_ZONES := ["mansion_ground", "mansion_upper"]
+## Where its patrol starts on each floor, how many patrol points the floor has, and how long it
+## waits before it starts to move once she arrives (seconds).
+const MANSION_ENTITY := {
+	"mansion_ground": {"spawn": "EntitySpawn", "points": 8, "grace": 6.0},
+	"mansion_upper": {"spawn": "Patrol1", "points": 6, "grace": 4.0},
+}
+## Beyond the end of the forest trail she simply walks on to the house: this far past the last
+## petals (px, along the trail) the forest hands over without a key press.
+const FOREST_EXIT_REACH := 40.0
+const FieldMap := preload("res://tutorial/field_map.gd")
 @export_category("Entry")
-@export_enum("bedroom", "hallway", "forest", "house", "loop") var start_zone: String = "bedroom"
+@export_enum("bedroom", "hallway", "forest", "house", "loop", "mansion_ground", "mansion_upper") var start_zone: String = "bedroom"
 @export_group("Validation")
 @export var test_mode := false
 @onready var world: Node2D = $TutorialWorld
@@ -124,6 +142,12 @@ var flashlight: PointLight2D
 @onready var prayer_audio: AudioStreamPlayer2D = $PrayerAudio
 @onready var heard_flash: Node2D = $NoiseFx/HeardFlash
 @onready var film: ColorRect = $Atmosphere/Film
+## The always-visible minimap and what it has seen (tutorial/field_map.gd).
+var field_map: Node
+## Counts down after she arrives on a Hacienda floor; at zero the entity there starts to move.
+var mansion_grace := 0.0
+## 1 the moment it starts to hunt, easing back to 0: the screen's jolt (Atmosphere film).
+var hunt_intro_effect := 0.0
 var zone := "bedroom"
 var stage := "ki"
 var has_flashlight: bool:
@@ -224,6 +248,7 @@ var _sounds: Dictionary = {}
 
 func _enter_tree() -> void:
 	GameState.reset()
+	GameState.reset_progress()
 	PixelDisplay.attach_world_layer($Atmosphere)
 
 func _ready() -> void:
@@ -240,6 +265,7 @@ func _ready() -> void:
 	breath._bar_layer.hide()
 	thrower.rock_landed.connect(_on_rock_landed)
 	thrower.object_released.connect(func(): has_thrown=true)
+	entity.state_changed.connect(_on_entity_state_changed)
 	MusicDirector.bind_gameplay(entity, breath)
 	flashlight=player.get_node("flashlight")
 	has_flashlight=false
@@ -248,6 +274,15 @@ func _ready() -> void:
 	flashlight._bar_layer.hide()
 	flashlight.set_process(false)
 	flashlight.set_process_unhandled_input(false)
+	flashlight.toggled.connect(func(_on: bool) -> void: hud.pulse_slot("flashlight"))
+	flashlight.toggle_rejected.connect(func() -> void:
+		if batteries <= 0: hud.reject_slot("flashlight"))
+	GameState.altar_completed.connect(_on_altar_prayed)
+	GameState.all_altars_completed.connect(_on_all_altars_prayed)
+	for stairs_id: String in ["stairs_to_upper", "stairs_to_ground"]:
+		if world.interactables.has(stairs_id):
+			var stairs := world.interactables[stairs_id]["node"] as Area2D
+			if stairs != null: stairs.body_entered.connect(_on_stairs_entered.bind(stairs_id))
 	entity.caught.connect(_caught)
 	world.zones["forest"].get_node("Ranger").caught.connect(_on_ranger_caught)
 	world.zones["forest"].get_node("Ranger").spotted.connect(_on_ranger_spotted)
@@ -297,7 +332,11 @@ func _ready() -> void:
 	prayer_audio.global_position=friend_home
 	# A new game (a retry after death is not): the house may leave a door ajar once again.
 	HouseVoice.begin_run()
+	field_map = FieldMap.new()
+	field_map.name = "FieldMap"
+	add_child(field_map)
 	enter_zone(start_zone)
+	field_map.bind_game(self)
 	if not test_mode:
 		show_dialogue([
 			"ELI: I'm at my aunt's old house. Follow the petals. Bring a light.",
@@ -341,7 +380,8 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	zone=next_zone
 	ambient_reply_cooldown=0
 	world.set_house_danger(attack_finished)
-	var start_markers:={"bedroom":"SpawnStart","hallway":"SpawnFromBedroom","forest":"SpawnFromHome","house":"SpawnFromForest","loop":"SpawnFromHouse"}
+	var start_markers:={"bedroom":"SpawnStart","hallway":"SpawnFromBedroom","forest":"SpawnFromHome","house":"SpawnFromForest","loop":"SpawnFromHouse",
+		"mansion_ground":"SpawnEntrance","mansion_upper":"SpawnFromStairs"}
 	if spawn==Vector2.INF:
 		spawn=world.marker(zone,start_markers[zone])
 	player.position=spawn
@@ -358,7 +398,8 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	player.get_node("PlayerMotion").reset_pose()
 	player.get_node("PlayerAim").reset_pose()
 	_frame_camera()
-	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu"}
+	var stage_for_zone:={"bedroom":"ki","hallway":"ki","forest":"sho","house":"ketsu" if attack_finished else "ten","loop":"ketsu",
+		"mansion_ground":"ketsu","mansion_upper":"ketsu"}
 	stage=stage_for_zone[zone]
 	stage_changed.emit(stage)
 	var zone_stream := load(ZONE_AMBIENCE_PATHS[zone]) as AudioStream
@@ -373,6 +414,13 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 	_configure_entity()
 	_enter_house_voice()
 	_sync_altar_door_glow()
+	# The minimap changes sheet with her, at once (not on its next sample).
+	if field_map != null and field_map.sheet != null:
+		field_map.selected = zone
+		field_map.record_position()
+	hud.show_altars_tracker(zone in MANSION_ZONES)
+	if zone in MANSION_ZONES:
+		hud.set_altars_count(GameState.altars_completed, GameState.total_altars)
 	world.zones["forest"].get_node("Ranger").active = zone == "forest"
 	if zone == "forest":
 		world.zones["forest"].get_node("Ranger").reset_patrol()
@@ -396,6 +444,7 @@ func _configure_entity() -> void:
 	entity.set_breathing(false)
 	MusicDirector.clear_entity_threat()
 	encounter_grace=0.0
+	mansion_grace=0.0
 	arrival_place=Vector2.INF
 	world.props["friend"].visible = not attack_finished
 	# The opening forest and impossible room suggest a presence through spatial sound.
@@ -413,6 +462,17 @@ func _configure_entity() -> void:
 		unease_reply=-1
 		# With the key already in her pocket (a retry) it is on its way at once.
 		if has_key: _begin_presence()
+	elif zone in MANSION_ZONES:
+		# In the Hacienda it is there from the start: it stands where its patrol begins and
+		# starts to walk it a few seconds after she arrives.
+		var floor_plan: Dictionary = MANSION_ENTITY[zone]
+		var mansion_points: Array[Vector2] = []
+		for index in range(1, int(floor_plan["points"]) + 1):
+			mansion_points.append(world.marker(zone, "Patrol%d" % index))
+		entity.reset_encounter(world.marker(zone, String(floor_plan["spawn"])), mansion_points)
+		entity.get_node("CollisionShape2D").set_deferred("disabled", false)
+		entity.show()
+		mansion_grace = float(floor_plan["grace"])
 
 ## Its own sounds start: the heard phase, which ends with it standing in the house.
 func _begin_presence() -> void:
@@ -530,6 +590,8 @@ func _process(delta: float) -> void:
 	hud.battery.value=flashlight.battery_percent
 	hud.update_inventory(has_flashlight,batteries,thrower.rocks)
 	hud.set_key(has_key and not key_used)
+	hud.update_equipment_state(flashlight.is_on, flashlight.battery_percent, batteries, thrower.rocks, thrower.get_cooldown_fraction())
+	hunt_intro_effect = move_toward(hunt_intro_effect, 0.0, delta * 1.5)
 	if not dialogue.is_empty(): hud.place_prompt(Vector2.ZERO,true)
 	HouseVoice.story_holds=house_story()
 	if not dialogue.is_empty() or resetting: return
@@ -540,7 +602,14 @@ func _process(delta: float) -> void:
 	if encounter_grace>0: _tick_heard_phase(delta)
 	elif in_unease(): _tick_unease(delta)
 	if arrival_place!=Vector2.INF: _tick_arrival(delta)
+	if mansion_grace > 0.0:
+		mansion_grace -= delta
+		if mansion_grace <= 0.0 and zone in MANSION_ZONES and not complete and entity.visible:
+			entity.active = true
 	if zone=="hallway": _tick_hallway(delta)
+	if zone == "forest" and _past_forest_exit():
+		_leave_forest()
+		return
 	if zone=="forest" and not forest_cued and player.position.x>3500:
 		forest_cued=true
 		caption("[Branch snaps]")
@@ -577,7 +646,7 @@ func _update_key_hint(delta: float) -> void:
 	elif thrower.rocks>0 and not has_thrown: text="Q · Throw"
 	elif zone=="forest" and not has_sprinted and sprint_hint_time>0: text="SHIFT · Sprint"
 	elif flash_hint_time>0: text="F · Light"
-	hud.show_key_hint(text, get_canvas_transform()*player.global_position)
+	hud.show_key_hint(text, PixelDisplay.world_to_ui(player.global_position))
 
 ## On the porch, pointed at the window, a stone in hand, the glass still whole.
 func _window_throw_ready() -> bool:
@@ -752,7 +821,7 @@ func _find_interaction() -> void:
 		var drawn_pickup: bool = target.has_method("is_pickup") and target.is_pickup()
 		var pickup: bool = drawn_pickup or interaction_label(nearest)=="Take"
 		var anchor: Vector2 = target.get_prompt_anchor() if drawn_pickup else world.interactables[nearest]["position"]
-		hud.place_prompt(get_canvas_transform()*anchor,false,pickup)
+		hud.place_prompt(PixelDisplay.world_to_ui(anchor),false,pickup)
 
 func _prompt_without_key(id: String) -> bool:
 	var node: Node = world.interactables[id]["node"]
@@ -784,6 +853,7 @@ func interact(id: String) -> void:
 	if target.get_script() == Chest:
 		_open_chest(id,target)
 		return
+	if zone in MANSION_ZONES and _interact_mansion(id, target): return
 	match id:
 		"abuela_note":
 			show_dialogue(["My dear, I left the flashlight beside this note. Remember to turn it off when you do not need it. — Abuela"] )
@@ -831,13 +901,7 @@ func interact(id: String) -> void:
 				play_sound("pickup",player.position)
 				_animate_rocks(world.interactables[id]["node"].global_position)
 			stone_hint_seen = true
-		"forest_exit":
-			var ranger = world.zones["forest"].get_node("Ranger")
-			# A stone or good timing both get her here; only a ranger on her heels shuts the way.
-			if ranger.chasing:
-				say("Not with him right behind me.", 4.0)
-				return
-			enter_zone("house")
+		"forest_exit": _leave_forest()
 		"ranger":
 			say("RANGER: This trail is closed tonight. Head back home.", 5.0)
 		"house_back":
@@ -895,19 +959,10 @@ func interact(id: String) -> void:
 			],_begin_attack)
 		"loop_back": pass
 		"loop_end":
-			if not complete:
-				complete=true
-				entity.active=false
-				encounter_grace=0
-				tutorial_completed.emit()
-				# The last door opens onto more darkness.
-				(world.interactables[id]["node"] as Door).open(breath.is_holding)
-				say("There has to be another way out.",9)
-				play_sound("impossible",player.position,-14)
-				caption("[The house shifts]")
-				sequence="ending"
-				sequence_time=0
-				sequence_step=0
+			# The last door of the impossible hallway: beyond it is the Hacienda.
+			var last_door: Door = world.interactables[id]["node"]
+			if last_door.is_open: _go_through(id)
+			else: _use_door(last_door)
 
 ## Trunks: a lid, a creak that can be heard, and something inside (or nothing).
 func _open_chest(id: String, chest: Node2D) -> void:
@@ -1068,7 +1123,7 @@ func _on_rock_landed(at: Vector2) -> void:
 ## The screen closes in as the hunting entity comes near. Only while it hunts: then its breathing
 ## is already loud, so the vignette never gives away a silent patrol behind a wall.
 func _update_threat_presentation() -> void:
-	var hunting_house: bool = zone=="house" and entity.active and entity.visible \
+	var hunting_house: bool = (zone=="house" or zone in MANSION_ZONES) and entity.active and entity.visible \
 		and entity.get_state_name()=="HUNT"
 	var pressure := 0.0
 	if hunting_house:
@@ -1076,6 +1131,12 @@ func _update_threat_presentation() -> void:
 		pressure = 1.0-smoothstep(2.0*Units.PX_PER_UNIT,10.0*Units.PX_PER_UNIT,distance)
 	threat_pressure = lerpf(threat_pressure,pressure,0.08)
 	(film.material as ShaderMaterial).set_shader_parameter("pressure",threat_pressure)
+	(film.material as ShaderMaterial).set_shader_parameter("hunt_intro",hunt_intro_effect)
+
+## The moment it starts to hunt the screen jolts once (Atmosphere film, hunt_intro).
+func _on_entity_state_changed(_previous: int, current: int) -> void:
+	if entity.get_state_name() == "HUNT":
+		hunt_intro_effect = 1.0
 
 ## Shown on the capture screen: the sound that gave the player away.
 func game_over_cause() -> String:
@@ -1406,6 +1467,13 @@ func _go_through(id: String) -> void:
 		"hall_exit":
 			enter_zone("forest",Vector2.INF,true,"forest_back")
 		"forest_back": enter_zone("hallway",world.marker("hallway","SpawnFromForest"),true,"hall_exit")
+		"loop_end":
+			# Everything she carries (light, batteries, stones) stays with her: it is one game.
+			tutorial_completed.emit()
+			enter_zone("mansion_ground",world.marker("mansion_ground","SpawnEntrance"),true,"mansion_main_porton")
+			play_sound("impossible",player.position)
+			caption("[The house shifts]")
+			say("This isn't outside either.",6)
 	door.snap(false)
 
 ## Arriving through a door: it is open behind the player and swings shut once they step away.
@@ -1577,3 +1645,90 @@ func _tick_ranger_checkpoint() -> void:
 	# He keeps walking his beat: putting him back at his post here would jump his light.
 	ranger.active = true
 	forest.get_node("ThrowTarget").show()
+
+## The end of the forest trail: past the last petals she walks on to the house by herself.
+func _past_forest_exit() -> bool:
+	if resetting or not dialogue.is_empty() or not world.interactables.has("forest_exit"): return false
+	var exit_at: Vector2 = world.interactables["forest_exit"]["position"]
+	return player.global_position.x >= exit_at.x + FOREST_EXIT_REACH
+
+## Leaving the forest for the house, by walking on or with the prompt. Only a ranger on her
+## heels shuts the way: a stone or good timing both get her here.
+func _leave_forest() -> void:
+	var ranger = world.zones["forest"].get_node("Ranger")
+	if ranger.chasing:
+		if subtitle_time <= 0.0: say("Not with him right behind me.", 4.0)
+		return
+	enter_zone("house")
+
+## The Hacienda's own interactions. True when `id` was one of them.
+func _interact_mansion(id: String, target: Node) -> bool:
+	if id == "mansion_main_porton":
+		var porton := target as Door
+		if GameState.altars_completed < GameState.total_altars:
+			say("Sealed from the outside. The seven altars have to be prayed at first.", 5.0)
+			play_sound("door", player.position)
+			caption("[The gate rattles]")
+		elif not complete:
+			complete = true
+			entity.active = false
+			mansion_grace = 0.0
+			porton.locked = false
+			porton.open(breath.is_holding)
+			say("The seal is broken.", 8.0)
+			sequence = "ending"
+			sequence_time = 0
+			sequence_step = 0
+		return true
+	if id.begins_with("stairs_to_"):
+		_take_stairs(id)
+		return true
+	if id.begins_with("altar_"):
+		say("Hold E to pray at the altar.", 4.5)
+		return true
+	if target is Door:
+		_use_door(target as Door)
+		return true
+	if id.begins_with("battery_"):
+		batteries += 1
+		collect(id)
+		if has_flashlight and flashlight.battery_percent <= 0: insert_battery()
+		return true
+	if id.begins_with("rocks_"):
+		if thrower.rocks < 3:
+			thrower.rocks = mini(3, thrower.rocks + 3)
+			play_sound("pickup", player.position)
+			_animate_rocks(target.global_position)
+		return true
+	return false
+
+## Stairs join the two floors: stepping onto them (or the prompt) takes her to the other one.
+func _on_stairs_entered(body: Node2D, id: String) -> void:
+	if body == player and not resetting and dialogue.is_empty():
+		_take_stairs.call_deferred(id)
+
+func _take_stairs(id: String) -> void:
+	if resetting: return
+	if id == "stairs_to_upper" and zone == "mansion_ground":
+		enter_zone("mansion_upper", world.marker("mansion_upper", "SpawnFromStairs"))
+	elif id == "stairs_to_ground" and zone == "mansion_upper":
+		enter_zone("mansion_ground", world.marker("mansion_ground", "SpawnFromUpper"))
+	else:
+		return
+	play_sound("door", player.position)
+	caption("[Stairs creak]")
+
+func _on_altar_prayed(altar_node: Node) -> void:
+	hud.set_altars_count(GameState.altars_completed, GameState.total_altars)
+	play_sound("switch", player.position, 2.0)
+	say("The offering is lit. (%d / %d)" % [GameState.altars_completed, GameState.total_altars], 5.0)
+	save_checkpoint()
+
+func _on_all_altars_prayed() -> void:
+	hud.set_altars_count(GameState.total_altars, GameState.total_altars)
+	say("All seven altars are lit. The bolt on the main gate has opened.", 8.0)
+	play_sound("impossible", player.position, 0.0)
+	if world.interactables.has("mansion_main_porton"):
+		var porton: Door = world.interactables["mansion_main_porton"]["node"]
+		porton.locked = false
+		porton.locked_label = ""

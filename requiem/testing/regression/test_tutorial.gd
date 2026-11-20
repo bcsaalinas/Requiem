@@ -270,10 +270,46 @@ func _ready() -> void:
 	game.interact("front_door")
 	await frames(4)
 	check(game.zone=="loop","Return doorway leads to the impossible room")
-	check(step_audio.surface==&"wood" and game.ZONE_SURFACE.size()==5,"In the last room she walks on wood: every zone has its surface")
+	check(step_audio.surface==&"wood" and game.ZONE_SURFACE.size()==7,"In the last room she walks on wood: every zone has its surface")
 	check(not game.entity.active,"Return visit preserves the aftermath")
+	# The last door of the impossible hallway is the way into the Hacienda, with all she carries.
+	var gear := [game.has_flashlight, game.batteries, game.thrower.rocks]
+	var last_door: Door = game.world.interactables["loop_end"]["node"]
 	at_interaction("loop_end",Vector2(-45,0))
-	check(game.complete and not game.entity.active,"Final doorway completes tutorial and stops encounter")
+	check(last_door.is_open and game.zone=="loop" and not game.complete,"The last door of the hallway opens, and the game goes on")
+	game.interact("loop_end")
+	await frames(4)
+	check(game.zone=="mansion_ground" and not game.complete,"Crossing the last door takes her into the Hacienda")
+	check(game.player.position.distance_to(game.world.marker("mansion_ground","SpawnEntrance"))<4.0,"She arrives at the Hacienda's entrance")
+	check([game.has_flashlight, game.batteries, game.thrower.rocks]==gear,"Her light, batteries and stones come with her")
+	check(game.entity.visible and not game.entity.active and game.mansion_grace>0.0,"The Hacienda's entity is there, and waits a moment before it walks")
+	check(game.hud.altars_tracker.visible and GameState.altars_completed==0,"The altar count shows in the Hacienda, at none")
+	check(game.checkpoint.zone=="mansion_ground" and step_audio.surface==&"wood","Arriving is a checkpoint, and she walks on wood")
+	check(game.field_map.sheet.visible and game.field_map.TITLES.has(game.zone),"The minimap is up in the Hacienda")
+	game.mansion_grace=0.01
+	await frames(3)
+	check(game.entity.active,"After the wait it starts to walk its patrol")
+	game.entity.active=false
+	game._take_stairs("stairs_to_upper")
+	await frames(6)
+	check(game.zone=="mansion_upper" and game.entity.visible,"The stairs lead to the upper floor, where it also walks")
+	await frames(2)
+	check(game.field_map.selected=="mansion_upper" and game.field_map.explored.has("mansion_upper"),"The minimap follows her upstairs")
+	game.entity.active=false
+	game._take_stairs("stairs_to_ground")
+	await frames(6)
+	check(game.zone=="mansion_ground","...and back down to the ground floor")
+	game.entity.active=false
+	var porton: Door = game.world.interactables["mansion_main_porton"]["node"]
+	at_interaction("mansion_main_porton",Vector2(0,-60))
+	check(porton.locked and not game.complete,"The main gate stays sealed until the altars are prayed at")
+	GameState.altars_completed=GameState.total_altars-1
+	GameState.register_altar_prayed(game.world.interactables["altar_1"]["node"])
+	check(not porton.locked,"With all seven altars lit the gate's bolt opens")
+	GameState.reset()
+	check(GameState.altars_completed==GameState.total_altars,"A retry keeps the altars she has prayed at")
+	at_interaction("mansion_main_porton",Vector2(0,-60))
+	check(game.complete and not game.entity.active and game.sequence=="ending","Leaving through the gate ends the night")
 	game.queue_free()
 	Preferences.captions=old_captions
 	await frames(3)

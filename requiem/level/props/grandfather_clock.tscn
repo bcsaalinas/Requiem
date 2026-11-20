@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" uid="uid://cdgnqvw1uwi4o" path="res://assets/level/contact_shadow.tres" id="1_shadow"]
+[ext_resource type="Material" uid="uid://dslt47flhflsm" path="res://level/props/prop_material.tres" id="2_mat"]
+[ext_resource type="Texture2D" path="res://level/props/textures/grandfather_clock.tres" id="3_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_prop"]
+size = Vector2(40, 32)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_prop"]
+closed = false
+polygon = PackedVector2Array(-18, -92, 18, -92)
+
+[node name="GrandfatherClock" type="Node2D"]
+
+[node name="Shadow" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(0, -16)
+scale = Vector2(0.55, 0.45)
+texture = ExtResource("1_shadow")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+material = ExtResource("2_mat")
+position = Vector2(-36, -104)
+scale = Vector2(0.28, 0.28)
+texture = ExtResource("3_tex")
+centered = false
+
+[node name="Body" type="StaticBody2D" parent="."]
+
+[node name="Shape" type="CollisionShape2D" parent="Body"]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_prop")
+
+[node name="Occluder" type="LightOccluder2D" parent="."]
+occluder = SubResource("OccluderPolygon2D_prop")

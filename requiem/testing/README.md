@@ -69,6 +69,10 @@ The entity can knock on doors (Step 18), behind a switch that is off: `entity_kn
 
 Capture images are temporary evidence. Attach useful results to the matching GDD page and label the tested build; do not commit repeated screenshots or recordings into runtime folders. Older Notion videos predate the current directional rig.
 
+The `test_entity_audio` suite verifies monster state cues, listening/scream silence, story breathing, capture, the 740 ms devour cue, retry cancellation/rearming, and the SFX bus. For audible review, play the house encounter: patrol should be quiet, listening silent, hunt entry a single vocal cue, pursuit faster/louder, search a distinct growl with floor taps, and capture a separate cue. Repeated noises during the same hunt must not replay the opening scream.
+
+The `test_field_map` suite checks the always-visible minimap, player-centred scrolling, zone changes, exploration and normal pause behavior. The compact map sits at the upper left of the HUD, remains north-up, and follows the player without pausing. Its arrow shows the player's body heading; terrain scrolls underneath, without a movement trail. Discovery lasts through retries within the current run. It respects HUD visibility and hidden rooms, and does not display enemies or loot. The former full-screen atlas and M shortcut have been removed. Run with a rendered Godot window and `-- --capture-map` to save before/after movement screenshots under `/tmp/requiem-minimap-*.png`.
+
 ## Adding a feature
 
 1. Reuse an existing manual station where possible; put isolated experiments in `experiments/` and expose them through the launcher.

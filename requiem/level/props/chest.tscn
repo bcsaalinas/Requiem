@@ -1,11 +1,13 @@
 [gd_scene format=3 uid="uid://carenk35ti2lg"]
 
+[ext_resource type="Script" path="res://tutorial/chest.gd" id="chest_script"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_chest.png" id="1_chest"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7kdhv"]
 size = Vector2(76, 40)
 
 [node name="Chest" type="Node2D"]
+script = ExtResource("chest_script")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 position = Vector2(-38, -40)
