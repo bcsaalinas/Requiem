@@ -9,6 +9,10 @@ const BATTERY := preload("res://assets/art/items/item_battery.png")
 const STONE := preload("res://assets/art/items/item_pebble_a.png")
 const BEACON := preload("res://tutorial/hint_beacon.gd")
 const Art := preload("res://tutorial/art.gd")
+const Showcase := preload("res://tutorial/showcase.gd")
+## Showcase: Rosa's sewing note carries Eli's own words, so night one reaches the truth about the
+## door without the Study (its altar is one Rosa already lit).
+const SHOWCASE_TAPANCO_NOTE := "Eli wrote it down and I kept it: \"I locked Inés in as a game. I heard her asking me to open it. I left with the key.\" The blue thread was her favorite. Say her name and tell the truth about the door. — Rosa"
 # Glint sheets for the placeholder art that has one; offerings get theirs with the final sprites.
 const GLINTS := {
 	NOTE: preload("res://assets/art/items/item_note_glint.png"),
@@ -121,10 +125,15 @@ var offering_locations: Dictionary = {}
 func setup(owner_game: Node) -> void:
 	game = owner_game
 	for id: String in NOTES:
+		if game.showcase and not id in Showcase.NOTES:
+			continue
 		var note: Array = NOTES[id]
 		_add_prop(id, "Read " + note[2], note[0], note[1], NOTE)
-	_scatter_offerings("mansion_ground", GROUND_OFFERINGS, GROUND_SPOTS)
-	_scatter_offerings("mansion_upper", UPPER_OFFERINGS, UPPER_SPOTS)
+	if game.showcase:
+		_place_showcase_offerings()
+	else:
+		_scatter_offerings("mansion_ground", GROUND_OFFERINGS, GROUND_SPOTS)
+		_scatter_offerings("mansion_upper", UPPER_OFFERINGS, UPPER_SPOTS)
 	var granary_chest := _node("chest_storage")
 	var chest_offset: Vector2 = game.world.interactables["chest_storage"]["position"] - granary_chest.global_position
 	granary_chest.position = GRANARY_CHEST_SPOTS.pick_random()
@@ -148,7 +157,25 @@ func setup(owner_game: Node) -> void:
 		display.position = Vector2(24, -28)
 		display.hide()
 		altar.configure_offering(display, _can_place_offering.bind(id))
+		if game.showcase:
+			if id in Showcase.ALTARS:
+				altar.pray_duration = Showcase.PRAY_DURATION
+				altar.progress_drain = Showcase.PRAYER_DRAIN
+				# No recorded Spanish prayer yet: she prays without words; the dedication is subtitled.
+				altar.prayer_spoken = false
+			else:
+				altar.light_without_prayer()
+	GameState.total_altars = Showcase.ALTARS.size() if game.showcase else ALTARS.size()
 	_sync_doors()
+
+
+## Showcase: each offering of night one lies in one fixed room.
+func _place_showcase_offerings() -> void:
+	for id: String in Showcase.OFFERING_SPOTS:
+		var spot: Array = Showcase.OFFERING_SPOTS[id]
+		var floor_id := "mansion_upper" if id in UPPER_OFFERINGS else "mansion_ground"
+		offering_locations[id] = spot[0]
+		_add_prop(id, "Take " + ITEMS[id][0], floor_id, spot[1], _texture(id))
 
 
 func _scatter_offerings(floor_id: String, ids: Array, spots: Array) -> void:
@@ -221,12 +248,16 @@ func label(id: String) -> String:
 func interact(id: String) -> bool:
 	if NOTES.has(id):
 		read_notes[id] = true
-		var text: String = NOTES[id][3]
+		var text := tr(note_text(id))
 		for altar: Dictionary in ALTARS.values():
 			var item: String = altar["item"]
 			if altar["clue"] == id and offering_locations.has(item) and not game.collected.has(item):
-				text += "\nLook for the %s in %s." % [ITEMS[item][0], offering_locations[item]]
-		game.say(text, 12.0)
+				text += "
+" + tr("Look for the %s in %s.") % [tr(ITEMS[item][0]), tr(offering_locations[item])]
+		game.say(text, 14.0 if game.showcase else 12.0)
+		if game.showcase:
+			game.give_breathing_room(Showcase.REST_FOR_NOTE)
+			game.save_checkpoint()
 		return true
 	if ITEMS.has(id):
 		_take_item(id)
@@ -237,7 +268,7 @@ func interact(id: String) -> bool:
 		if not chest.is_open:
 			chest.open(game.breath.is_holding)
 			chest_displays[id].show()
-			game.say("Inside: %s. Press E again to take it." % ITEMS[CHESTS[id]][0], 5.0)
+			game.say(tr("Inside: %s. Press E again to take it.") % tr(ITEMS[CHESTS[id]][0]), 5.0)
 		else:
 			if _take_item(CHESTS[id]):
 				chest_displays[id].hide()
@@ -253,8 +284,17 @@ func interact(id: String) -> bool:
 				altar.place_offering()
 				game.hud.hide_offering(ALTARS[id]["item"])
 				game.say("The offering is ready. Hold E to pray.")
+				if game.showcase:
+					game.save_checkpoint()
 		return true
 	return false
+
+
+## What a note says (the showcase's sewing note also carries Eli's account).
+func note_text(id: String) -> String:
+	if game.showcase and id == "tapanco_note":
+		return SHOWCASE_TAPANCO_NOTE
+	return NOTES[id][3]
 
 
 func _take_item(id: String) -> bool:
@@ -271,11 +311,16 @@ func _take_item(id: String) -> bool:
 			game.insert_battery()
 	game.collected[id] = true
 	if OFFERING_LABELS.has(id):
-		game.hud.show_offering(id, OFFERING_LABELS[id], _texture(id))
+		game.hud.show_offering(id, tr(OFFERING_LABELS[id]), _texture(id))
 	game._player_visual("play_pickup")
 	game.play_sound("pickup", game.player.global_position)
-	game.say(KEY_DIRECTIONS.get(id, "Found " + ITEMS[id][0] + "."), 8.0)
+	if KEY_DIRECTIONS.has(id):
+		game.say(KEY_DIRECTIONS[id], 8.0)
+	else:
+		game.say(tr("Found %s.") % tr(ITEMS[id][0]), 8.0)
 	_sync_doors()
+	if game.showcase:
+		game.save_checkpoint()
 	return true
 
 
@@ -288,13 +333,13 @@ func _placement_blocker(id: String) -> String:
 	for prerequisite: String in altar["after"]:
 		var previous = _node(prerequisite)
 		if not previous.is_completed:
-			return "I need to finish the " + previous.altar_name + " first."
+			return tr("I need to finish the %s first.") % tr(previous.altar_name).to_lower()
 	if not read_notes.has(altar["clue"]):
-		return "I should read " + NOTES[altar["clue"]][2] + " before I leave anything."
+		return tr("I should read %s before I leave anything.") % tr(NOTES[altar["clue"]][2])
 	if not game.collected.has(altar["item"]):
 		if offering_locations.has(altar["item"]):
-			return "Look for the %s in %s." % [ITEMS[altar["item"]][0], offering_locations[altar["item"]]]
-		return "I need to find the " + ITEMS[altar["item"]][0] + "."
+			return tr("Look for the %s in %s.") % [tr(ITEMS[altar["item"]][0]), tr(offering_locations[altar["item"]])]
+		return tr("I need to find the %s.") % tr(ITEMS[altar["item"]][0])
 	return ""
 
 
@@ -309,20 +354,33 @@ func _sync_doors() -> void:
 		var key: String = DOOR_LOCKS[id]
 		if not key.is_empty():
 			door.locked = not game.collected.has(key)
-			door.locked_label = KEY_DESTINATIONS[key] + " is locked. It needs the " + ITEMS[key][0] + "."
+			door.locked_label = tr("%s is locked. It needs the %s.") % [tr(KEY_DESTINATIONS[key]), tr(ITEMS[key][0])]
 		elif id == "door_chapel":
-			door.locked = not completed("altar_4")
-			door.locked_label = "The chapel bolt is sealed. There are other entrances."
+			# Showcase: the fountain's prayer opens the chapel (the sacristy route needs a key it skips).
+			door.locked = not completed("altar_1" if game.showcase else "altar_4")
+			door.locked_label = tr("The chapel bolt is sealed. The fountain comes first." if game.showcase
+				else "The chapel bolt is sealed. There are other entrances.")
 			if door.locked and door.is_open:
 				door.snap(false)
 		else:
 			door.locked = not upstairs_complete
-			door.locked_label = "The sewing room opens after both upstairs dedications."
+			door.locked_label = tr("The sewing room opens after both upstairs dedications.")
+	if game.showcase and game.world.interactables.has("mansion_main_porton"):
+		(_node("mansion_main_porton") as Door).locked_label = "Bolted from the outside. Pray at the three dark altars."
 
 
 func on_altar_completed(altar: Node) -> String:
 	_sync_doors()
-	match String(altar.get_meta("interaction_id", "")):
+	var id := String(altar.get_meta("interaction_id", ""))
+	if game.showcase:
+		match id:
+			"altar_1":
+				return "Something unbolted to the north. The chapel."
+			"altar_4":
+				game.world.landmarks["StairRouteLight"].enabled = true
+				return "The way upstairs is clear."
+		return "The offering is lit."
+	match id:
 		"altar_1":
 			game.world.landmarks["HearthRouteLight"].enabled = true
 			return "A light came on by the kitchen door."
@@ -337,3 +395,28 @@ func on_altar_completed(altar: Node) -> String:
 			if completed("altar_5") and completed("altar_6"):
 				return "The sewing-room bolt just opened."
 	return "The offering is lit."
+
+
+## Showcase: the one thing to do next, and where it is: {"text": String, "at": global Vector2}.
+## Empty text while there is nothing left in the Hacienda but the gate.
+func objective() -> Dictionary:
+	for id: String in Showcase.ALTARS:
+		if completed(id):
+			continue
+		var altar: Dictionary = ALTARS[id]
+		var node = _node(id)
+		var item: String = altar["item"]
+		var clue: String = altar["clue"]
+		if not read_notes.has(clue):
+			return {"text": tr("Read %s.") % tr(NOTES[clue][2]), "at": _position(clue)}
+		if not game.collected.has(item):
+			return {"text": tr("Find the %s in %s.") % [tr(ITEMS[item][0]), tr(offering_locations.get(item, ""))],
+				"at": _position(item)}
+		if not node.offering_placed:
+			return {"text": tr("Place the %s on the %s.") % [tr(ITEMS[item][0]), tr(node.altar_name).to_lower()], "at": _position(id)}
+		return {"text": tr("Hold E at the %s to pray.") % tr(node.altar_name).to_lower(), "at": _position(id)}
+	return {"text": tr("The gate is open. Leave through the entrance."), "at": _position("mansion_main_porton")}
+
+
+func _position(id: String) -> Vector2:
+	return game.world.interactables[id]["position"] if game.world.interactables.has(id) else Vector2.INF

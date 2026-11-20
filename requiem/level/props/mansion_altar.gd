@@ -14,6 +14,9 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 @export_group("Ritual")
 @export var altar_name: String = "Ofrenda"
 @export var pray_duration: float = 12.0
+## Showcase: letting go keeps what was prayed; it drains at this many seconds per second.
+## 0 (the beta) loses the whole prayer at once.
+@export var progress_drain: float = 0.0
 var offering_display: Sprite2D
 var _can_place_offering: Callable
 
@@ -72,6 +75,11 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_completed:
 		return
+	if progress_drain > 0.0 and not _estaba_rezando and tiempo_interaccion > 0.0:
+		tiempo_interaccion = maxf(0.0, tiempo_interaccion - progress_drain * delta)
+		if is_instance_valid(barra_progreso):
+			barra_progreso.value = (tiempo_interaccion / pray_duration) * 100.0
+			barra_progreso.visible = tiempo_interaccion > 0.0
 	var pray_key := Input.is_action_pressed("pray") or Input.is_key_pressed(KEY_E)
 	if pray_key and Input.is_action_pressed("hold_breath"):
 		_wait_for_prayer_release = true
@@ -186,15 +194,31 @@ func _refrescar_color() -> void:
 
 func cancel_prayer(immediate := true) -> void:
 	_estaba_rezando = false
-	tiempo_interaccion = 0.0
+	var keep := progress_drain > 0.0 and not is_completed
+	if not keep:
+		tiempo_interaccion = 0.0
 	_timer_ruido = 0.0
 	_pulse_disparado = false
 	_pulse_restante = 0.0
 	_refrescar_color()
-	if is_instance_valid(barra_progreso):
+	if is_instance_valid(barra_progreso) and not keep:
 		barra_progreso.value = 0.0
 		barra_progreso.hide()
 	GameState.end_prayer(self, immediate)
+
+
+## Showcase: an altar Tía Rosa had already prayed at. Lit, done, never counted.
+func light_without_prayer() -> void:
+	is_completed = true
+	tiempo_interaccion = 0.0
+	if is_instance_valid(barra_progreso):
+		barra_progreso.hide()
+	for light: PointLight2D in [light_left, light_right]:
+		if is_instance_valid(light):
+			light.energy = 2.2
+			light.color = Color("#ffd580")
+	if is_instance_valid(light_center):
+		light_center.energy = 2.0
 
 
 func _exit_tree() -> void:

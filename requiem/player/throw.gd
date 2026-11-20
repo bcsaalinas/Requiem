@@ -246,15 +246,27 @@ func _start_throw() -> void:
 ## cae justo antes de ella en vez de atravesarla.
 func _compute_landing() -> Vector2:
 	var origin: Vector2 = player.global_position
+	var direction := _aim_direction()
+	_committed_angle = direction.angle()
+	return _landing_along(origin, direction)
+
+
+## Where a stone thrown right now would land (same rule as a real throw, no side effects).
+func predict_landing() -> Vector2:
+	return _landing_along(player.global_position, _aim_direction())
+
+
+func _aim_direction() -> Vector2:
+	var origin: Vector2 = player.global_position
 	var aim: Node = player.get_node_or_null("PlayerAim")
 	var target_position: Vector2 = aim.get_target_position() if aim != null else player.get_global_mouse_position()
 	var direction: Vector2 = target_position - origin
-
 	if direction.length_squared() < 1.0:
 		direction = Vector2.RIGHT
-	direction = direction.normalized()
-	_committed_angle = direction.angle()
+	return direction.normalized()
 
+
+func _landing_along(origin: Vector2, direction: Vector2) -> Vector2:
 	var target: Vector2 = origin + direction * throw_distance_u * PX_PER_UNIT
 
 	var space := player.get_world_2d().direct_space_state

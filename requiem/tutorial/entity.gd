@@ -65,6 +65,13 @@ var _feel_player: AudioStreamPlayer2D
 var _feel_left := 0.0
 var _tap_wait := 0.0
 var _resetting := false
+## Showcase breathing room (tutorial/showcase.gd): seconds left of its rest. While it rests it walks
+## its patrol away from her, hears less (rest_hearing) and cannot catch her.
+var _rest_left := 0.0
+## Seconds left in which it hears nothing at all (right after it lets go of her).
+var _deaf_left := 0.0
+## Hearing multiplier while it rests.
+var rest_hearing := 0.5
 
 func _ready() -> void:
 	super._ready()
@@ -93,6 +100,8 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		_update_drag(false)
 		return
+	_rest_left = maxf(0.0, _rest_left - delta)
+	_deaf_left = maxf(0.0, _deaf_left - delta)
 	if _listening > 0.0:
 		_listening -= delta
 		_halt()
@@ -121,7 +130,7 @@ func _start_hunt() -> void:
 ## Hearing keeps EntityAI's step rule (heard when the distance is within the sound's radius),
 ## with a calm multiplier on top; a new sound first triggers the listening tell.
 func _on_noise_emitted(at: Vector2, radius: float, source: int, _duration: float) -> void:
-	if not active or GameState.is_dead:
+	if not active or GameState.is_dead or _deaf_left > 0.0:
 		return
 	if global_position.distance_to(at) > hearing_range_u * PX_PER_UNIT:
 		return
@@ -160,9 +169,37 @@ func notice(at: Vector2) -> void:
 
 ## Multiplier applied to a sound's radius at this moment (x1.6 while it hunts or searches).
 func hearing_multiplier() -> float:
+	if _rest_left > 0.0:
+		return calm_hearing_multiplier * rest_hearing
 	if current_state == State.HUNT or current_state == State.SEARCH:
 		return alert_hearing_multiplier
 	return calm_hearing_multiplier
+
+## Showcase breathing room: it gives up whatever it was doing and walks its patrol to the point
+## farthest from `away_from`, hearing less for `seconds` and nothing at all for `deaf_seconds`.
+## It cannot catch her while it rests.
+func rest(seconds: float, deaf_seconds := 0.0, away_from := Vector2.INF) -> void:
+	_rest_left = maxf(_rest_left, seconds)
+	_deaf_left = maxf(_deaf_left, deaf_seconds)
+	_listening = 0.0
+	_scream_left = 0.0
+	_feel_left = 0.0
+	_hunt_timer = 0.0
+	_search_queue.clear()
+	if away_from != Vector2.INF and not route.is_empty():
+		var farthest := 0
+		for index in route.size():
+			if route[index].distance_to(away_from) > route[farthest].distance_to(away_from):
+				farthest = index
+		route_index = farthest
+	_patrol_wait = 0.0
+	_resume_breathing()
+	_resetting = true
+	_change_state(State.PATROL)
+	_resetting = false
+
+func is_resting() -> bool:
+	return _rest_left > 0.0
 
 func is_listening() -> bool:
 	return _listening > 0.0
@@ -259,7 +296,7 @@ func _update_feel_audio(delta: float) -> void:
 		_tap_wait = randf_range(feel_tap_interval.x, feel_tap_interval.y)
 
 func _on_catch_area_body_entered(body: Node2D) -> void:
-	if active and body.is_in_group("player"):
+	if active and _rest_left <= 0.0 and body.is_in_group("player"):
 		_play_stinger(catch_clips)
 		caught.emit()
 
@@ -275,6 +312,8 @@ func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	_hunt_timer = 0.0
 	_state_timer = 0.0
 	_patrol_wait = 1.5
+	_rest_left = 0.0
+	_deaf_left = 0.0
 	last_heard_source = -1
 	_resetting = true
 	_change_state(State.PATROL)

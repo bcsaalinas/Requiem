@@ -53,6 +53,10 @@ signal hold_cancelled()
 @export var gasp_radius_u: float = 5.0
 @export var forced_gasp_radius_u: float = 7.0
 @export var forced_lock_duration: float = 2.0
+## Showcase: this many forced gasps from running out of air only make a soft sound (soft_gasp_radius_u).
+## 0 in the beta; the showcase re-arms it on every retry.
+@export var soft_gasps: int = 0
+@export var soft_gasp_radius_u: float = 2.0
 
 @export_group("Audio")
 @export var hold_clips: Array[AudioStream] = []
@@ -245,7 +249,11 @@ func _forced_gasp(clips: Array[AudioStream], reason: StringName = &"exertion") -
 	_lock_timer = forced_lock_duration
 	exertion_percent = 0.0
 	_audio_player.stop()
-	_emit_breath(forced_gasp_radius_u, clips)
+	var radius_u := forced_gasp_radius_u
+	if soft_gasps > 0 and reason == &"lung":
+		soft_gasps -= 1
+		radius_u = soft_gasp_radius_u
+	_emit_breath(radius_u, clips)
 	forced_gasp_started.emit(reason, forced_lock_duration)
 
 

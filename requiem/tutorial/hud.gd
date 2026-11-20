@@ -45,6 +45,8 @@ var _throw_cooldown_frac := 0.0
 ## the game sets it when it starts).
 var low_battery_at := 25.0
 var _inventory_overlay: Control
+## Showcase: the one line under the altar counter that says what to do next (empty: hidden).
+var objective: Label
 
 func _ready() -> void:
 	LegacyUi.fit_root(root)
@@ -62,6 +64,21 @@ func _ready() -> void:
 	_inventory_overlay.draw.connect(_draw_inventory_overlay)
 	root.add_child(_inventory_overlay)
 	root.move_child(_inventory_overlay, inventory.get_index() + 1)
+	objective = Label.new()
+	objective.name = "Objective"
+	objective.theme = preload("res://tutorial/ui_text_theme.tres")
+	objective.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	objective.add_theme_font_size_override("font_size", UIPalette.MIN_TEXT_SIZE)
+	objective.add_theme_color_override("font_color", UIPalette.CANDLE)
+	objective.add_theme_color_override("font_shadow_color", UIPalette.SHADOW)
+	objective.add_theme_constant_override("shadow_offset_x", 1)
+	objective.add_theme_constant_override("shadow_offset_y", 1)
+	objective.position = Vector2(PixelDisplay.UI_CANVAS.x * 0.5 - 320.0, 80.0)
+	objective.size = Vector2(640.0, 28.0)
+	objective.hide()
+	root.add_child(objective)
 
 func _process(delta: float) -> void:
 	_hud_clock += delta
@@ -366,3 +383,11 @@ func set_altars_count(count: int, total: int = 7) -> void:
 	var pop := create_tween()
 	pop.tween_property(altars_tracker, "scale", Vector2(1.12, 1.12), 0.12).set_trans(Tween.TRANS_BACK)
 	pop.tween_property(altars_tracker, "scale", Vector2.ONE, 0.22)
+
+
+func set_objective(text: String) -> void:
+	if objective == null:
+		return
+	objective.visible = not text.is_empty()
+	if objective.text != text:
+		objective.text = text

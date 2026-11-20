@@ -9,6 +9,10 @@ const Chest := preload("res://tutorial/chest.gd")
 const KEY_ART := preload("res://assets/art/items/item_key.png")
 const NOTE_ART := preload("res://assets/art/items/item_note.png")
 const MansionStory := preload("res://tutorial/mansion_story.gd")
+const Showcase := preload("res://tutorial/showcase.gd")
+const ShowcaseOverlay := preload("res://tutorial/showcase_overlay.gd")
+const GuidePetals := preload("res://tutorial/guide_petals.gd")
+const ShowcaseLocale := preload("res://tutorial/showcase_locale.gd")
 const ATTACK_CANDLE_STEP := 0.6
 const ATTACK_LAST_PAUSE := 1.0
 ## Total dark after the last flame, long enough to doubt the light is coming back.
@@ -139,6 +143,8 @@ const HOUSE_EXTERIOR: Array[Vector2] = [Vector2(0, 744), Vector2(1280, 744), Vec
 @export_enum("bedroom", "hallway", "forest", "house", "loop", "mansion_ground", "mansion_upper") var start_zone: String = "bedroom"
 @export_group("Validation")
 @export var test_mode := false
+## Runs the booth rules (tutorial/showcase.gd) even in test_mode, for the showcase regression test.
+@export var force_showcase := false
 @onready var world: Node2D = $TutorialWorld
 @onready var hud: CanvasLayer = $HUD
 @onready var player: CharacterBody2D = $Player
@@ -154,6 +160,14 @@ var field_map: Node
 ## Counts down after she arrives on a Hacienda floor; at zero the entity there starts to move.
 var mansion_grace := 0.0
 var mansion_story := MansionStory.new()
+## The booth rules are on (tutorial/showcase.gd): set at _ready from Showcase.enabled and test_mode.
+var showcase := false
+## Seconds (Time) of the last near miss; a catch within Showcase.NEAR_MISS_WINDOW of it is a death.
+var _last_near_miss := -INF
+var showcase_overlay: Node2D
+var guide_petals: Node2D
+## The Hacienda's first arrival tops her stones up once.
+var _hacienda_stocked := false
 ## 1 the moment it starts to hunt, easing back to 0: the screen's jolt (Atmosphere film).
 var hunt_intro_effect := 0.0
 var zone := "bedroom"
@@ -260,6 +274,7 @@ func _enter_tree() -> void:
 	PixelDisplay.attach_world_layer($Atmosphere)
 
 func _ready() -> void:
+	showcase = Showcase.enabled and (force_showcase or not test_mode)
 	var atmosphere_film := $Atmosphere/Film as Control
 	atmosphere_film.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	atmosphere_film.position = Vector2.ZERO
@@ -287,6 +302,7 @@ func _ready() -> void:
 	flashlight.toggle_rejected.connect(func() -> void:
 		if batteries <= 0: hud.reject_slot("flashlight"))
 	mansion_story.setup(self)
+	if showcase: _setup_showcase()
 	GameState.prayer_started.connect(_on_mansion_prayer_started)
 	GameState.prayer_ended.connect(_on_mansion_prayer_ended)
 	GameState.altar_completed.connect(_on_altar_prayed)
@@ -593,6 +609,7 @@ func _house_answers() -> void:
 
 func _process(delta: float) -> void:
 	if _paused: return
+	if showcase: _update_showcase(delta)
 	if zone == "forest":
 		world.interactables["ranger"]["position"] = world.zones["forest"].get_node("Ranger").global_position
 	ambient_reply_cooldown=maxf(0,ambient_reply_cooldown-delta)
@@ -767,6 +784,10 @@ func _input(event: InputEvent) -> void:
 		_toggle_pause()
 		get_viewport().set_input_as_handled()
 		return
+	if key==KEY_F9 and showcase:
+		ShowcaseLocale.toggle()
+		get_viewport().set_input_as_handled()
+		return
 	if _paused: return
 	# In the shipping run R belongs to Kiosk: it drops the whole run back to the title.
 	if key==KEY_R and not resetting and not Kiosk.owns_reset(self):
@@ -835,7 +856,7 @@ func _find_interaction() -> void:
 		var prop_node: Node2D=world.interactables[id]["node"]
 		if prop_node.has_method("set_focused"):
 			prop_node.set_focused(id==nearest)
-	hud.prompt.text="" if nearest=="" else (interaction_label(nearest) if _prompt_without_key(nearest) else "E · "+interaction_label(nearest))
+	hud.prompt.text="" if nearest=="" else (translate_label(interaction_label(nearest)) if _prompt_without_key(nearest) else "E · "+translate_label(interaction_label(nearest)))
 	if nearest!="":
 		var target: Node2D = world.interactables[nearest]["node"]
 		# Anything she takes carries its prompt right above it; the key hint keeps the space under her.
@@ -1034,8 +1055,15 @@ func _on_chest_opened(loot: String, id: String) -> void:
 			say("The key to the front door. Get out once the way is clear.",7)
 			_key_candle_falls()
 		_:
-			say("Empty.",3)
-			caption("[Hollow wood]")
+			if showcase and thrower.rocks < 3:
+				thrower.rocks = 3
+				stone_hint_seen = true
+				play_sound("pickup",player.position)
+				_animate_rocks(from)
+				say("Stones. I can throw them to draw it away.",4)
+			else:
+				say("Empty.",3)
+				caption("[Hollow wood]")
 	_house_answers()
 
 ## What a trunk gives rises out of it, hangs for a beat so it can be read in the dark (it is
@@ -1532,10 +1560,16 @@ func _go_through(id: String) -> void:
 			enter_zone("mansion_ground",world.marker("mansion_ground","SpawnEntrance"),true,"mansion_main_porton")
 			play_sound("impossible",player.position)
 			caption("[The house shifts]")
-			show_dialogue([
+			var arrival: Array[String] = [
 				"VIV: This door was supposed to lead outside. The gate here is sealed.",
 				"VIV: There's a light in the courtyard. I should see what's there.",
-			])
+			]
+			if showcase:
+				arrival.append("VIV: Some of these altars are already lit. Tía Rosa prayed at them. Three are still dark.")
+				if not _hacienda_stocked:
+					_hacienda_stocked = true
+					thrower.rocks = maxi(thrower.rocks, Showcase.ARRIVAL_STONES)
+			show_dialogue(arrival)
 	door.snap(false)
 
 ## Arriving through a door: it is open behind the player and swings shut once they step away.
@@ -1548,7 +1582,87 @@ func _close_behind(door: Door) -> void:
 
 func _caught() -> void:
 	if resetting or not dialogue.is_empty() or sequence != "": return
+	if showcase and _seconds() - _last_near_miss >= Showcase.NEAR_MISS_WINDOW:
+		_near_miss()
+		return
 	_begin_game_over()
+
+## Showcase: the first catch is a near miss. It has her, she tears loose, and it loses her: it
+## hears nothing for a moment and walks away to rest. Only a second catch soon after kills her.
+func _near_miss() -> void:
+	_last_near_miss = _seconds()
+	var away := (player.global_position - entity.global_position)
+	if away.length_squared() < 1.0: away = Vector2.DOWN
+	player.move_and_collide(away.normalized() * Showcase.NEAR_MISS_SHOVE)
+	player.velocity = Vector2.ZERO
+	entity.rest(Showcase.REST_AFTER_NEAR_MISS, Showcase.NEAR_MISS_DEAF, player.global_position)
+	hunt_intro_effect = 1.0
+	GameState._cancel_active_prayer()
+	caption("[It grabs her. She tears free]")
+	say("It let go of me. I have to get away from it.", 5.0)
+
+func _seconds() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+## Showcase: a stretch of calm. Unless it is already hunting her, the creature walks away and rests.
+func give_breathing_room(seconds: float) -> void:
+	if not showcase or not entity.active or entity.get_state_name() == "HUNT": return
+	entity.rest(seconds, 0.0, player.global_position)
+
+func _on_entity_stood_down() -> void:
+	if showcase and entity.active:
+		entity.rest(Showcase.REST_AFTER_HUNT, 0.0, player.global_position)
+
+func _setup_showcase() -> void:
+	ShowcaseLocale.install()
+	breath.soft_gasps = Showcase.SOFT_GASPS
+	breath.soft_gasp_radius_u = Showcase.SOFT_GASP_RADIUS_U
+	entity.rest_hearing = Showcase.REST_HEARING
+	entity.stood_down.connect(_on_entity_stood_down)
+	showcase_overlay = ShowcaseOverlay.new()
+	showcase_overlay.name = "ShowcaseOverlay"
+	showcase_overlay.player = player
+	showcase_overlay.breath = breath
+	showcase_overlay.thrower = thrower
+	showcase_overlay.entity = entity
+	world.add_child(showcase_overlay)
+	guide_petals = GuidePetals.new()
+	guide_petals.name = "GuidePetals"
+	guide_petals.player = player
+	world.add_child(guide_petals)
+
+## Showcase: the objective line and the petals that lead to it (Hacienda only).
+func _update_showcase(_delta: float) -> void:
+	var free := dialogue.is_empty() and not resetting and sequence == "" and not GameState.is_dead
+	showcase_overlay.shown = free
+	if not zone in MANSION_ZONES or complete:
+		hud.set_objective("")
+		guide_petals.target = Vector2.INF
+		return
+	var goal := mansion_story.objective()
+	hud.set_objective(goal["text"])
+	var at: Vector2 = goal["at"]
+	var goal_zone := _zone_at(at)
+	if goal_zone != "" and goal_zone != zone:
+		var stairs_id := "stairs_to_upper" if zone == "mansion_ground" else "stairs_to_ground"
+		at = world.interactables[stairs_id]["position"] if world.interactables.has(stairs_id) else Vector2.INF
+	guide_petals.target = at
+	guide_petals.visible = free
+
+func _zone_at(at: Vector2) -> String:
+	if at == Vector2.INF: return ""
+	for zone_id: String in MANSION_ZONES:
+		if (World.REGIONS[zone_id] as Rect2).has_point(at): return zone_id
+	return ""
+
+## Prompts are a verb and a thing ("Take " + "marigold"): translated whole, or else in two parts.
+func translate_label(text: String) -> String:
+	var whole := tr(text)
+	if whole != text: return whole
+	for verb: String in ["Read ", "Take ", "Place ", "Check ", "Open "]:
+		if text.begins_with(verb):
+			return tr(verb + "%s") % tr(text.trim_prefix(verb))
+	return text
 
 # La entidad atrapo al jugador: congela la escena y muestra la pantalla de
 # derrota (GameState.player_died -> GameOverUi instancia ui/game_over.tscn).
@@ -1631,6 +1745,9 @@ func restore_checkpoint(bedroom := false) -> void:
 	breath._lock_timer=0
 	breath.lung_percent=100
 	breath.exertion_percent=0
+	if showcase:
+		breath.soft_gasps=Showcase.SOFT_GASPS
+		_last_near_miss=-INF
 	breath.reset_input_latch()
 	player.get_node("BreathFeedback").reset_feedback()
 	player.get_node("FootstepNoise").footstep_timer=0
@@ -1729,7 +1846,8 @@ func _interact_mansion(id: String, target: Node) -> bool:
 	if id == "mansion_main_porton":
 		var porton := target as Door
 		if GameState.altars_completed < GameState.total_altars:
-			say("Sealed from the outside. The seven altars have to be prayed at first.", 5.0)
+			say("Sealed from the outside. The three dark altars have to be prayed at first." if showcase
+				else "Sealed from the outside. The seven altars have to be prayed at first.", 5.0)
 			play_sound("door", player.position)
 			caption("[The gate rattles]")
 		elif not complete:
@@ -1799,7 +1917,7 @@ func _on_altar_prayed(altar_node: Node) -> void:
 	hud.set_altars_count(GameState.altars_completed, GameState.total_altars)
 	play_sound("switch", player.position, 2.0)
 	var response := mansion_story.on_altar_completed(altar_node)
-	say("%s (%d / %d)" % [response, GameState.altars_completed, GameState.total_altars], 6.0)
+	say("%s (%d / %d)" % [tr(response), GameState.altars_completed, GameState.total_altars], 6.0)
 	save_checkpoint()
 
 
@@ -1828,7 +1946,8 @@ func _finish_mansion_epilogue() -> void:
 
 func _on_all_altars_prayed() -> void:
 	hud.set_altars_count(GameState.total_altars, GameState.total_altars)
-	say("All seven altars are lit. The bolt on the main gate has opened.", 8.0)
+	if showcase: say("The last candle is lit. The bolt on the main gate has opened.", 8.0)
+	else: say("All seven altars are lit. The bolt on the main gate has opened.", 8.0)
 	play_sound("impossible", player.position, 0.0)
 	if world.interactables.has("mansion_main_porton"):
 		var porton: Door = world.interactables["mansion_main_porton"]["node"]
