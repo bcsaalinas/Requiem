@@ -70,6 +70,12 @@ enum Style { FRONT, SIDE }
 @export var close_label := "Close"
 @export var locked_label := "Locked"
 
+## Every door of a running level is in this group.
+const DOOR_GROUP := &"doors"
+## A door pushed open by a body: the creak, lower and heavier, until it has its own sound.
+const PUSHED_VOLUME_DB := -6.0
+const PUSHED_PITCH := Vector2(0.72, 0.84)
+
 ## Leaf art: 160x34 px canvas drawn hinged on the left, swinging south; the pivot is the hinge-end
 ## corner of the swing face. The closed leaf sits 23 art px below the top of the frame.
 const LEAF_CANVAS_Y := 23.0
@@ -98,6 +104,10 @@ func _ready() -> void:
 	var doorway := get_node_or_null("Doorway") as Area2D
 	if doorway != null and not Engine.is_editor_hint():
 		doorway.body_entered.connect(_on_doorway_body_entered)
+	if not Engine.is_editor_hint():
+		# The entity finds doors here: a closed one on a sound's way muffles it, and a search
+		# ends through one.
+		add_to_group(DOOR_GROUP)
 
 
 func _process(_delta: float) -> void:
@@ -113,7 +123,18 @@ func _process(_delta: float) -> void:
 
 func _on_doorway_body_entered(body: Node2D) -> void:
 	if opened_by_group != &"" and body.is_in_group(opened_by_group) and body.is_visible_in_tree():
-		open()
+		push_open(body)
+
+
+## Opened by a body that walked into it (the entity). Viv hears the door; it is not one of her
+## noises, so no NoiseManager event is sent and the entity never hunts its own door.
+## Returns false when it is locked or already open.
+func push_open(_by: Node2D) -> bool:
+	if locked or is_open:
+		return false
+	open(false, true)
+	_play_creak(PUSHED_VOLUME_DB, PUSHED_PITCH)
+	return true
 
 
 ## Opens the door. Returns false when it is locked or already open.
@@ -290,17 +311,22 @@ func _apply_swing() -> void:
 
 
 func _make_noise(quiet: bool) -> void:
-	var audio := get_node_or_null("Audio") as AudioStreamPlayer2D
-	if audio != null and creak != null:
-		audio.stream = creak
-		audio.volume_db = -14.0 if quiet else -6.0
-		audio.pitch_scale = randf_range(0.92, 1.05)
-		audio.play()
+	_play_creak(-14.0 if quiet else -6.0, Vector2(0.92, 1.05))
 	if Engine.is_editor_hint():
 		return
 	var radius_u := quiet_noise_radius_u if quiet else noise_radius_u
 	if radius_u > 0.0:
 		NoiseManager.emit_noise(get_noise_origin(), radius_u * Units.PX_PER_UNIT, NoiseManager.SourceType.DOOR)
+
+
+## The door's sound alone, for Viv's ears: nothing here is a noise the entity can hear.
+func _play_creak(volume_db: float, pitch: Vector2) -> void:
+	var audio := get_node_or_null("Audio") as AudioStreamPlayer2D
+	if audio != null and creak != null:
+		audio.stream = creak
+		audio.volume_db = volume_db
+		audio.pitch_scale = randf_range(pitch.x, pitch.y)
+		audio.play()
 
 
 ## Centre of the doorway gap in global coordinates.
