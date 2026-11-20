@@ -1,0 +1,16 @@
+{
+  "name": "deco_fountain_water",
+  "description": "Running state of deco_fountain: water filling the basin, two jets from the E/W spouts, splashes and spreading ripples. Overlay layer drawn between deco_fountain_base and deco_fountain_top (same 320 x 320 origin). Hide it for the dry fountain.",
+  "file": "deco_fountain_water.png",
+  "sheet": {"hframes": 8, "vframes": 1},
+  "canvas": [320, 320],
+  "frame_size": [320, 320],
+  "frame_count": 8,
+  "ms_per_frame": [110, 90, 90, 140, 110, 90, 90, 150],
+  "loop": true,
+  "tag": "running",
+  "pivot": [160, 160],
+  "z_order": ["deco_fountain_base.png", "deco_fountain_water.png", "deco_fountain_top.png"],
+  "height_effect": false,
+  "notes": "Floor level: does not shift. The pillar cap (top) keeps its 0.008 height shift. Splash centres: E (214, 160), W (105, 160)."
+}

@@ -1,0 +1,39 @@
+{
+  "name": "ritual_altar_dressing",
+  "description": "Four offerings for the hacienda altar tiers (and the study-to-loft hoop clue), drawn strictly from above with four distinct silhouettes (ring + tail, stack of rectangles, low blob, square box).",
+  "file": "ritual_altar_dressing.png",
+  "canvas": [320, 80],
+  "frame_size": [80, 80],
+  "frames": 4,
+  "ms": 0,
+  "pivot": [40, 40],
+  "items": ["hoop", "letters", "wax", "grain"],
+  "item_details": [
+    {
+      "frame": 0,
+      "id": "hoop",
+      "bbox": {"x": 18, "y": 24, "w": 46, "h": 32},
+      "ring_center": [36, 40],
+      "tail_direction": "E",
+      "note": "Embroidery hoop (~30 px ring) with 23-px loose thread tail pointing E; also dropped on the study floor pointing at the loft door."
+    },
+    {
+      "frame": 1,
+      "id": "letters",
+      "bbox": {"x": 22, "y": 27, "w": 36, "h": 26},
+      "note": "3 axis-aligned folded letters (28x18 each, offset 3 px) bound by one vertical #4f3b28 strap (no cross)."
+    },
+    {
+      "frame": 2,
+      "id": "wax",
+      "bbox": {"x": 17, "y": 28, "w": 46, "h": 25},
+      "note": "Chapel wax: 3 unlit candle stubs of clearly different heights (tallest lightest) with off-centre 1x2 wicks, drips running into one flat #605551 pool with an irregular edge (~44x23 inside the rim)."
+    },
+    {
+      "frame": 3,
+      "id": "grain",
+      "bbox": {"x": 22, "y": 22, "w": 36, "h": 36},
+      "note": "Almud grain measure (34x34 wooden box, 3-px walls with #2e2219 corner joints) heaped with white maize kernels."
+    }
+  ]
+}

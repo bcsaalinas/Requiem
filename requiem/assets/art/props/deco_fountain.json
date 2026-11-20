@@ -1,0 +1,28 @@
+{
+  "name": "deco_fountain",
+  "description": "Dry patio fountain, strict top-down: octagonal stone rim, cracked dry basin, square plinth with two iron spouts (base); stepped pillar cap with a round knob (top).",
+  "canvas": [320, 320],
+  "frame_size": [320, 320],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [160, 160],
+  "base": "deco_fountain_base.png",
+  "top": "deco_fountain_top.png",
+  "layers": {
+    "base": "deco_fountain_base.png",
+    "top": "deco_fountain_top.png"
+  },
+  "height_effect": true,
+  "height_factor": 0.008,
+  "collision": "octagon, outer rim",
+  "collision_octagon": {
+    "center": [160, 160],
+    "apothem_px": 148,
+    "note": "regular octagon with flat N/E/S/W sides, 296 px across (x and y 12..307)"
+  },
+  "states": {
+    "dry": ["deco_fountain_base.png", "deco_fountain_top.png"],
+    "running": ["deco_fountain_base.png", "deco_fountain_water.png (8-frame sheet, see deco_fountain_water.json)", "deco_fountain_top.png"]
+  },
+  "basin_free_area": "inner octagon apothem 124 px minus the 64 x 64 plinth (128..191); Godot drops ritual_petals_a/b/c here after prayer"
+}

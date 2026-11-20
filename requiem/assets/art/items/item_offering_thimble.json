@@ -1,0 +1,21 @@
+{
+  "name": "item_offering_thimble",
+  "description": "Dedal de lat\u00f3n",
+  "altar": "troje",
+  "file": "item_offering_thimble.png",
+  "canvas": [
+    32,
+    32
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    16,
+    16
+  ],
+  "allow_flame": false
+}

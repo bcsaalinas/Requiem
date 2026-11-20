@@ -9,7 +9,7 @@ const BATTERY := preload("res://assets/art/items/item_battery.png")
 const STONE := preload("res://assets/art/items/item_pebble_a.png")
 const BEACON := preload("res://tutorial/hint_beacon.gd")
 const Art := preload("res://tutorial/art.gd")
-# Glint sheets for the placeholder art that has one; offerings get theirs with the final sprites.
+# The seven offering textures use the standard pickup beacon without separate glint sheets.
 const GLINTS := {
 	NOTE: preload("res://assets/art/items/item_note_glint.png"),
 	BATTERY: preload("res://assets/art/items/item_battery_glint.png"),
@@ -322,8 +322,15 @@ func _sync_doors() -> void:
 
 func on_altar_completed(altar: Node) -> String:
 	_sync_doors()
+	var seal := _node("mansion_main_porton").get_node("PrayerSeal") as Sprite2D
+	if GameState.altars_completed >= GameState.total_altars:
+		seal.frame = 2
+	elif GameState.altars_completed >= 4:
+		seal.frame = 1
 	match String(altar.get_meta("interaction_id", "")):
 		"altar_1":
+			var fountain: AnimationPlayer = game.world.zones["mansion_ground"].get_node("PatioCentral/CanteraFountain/AnimationPlayer")
+			fountain.play(&"running")
 			game.world.landmarks["HearthRouteLight"].enabled = true
 			return "A light came on by the kitchen door."
 		"altar_2":

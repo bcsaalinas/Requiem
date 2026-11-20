@@ -1,0 +1,21 @@
+{
+  "name": "item_offering_marigold",
+  "description": "Flor de cempas\u00fachil",
+  "altar": "fuente_seca",
+  "file": "item_offering_marigold.png",
+  "canvas": [
+    32,
+    32
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    16,
+    16
+  ],
+  "allow_flame": true
+}

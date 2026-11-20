@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_runner.png" id="2_runner"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="3_sage"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_stair_flight.png" id="stairs_art"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_walls"]
 [ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="5_doorfront"]
 [ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="6_doorside"]
@@ -18,6 +19,7 @@
 [ext_resource type="PackedScene" uid="uid://fca7ggvxgv5d" path="res://level/props/armchair.tscn" id="23_pew"]
 [ext_resource type="PackedScene" path="res://level/props/standing_lamp.tscn" id="26_clock"]
 [ext_resource type="Script" path="res://tutorial/zones/mansion_upper.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_altar_dressing.png" id="altar_dressing"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_void_n"]
 size = Vector2(576, 32)
@@ -388,6 +390,13 @@ metadata/interaction_id = "altar_7"
 metadata/interaction_label = "Pray at the loft altar (hold)"
 metadata/interaction_offset = Vector2(0, -20)
 
+[node name="EmbroideryHoop" type="Sprite2D" parent="Props/Altar7_Costura"]
+texture_filter = 1
+position = Vector2(-24, -46)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("altar_dressing")
+hframes = 4
+
 [node name="SewingDesk" parent="Props" instance=ExtResource("10_desk")]
 position = Vector2(864, 1632)
 
@@ -439,21 +448,10 @@ metadata/interaction_id = "stairs_to_ground"
 metadata/interaction_label = "Down to the ground floor"
 metadata/interaction_offset = Vector2(0, 20)
 
-[node name="VisualStep" type="Polygon2D" parent="Props/StairsToGround"]
-color = Color(0.35, 0.28, 0.2, 1)
-polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)
-
-[node name="VisualTreads" type="Polygon2D" parent="Props/StairsToGround"]
-color = Color(0.48, 0.38, 0.26, 1)
-polygon = PackedVector2Array(-40, -36, 40, -36, 40, -20, -40, -20)
-
-[node name="VisualTreads2" type="Polygon2D" parent="Props/StairsToGround"]
-color = Color(0.44, 0.35, 0.24, 1)
-polygon = PackedVector2Array(-40, -10, 40, -10, 40, 6, -40, 6)
-
-[node name="VisualTreads3" type="Polygon2D" parent="Props/StairsToGround"]
-color = Color(0.4, 0.32, 0.22, 1)
-polygon = PackedVector2Array(-40, 16, 40, 16, 40, 32, -40, 32)
+[node name="StairFlight" type="Sprite2D" parent="Props/StairsToGround"]
+texture_filter = 1
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("stairs_art")
 
 [node name="Shape" type="CollisionShape2D" parent="Props/StairsToGround"]
 shape = SubResource("RectangleShape2D_stairs")

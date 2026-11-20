@@ -1,0 +1,21 @@
+{
+  "name": "item_offering_rosary",
+  "description": "Rosario de madera",
+  "altar": "capilla",
+  "file": "item_offering_rosary.png",
+  "canvas": [
+    32,
+    32
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    16,
+    16
+  ],
+  "allow_flame": false
+}

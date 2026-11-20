@@ -1,0 +1,19 @@
+{
+  "name": "ritual_seal",
+  "description": "Prayer seal lying flat across a door threshold: two pale ixtle cords crossed in an X and held by a hand-pressed wax disc with a small cross. Shape tells the state (straight = bound, curved = released).",
+  "file": "ritual_seal.png",
+  "canvas": [240, 80],
+  "frame_size": [80, 80],
+  "frames": 3,
+  "ms": 0,
+  "pivot": [40, 40],
+  "states": ["fastened", "half", "spent"],
+  "disc_rect": {
+    "x": 28,
+    "y": 28,
+    "w": 24,
+    "h": 24,
+    "wax_bbox": {"x": 31, "y": 31, "w": 19, "h": 18},
+    "note": "24x24 crop centered on frame 0's wax disc (wax_bbox is the disc + #2e2219 lip excluding the 1-px #0e0c0d rim) for Godot to place as the altar motif."
+  }
+}

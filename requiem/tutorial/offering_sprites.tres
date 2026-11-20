@@ -1,6 +1,20 @@
 [gd_resource type="Resource" format=3]
 
 [ext_resource type="Script" path="res://tutorial/offering_sprites.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_marigold.png" id="2_marigold"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_plate.png" id="3_bread"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_thimble.png" id="4_thimble"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_rosary.png" id="5_rosary"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_portrait.png" id="6_portrait"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_letter.png" id="7_letter"]
+[ext_resource type="Texture2D" path="res://assets/art/items/item_offering_spool.png" id="8_thread"]
 
 [resource]
 script = ExtResource("1")
+marigold = ExtResource("2_marigold")
+bread = ExtResource("3_bread")
+thimble = ExtResource("4_thimble")
+rosary = ExtResource("5_rosary")
+portrait = ExtResource("6_portrait")
+letter = ExtResource("7_letter")
+thread = ExtResource("8_thread")

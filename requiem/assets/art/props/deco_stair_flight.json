@@ -1,0 +1,20 @@
+{
+  "name": "deco_stair_flight",
+  "description": "Main staircase, strict top-down: 8 treads (30 px each) between 12-px stringers, value = height (south darkest, north lightest). Dresses the 3 x 3-unit stair trigger; one drawing for both floors.",
+  "file": "deco_stair_flight.png",
+  "canvas": [240, 240],
+  "frame_size": [240, 240],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [120, 120],
+  "top_of_flight": "north",
+  "height_effect": false,
+  "layers": {"floor": "deco_stair_flight.png"},
+  "treads": {
+    "count": 8,
+    "depth_px": 30,
+    "order": "tread 1 = south (bottom, y 210..239) ... tread 8 = north (top, y 0..29)",
+    "landing_lip_px": 4
+  },
+  "rim": "E and W outer edges only (x 0 and 239); N and S edges are walked across"
+}

@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_runner.png" id="2_runner"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_rug_room.png" id="3_sage"]
+[ext_resource type="Texture2D" path="res://assets/art/props/deco_stair_flight.png" id="stairs_art"]
 [ext_resource type="TileSet" uid="uid://bttuq1yxvpchf" path="res://level/tiles/house_walls.tres" id="4_walls"]
 [ext_resource type="PackedScene" uid="uid://bil3hphv412cw" path="res://level/door/door_front.tscn" id="5_doorfront"]
 [ext_resource type="PackedScene" uid="uid://dxvsctji3ew3y" path="res://level/door/door_side.tscn" id="6_doorside"]
@@ -23,6 +24,9 @@
 [ext_resource type="PackedScene" path="res://level/props/standing_lamp.tscn" id="26_clock"]
 [ext_resource type="Script" path="res://tutorial/zones/mansion_ground.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="route_light"]
+[ext_resource type="PackedScene" path="res://level/props/stone_fountain.tscn" id="fountain"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_seal.png" id="prayer_seal"]
+[ext_resource type="Texture2D" path="res://assets/art/ritual/ritual_altar_dressing.png" id="altar_dressing"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_stairs"]
 size = Vector2(96, 96)
@@ -80,6 +84,9 @@ tile_set = ExtResource("4_walls")
 
 [node name="PatioCentral" type="Node2D" parent="."]
 
+[node name="CanteraFountain" parent="PatioCentral" groups=["mansion_nav"] instance=ExtResource("fountain")]
+position = Vector2(1152, 896)
+
 [node name="PillarNW" parent="PatioCentral" instance=ExtResource("14_lamp")]
 position = Vector2(832, 704)
 energy = 0.55
@@ -111,6 +118,13 @@ locked_label = "Bolted from the outside. Pray at the seven altars."
 metadata/interaction_id = "mansion_main_porton"
 metadata/interaction_label = "The gate is sealed"
 metadata/interaction_offset = Vector2(0, -48)
+
+[node name="PrayerSeal" type="Sprite2D" parent="Doors/MansionMainPorton"]
+texture_filter = 1
+position = Vector2(0, -16)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("prayer_seal")
+hframes = 3
 
 [node name="ZaguanToDiningDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(720, 1568)
@@ -407,6 +421,14 @@ metadata/interaction_id = "altar_3"
 metadata/interaction_label = "Pray at the granary altar (hold)"
 metadata/interaction_offset = Vector2(0, -20)
 
+[node name="GrainMeasure" type="Sprite2D" parent="Props/Altar3_Storage"]
+texture_filter = 1
+position = Vector2(-24, -46)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("altar_dressing")
+hframes = 4
+frame = 3
+
 [node name="TrojeBarrels" parent="Props" instance=ExtResource("25_barrels")]
 position = Vector2(192, 224)
 
@@ -431,6 +453,14 @@ altar_name = "Chapel altar"
 metadata/interaction_id = "altar_4"
 metadata/interaction_label = "Pray at the chapel altar (hold)"
 metadata/interaction_offset = Vector2(0, -20)
+
+[node name="ChapelWax" type="Sprite2D" parent="Props/Altar4_Capilla"]
+texture_filter = 1
+position = Vector2(-24, -46)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("altar_dressing")
+hframes = 4
+frame = 2
 
 [node name="ChapelPewL1" parent="Props" instance=ExtResource("23_pew")]
 position = Vector2(960, 368)
@@ -504,21 +534,10 @@ metadata/interaction_id = "stairs_to_upper"
 metadata/interaction_label = "Up to the upper floor"
 metadata/interaction_offset = Vector2(0, 20)
 
-[node name="VisualStep" type="Polygon2D" parent="Props/StairsToUpper"]
-color = Color(0.35, 0.28, 0.2, 1)
-polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)
-
-[node name="VisualTreads" type="Polygon2D" parent="Props/StairsToUpper"]
-color = Color(0.48, 0.38, 0.26, 1)
-polygon = PackedVector2Array(-40, -36, 40, -36, 40, -20, -40, -20)
-
-[node name="VisualTreads2" type="Polygon2D" parent="Props/StairsToUpper"]
-color = Color(0.44, 0.35, 0.24, 1)
-polygon = PackedVector2Array(-40, -10, 40, -10, 40, 6, -40, 6)
-
-[node name="VisualTreads3" type="Polygon2D" parent="Props/StairsToUpper"]
-color = Color(0.4, 0.32, 0.22, 1)
-polygon = PackedVector2Array(-40, 16, 40, 16, 40, 32, -40, 32)
+[node name="StairFlight" type="Sprite2D" parent="Props/StairsToUpper"]
+texture_filter = 1
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("stairs_art")
 
 [node name="Shape" type="CollisionShape2D" parent="Props/StairsToUpper"]
 shape = SubResource("RectangleShape2D_stairs")

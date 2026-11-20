@@ -1,0 +1,21 @@
+{
+  "name": "item_offering_spool",
+  "description": "Carrete de hilo azul",
+  "altar": "tapanco",
+  "file": "item_offering_spool.png",
+  "canvas": [
+    32,
+    32
+  ],
+  "frame_size": [
+    32,
+    32
+  ],
+  "frame_count": 1,
+  "ms_per_frame": [],
+  "pivot": [
+    16,
+    16
+  ],
+  "allow_flame": false
+}
