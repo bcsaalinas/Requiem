@@ -3,17 +3,24 @@
 [ext_resource type="Script" uid="uid://xi165ea7y0li" path="res://level/props/height_prop.gd" id="1_prop"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_wardrobe_base.png" id="2_base"]
 [ext_resource type="Texture2D" path="res://assets/art/props/deco_wardrobe_top.png" id="3_top"]
+[ext_resource type="Script" path="res://level/props/contact_shadow.gd" id="contact_shadow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_l0b6a"]
 size = Vector2(100, 36)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_ce3dy"]
-closed = false
-polygon = PackedVector2Array(-46, -148, 46, -148)
+cull_mode = 2
+polygon = PackedVector2Array(-49, -35, 49, -35, 49, -1, -49, -1)
 
 [node name="Wardrobe" type="Node2D"]
 script = ExtResource("1_prop")
 height_factor = 0.008
+
+[node name="ContactShadow" type="Node2D" parent="."]
+z_index = -1
+position = Vector2(0, -18)
+script = ExtResource("contact_shadow")
+size = Vector2(100, 36)
 
 [node name="Base" type="Sprite2D" parent="."]
 position = Vector2(-50, -36)
@@ -36,3 +43,4 @@ shape = SubResource("RectangleShape2D_l0b6a")
 
 [node name="Occluder" type="LightOccluder2D" parent="."]
 occluder = SubResource("OccluderPolygon2D_ce3dy")
+occluder_light_mask = 9

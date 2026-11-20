@@ -8,6 +8,7 @@
 [ext_resource type="Shader" uid="uid://cvmdwul8kp1yf" path="res://tutorial/scenery.gdshader" id="5_8t03j"]
 [ext_resource type="AudioStream" uid="uid://h0onbb5ykko1" path="res://assets/audio/exertion.wav" id="8_exertion"]
 [ext_resource type="Script" uid="uid://b3kkiai512s0v" path="res://player/flashlight.gd" id="9_kb6p2"]
+[ext_resource type="Script" path="res://player/flashlight_spill.gd" id="9_spill"]
 [ext_resource type="Script" uid="uid://ciu6hs02vimpr" path="res://player/player_motion.gd" id="10_motion"]
 [ext_resource type="AudioStream" uid="uid://ydi3tbv8mgoc" path="res://assets/audio/629008__realgtro__flashlight-click.wav" id="11_click"]
 [ext_resource type="Script" uid="uid://6p8nmhlfyuxv" path="res://player/action_state.gd" id="12_actions"]
@@ -119,12 +120,16 @@ texture_scale = 1.6
 enabled = false
 range_item_cull_mask = 5
 shadow_enabled = true
-shadow_item_cull_mask = 3
+shadow_item_cull_mask = 11
 texture = ExtResource("light_cone")
 offset = Vector2(146.4, 0)
 texture_scale = 1.2
 script = ExtResource("9_kb6p2")
 click_clips = Array[AudioStream]([ExtResource("11_click")])
+
+[node name="Spill" type="PointLight2D" parent="flashlight"]
+shadow_item_cull_mask = 3
+script = ExtResource("9_spill")
 
 [node name="PlayerAim" type="Node" parent="." unique_id=870822402]
 script = ExtResource("13_aim")
