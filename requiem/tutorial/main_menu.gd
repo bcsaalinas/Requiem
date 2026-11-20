@@ -3,16 +3,13 @@ extends Control
 ##
 ## Layout, key art and styling are authored in main_menu.tscn with ui/requiem_theme.tres.
 ## This script switches pages, fills the data-driven rows (controls list, one slider per audio
-## bus), flickers the candle and hands Play to the loading screen, which owns the threaded load.
+## bus), flickers the rule under the title and hands Play to the loading screen, which owns the
+## threaded load.
 ##
-## Visual rule: the room is dark and still. The candle on the altar and the thin rule under the
-## title are the only things that move, on the same flicker idiom as a dying flashlight.
+## Visual rule: the room is dark. The animated cover breathes on its own (menu_cover.gd); the
+## thin rule under the title flickers with it, on the same idiom as a dying flashlight.
 
 const ControlsList := preload("res://tutorial/controls_list.gd")
-## Where the candle flame sits in the key art (UV of menu_background.png), and the
-## size of its glow in art pixels. The art is drawn "covered", so the glow follows it.
-const CANDLE_UV := Vector2(0.8156, 0.5444)
-const GLOW_SIZE := 240.0
 
 @export_group("Flow")
 ## Scene handed to LoadingScreen when the player picks Play.
@@ -45,7 +42,6 @@ var _next_flicker := 0.0
 var _rng := RandomNumberGenerator.new()
 
 @onready var _rule: CanvasItem = %Rule
-@onready var _glow: CanvasItem = %CandleGlow
 
 
 func _ready() -> void:
@@ -65,8 +61,6 @@ func _ready() -> void:
 	_build_controls()
 	_build_audio()
 	_show_page("main")
-	%Background.resized.connect(_place_glow)
-	_place_glow.call_deferred()
 
 	if ambience != null:
 		var player := AudioStreamPlayer.new()
@@ -241,17 +235,6 @@ func _load_failed() -> void:
 	_show_page("error")
 
 
-## Keeps the glow on the painted candle at any window aspect (same maths as KEEP_ASPECT_COVERED).
-func _place_glow() -> void:
-	var background: TextureRect = %Background
-	var art := background.texture.get_size()
-	var cover := maxf(background.size.x / art.x, background.size.y / art.y)
-	var origin := (background.size - art * cover) * 0.5
-	_glow.size = Vector2.ONE * GLOW_SIZE * cover
-	_glow.pivot_offset = _glow.size * 0.5
-	_glow.position = origin + CANDLE_UV * art * cover - _glow.size * 0.5
-
-
 ## Hands off to the loading screen, which owns the threaded load and the swap.
 func _start_game() -> void:
 	if _starting or _credits_transition or is_instance_valid(_credits):
@@ -262,8 +245,8 @@ func _start_game() -> void:
 	LoadingScreen.show_for(game_scene)
 
 
-## Irregular candle flicker: a new target every 90–260 ms, eased toward rather
-## than snapped to, so it reads as a flame and not as a broken element.
+## Irregular flicker for the rule under the title: a new target every 90–260 ms, eased toward
+## rather than snapped to, so it reads as candlelight and not as a broken element.
 func _process(delta: float) -> void:
 	if _fullscreen != null:
 		_fullscreen.set_pressed_no_signal(Preferences.fullscreen)
@@ -274,8 +257,6 @@ func _process(delta: float) -> void:
 		_flicker_target = _rng.randf_range(0.72, 1.0)
 	_flicker = lerpf(_flicker, _flicker_target, clampf(delta * 9.0, 0.0, 1.0))
 	_rule.modulate.a = _flicker
-	_glow.modulate.a = 0.55 + 0.45 * _flicker
-	_glow.scale = Vector2.ONE * (0.97 + 0.05 * _flicker)
 
 
 func _open_credits() -> void:

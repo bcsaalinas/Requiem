@@ -2,7 +2,8 @@
 
 [ext_resource type="Theme" uid="uid://bunp5j2ev4x3o" path="res://ui/requiem_theme.tres" id="1_kdm7l"]
 [ext_resource type="Script" uid="uid://cg704gjxf86fa" path="res://tutorial/main_menu.gd" id="1_x3j81"]
-[ext_resource type="Texture2D" uid="uid://cnjaqn8uepnqx" path="res://assets/ui/menu_background.png" id="3_q8v17"]
+[ext_resource type="Texture2D" uid="uid://3gtl8uysdy6h" path="res://assets/ui/menu_cover.png" id="3_q8v17"]
+[ext_resource type="Script" uid="uid://clfbndklbuwv7" path="res://tutorial/menu_cover.gd" id="4_cover"]
 
 [sub_resource type="Gradient" id="Gradient_ratpk"]
 offsets = PackedFloat32Array(0, 0.55, 1)
@@ -12,21 +13,6 @@ colors = PackedColorArray(0, 0, 0, 0.7529412, 0, 0, 0, 0.5019608, 0, 0, 0, 0)
 gradient = SubResource("Gradient_ratpk")
 width = 256
 height = 8
-
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_3b8i4"]
-blend_mode = 1
-
-[sub_resource type="Gradient" id="Gradient_pt1n2"]
-offsets = PackedFloat32Array(0, 0.3, 1)
-colors = PackedColorArray(1, 0.78039217, 0.44705883, 0.5019608, 0.9490196, 0.6, 0.3019608, 0.18039216, 0.8980392, 0.49803922, 0.2509804, 0)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_vdqb1"]
-gradient = SubResource("Gradient_pt1n2")
-width = 128
-height = 128
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(1, 0.5)
 
 [node name="MainMenu" type="Control" unique_id=1819483935]
 layout_mode = 3
@@ -47,8 +33,10 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("3_q8v17")
+texture_filter = 1
 expand_mode = 1
 stretch_mode = 6
+script = ExtResource("4_cover")
 
 [node name="LeftShade" type="TextureRect" parent="." unique_id=1521654624]
 layout_mode = 0
@@ -57,19 +45,6 @@ anchor_bottom = 1.0
 grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_julgw")
-expand_mode = 1
-
-[node name="CandleGlow" type="TextureRect" parent="." unique_id=1599786130]
-unique_name_in_owner = true
-material = SubResource("CanvasItemMaterial_3b8i4")
-layout_mode = 0
-offset_left = 832.0
-offset_top = 245.0
-offset_right = 1048.0
-offset_bottom = 461.0
-pivot_offset = Vector2(108, 108)
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_vdqb1")
 expand_mode = 1
 
 [node name="Column" type="VBoxContainer" parent="." unique_id=1283158873]
