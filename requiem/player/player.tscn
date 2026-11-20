@@ -42,6 +42,8 @@
 [ext_resource type="AudioStream" uid="uid://c71m11vomxou3" path="res://assets/audio/footsteps/concrete_step_07.wav" id="step_7"]
 [ext_resource type="AudioStream" uid="uid://bqymjmvxgjtkk" path="res://assets/audio/footsteps/concrete_step_08.wav" id="step_8"]
 
+[ext_resource type="Script" path="res://player/viv_breath_motion.gd" id="quiet_breath"]
+
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_player"]
 size = Vector2(32, 32)
 
@@ -150,3 +152,7 @@ script = ExtResource("32_1s1yo")
 
 [node name="BodyAudio" type="Node" parent="." unique_id=1821153835]
 script = ExtResource("41_fmu53")
+
+[node name="QuietBreath" type="Sprite2D" parent="."]
+visible = false
+script = ExtResource("quiet_breath")

@@ -4,7 +4,11 @@ signal resume_requested
 signal fullscreen_requested
 
 const UIPalette := preload("res://util/ui_palette.gd")
-const KEY_ICON := preload("res://assets/art/items/item_key.png")
+const ITEMS := preload("res://assets/art/hud/equipment_items.png")
+const CHARGE_TRACK := preload("res://assets/art/hud/equipment_charge_track.png")
+const CHARGE := preload("res://assets/art/hud/equipment_charge.png")
+const ITEM_REGIONS := {"flashlight": Rect2(0, 0, 33, 18), "battery": Rect2(42, 0, 24, 24),
+	"rocks": Rect2(68, 0, 28, 24), "key": Rect2(100, 0, 24, 24)}
 const PICKUP_PROMPT_GAP := 12.0
 
 @onready var root: Control = $Screen
@@ -50,11 +54,13 @@ func _ready() -> void:
 	LegacyUi.fit_root(root)
 	for kind in ["flashlight", "battery", "rocks"]:
 		var slot: Control = inventory.get_node(String(kind).capitalize())
-		slot.custom_minimum_size = Vector2(maxf(slot.custom_minimum_size.x, 64.0), slot.custom_minimum_size.y)
+		_set_item_icon(slot, kind)
+		slot.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		_slots[kind] = slot
 		_counts[kind] = slot.get_node("Count")
 		_slot_rejects[kind] = 0.0
-		slot.draw.connect(_draw_slot_card.bind(kind))
+		if kind == "flashlight":
+			slot.draw.connect(_draw_charge.bind(slot))
 	_inventory_overlay = Control.new()
 	_inventory_overlay.name = "InventoryOverlay"
 	_inventory_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -141,9 +147,7 @@ func update_inventory(equipped: bool, spares: int, rocks: int) -> void:
 	_counts.rocks.text = str(rocks)
 	_spare_batteries = spares
 	_rocks_count = rocks
-	battery.get_parent().visible = equipped
-	if vitals != null and vitals.has_method("set_equipment_context"):
-		vitals.set_equipment_context(spares)
+
 	_refresh_slot_modulation()
 
 ## The key is a single story item, so add its slot only when it is first found.
@@ -151,9 +155,9 @@ func set_key(held: bool) -> void:
 	if not _slots.has("key"):
 		if not held:
 			return
-		var slot: Control = _slots.flashlight.duplicate()
+		var slot: Control = _slots.flashlight.duplicate(0)
 		slot.name = "Key"
-		(slot.get_node("Icon") as TextureRect).texture = KEY_ICON
+		_set_item_icon(slot, "key")
 		inventory.add_child(slot)
 		_slots["key"] = slot
 	_slots["key"].visible = held
@@ -192,8 +196,6 @@ func update_equipment_state(flashlight_on: bool, battery_percent: float, spares:
 	_spare_batteries = spares
 	_rocks_count = rocks
 	_throw_cooldown_frac = clampf(throw_cooldown_frac, 0.0, 1.0)
-	if vitals != null and vitals.has_method("set_equipment_context"):
-		vitals.set_equipment_context(spares)
 	_refresh_slot_modulation()
 
 func _refresh_slot_modulation() -> void:
@@ -243,100 +245,39 @@ func reject_slot(kind: String) -> void:
 	var slot: Control = _slots[kind]
 	slot.queue_redraw()
 
+func _set_item_icon(slot: Control, kind: String) -> void:
+	var atlas := AtlasTexture.new()
+	atlas.atlas = ITEMS
+	atlas.region = ITEM_REGIONS[kind]
+	var icon := slot.get_node("Icon") as TextureRect
+	icon.texture = atlas
+	icon.custom_minimum_size = atlas.region.size * 1.25
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	slot.custom_minimum_size = Vector2.ZERO
+
+func _draw_charge(slot: Control) -> void:
+	var icon := slot.get_node("Icon") as Control
+	var origin := Vector2(icon.position.x, slot.size.y - 5.0).round()
+	var track := Rect2(2, 18, 29, 5)
+	slot.draw_texture_rect_region(CHARGE_TRACK, Rect2(origin, track.size * 1.25), track)
+	var cells := clampi(ceili(_battery_percent / 25.0), 0, 4)
+	if cells > 0:
+		var region := Rect2(2, 18, cells * 7, 5)
+		slot.draw_texture_rect_region(CHARGE, Rect2(origin, region.size * 1.25), region)
+
 func _draw_slot_card(kind: String) -> void:
-	var slot: Control = _slots.get(kind)
-	if slot == null or not slot.visible:
-		return
-	var rect := Rect2(Vector2(-7.0, -5.0), slot.size + Vector2(14.0, 22.0))
-	var reject_t := float(_slot_rejects.get(kind, 0.0))
-	var pulse := 0.5 + 0.5 * sin(_hud_clock * TAU * 2.2)
-
-	var bg := UIPalette.CARD_BG
-	var border := UIPalette.CARD_BORDER
-	var key_text := ""
-	var state_text := ""
-	var state_color := UIPalette.TEXT_DIM
-
-	match kind:
-		"flashlight":
-			key_text = "F"
-			if _battery_percent <= 0.0:
-				state_text = "DEAD"
-				state_color = UIPalette.BREATH_CRIT
-				border = UIPalette.BREATH_CRIT.lerp(bg, 0.35)
-			elif _flashlight_on:
-				state_text = "ON"
-				state_color = UIPalette.BATTERY_ON
-				border = UIPalette.BATTERY_ON.lerp(UIPalette.CARD_BORDER, 0.45)
-			else:
-				state_text = "OFF"
-				state_color = UIPalette.TEXT_DIM
-		"battery":
-			key_text = "B"
-			if _spare_batteries <= 0:
-				state_text = "EMPTY"
-				state_color = UIPalette.TEXT_DIM
-			elif _battery_percent <= 25.0 and _slots.flashlight.visible:
-				state_text = "SWAP"
-				state_color = UIPalette.BATTERY_LOW.lerp(Color.WHITE, pulse * 0.35)
-				border = UIPalette.BATTERY_LOW.lerp(UIPalette.CARD_BORDER, 0.35 * (1.0 - pulse))
-			else:
-				state_text = "CELL"
-				state_color = UIPalette.TEXT
-		"rocks":
-			key_text = "Q"
-			if _rocks_count <= 0:
-				state_text = "NONE"
-				state_color = UIPalette.TEXT_DIM
-			elif _throw_cooldown_frac > 0.0:
-				state_text = "WAIT"
-				state_color = UIPalette.EXERTION_HOT
-			else:
-				state_text = "THROW"
-				state_color = UIPalette.TEXT
-		_:
-			state_text = _offering_labels.get(kind, "")
-			state_color = UIPalette.TEXT
-
-	if reject_t > 0.0:
-		bg = bg.lerp(Color(0.28, 0.07, 0.07, 0.92), reject_t * 0.85)
-		border = border.lerp(UIPalette.BREATH_CRIT, reject_t)
-
-	slot.draw_rect(rect, bg, true)
-	slot.draw_rect(rect, border, false, 1.5)
-
-	# Bottom strip divider + keycap + live status label inside card footer.
-	var footer_y := rect.end.y - 16.0
-	slot.draw_line(
-		Vector2(rect.position.x + 4.0, footer_y),
-		Vector2(rect.end.x - 4.0, footer_y),
-		Color(border.r, border.g, border.b, 0.45),
-		1.0
-	)
-	var font := ThemeDB.fallback_font
-	if font != null and not key_text.is_empty():
-		var key_rect := Rect2(rect.position.x + 4.0, footer_y + 2.0, 14.0, 12.0)
-		slot.draw_rect(key_rect, Color(0.14, 0.16, 0.16, 0.95), true)
-		slot.draw_rect(key_rect, Color(border.r, border.g, border.b, 0.7), false, 1.0)
-		slot.draw_string(font, Vector2(key_rect.position.x + 4.0, footer_y + 11.5), key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, UIPalette.TEXT)
-		slot.draw_string(font, Vector2(key_rect.end.x + 5.0, footer_y + 11.5), state_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, state_color)
-	elif font != null and not state_text.is_empty():
-		slot.draw_string(font, Vector2(rect.position.x, footer_y + 11.5), state_text,
-			HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 9, state_color)
-
-	# Flashlight active beam glow dot in top-right corner of card.
-	if kind == "flashlight" and _flashlight_on and _battery_percent > 0.0:
-		var pip_pos := Vector2(rect.end.x - 7.0, rect.position.y + 7.0)
-		slot.draw_circle(pip_pos, 4.5, Color(UIPalette.BATTERY_ON.r, UIPalette.BATTERY_ON.g, UIPalette.BATTERY_ON.b, 0.25))
-		slot.draw_circle(pip_pos, 2.3, UIPalette.BATTERY_ON)
+	var slot: Control = _slots[kind]
+	var font := slot.get_theme_font("font", "Label")
+	slot.draw_string(font, Vector2(0, slot.size.y + 8), _offering_labels[kind],
+		HORIZONTAL_ALIGNMENT_CENTER, slot.size.x, 12, UIPalette.TEXT)
 
 func _draw_inventory_overlay() -> void:
 	if _inventory_overlay == null:
 		return
 	var rock_slot: Control = _slots.get("rocks")
 	if rock_slot != null and rock_slot.visible and _throw_cooldown_frac > 0.0:
-		var slot_origin := inventory.position + rock_slot.position + rock_slot.pivot_offset * (Vector2.ONE - rock_slot.scale)
-		var slot_rect := Rect2(slot_origin - Vector2(7.0, 5.0) * rock_slot.scale, (rock_slot.size + Vector2(14.0, 22.0)) * rock_slot.scale)
+		var slot_to_overlay := _inventory_overlay.get_global_transform().affine_inverse() * rock_slot.get_global_transform()
+		var slot_rect := slot_to_overlay * Rect2(Vector2.ZERO, rock_slot.size)
 		var fill_h := slot_rect.size.y * _throw_cooldown_frac
 		var sweep := Rect2(slot_rect.position.x, slot_rect.end.y - fill_h, slot_rect.size.x, fill_h)
 		_inventory_overlay.draw_rect(sweep, Color(0.04, 0.05, 0.06, 0.45), true)

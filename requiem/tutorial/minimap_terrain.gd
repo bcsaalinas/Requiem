@@ -1,7 +1,5 @@
 extends Control
 const ZOOM := 0.27
-const INK := Color("b5ad94")
-const GOLD := Color("c4a778")
 var atlas: Node
 var _walls: Dictionary = {}
 
@@ -16,15 +14,14 @@ func _draw() -> void:
 	var zone: String = atlas.game.zone
 	var region: Rect2 = atlas.REGIONS[zone]
 	var zone_node: Node2D = atlas.game.world.zones[zone]
-	draw_rect(Rect2(Vector2.ZERO, size), Color("111c19"))
-	# Discovery tint and survey lines scroll in world space, never in screen space.
+	draw_rect(Rect2(Vector2.ZERO, size), Color("121010"))
+	# Discovery stays registered to the world as Viv moves.
 	for cell in atlas.explored.get(zone, {}):
 		var rect := Rect2(Vector2(cell) * atlas.CELL, Vector2.ONE * atlas.CELL).intersection(Rect2(Vector2.ZERO, region.size))
 		if not rect.has_area(): continue
 		var screen := Rect2(project_point(region.position + rect.position), rect.size * ZOOM)
 		if not screen.intersects(Rect2(Vector2.ZERO, size)): continue
-		draw_rect(screen, Color(0.43, 0.48, 0.35, 0.09))
-		draw_rect(screen, Color(0.5, 0.55, 0.4, 0.05), false, 0.5)
+		draw_rect(screen, Color("272323"))
 	if not _walls.has(zone): _cache_walls(zone_node, zone)
 	for polygon in _walls[zone]:
 		var center := Vector2.ZERO
@@ -35,29 +32,29 @@ func _draw() -> void:
 		if not Rect2(Vector2(-24, -24), size + Vector2(48, 48)).has_point(screen_center): continue
 		var points := PackedVector2Array()
 		for point in polygon: points.append(project_point(point))
-		draw_colored_polygon(points, Color(0.63, 0.62, 0.48, 0.5))
+		draw_colored_polygon(points, Color("473e3c"))
 	if zone == "forest": _draw_trees(zone_node)
 	var doors := zone_node.get_node_or_null("Doors")
 	if doors != null:
 		for door in doors.get_children():
 			if door is Node2D and _known(door.global_position):
-				draw_circle(project_point(door.global_position), 3, GOLD, false, 1, true)
+				_draw_door(project_point(door.global_position))
 	# The trail exit is an interaction marker, not a physical door.
 	for id in ["forest_exit", "house_back"]:
 		var item: Dictionary = atlas.game.world.interactables.get(id, {})
 		if not item.is_empty() and zone_node.is_ancestor_of(item.node) and _known(item.node.global_position):
-			draw_circle(project_point(item.node.global_position), 3, GOLD, false, 1, true)
-	# Soft inner vignette, drawn before the marker so the player always reads clearly.
-	for i in range(6):
-		draw_rect(Rect2(Vector2.ONE * i, size - Vector2.ONE * i * 2), Color(0.02, 0.04, 0.03, 0.13 * (1.0 - float(i) / 6)), false, 2)
-	var centre := size * 0.5
-	draw_circle(centre, 10, Color(0.78, 0.68, 0.45, 0.12), true, -1, true)
-	draw_circle(centre, 8, Color(0.78, 0.68, 0.45, 0.5), false, 1, true)
+			_draw_door(project_point(item.node.global_position))
+	# A short bone needle is the only very light mark in the map.
 	var angle: float = atlas.game.player.get_node("PlayerAim").body_angle
 	var arrow := PackedVector2Array()
-	for point in [Vector2(6, 0), Vector2(-4, -3.5), Vector2(-2, 0), Vector2(-4, 3.5)]:
-		arrow.append(centre + point.rotated(angle))
-	draw_colored_polygon(arrow, Color("f5e4b8"))
+	for point in [Vector2(7, 0), Vector2(-4, -4), Vector2(-3, 0), Vector2(-4, 4)]:
+		arrow.append((size * 0.5 + point.rotated(angle)).round())
+	draw_colored_polygon(arrow, Color("bab4aa"))
+
+func _draw_door(point: Vector2) -> void:
+	point = point.round()
+	draw_rect(Rect2(point - Vector2(3, 3), Vector2(7, 7)), Color("161414"))
+	draw_rect(Rect2(point - Vector2(2, 2), Vector2(5, 5)), Color("a8844f"), false, 1)
 
 func _cache_walls(zone_node: Node2D, zone: String) -> void:
 	var polygons: Array[PackedVector2Array] = []
@@ -81,7 +78,10 @@ func _draw_trees(zone: Node2D) -> void:
 		if not _known(prop.global_position): continue
 		var point := project_point(prop.global_position)
 		if not Rect2(Vector2.ZERO, size).grow(6).has_point(point): continue
-		for tier in 2:
-			var tip := point + Vector2(0, -5 + tier * 3)
-			var spread := 2.5 + tier
-			draw_polyline(PackedVector2Array([tip + Vector2(-spread, 4), tip, tip + Vector2(spread, 4)]), Color("6f7d65"), 1, true)
+		point = point.round()
+		for row in 3:
+			var width := 1 + row * 2
+			draw_rect(Rect2(point + Vector2(-row, -4 + row), Vector2(width, 1)), Color("545a42"))
+		draw_rect(Rect2(point + Vector2(-3, 0), Vector2(5, 1)), Color("545a42"))
+		draw_rect(Rect2(point + Vector2(-3, 1), Vector2(7, 1)), Color("545a42"))
+		draw_rect(Rect2(point + Vector2(0, 2), Vector2(1, 2)), Color("393d2f"))

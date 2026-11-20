@@ -8,6 +8,8 @@
 [ext_resource type="Texture2D" path="res://assets/art/vfx/vfx_copal_smoke.png" id="6_smoke"]
 [ext_resource type="Script" path="res://level/vfx_sheet.gd" id="7_vfx"]
 
+[ext_resource type="Script" path="res://tutorial/prayer_beads.gd" id="beads"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_altar"]
 size = Vector2(96, 64)
 
@@ -140,6 +142,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
+script = ExtResource("beads")
 z_index = 10
 offset_left = -65.0
 offset_top = -124.0

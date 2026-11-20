@@ -18,6 +18,9 @@ const DRAIN_HELD := 0.6
 ## The lung arcs around her (Isaac's hold-breath bars) turn amber when her air is under this
 ## many times the gasp line (HoldBreath.quiet_exhale_lung_threshold), and red at the line.
 const ARC_AMBER_AT := 2.0
+const RAIL := preload("res://assets/art/hud/breath_channel.png")
+const AIR := preload("res://assets/art/hud/breath_air.png")
+const NOTCH := preload("res://assets/art/hud/breath_release_tick.png")
 
 var feedback: Node
 var _edge: ColorRect
@@ -31,6 +34,7 @@ var _unlit := CanvasItemMaterial.new()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_unlit.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	position = Vector2.ZERO
@@ -97,29 +101,28 @@ func _draw_character_arcs() -> void:
 	if breath.is_holding:
 		var lung: float = clampf(breath.lung_percent / 100.0, 0.0, 1.0)
 		var threshold: float = clampf(breath.quiet_exhale_lung_threshold / 100.0, 0.0, 1.0)
-		var radius: float = (30.0 - feedback.pulse * (1.8 if feedback.strain > 0.3 else 0.4)) * scale_factor
-		var fill := Color("b7d8d2")
-		# Red on the mechanic's own lines: so little air that letting go is a gasp, or tired
-		# enough that the HUD warns (the forced gasp is on its way). Amber a little before.
+		var art_scale := scale_factor
+		var art_size := RAIL.get_size()
+		var origin := (at - art_size * art_scale * 0.5).round()
+		var tint := Color.WHITE
 		if breath.lung_percent <= breath.quiet_exhale_lung_threshold or breath.exertion_percent >= breath.exertion_warn_percent:
-			fill = Color("d64f42").lerp(Color("f2b0a0"), feedback.pulse * 0.45)
+			tint = Color("db8475")
 		elif breath.lung_percent <= breath.quiet_exhale_lung_threshold * ARC_AMBER_AT:
-			fill = Color("e2a45b")
-		fill.a = (0.68 + feedback.pulse * 0.24) * effect_strength
-		for side_value in [0.0, PI]:
-			var side: float = side_value
-			var from_angle: float = side - 0.56
-			var to_angle: float = side + 0.56
-			var bottom: float = side + 0.56 if side == 0.0 else side - 0.56
-			var top: float = side - 0.56 if side == 0.0 else side + 0.56
-			draw_arc(at, radius, from_angle, to_angle, 14, Color(0.05, 0.06, 0.07, 0.62 * effect_strength), 4.5, true)
-			var danger_end: float = lerpf(bottom, top, threshold)
-			draw_arc(at, radius, minf(bottom, danger_end), maxf(bottom, danger_end), 6, Color(0.84, 0.31, 0.26, 0.45 * effect_strength), 3.0, true)
-			if lung > 0.01:
-				var fill_end := lerpf(bottom, top, lung)
-				draw_arc(at, radius, minf(bottom, fill_end), maxf(bottom, fill_end), 12, fill, 2.2, true)
-			var tick: Vector2 = Vector2.from_angle(danger_end)
-			draw_line(at + tick * (radius - 3.5), at + tick * (radius + 3.5), Color(0.95, 0.90, 0.80, 0.85 * effect_strength), 1.4, true)
+			tint = Color("e2b477")
+		tint.a = effect_strength
+		var ink := Color(1, 1, 1, effect_strength)
+		draw_texture_rect(RAIL, Rect2(origin, art_size * art_scale), false, ink)
+		var rows := roundi(40 * lung)
+		if rows > 0:
+			var region := Rect2(0, 46 - rows, art_size.x, rows)
+			draw_texture_rect_region(AIR, Rect2(origin + region.position * art_scale, region.size * art_scale), region, tint)
+		# Slide each notch along the curved rail when the mechanic's threshold changes.
+		var tick_y := clampi(45 - roundi(40 * threshold), 6, 45)
+		var dx := roundi(0.015 * (pow(tick_y - 25.5, 2) - pow(37 - 25.5, 2)))
+		for half in 2:
+			var region := Rect2(half * 42, 37, 42, 2)
+			var shift := Vector2(dx if half == 0 else -dx, tick_y - 37)
+			draw_texture_rect_region(NOTCH, Rect2(origin + (region.position + shift) * art_scale, region.size * art_scale), region, ink)
 
 	# Recovery ring fills while the forced gasp lock wears off.
 	if breath.is_locked:

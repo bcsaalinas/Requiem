@@ -168,6 +168,18 @@ func _process(delta: float) -> void:
 	_tick_listening(delta, settings)
 
 
+## The take heard most clearly during a mood crossfade. Its playback cursor drives Viv's art.
+func leading_breath_loop() -> AudioStreamPlayer:
+	var loudest: AudioStreamPlayer
+	var level := SILENT_DB
+	for set_id in LOOPS:
+		var voice: AudioStreamPlayer = _loops[set_id]
+		if voice.playing and voice.stream != null and voice.volume_db > level:
+			level = voice.volume_db
+			loudest = voice
+	return loudest
+
+
 func _tick_breathing(delta: float, settings: SoundSettings) -> void:
 	mood = wanted_mood()
 	# She holds her breath, or is letting it out: no breathing under it.

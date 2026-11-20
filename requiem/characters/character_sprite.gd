@@ -31,6 +31,12 @@ var arm_swing := 0.0:
 			return
 		arm_swing = value
 		_refresh_layout()
+## Upper-body lift in art pixels. Applied to attachments as well as the drawn body.
+var breath_lift := 0.0:
+	set(value):
+		if value != breath_lift:
+			breath_lift = value
+			_refresh_layout()
 var _mirror_parts: Array = PARTS
 
 var _layers := {}
@@ -230,6 +236,8 @@ func _arm_swing_local() -> float:
 
 func _art_to_local(art_point: Vector2, part: StringName = &"lower") -> Vector2:
 	var point := art_point - PIVOT
+	if part != &"lower":
+		point.y -= breath_lift
 	if _part_mirrored(part):
 		point.x = -point.x
 	return point * Units.ART_SCALE
@@ -307,6 +315,8 @@ func _refresh_layout() -> void:
 			continue
 		sprite.frame = state["frame"]
 		var offset := upper_offset if part == &"upper" or part == &"arm_right" else Vector2.ZERO
+		if part != &"lower":
+			offset.y -= breath_lift
 		sprite.offset = _mirrored(offset, part)
 		if part == &"arm_right":
 			# The layer turns about the shoulder, so the shoulder itself stays where the torso has it.
@@ -332,7 +342,7 @@ func _refresh_head(sprite: Sprite2D, upper_data: Dictionary) -> void:
 	sprite.texture = _head_pose_clip["texture"]
 	sprite.hframes = _head_pose_clip["hframes"]
 	sprite.frame = _head_frame()
-	sprite.offset = _mirrored(_head_offset(), &"head")
+	sprite.offset = _mirrored(_head_offset() + Vector2.UP * breath_lift, &"head")
 
 
 var head_enabled := true
