@@ -55,7 +55,7 @@ the house's own knocks staying separate from the entity's (already true in `Hous
 - When it approaches, the environment is turned down and its own sounds are turned up.
 
 What we take: faint noise means "come and look", not "attack"; the search order and the
-tightening passes. The director is in the plan (Step 6) and not in this branch.
+tightening passes; the director that only hints, with its pressure and back-off.
 
 ### Other games with an alert ladder
 
@@ -104,7 +104,7 @@ CHECK is `State.INVESTIGATE` in code.
 
 | State | What it does | What the player should do |
 | --- | --- | --- |
-| PATROL | Walks its markers at 1 u/s, pauses, sometimes detours to a place it heard something. | Move, carefully. |
+| PATROL | Walks its markers at 1 u/s, pauses, sometimes stops mid-way, sometimes detours to a place it heard something. In the Hacienda the Director picks the markers. | Move, carefully. |
 | LISTEN | Freezes, head cocked to the sound. Its breath and steps cut off, then the neck click. | Freeze within about a second. |
 | CHECK | Creeps at 2.2 u/s to a point up to 2.5 u off the sound. Stops once on the way to listen. | Leave the spot holding your breath (2.5 u/s is just faster), or stand still out of its way. |
 | Hunt start | Stands still for the inhale and the scream (1.3 s). | Leave the spot. |
@@ -153,6 +153,42 @@ Starting values, to tune by playtest. Each cell is clear / faint:
 The script's defaults are the Hacienda's. `tutorial.gd` sets the gentler pair for the first
 house in `_configure_entity()` (`HOUSE_CLEAR_GAIN`, `HOUSE_FAINT_GAIN`).
 
+## The Director (hint only)
+
+`entities/entity_director.gd`, the child "Director" of the entity. It knows where Viv is.
+The entity does not, and the Director never tells it. It does one thing: when the entity
+asks which patrol marker to walk to next, the Director chooses.
+
+- **Drift in.** It prefers markers whose walking distance to Viv is 8–16 u (the next room,
+  not her room), with some randomness, never the same marker twice in a row.
+- **No-go.** Never a marker within 5 u of her. It is never sent to her.
+- **Pressure.** Rises while it sounds near to her (`Dread.presence`) or is alert
+  (`Dread.threat`); 25 s on top of her fill it. Full: it backs off. For 20–35 s of patrol
+  the markers 20 u or more from her are preferred, and the marker it was walking to is
+  dropped at once. Then pressure starts again at 0.3. Time spent hunting or searching does
+  not use the back-off up.
+- **Quiet limit.** If it has not been within 18 u of her for 45–70 s, the next marker is
+  the best one of the band, with no randomness.
+- **Patrol life.** A small chance per second of walking (`patrol_stop_chance`, 0.05) to
+  stop mid-way for 0.8–1.6 s: silence without a click.
+
+It never changes what the entity hears, never touches where the entity thinks a sound
+was, and never makes it listen, check or hunt. `test_entity_director` checks that, down to
+the words its code may not contain.
+
+The first house has the Director and the mid-way stops off (`_configure_entity()`); the
+Hacienda has both on.
+
+Four minutes of scripted patrol on the Hacienda's ground floor, Viv standing silent:
+
+| | Director off | Director on |
+| --- | --- | --- |
+| Viv near three markers: mean distance to her | 22 u | 13–16 u |
+| Viv in a corner with one marker beside her: mean distance | 28 u | 21 u |
+| Same corner: longest stretch with it further than 18 u | 142 s | 49 s |
+| Same corner: sent to the marker 3 u from her | once | never |
+| Rhythm near her | none | about 115 s around her, 24 s away, back at pressure 0.3 |
+
 ## What is in this branch
 
 | Plan step | What | Files |
@@ -162,7 +198,7 @@ house in `_configure_entity()` (`HOUSE_CLEAR_GAIN`, `HOUSE_FAINT_GAIN`).
 | 3 | A hunt always reaches the spot (`hunt_linger`, `hunt_max_travel`). Longer search with tightening passes and a door as its last stop. Stuck watchdog. | `entities/entity_ai.gd`, `level/room/room_visibility.gd` |
 | 4 | Sound hooks: a check counts as searching for the music and the house voice; its voice and sniffing while it checks; the click reaches as far as its faintest hearing (`heard_full_u` 16 → 32). Head scan while it checks. | `audio/dread.gd`, `entities/entity_audio.gd`, `audio/sound_settings.gd`, `tutorial/entity_sprite_rig.gd` |
 | 5 | F3 overlay shows what it made of each noise. New suite `test_entity_behavior`. | `testing/tools/noise_debug.gd`, `testing/regression/*`, `testing/run_checks.py` |
-| part of 6 | The route no longer wears away: a revisit is a one-off detour. | `tutorial/entity.gd` |
+| 6 | The Director and patrol life (above). The route no longer wears away: a revisit is a one-off detour. | `entities/entity_director.gd`, `tutorial/entity.gd`, `tutorial/tutorial_entity.tscn`, `tutorial/tutorial.gd` |
 | not in the plan | The Hacienda's navigation mesh is baked at load, on both floors, right after the walls are built (about 10 ms). | `tutorial/zones/mansion_ground.gd`, `tutorial/zones/mansion_upper.gd` |
 
 ## Checked in the Hacienda
@@ -188,8 +224,6 @@ after playing it, not before.
 
 Left for a follow-up, in the plan's own cut order:
 
-- **Step 6, the Director**: patrol markers chosen by Viv's part of the house, the pressure
-  gauge and back-off, the quiet limit, mid-way patrol stops.
 - **Step 7, door behaviour**: waiting outside a closed door on patrol, slamming it in a
   hunt, rattling a locked one (`door_pushed`, `door_locked` sounds).
 - **Step 8, learning inside a night.**
@@ -209,6 +243,15 @@ Left for a follow-up, in the plan's own cut order:
   `search_door_reach_u` (8 u) of the spot.
 - **Check and search points stay in the same space as the sound** when one can be found
   (no wall between the two), so "about where the sound was" is never the room next door.
+- **Pressure also counts hovering.** The plan fills the pressure from `Dread.presence`
+  and `Dread.threat` only. Presence is how near it *sounds*, so circling her behind walls
+  never filled it and it hovered in her part of the house for minutes. `near_pressure`
+  (0.25) counts being within 18 u of her as a quarter of full closeness; 0 gives the plan's
+  rule back. An empty house also drains the pressure (`pressure_fall_time`, 60 s), which
+  the plan does not say.
+- **A back-off only counts down on patrol**, and it redirects the patrol leg already under
+  way. Otherwise a back-off that began during a hunt was over before it meant anything.
+- **Mid-way stops are off in the first house**, with the Director.
 - **Renamed exports**: `hunt_persistence` → `hunt_linger`, `search_duration` →
   `search_duration_range`. `calm_hearing_multiplier`, `alert_hearing_multiplier` and
   `hearing_multiplier()` are gone.
@@ -232,6 +275,16 @@ Everything is an `@export` on the entity, grouped in the Inspector:
 | Search | `search_radius_u`, `search_points` | 6 u, 5 | |
 | Search | `search_door_reach_u` | 8 u | 0 turns the door stop off. |
 | Stuck | `stuck_time` | 1.5 s | |
+| Patrol route | `patrol_stop_chance` | 0.05 /s | Stops mid-way. 0 in the first house. |
+| Director | `near_band_u` | 8–16 u | Where it likes to be: the next room. |
+| Director | `no_go_u` | 5 u | Never sent closer than this. |
+| Director | `jitter_u` | 4 u | Randomness of a choice. |
+| Director | `pressure_fill_time` | 25 s | Closeness before it backs off. |
+| Director | `near_pressure` | 0.25 | What hovering unheard counts for. Lower: it stays around longer. |
+| Director | `back_off_range`, `far_u` | 20–35 s, 20 u | The breather. |
+| Director | `quiet_limit_range`, `quiet_range_u` | 45–70 s, 18 u | No dead stretches. |
+
+The Director's exports are on the "Director" node of `tutorial/tutorial_entity.tscn`.
 
 **F3** (Test Lab, or any scene with the noise overlay): around each noise ring two thin
 circles show how far the entity would hear that noise in open air (red: clearly, amber:
@@ -243,7 +296,8 @@ it hears (x2.0 / x3.5): INVESTIGATE · last noise FOOTSTEP 3.0 u: FAINT at 7.4 u
 ```
 
 While it listens the line also says what the listening will end in (`listening -> HUNT` or
-`listening -> INVESTIGATE`). Tune the numbers in the Inspector while looking at this.
+`listening -> INVESTIGATE`). In the Hacienda it ends with the Director: `director: pressure
+0.42, last marker 4 (19 u from her by foot, drift in)`, or `backing off 22 s`. Tune the numbers in the Inspector while looking at this.
 
 ## Playtest matrix
 
@@ -260,6 +314,8 @@ While it listens the line also says what the listening will end in (`listening -
 | 9 | After a hunt, hide silently in the same room | It searches 12–18 s, tries a door, exhales. |
 | 10 | Screen off, whole encounter | You can always say: heard / checking / hunting / gave up. |
 | 11 | First house, first-time player | The encounter is still passable with the gentle values. |
+| 12 | Hacienda: stay silent for 2 minutes | It comes through your part of the house, never straight at you. |
+| 13 | Hacienda: let it hover near you for 2 minutes (F3 on) | Pressure fills, it leaves for about half a minute, and comes back. |
 
 ## Risks to watch in playtests
 
@@ -274,8 +330,28 @@ While it listens the line also says what the listening will end in (`listening -
 - **Viv's ears changed in the Hacienda too.** The entity's own sounds are placed with the
   same path measurement, so behind a wall they now come from the doorway and from further
   away than before. That is how the first house already sounds.
-- **`showcase/night-one-test`** also edits `tutorial/entity.gd` (the creature rests and goes
-  deaf). Merging the two needs a hand.
+- **Few markers.** The Hacienda has 8 patrol markers on a 70 × 56 u floor, so often no
+  marker is inside the 8–16 u band and the Director takes the nearest one outside the
+  no-go. More markers (two per big room, one per small) give it real choices.
+
+## Merging `showcase/night-one-test`
+
+Decided: where the two overlap, this branch wins. A trial merge conflicts in two files.
+
+- `testing/run_checks.py`: keep every suite name from both sides.
+- `tutorial/entity.gd`: keep this branch's file, then put the showcase's rest back on top
+  of it, because the showcase's own code calls `entity.rest()` and `entity.is_resting()`:
+  - the variables `_rest_left`, `_deaf_left`, `rest_hearing`, counted down at the top of
+    `_physics_process()` and cleared in `reset_encounter()`;
+  - `rest()` and `is_resting()` as they are, with `_hunt_travel = 0.0`, `_inbox.clear()`
+    and `_detour = Vector2.INF` added to what `rest()` clears;
+  - deaf: `_listens()` also returns false while `_deaf_left > 0.0`;
+  - hears less: `hearing_multiplier()` is gone, so scale the noise instead, with
+    `func _judge(at, radius, source): super._judge(at, radius * (rest_hearing if _rest_left > 0.0 else 1.0), source)`;
+  - the catch guard `_rest_left <= 0.0` in `_on_catch_area_body_entered()`.
+
+  `rest()` walks it to the route point furthest from Viv; that is the Director's back-off
+  by another road, so the showcase could call it less once the Director is on.
 
 ## Sources
 

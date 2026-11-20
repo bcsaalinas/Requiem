@@ -17,7 +17,9 @@ extends "res://entities/entity_ai.gd"
 ## - where a hunt or a check ends it feels the floor for the sound, not for you,
 ## - its breathing stops while it listens and a dragging loop follows it while it moves,
 ## - every sound it hears is reported (heard_noise) with the spot the sound came from,
-## - patrols pick random points, sometimes the place it last heard something, with uneven pauses.
+## - patrols pick random points, sometimes the place it last heard something, with uneven pauses
+##   and now and then a stop mid-way; where the Director is on (child "Director",
+##   entities/entity_director.gd) it picks the points instead, by where Viv is, and never tells.
 signal caught
 ## Emitted with the exact position of every sound it hears.
 signal heard_noise(at: Vector2, source: int)
@@ -50,6 +52,11 @@ signal stood_down
 @export var patrol_pause_range := Vector2(0.9, 2.8)
 ## Chance that it walks to a place where it heard something before, between two patrol points.
 @export_range(0.0, 1.0, 0.05) var revisit_chance := 0.35
+## Chance per second of walking that it stops mid-way, for no reason the player can hear:
+## silence without a click (0: it only stops at its patrol points).
+@export_range(0.0, 1.0, 0.01, "suffix:/s") var patrol_stop_chance := 0.05
+## Random range (s) of such a stop.
+@export var patrol_stop_range := Vector2(0.8, 1.6)
 @export_group("Audio")
 ## Left empty: the drag loop is EntityAudio's now (entities/entity_audio.gd).
 @export var drag_clip: AudioStream
@@ -67,6 +74,9 @@ var active := false
 var sprite_rig: Node2D
 ## Everything it sounds like (child EntityAudio, entities/entity_audio.gd).
 var audio: EntityAudio
+## Chooses its patrol points by where Viv is, when the scene has one and it is on (child
+## Director, entities/entity_director.gd). It only ever hands back a point of the route.
+var director: EntityDirector
 ## Source type of the last sound it heard (for the "it heard your ..." explanation).
 var last_heard_source := -1
 ## How well it heard that sound (EntityAI.Heard).
@@ -92,6 +102,7 @@ func _ready() -> void:
 	_sprite.hide()
 	sprite_rig = $SpriteRig
 	audio = get_node_or_null("EntityAudio") as EntityAudio
+	director = get_node_or_null("Director") as EntityDirector
 	state_changed.connect(func(previous: int, current: int) -> void:
 		if previous == State.SEARCH and current == State.PATROL and not _resetting: stood_down.emit())
 	color_by_state = false
@@ -248,6 +259,9 @@ func _tick_patrol(delta: float) -> void:
 	_move_along_path(patrol_speed_u)
 	if _reached(target) or nav_agent.is_navigation_finished():
 		_end_patrol_leg()
+	elif patrol_stop_chance > 0.0 and randf() < patrol_stop_chance * delta:
+		# It stops mid-way and stands there. No click: it heard nothing.
+		_patrol_wait = randf_range(patrol_stop_range.x, patrol_stop_range.y)
 
 func _end_patrol_leg() -> void:
 	_pick_next_patrol_point()
@@ -275,17 +289,33 @@ func _tick_search(delta: float) -> void:
 func _on_search_point_reached() -> void:
 	_feel_left = search_feel_time
 
-## Random point of the route, never the same point twice in a row. Now and then it first walks
-## to a place it heard something: a one-off detour, the route itself is never changed.
+## Random point of the route, never the same point twice in a row; the Director's choice
+## where it is on. Now and then it first walks to a place it heard something: a one-off
+## detour, the route itself is never changed.
 func _pick_next_patrol_point() -> void:
 	if _detour == Vector2.INF and not _memory.is_empty() and randf() < revisit_chance:
 		_detour = _memory.pick_random()
 		return
 	_detour = Vector2.INF
+	if is_directed():
+		route_index = director.pick(route, route_index)
+		return
 	var previous := route_index
 	if route.size() > 1:
 		while route_index == previous:
 			route_index = randi() % route.size()
+
+## True while the Director chooses its patrol points.
+func is_directed() -> bool:
+	return director != null and director.enabled and route.size() > 1
+
+## The Director sends it elsewhere at once (a back-off began): the point it was walking to
+## is dropped for a new one. Only ever on patrol; nothing it has heard is touched.
+func redirect_patrol() -> void:
+	if current_state != State.PATROL or _listening > 0.0 or not is_directed():
+		return
+	_detour = Vector2.INF
+	route_index = director.pick(route, route_index)
 
 func _remember(at: Vector2) -> void:
 	_memory.append(at)
@@ -356,5 +386,7 @@ func reset_encounter(at: Vector2, points: Array[Vector2]) -> void:
 	active = false
 	_feel_left = 0.0
 	sprite_rig.reset()
+	if director != null:
+		director.reset()
 	if audio != null:
 		audio.reset()

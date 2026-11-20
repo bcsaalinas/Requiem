@@ -215,6 +215,8 @@ var breathing_captioned := false
 var entity_was_screaming := false
 ## The entity scene's own hearing (clear_gain, faint_gain), read once before any zone changes it.
 var _entity_ears := Vector2.ZERO
+## The entity scene's own chance of a stop mid-way on patrol, read the same way (-1: not yet).
+var _entity_stop_chance := -1.0
 var banner_time := 0.0
 var encounter_grace := 0.0
 var heard_length := 0.0
@@ -461,9 +463,16 @@ func _configure_entity() -> void:
 	# Its ears: the scene's own values in the Hacienda, gentler everywhere before it.
 	if _entity_ears == Vector2.ZERO:
 		_entity_ears = Vector2(entity.clear_gain, entity.faint_gain)
+	if _entity_stop_chance < 0.0:
+		_entity_stop_chance = entity.patrol_stop_chance
 	var first_house := zone not in MANSION_ZONES
 	entity.clear_gain = HOUSE_CLEAR_GAIN if first_house else _entity_ears.x
 	entity.faint_gain = HOUSE_FAINT_GAIN if first_house else _entity_ears.y
+	# The Director and the stops mid-way belong to the Hacienda: the first house is six
+	# markers in three rooms, and its encounter is taught, not hunted.
+	if entity.director != null:
+		entity.director.enabled = not first_house
+	entity.patrol_stop_chance = 0.0 if first_house else _entity_stop_chance
 	entity.hide()
 	entity.active=false
 	# Its unseen breathing belongs to the heard phase that switched it on: never to the next zone.

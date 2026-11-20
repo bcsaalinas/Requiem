@@ -39,6 +39,8 @@ extends Node
 #   it hears (x2.0 / x3.5): INVESTIGATE · last noise FOOTSTEP 3.0 u: FAINT at 7.4 u
 #   (clear <= 6.0, faint <= 10.5) · wall in the way · 1 closed door
 # While it listens the line also says what the listening will end in (-> HUNT or -> INVESTIGATE).
+# Where the Director is on (the Hacienda) the line ends with it: its pressure, whether it is
+# backing off, and the last patrol marker it chose with that marker's walking distance to Viv.
 
 const PX_PER_UNIT: float = Units.PX_PER_UNIT
 const JumpScareAudit := preload("res://testing/tools/jump_scare_audit.gd")
@@ -391,4 +393,7 @@ func hearing_text() -> String:
 			parts.append("wall in the way")
 		if int(last.doors) > 0:
 			parts.append("%d closed door%s" % [int(last.doors), "" if int(last.doors) == 1 else "s"])
+	var director: Object = ears.get(&"director")
+	if director != null and bool(director.get(&"enabled")):
+		parts.append("director: %s" % director.call(&"status"))
 	return "it hears (x%.1f / x%.1f): %s" % [float(ears.get(&"clear_gain")), float(ears.get(&"faint_gain")), " · ".join(parts)]
