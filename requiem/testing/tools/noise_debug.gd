@@ -393,6 +393,8 @@ func hearing_text() -> String:
 			parts.append("wall in the way")
 		if int(last.doors) > 0:
 			parts.append("%d closed door%s" % [int(last.doors), "" if int(last.doors) == 1 else "s"])
+	if int(ears.get(&"persistence_max")) > 0:
+		parts.append("learned %d/%d" % [int(ears.get(&"persistence")), int(ears.get(&"persistence_max"))])
 	var director: Object = ears.get(&"director")
 	if director != null and bool(director.get(&"enabled")):
 		parts.append("director: %s" % director.call(&"status"))

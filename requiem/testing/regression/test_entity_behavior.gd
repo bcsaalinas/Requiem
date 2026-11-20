@@ -344,7 +344,7 @@ func check_never_hears_itself() -> void:
 	var doorway := kitchen_door.get_noise_origin()
 	await arm(doorway + Vector2(70, 0))
 	entity.global_position = doorway + Vector2(26, 0)
-	await frames(6)
+	await until(func() -> bool: return kitchen_door.is_open, 150)       # on patrol it stands outside first
 	check(kitchen_door.is_open, "It pushes a closed door open by walking into it")
 	check(noises.is_empty() and not entity.is_listening() and listens == 0 and states.is_empty(),
 		"The door it pushed made no noise event (%d): it does not hunt its own door" % noises.size())

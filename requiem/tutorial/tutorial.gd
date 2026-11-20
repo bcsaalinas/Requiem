@@ -217,6 +217,11 @@ var entity_was_screaming := false
 var _entity_ears := Vector2.ZERO
 ## The entity scene's own chance of a stop mid-way on patrol, read the same way (-1: not yet).
 var _entity_stop_chance := -1.0
+## And its learning and its claw taps (-1: not yet).
+var _entity_persistence_max := -1
+var _entity_claw_taps := true
+## The zone the entity was last set up for.
+var _entity_zone := ""
 var banner_time := 0.0
 var encounter_grace := 0.0
 var heard_length := 0.0
@@ -473,6 +478,12 @@ func _configure_entity() -> void:
 	if entity.director != null:
 		entity.director.enabled = not first_house
 	entity.patrol_stop_chance = 0.0 if first_house else _entity_stop_chance
+	# So do learning from escaped hunts and the claw taps.
+	if _entity_persistence_max < 0:
+		_entity_persistence_max = entity.persistence_max
+		_entity_claw_taps = entity.claw_taps
+	entity.persistence_max = 0 if first_house else _entity_persistence_max
+	entity.claw_taps = _entity_claw_taps and not first_house
 	entity.hide()
 	entity.active=false
 	# Its unseen breathing belongs to the heard phase that switched it on: never to the next zone.
@@ -504,10 +515,15 @@ func _configure_entity() -> void:
 		var mansion_points: Array[Vector2] = []
 		for index in range(1, int(floor_plan["points"]) + 1):
 			mansion_points.append(world.marker(zone, "Patrol%d" % index))
+		# What it learned from the hunts she escaped lasts the night: the stairs do not undo it.
+		# A death does (and it never learns from one).
+		var learned: int = entity.persistence if (_entity_zone in MANSION_ZONES and not resetting) else 0
 		entity.reset_encounter(world.marker(zone, String(floor_plan["spawn"])), mansion_points)
+		entity.persistence = mini(learned, entity.persistence_max)
 		entity.get_node("CollisionShape2D").set_deferred("disabled", false)
 		entity.show()
 		mansion_grace = float(floor_plan["grace"])
+	_entity_zone = zone
 
 ## Its own sounds start: the heard phase, which ends with it standing in the house.
 func _begin_presence() -> void:

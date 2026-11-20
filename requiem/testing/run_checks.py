@@ -9,7 +9,7 @@ import sys
 
 PROJECT = Path(__file__).resolve().parents[1]
 SUITES = ("test_menu_flow", "test_kiosk", "test_tutorial", "test_doors_rooms", "test_breath_events", "test_breath_feedback", "test_throw_feedback", "test_prayer_feedback", "test_sprint_feedback", "test_footstep_audio", "test_player_actions", "test_player_motion",
-          "test_player_pose", "test_phantom_camera", "test_level_template", "test_test_lab", "test_audio_mix", "test_entity_audio", "test_awareness", "test_idle_voice", "test_dread", "test_acoustics", "test_rings", "test_body_audio", "test_house_voice", "test_sparse_music", "test_jump_scare_audit", "test_heart", "test_prayer_audio", "test_entity_knock", "test_calm_beside_her", "test_field_map", "test_entity_behavior", "test_entity_director")
+          "test_player_pose", "test_phantom_camera", "test_level_template", "test_test_lab", "test_audio_mix", "test_entity_audio", "test_awareness", "test_idle_voice", "test_dread", "test_acoustics", "test_rings", "test_body_audio", "test_house_voice", "test_sparse_music", "test_jump_scare_audit", "test_heart", "test_prayer_audio", "test_entity_knock", "test_calm_beside_her", "test_field_map", "test_entity_behavior", "test_entity_director", "test_entity_night")
 
 
 def main():

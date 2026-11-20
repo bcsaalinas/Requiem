@@ -2,7 +2,8 @@
 
 This page goes with the branch `claude/cool-cannon-oiy4h5` (cut from `beta`). It says what
 was researched, what was built from the Notion plan "Entity redesign plan — it listens before
-it hunts" (decided 19 Nov), what was left out on purpose, and how to tune and test it.
+it hunts" (decided 19 Nov: all nine steps), where the build differs from it, and how to tune
+and test it.
 
 The Notion plan stays the design source. Where this page and the plan differ, the difference
 is listed under "Differences from the Notion plan".
@@ -109,7 +110,7 @@ CHECK is `State.INVESTIGATE` in code.
 | CHECK | Creeps at 2.2 u/s to a point up to 2.5 u off the sound. Stops once on the way to listen. | Leave the spot holding your breath (2.5 u/s is just faster), or stand still out of its way. |
 | Hunt start | Stands still for the inhale and the scream (1.3 s). | Leave the spot. |
 | HUNT | Runs at 3.9 u/s to the exact spot. New noises move the target with no new scream. | Stop feeding it sounds. |
-| SEARCH | Checks points around the spot, nearest first and then out of order, feels the floor at each, steps through one nearby door. 12–18 s after a hunt, 5–8 s after a check. | Stay silent until the exhale. |
+| SEARCH | Checks points around the spot and the hiding corners marked there, nearest first and then out of order, feels the floor at each, steps through one nearby door. 12–18 s after a hunt, 5–8 s after a check. | Stay silent until the exhale. |
 
 ### Listening is the decision
 
@@ -189,6 +190,40 @@ Four minutes of scripted patrol on the Hacienda's ground floor, Viv standing sil
 | Same corner: sent to the marker 3 u from her | once | never |
 | Rhythm near her | none | about 115 s around her, 24 s away, back at pressure 0.3 |
 
+## Doors, learning and claw taps
+
+**Doors** (`level/door/door.gd` asks the entity what it wants, `wants_door()`):
+
+- On patrol and in a check it stands in front of a closed door for 0.6–1.4 s before it
+  pushes it. You hear it stop outside.
+- In a hunt it slams the door at once: louder, and the leaf swings in a third of the time.
+  If it hears something while it stands at a door, the hunt begins with that door slammed.
+- A locked door it tries (the rattle), stands at for 1.5 s, and gives that way up: on
+  patrol the next marker, in a check or a hunt it searches where it stands.
+- None of it is a noise event. Doors it opened stay open.
+- The three sounds (`pushed_sound`, `slam_sound`, `locked_sound` on the door) are empty
+  until their files exist; the door's creak stands in for each, lower, louder or cut short.
+
+**Learning inside a night** (`persistence`, 0 to 3): every hunt Viv escapes (it searches,
+finds nothing and stands down) is a level. Each level makes the next search 3 s longer and
+adds a point to it; from level 2 it also looks around in the room past the door. A check
+teaches it nothing. Her death resets it, and it never learns from one. The stairs of the
+Hacienda keep it.
+
+**Claw taps**: unaware and on patrol, at a closed door it is about to push (or pausing
+within 1.5 u of one), it taps three times on the wood and stands listening for 2–3 s. Only
+when Viv cannot see where it stands (its room is not shown to her, or a wall or a closed
+door is between them) and hears it near or a room away, never on top of her; at most once
+every 60–120 s. The taps are its own claws from where it really is, 8 dB under its floor
+pats, and no noise event.
+
+Learning and taps are on in the Hacienda and off in the first house, like the Director.
+
+Four minutes of scripted patrol and two escaped hunts on the Hacienda's ground floor: 6
+doors pushed open after a wait, the locked chapel door tried twice (once on patrol, once in
+a hunt), one round of three taps at a door 7 u from Viv, searches of 13.3 s and then 16.4 s,
+level 2 learned, and no noise event from any of it.
+
 ## What is in this branch
 
 | Plan step | What | Files |
@@ -199,6 +234,9 @@ Four minutes of scripted patrol on the Hacienda's ground floor, Viv standing sil
 | 4 | Sound hooks: a check counts as searching for the music and the house voice; its voice and sniffing while it checks; the click reaches as far as its faintest hearing (`heard_full_u` 16 → 32). Head scan while it checks. | `audio/dread.gd`, `entities/entity_audio.gd`, `audio/sound_settings.gd`, `tutorial/entity_sprite_rig.gd` |
 | 5 | F3 overlay shows what it made of each noise. New suite `test_entity_behavior`. | `testing/tools/noise_debug.gd`, `testing/regression/*`, `testing/run_checks.py` |
 | 6 | The Director and patrol life (above). The route no longer wears away: a revisit is a one-off detour. | `entities/entity_director.gd`, `tutorial/entity.gd`, `tutorial/tutorial_entity.tscn`, `tutorial/tutorial.gd` |
+| 7 | Doors: the wait, the slam, the locked door. | `level/door/door.gd`, `entities/entity_ai.gd` |
+| 8 | Learning inside a night. | `entities/entity_ai.gd`, `tutorial/tutorial.gd` |
+| 9 | Claw taps. | `tutorial/entity.gd` |
 | not in the plan | The Hacienda's navigation mesh is baked at load, on both floors, right after the walls are built (about 10 ms). | `tutorial/zones/mansion_ground.gd`, `tutorial/zones/mansion_upper.gd` |
 
 ## Checked in the Hacienda
@@ -220,15 +258,19 @@ This changes how the Hacienda plays more than the hearing numbers do: it now get
 where it is going. Expect it to feel clearly more dangerous there, and tune the two gains
 after playing it, not before.
 
-## What is not in this branch
+## What is still open
 
-Left for a follow-up, in the plan's own cut order:
+All nine steps of the plan are built. What is left is for people:
 
-- **Step 7, door behaviour**: waiting outside a closed door on patrol, slamming it in a
-  hunt, rattling a locked one (`door_pushed`, `door_locked` sounds).
-- **Step 8, learning inside a night.**
-- **Step 9, claw taps.**
-- The one teaching line for the tutorial, and the numbers going into Metrics.
+- **Playing it.** Nothing here has been played by a person: see the playtest matrix.
+- **Sounds**: `door_pushed`, `door_locked` and a slam (the creak stands in), and a listen to
+  the taps.
+- **Level**: more patrol markers; `entity_poi` markers in hiding corners (any Marker2D in
+  the group "entity_poi": a search after a hunt visits up to three of the room the sound
+  was in, and none exist yet); Rooms for the Hacienda (the search door, the marked
+  corners and the taps all read them, and fall back to walls and distance without); the
+  marker behind the locked chapel door.
+- **Design**: the one teaching line for the tutorial, and the numbers going into Metrics.
 
 ## Differences from the Notion plan
 
@@ -252,6 +294,16 @@ Left for a follow-up, in the plan's own cut order:
 - **A back-off only counts down on patrol**, and it redirects the patrol leg already under
   way. Otherwise a back-off that began during a hunt was over before it meant anything.
 - **Mid-way stops are off in the first house**, with the Director.
+- **Taps are 8 dB under the floor pats.** At full level a tap as near as it may sound
+  would rise 23.6 dB out of a silent house, over the 18 dB the jump-scare audit allows;
+  at -8 dB it is 15.6 dB. The plan gives no level.
+- **Taps happen at the door it is about to push**, as well as on a pause near one: on
+  today's routes no patrol stop is within 1.5 u of a door.
+- **Learning lasts across the stairs** and is only cleared by a death or a new night. The
+  plan's technical note clears it on every `reset_encounter()`, which a change of floor
+  also calls; its design text says "inside a night".
+- **A check also waits at a door**, not only a patrol.
+- **Learning, taps, the Director and mid-way stops are off in the first house.**
 - **Renamed exports**: `hunt_persistence` → `hunt_linger`, `search_duration` →
   `search_duration_range`. `calm_hearing_multiplier`, `alert_hearing_multiplier` and
   `hearing_multiplier()` are gone.
@@ -284,6 +336,14 @@ Everything is an `@export` on the entity, grouped in the Inspector:
 | Director | `back_off_range`, `far_u` | 20–35 s, 20 u | The breather. |
 | Director | `quiet_limit_range`, `quiet_range_u` | 45–70 s, 18 u | No dead stretches. |
 
+| Doors | `door_wait_range` | 0.6–1.4 s | How long it stands outside before it pushes. |
+| Doors | `locked_door_wait` | 1.5 s | How long it stands at a locked door. |
+| Learning | `persistence_max` | 3 | 0: it never learns. |
+| Learning | `persistence_search_time`, `persistence_search_points` | 3 s, 1 | What a level is worth. |
+| Claw taps | `claw_taps`, `tap_gap_range` | on, 60–120 s | |
+| Claw taps | `tap_db` | -8 dB | Keep it at -6 or under (the audit). |
+| Claw taps | `tap_listen_range` | 2–3 s | The silence after the taps. |
+
 The Director's exports are on the "Director" node of `tutorial/tutorial_entity.tscn`.
 
 **F3** (Test Lab, or any scene with the noise overlay): around each noise ring two thin
@@ -297,7 +357,8 @@ it hears (x2.0 / x3.5): INVESTIGATE · last noise FOOTSTEP 3.0 u: FAINT at 7.4 u
 
 While it listens the line also says what the listening will end in (`listening -> HUNT` or
 `listening -> INVESTIGATE`). In the Hacienda it ends with the Director: `director: pressure
-0.42, last marker 4 (19 u from her by foot, drift in)`, or `backing off 22 s`. Tune the numbers in the Inspector while looking at this.
+0.42, last marker 4 (19 u from her by foot, drift in)`, or `backing off 22 s`, and with
+what it has learned (`learned 2/3`). Tune the numbers in the Inspector while looking at this.
 
 ## Playtest matrix
 
@@ -316,6 +377,10 @@ While it listens the line also says what the listening will end in (`listening -
 | 11 | First house, first-time player | The encounter is still passable with the gentle values. |
 | 12 | Hacienda: stay silent for 2 minutes | It comes through your part of the house, never straight at you. |
 | 13 | Hacienda: let it hover near you for 2 minutes (F3 on) | Pressure fills, it leaves for about half a minute, and comes back. |
+| 14 | Hacienda: wait behind a closed door on its patrol | You hear it stop outside for about a second before the door opens. Now and then three taps first, and a longer silence. |
+| 15 | Make it hunt a sound through a closed door | The door is slammed, not pushed. |
+| 16 | Hide behind a locked door while it hunts your sound | The door is tried once, it waits, then it searches on its side. |
+| 17 | Escape three hunts in one night (F3 on) | `learned 1/3`, `2/3`, `3/3`; each search is longer, and from the second it also looks into the next room. Die: `0/3`. |
 
 ## Risks to watch in playtests
 

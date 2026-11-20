@@ -13,8 +13,9 @@ extends CharacterBody2D
 #   HUNT        - It clearly heard something, or heard a second thing while its attention was
 #                 up. It runs to the EXACT spot, faster than the player walks (3.9 vs 3.2 u/s).
 #                 It never gives up before it gets there; on the spot it waits hunt_linger.
-#   SEARCH      - It lost the trail: it checks points around the last sound and steps through
-#                 a nearby door before it gives up and goes back to PATROL.
+#   SEARCH      - It lost the trail: it checks points around the last sound, the hiding
+#                 corners the level marks there (group "entity_poi"), and steps through a
+#                 nearby door before it gives up and goes back to PATROL.
 #
 # HEARING has two certainties (hear()). Every noise has a radius (how loud it is):
 #   inside radius x clear_gain  -> clearly heard  -> HUNT
@@ -22,6 +23,13 @@ extends CharacterBody2D
 # Distance is measured the way sound travels (audio/acoustics.gd): the straight line when no
 # wall is in the way, otherwise mostly the walking path through the doorways, and every
 # closed door on the way adds door_muffle_u. It never hears a noise it made itself.
+#
+# DOORS: it pushes a closed door open by walking into it (level/door/door.gd asks it what it
+# wants). On patrol and in a check it first stands in front of the door for a moment: you
+# hear it stop outside. In a hunt it slams it. A locked door it tries, waits at, and gives up.
+#
+# LEARNING: every hunt the player escapes makes its next search longer and wider, up to
+# persistence_max. It never learns from the player dying.
 #
 # This script decides at once. tutorial/entity.gd adds the listening pause in between, where
 # a second noise turns "it comes to look" into "it hunts".
@@ -47,11 +55,19 @@ const SEARCH_MIN_RADIUS_U := 1.5
 const DOORWAY_REACH_PX := 40.0
 ## How far past the middle of a doorway it steps when a search takes it through a door.
 const DOOR_STEP_THROUGH_U := 2.5
+## Level designers mark hiding corners by putting a Node2D (a Marker2D) in this group.
+const POI_GROUP := &"entity_poi"
+const MAX_POINTS_OF_INTEREST := 3
+## Points it checks in the room past the door, once it has learned to (Learning).
+const NEXT_ROOM_POINTS := 2
 
 ## Emitted only when the real FSM changes state; audio listens here without observing noise directly.
 signal state_changed(previous: int, current: int)
-## It tried to move for stuck_time and got nowhere (a locked door): it dropped that target.
+## It could not get where it was going (a locked door, or stuck_time of pushing at something):
+## it dropped that target.
 signal stuck
+## It lost a hunt and will search harder next time: the new level (1..persistence_max).
+signal learned(level: int)
 
 @export_group("Hearing")
 ## Safety cap, not a mechanic: it is above every real hearing distance.
@@ -100,6 +116,23 @@ signal stuck
 @export var light_search_points: int = 2
 ## A search after a hunt ends by stepping through one door this near the sound (0: never).
 @export_range(0.0, 20.0, 0.5, "suffix:u") var search_door_reach_u: float = 8.0
+
+@export_group("Doors")
+## Random range (s) it stands in front of a closed door before it pushes it, on patrol and in
+## a check. In a hunt it slams the door at once.
+@export var door_wait_range := Vector2(0.6, 1.4)
+## Seconds it stands at a locked door after trying it, before it gives that way up.
+@export_range(0.0, 5.0, 0.1, "suffix:s") var locked_door_wait: float = 1.5
+
+@export_group("Learning")
+## How many times it can learn from a hunt the player escaped (0: it never learns).
+@export_range(0, 5) var persistence_max: int = 3
+## Each level makes a search after a hunt this much longer...
+@export_range(0.0, 10.0, 0.5, "suffix:s") var persistence_search_time: float = 3.0
+## ...and adds this many points to its first pass.
+@export_range(0, 4) var persistence_search_points: int = 1
+## From this level on, the search also looks around in the room past its door.
+@export_range(1, 5) var persistence_next_room_level: int = 2
 
 @export_group("Patrol")
 ## Seconds it stands still at each patrol point.
@@ -172,6 +205,17 @@ var _search_length: float = 0.0
 var _search_centre: Vector2 = Vector2.ZERO
 var _search_radius_px: float = 0.0
 var _search_count: int = 0
+## The search under way is the short look after a check, not the search after a hunt.
+var _search_light: bool = false
+## How many hunts the player has escaped (0..persistence_max): see Learning.
+var persistence: int = 0
+## The closed door it stands in front of (null: none), how long it still stands there, and
+## whether it found it locked.
+var _door: Door = null
+var _door_wait: float = 0.0
+var _door_locked: bool = false
+## The door it has finished waiting at: asked again, it pushes.
+var _door_waited: Door = null
 var _check_start_px: float = 0.0
 var _check_stop_at: float = 0.5
 var _check_stopped: bool = true
@@ -224,6 +268,8 @@ func _physics_process(delta: float) -> void:
 		return
 
 	_drain_inbox()
+	if _door != null and not _tick_door(delta):
+		return
 	if stuck_time > 0.0 and _stuck_for >= stuck_time:
 		_clear_stuck()
 		stuck.emit()
@@ -343,23 +389,32 @@ func _tick_hunt(delta: float) -> void:
 ## `light`: the short look around that ends a check (fewer points, closer, no door).
 ## `around`: the middle of the search.
 func _begin_search(light: bool = false, around: Vector2 = last_heard_position) -> void:
+	_search_light = light
+	# What it has learned only counts for the search after a hunt.
+	var level := 0 if light else persistence
 	_search_centre = around
 	_search_radius_px = Units.to_px(light_search_radius_u if light else search_radius_u)
-	_search_count = maxi(light_search_points if light else search_points, 1)
+	_search_count = maxi((light_search_points if light else search_points) + level * persistence_search_points, 1)
 	var span := light_search_duration_range if light else search_duration_range
-	_search_length = randf_range(minf(span.x, span.y), maxf(span.x, span.y))
-	_search_queue = _search_pass(_search_centre, _search_radius_px, _search_count)
+	_search_length = randf_range(minf(span.x, span.y), maxf(span.x, span.y)) + level * persistence_search_time
+	# After a hunt it also looks into the hiding corners the level marks near the sound.
+	var marked: Array[Vector2] = _points_of_interest(around) if not light else ([] as Array[Vector2])
+	_search_queue = _search_pass(_search_centre, _search_radius_px, _search_count, marked)
 	if not light:
 		var door_stop := _door_stop(around)
 		if door_stop != Vector2.INF:
 			_search_queue.append(door_stop)
+			if level >= persistence_next_room_level:
+				# It has lost her often enough to look past the door too.
+				for i in range(NEXT_ROOM_POINTS):
+					_search_queue.append(_point_near(door_stop, Units.to_px(light_search_radius_u)))
 	_change_state(State.SEARCH)
 
 
-## `count` points around `centre`: the nearest one first, the others in no order, so it
-## doubles back like something feeling its way.
-func _search_pass(centre: Vector2, radius_px: float, count: int) -> Array[Vector2]:
-	var found: Array[Vector2] = []
+## `count` points around `centre`, and `also` (marked places): the nearest one first, the
+## others in no order, so it doubles back like something feeling its way.
+func _search_pass(centre: Vector2, radius_px: float, count: int, also: Array[Vector2] = []) -> Array[Vector2]:
+	var found: Array[Vector2] = also.duplicate()
 	for i in range(count):
 		found.append(_point_near(centre, radius_px))
 	found.sort_custom(func(a: Vector2, b: Vector2) -> bool:
@@ -373,6 +428,44 @@ func _search_pass(centre: Vector2, radius_px: float, count: int) -> Array[Vector
 	return points
 
 
+## Hiding corners marked in the level (any Node2D in the group "entity_poi") that belong to
+## the place a sound came from: with Rooms, the ones in the room the sound was in; without,
+## the ones inside the search radius with no wall between them and the sound. At most
+## MAX_POINTS_OF_INTEREST of them, picked at random, never by where the player is.
+func _points_of_interest(spot: Vector2) -> Array[Vector2]:
+	var found: Array[Vector2] = []
+	if not is_inside_tree():
+		return found
+	var rooms := _rooms_at(spot)
+	var room: Room = rooms.room_at(spot) if rooms != null else null
+	var skipped: Array[RID] = [get_rid()]
+	for node in get_tree().get_nodes_in_group(POI_GROUP):
+		var marker := node as Node2D
+		if marker == null or not marker.is_visible_in_tree():
+			continue
+		var at := marker.global_position
+		var belongs: bool
+		if room != null:
+			belongs = rooms.room_at(at) == room
+		else:
+			belongs = at.distance_to(spot) <= Units.to_px(search_radius_u) and not Acoustics.wall_between(spot, at, get_world_2d(), skipped)
+		if belongs:
+			found.append(_nav_point(at))
+	found.shuffle()
+	if found.size() > MAX_POINTS_OF_INTEREST:
+		found.resize(MAX_POINTS_OF_INTEREST)
+	return found
+
+
+## The shown RoomVisibility that has a room at `spot` (null: this part of the level has no Rooms).
+func _rooms_at(spot: Vector2) -> RoomVisibility:
+	for node in get_tree().get_nodes_in_group(RoomVisibility.ROOMS_GROUP):
+		var rooms := node as RoomVisibility
+		if rooms != null and rooms.is_visible_in_tree() and rooms.room_at(spot) != null:
+			return rooms
+	return null
+
+
 ## A point just past one door near `spot`, on its far side: the last stop of a search. The
 ## door is one of the room the sound was in when the level has Rooms, otherwise any door
 ## within search_door_reach_u. It is chosen at random, never by where the player is.
@@ -381,16 +474,11 @@ func _door_stop(spot: Vector2) -> Vector2:
 	if search_door_reach_u <= 0.0 or not is_inside_tree():
 		return Vector2.INF
 	var candidates: Array[Door] = []
-	for node in get_tree().get_nodes_in_group(RoomVisibility.ROOMS_GROUP):
-		var rooms := node as RoomVisibility
-		if rooms == null or not rooms.is_visible_in_tree():
-			continue
-		var room := rooms.room_at(spot)
-		if room != null:
-			for door in room.doors:
-				if door != null and not door.locked:
-					candidates.append(door)
-			break
+	var rooms := _rooms_at(spot)
+	if rooms != null:
+		for door in rooms.room_at(spot).doors:
+			if door != null and not door.locked:
+				candidates.append(door)
 	if candidates.is_empty():
 		var reach := Units.to_px(search_door_reach_u)
 		for node in get_tree().get_nodes_in_group(Door.DOOR_GROUP):
@@ -513,6 +601,76 @@ func _react(at: Vector2, _source: int, heard: int, faintness: float) -> void:
 		_start_investigate(faintness)
 
 
+# ------------------------------------------------------------------ doors ---
+
+## Asked by a closed door it walked into (Door.push_open): what it wants to do with it.
+## Hunting, it slams it. Searching, it pushes it. On patrol and in a check it stands in
+## front of it first (door_wait_range) and pushes it when that is over.
+func wants_door(door: Door) -> int:
+	match current_state:
+		State.HUNT:
+			return Door.Push.SLAM
+		State.SEARCH:
+			return Door.Push.OPEN
+	if _door_waited == door or maxf(door_wait_range.x, door_wait_range.y) <= 0.0:
+		return Door.Push.OPEN
+	if _door != door:
+		_door = door
+		_door_locked = false
+		_door_wait = randf_range(minf(door_wait_range.x, door_wait_range.y), maxf(door_wait_range.x, door_wait_range.y))
+	return Door.Push.WAIT
+
+
+## Told by a locked door it walked into: it stands there for locked_door_wait, then gives
+## that way up (as if it had been stuck).
+func door_refused(door: Door) -> void:
+	if _door == door and _door_locked:
+		return
+	_door = door
+	_door_locked = true
+	_door_wait = locked_door_wait
+
+
+## True while it stands in front of a closed door (waiting to push it, or having found it locked).
+func is_at_door() -> bool:
+	return _door != null
+
+
+## One step of standing at a door. Returns true when it is free to move again.
+func _tick_door(delta: float) -> bool:
+	if not is_instance_valid(_door) or (_door.is_open and not _door_locked):
+		_door = null
+		return true
+	_door_wait -= delta
+	if _door_wait > 0.0:
+		_halt()
+		return false
+	var door := _door
+	var was_locked := _door_locked
+	_door = null
+	if was_locked:
+		_clear_stuck()
+		stuck.emit()
+		_on_stuck()
+	else:
+		_door_waited = door
+		door.push_open(self)
+		_door_waited = null
+	return true
+
+
+## Whatever it was waiting at a door for is over (it now hunts or searches): an unlocked
+## door it stood in front of is pushed now, by the new state's rule.
+func _leave_door() -> void:
+	if _door == null:
+		return
+	var door := _door
+	var was_locked := _door_locked
+	_door = null
+	if is_instance_valid(door) and not was_locked and not door.is_open:
+		door.push_open(self)
+
+
 # --------------------------------------------------------------- movement ---
 
 func _move_along_path(speed_u: float) -> void:
@@ -628,6 +786,12 @@ func _change_state(new_state: int) -> void:
 	state_changed.emit(previous_state, new_state)
 	_state_timer = 0.0
 	_clear_stuck()
+	if new_state == State.HUNT or new_state == State.SEARCH:
+		_leave_door()
+	# A search after a hunt that ends with nothing found: she escaped, and it learns.
+	if previous_state == State.SEARCH and new_state == State.PATROL and not _search_light and persistence < persistence_max:
+		persistence += 1
+		learned.emit(persistence)
 
 	if new_state == State.PATROL:
 		_has_patrol_target = false
