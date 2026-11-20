@@ -39,6 +39,9 @@ var _battery_percent := 0.0
 var _spare_batteries := 0
 var _rocks_count := 0
 var _throw_cooldown_frac := 0.0
+## The battery % under which the flashlight is dying (the flashlight's own low_battery_threshold;
+## the game sets it when it starts).
+var low_battery_at := 25.0
 var _inventory_overlay: Control
 
 func _ready() -> void:
@@ -172,7 +175,7 @@ func update_equipment_state(flashlight_on: bool, battery_percent: float, spares:
 	_refresh_slot_modulation()
 
 func _refresh_slot_modulation() -> void:
-	var low_bat := _battery_percent <= 25.0
+	var low_bat := _battery_percent <= low_battery_at
 	var dead_bat := _battery_percent <= 0.0
 	var flash_slot: Control = _slots.get("flashlight")
 	if flash_slot != null:

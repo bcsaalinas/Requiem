@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://hrobc71duwv0"
-path="res://.godot/imported/devour.wav-511404efc9f8ef3313aaff867779c75e.sample"
+path="res://.godot/imported/devour.wav-4ab582dbf6ae8876b4398935ce84510b.sample"
 
 [deps]
 
-source_file="res://assets/audio/monster/devour.wav"
-dest_files=["res://.godot/imported/devour.wav-511404efc9f8ef3313aaff867779c75e.sample"]
+source_file="res://assets/audio/entity/kill/devour.wav"
+dest_files=["res://.godot/imported/devour.wav-4ab582dbf6ae8876b4398935ce84510b.sample"]
 
 [params]
 

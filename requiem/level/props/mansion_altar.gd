@@ -25,8 +25,10 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 @export var pulse_duration: float = 1.5
 
 @export_group("Audio")
-@export var pray_clips: Array[AudioStream] = []
-@export var pray_volume_db: float = -4.0
+## She prays aloud here. The voice itself is played by her prayer audio (player/prayer_audio.gd,
+## the set viv/prayer_voice), once, at the level in audio/sound_settings.gd: this altar plays
+## nothing itself.
+@export var prayer_spoken := true
 
 var jugador_cerca: bool = false
 var tiempo_interaccion: float = 0.0
@@ -45,25 +47,18 @@ var _estaba_rezando: bool = false
 var _timer_ruido: float = 0.0
 var _pulse_disparado: bool = false
 var _pulse_restante: float = 0.0
-var _audio_player: AudioStreamPlayer2D
 var _color_base: Color = Color.WHITE
 
 
 func _ready() -> void:
-	_audio_player = AudioStreamPlayer2D.new()
-	_audio_player.bus = "SFX"
-	add_child(_audio_player)
-	if pray_clips.is_empty():
-		var clip = load("res://tutorial/assets/audio/prayer_female.mp3")
-		if clip != null:
-			pray_clips.append(clip)
 	if is_instance_valid(sprite):
 		_color_base = sprite.modulate
 	if is_instance_valid(barra_progreso):
 		barra_progreso.hide()
 		barra_progreso.value = 0.0
 	if is_instance_valid(label_texto):
-		label_texto.text = "E  ·  Rezar (Mantener)"
+		# The prompt to pray is the HUD's ("E · Pray at ..."): this label only marks a prayed altar.
+		label_texto.text = ""
 		label_texto.hide()
 	if is_instance_valid(area_2d):
 		area_2d.body_entered.connect(_on_area_2d_body_entered)
@@ -88,13 +83,8 @@ func _process(delta: float) -> void:
 		cancel_prayer(true)
 		return
 
-	if is_instance_valid(label_texto):
-		label_texto.visible = jugador_cerca and not _estaba_rezando
-
 	var pray_key := Input.is_action_pressed("pray") or Input.is_key_pressed(KEY_E)
 	if jugador_cerca and pray_key:
-		if is_instance_valid(label_texto):
-			label_texto.hide()
 		if is_instance_valid(barra_progreso):
 			barra_progreso.show()
 
@@ -107,10 +97,7 @@ func _process(delta: float) -> void:
 					barra_progreso.hide()
 				return
 			_estaba_rezando = true
-			_reproducir_sonido_rezo()
 			_avisar_ruido()
-		elif not _audio_player.playing:
-			_reproducir_sonido_rezo()
 
 		tiempo_interaccion += delta
 		_tick_pulso(delta)
@@ -179,10 +166,6 @@ func cancel_prayer(immediate := true) -> void:
 	if is_instance_valid(barra_progreso):
 		barra_progreso.value = 0.0
 		barra_progreso.hide()
-	if is_instance_valid(label_texto):
-		label_texto.visible = jugador_cerca and _player_can_pray()
-	if is_instance_valid(_audio_player) and _audio_player.playing:
-		_audio_player.stop()
 	GameState.end_prayer(self, immediate)
 
 
@@ -193,11 +176,10 @@ func _exit_tree() -> void:
 
 func _interaccion_completada() -> void:
 	is_completed = true
-	print("[Altar] %s consagrado con éxito (%.1f s)" % [altar_name, pray_duration])
 	cancel_prayer(false)
 
 	if is_instance_valid(label_texto):
-		label_texto.text = "✓ Ofrenda Consagrada"
+		label_texto.text = "Prayed"
 		label_texto.show()
 	if is_instance_valid(barra_progreso):
 		barra_progreso.hide()
@@ -225,8 +207,6 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body is CharacterBody2D and body.is_in_group("player"):
 		jugador_cerca = true
 		jugador_ref = body
-		if is_instance_valid(label_texto):
-			label_texto.visible = _player_can_pray()
 
 
 func _on_area_2d_body_exited(body: Node2D) -> void:
@@ -234,17 +214,6 @@ func _on_area_2d_body_exited(body: Node2D) -> void:
 		jugador_cerca = false
 		cancel_prayer(false)
 		jugador_ref = null
-		if is_instance_valid(label_texto):
-			label_texto.hide()
-
-
-func _reproducir_sonido_rezo() -> void:
-	if pray_clips.is_empty():
-		return
-	_audio_player.global_position = global_position
-	_audio_player.volume_db = pray_volume_db
-	_audio_player.stream = pray_clips[randi() % pray_clips.size()]
-	_audio_player.play()
 
 
 func _avisar_ruido() -> void:

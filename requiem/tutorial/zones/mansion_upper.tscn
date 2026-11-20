@@ -110,171 +110,171 @@ y_sort_enabled = true
 [node name="AnexoSouthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(288, 608)
 metadata/interaction_id = "door_anexo_guest1"
-metadata/interaction_label = "Entrar al Cuarto de Huéspedes Noroeste"
+metadata/interaction_label = "Into the northwest guest room"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="StudySouthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(672, 608)
 metadata/interaction_id = "door_study_balcony"
-metadata/interaction_label = "Entrar al Despacho Privado"
+metadata/interaction_label = "Into the private office"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="Altar5SouthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1120, 608)
 start_open = true
 metadata/interaction_id = "door_altar5_balcony"
-metadata/interaction_label = "Entrar a la Cámara de los Ancestros"
+metadata/interaction_label = "Into the ancestors' chamber"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="MasterBedroomSouthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1568, 608)
 metadata/interaction_id = "door_master_balcony"
-metadata/interaction_label = "Entrar a la Alcoba del Patrón"
+metadata/interaction_label = "Into the master bedroom"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="ClosetToForbiddenDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1984, 608)
 metadata/interaction_id = "door_closet_forbidden"
-metadata/interaction_label = "Entrar al Estudio Prohibido"
+metadata/interaction_label = "Into the forbidden study"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="AnexoToStudyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(464, 352)
 metadata/interaction_id = "door_anexo_study"
-metadata/interaction_label = "Cruzar al Despacho Privado"
+metadata/interaction_label = "Through to the private office"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="StudyToAltar5Door" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(912, 352)
 metadata/interaction_id = "door_study_altar5"
-metadata/interaction_label = "Entrar a la Cámara de los Ancestros"
+metadata/interaction_label = "Into the ancestors' chamber"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Altar5ToMasterDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1360, 352)
 metadata/interaction_id = "door_altar5_master"
-metadata/interaction_label = "Entrar a la Alcoba del Patrón"
+metadata/interaction_label = "Into the master bedroom"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="MasterToClosetDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1808, 352)
 metadata/interaction_id = "door_master_closet"
-metadata/interaction_label = "Abrir Vestidor / Closet"
+metadata/interaction_label = "Open the dressing room"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Guest1ToBalconyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(720, 736)
 metadata/interaction_id = "door_guest1_balcony"
-metadata/interaction_label = "Salir a la Balconada Oeste"
+metadata/interaction_label = "Out to the west balcony"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Guest2ToBalconyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(720, 1024)
 metadata/interaction_id = "door_guest2_balcony"
-metadata/interaction_label = "Salir a la Balconada Oeste"
+metadata/interaction_label = "Out to the west balcony"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="TeaSalonToBalconyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(720, 1248)
 metadata/interaction_id = "door_teasalon_balcony"
-metadata/interaction_label = "Salir a la Balconada Suroeste"
+metadata/interaction_label = "Out to the southwest balcony"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Guest1ToGuest2Door" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(384, 896)
 metadata/interaction_id = "door_guest1_guest2"
-metadata/interaction_label = "Cruzar al Cuarto de Huéspedes Central"
+metadata/interaction_label = "Through to the middle guest room"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="Guest2ToTeaSalonDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(384, 1152)
 metadata/interaction_id = "door_guest2_teasalon"
-metadata/interaction_label = "Entrar al Salón de Té"
+metadata/interaction_label = "Into the tea room"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="ForbiddenToBalconyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1616, 736)
 metadata/interaction_id = "door_forbidden_balcony"
-metadata/interaction_label = "Salir a la Galería Este"
+metadata/interaction_label = "Out to the east gallery"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="ArtGalleryToBalconyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1616, 992)
 metadata/interaction_id = "door_artgallery_balcony"
-metadata/interaction_label = "Salir a la Galería Este"
+metadata/interaction_label = "Out to the east gallery"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="StairsToBalconyDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1616, 1248)
 start_open = true
 metadata/interaction_id = "door_stairs_balcony"
-metadata/interaction_label = "Acceso a las Escaleras"
+metadata/interaction_label = "To the stairs"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="ForbiddenToArtGalleryDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1888, 896)
 metadata/interaction_id = "door_forbidden_artgallery"
-metadata/interaction_label = "Entrar a la Galería de Cuadros"
+metadata/interaction_label = "Into the picture gallery"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="ArtGalleryToStairsDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1792, 1152)
 metadata/interaction_id = "door_artgallery_stairs"
-metadata/interaction_label = "Cruzar al Vestíbulo de Escaleras"
+metadata/interaction_label = "Through to the stair hall"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="Guest3NorthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(384, 1376)
 metadata/interaction_id = "door_guest3_north"
-metadata/interaction_label = "Entrar al Cuarto de Huéspedes Suroeste"
+metadata/interaction_label = "Into the southwest guest room"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="WestClosetNorthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(864, 1376)
 metadata/interaction_id = "door_west_closet"
-metadata/interaction_label = "Abrir Guardarropa"
+metadata/interaction_label = "Open the cloakroom"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="TapancoNorthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1152, 1376)
 metadata/interaction_id = "door_tapanco_north"
-metadata/interaction_label = "Entrar al Tapanco / Costura"
+metadata/interaction_label = "Into the loft"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="EastClosetNorthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1440, 1376)
 metadata/interaction_id = "door_east_closet"
-metadata/interaction_label = "Abrir Cuarto de Blancos"
+metadata/interaction_label = "Open the linen room"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="Guest4NorthDoor" parent="Doors" instance=ExtResource("5_doorfront")]
 position = Vector2(1792, 1376)
 metadata/interaction_id = "door_guest4_north"
-metadata/interaction_label = "Entrar al Cuarto de Huéspedes Sureste"
+metadata/interaction_label = "Into the southeast guest room"
 metadata/interaction_offset = Vector2(0, -48)
 
 [node name="Guest3ToClosetDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(784, 1568)
 metadata/interaction_id = "door_guest3_closet"
-metadata/interaction_label = "Cruzar al Guardarropa"
+metadata/interaction_label = "Through to the cloakroom"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="ClosetToTapancoDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(976, 1568)
 metadata/interaction_id = "door_closet_tapanco"
-metadata/interaction_label = "Entrar al Tapanco / Costura"
+metadata/interaction_label = "Into the loft"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="TapancoToBlancosDoor" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1360, 1568)
 metadata/interaction_id = "door_tapanco_blancos"
-metadata/interaction_label = "Cruzar al Cuarto de Blancos"
+metadata/interaction_label = "Through to the linen room"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="BlancosToGuest4Door" parent="Doors" instance=ExtResource("6_doorside")]
 position = Vector2(1552, 1568)
 metadata/interaction_id = "door_blancos_guest4"
-metadata/interaction_label = "Entrar al Cuarto de Huéspedes Sureste"
+metadata/interaction_label = "Into the southeast guest room"
 metadata/interaction_offset = Vector2(0, -32)
 
 [node name="Props" type="Node2D" parent="." groups=["mansion_nav"]]
@@ -299,13 +299,13 @@ script = ExtResource("16_art")
 kind = "battery"
 lift = 60.0
 metadata/interaction_id = "battery_study"
-metadata/interaction_label = "Tomar batería de repuesto"
+metadata/interaction_label = "Take the spare battery"
 
 [node name="Altar5_Estudio" parent="Props" instance=ExtResource("8_altar")]
 position = Vector2(1120, 240)
-altar_name = "Ofrenda de los Ancestros"
+altar_name = "Altar of the ancestors"
 metadata/interaction_id = "altar_5"
-metadata/interaction_label = "Rezar a los Ancestros (Mantener E)"
+metadata/interaction_label = "Pray to the ancestors (hold)"
 metadata/interaction_offset = Vector2(0, -20)
 
 [node name="Altar5PewL" parent="Props" instance=ExtResource("23_pew")]
@@ -326,13 +326,13 @@ position = Vector2(1952, 208)
 [node name="ClosetChest" parent="Props" instance=ExtResource("9_chest")]
 position = Vector2(2096, 224)
 metadata/interaction_id = "chest_closet"
-metadata/interaction_label = "Abrir cofre"
+metadata/interaction_label = "Open the chest"
 
 [node name="Altar6_Galeria" parent="Props" instance=ExtResource("8_altar")]
 position = Vector2(2016, 736)
-altar_name = "Ofrenda del Estudio Prohibido"
+altar_name = "Study altar"
 metadata/interaction_id = "altar_6"
-metadata/interaction_label = "Rezar en el Estudio Prohibido (Mantener E)"
+metadata/interaction_label = "Pray at the study altar (hold)"
 metadata/interaction_offset = Vector2(0, -20)
 
 [node name="ForbiddenBookshelf" parent="Props" instance=ExtResource("22_bookshelf")]
@@ -341,7 +341,7 @@ position = Vector2(1760, 656)
 [node name="GalleryChest" parent="Props" instance=ExtResource("9_chest")]
 position = Vector2(1760, 992)
 metadata/interaction_id = "chest_gallery"
-metadata/interaction_label = "Abrir cofre"
+metadata/interaction_label = "Open the chest"
 
 [node name="GalleryPew" parent="Props" instance=ExtResource("23_pew")]
 position = Vector2(2016, 992)
@@ -351,7 +351,7 @@ position = Vector2(1760, 1040)
 script = ExtResource("16_art")
 kind = "rocks"
 metadata/interaction_id = "rocks_gallery"
-metadata/interaction_label = "Tomar 3 piedras"
+metadata/interaction_label = "Take 3 stones"
 
 [node name="Guest1Bed" parent="Props" instance=ExtResource("12_bed")]
 position = Vector2(192, 704)
@@ -379,13 +379,13 @@ position = Vector2(576, 1600)
 script = ExtResource("16_art")
 kind = "rocks"
 metadata/interaction_id = "rocks_living"
-metadata/interaction_label = "Tomar 3 piedras"
+metadata/interaction_label = "Take 3 stones"
 
 [node name="Altar7_Costura" parent="Props" instance=ExtResource("8_altar")]
 position = Vector2(1152, 1568)
-altar_name = "Ofrenda del Tapanco"
+altar_name = "Loft altar"
 metadata/interaction_id = "altar_7"
-metadata/interaction_label = "Rezar en el Tapanco (Mantener E)"
+metadata/interaction_label = "Pray at the loft altar (hold)"
 metadata/interaction_offset = Vector2(0, -20)
 
 [node name="SewingDesk" parent="Props" instance=ExtResource("10_desk")]
@@ -396,7 +396,7 @@ position = Vector2(1440, 1632)
 script = ExtResource("16_art")
 kind = "rocks"
 metadata/interaction_id = "rocks_sewing"
-metadata/interaction_label = "Tomar 3 piedras"
+metadata/interaction_label = "Take 3 stones"
 
 [node name="Guest4Bed" parent="Props" instance=ExtResource("12_bed")]
 position = Vector2(2048, 1536)
@@ -409,7 +409,7 @@ position = Vector2(1152, 1216)
 script = ExtResource("16_art")
 kind = "rocks"
 metadata/interaction_id = "rocks_balcony"
-metadata/interaction_label = "Tomar 3 piedras"
+metadata/interaction_label = "Take 3 stones"
 
 [node name="BalconyLampNW" parent="Props" instance=ExtResource("14_lamp")]
 position = Vector2(832, 672)
@@ -436,7 +436,7 @@ position = Vector2(2048, 1216)
 collision_layer = 1
 collision_mask = 1
 metadata/interaction_id = "stairs_to_ground"
-metadata/interaction_label = "Bajar a Planta Baja"
+metadata/interaction_label = "Down to the ground floor"
 metadata/interaction_offset = Vector2(0, 20)
 
 [node name="VisualStep" type="Polygon2D" parent="Props/StairsToGround"]

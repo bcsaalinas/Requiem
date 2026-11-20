@@ -252,15 +252,16 @@ func check_awareness_wins() -> void:
 		"With the scream the hunt music starts, drone away or not")
 	await seconds(settings.music_fade_hunt + 0.2)
 	var hunt := track(MusicDirector.MusicState.HUNT)
-	check(hunt != null and is_zero_approx(hunt.volume_db), "At its full level")
+	check(hunt != null and is_equal_approx(hunt.volume_db, settings.music_hunt_db) and hunt.stream.resource_path == "res://assets/audio/music/hunt.wav",
+		"The chase music (music/hunt.wav), at its level (%.1f dB)" % settings.music_hunt_db)
 	# The drone's clock turns during the hunt: nothing is heard of it.
 	MusicDirector.turn_drone(true)
 	await seconds(0.4)
-	check(MusicDirector.current_state == MusicDirector.MusicState.HUNT and track(explore) == null and hunt.playing and is_zero_approx(hunt.volume_db),
+	check(MusicDirector.current_state == MusicDirector.MusicState.HUNT and track(explore) == null and hunt.playing and is_equal_approx(hunt.volume_db, settings.music_hunt_db),
 		"The drone's own clock turning during a hunt changes nothing that is heard")
 	MusicDirector.turn_drone(false)
 	await seconds(0.4)
-	check(track(MusicDirector.MusicState.HUNT) == hunt and is_zero_approx(hunt.volume_db), "Nor does it take the hunt music away")
+	check(track(MusicDirector.MusicState.HUNT) == hunt and is_equal_approx(hunt.volume_db, settings.music_hunt_db), "Nor does it take the hunt music away")
 	check(await until(func() -> bool: return MusicDirector.current_state == MusicDirector.MusicState.SEARCH, 6.0), "It loses the trail: the thin tone")
 	check(await until(func() -> bool: return cues.has(&"stand_down"), 8.0), "It gives up")
 	await frames(2)

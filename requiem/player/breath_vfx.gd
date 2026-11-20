@@ -15,6 +15,9 @@ const SHOCK_SECONDS := 0.65
 const DARKNESS_HELD := 0.85
 const DARKNESS_STRAINED := 0.97
 const DRAIN_HELD := 0.6
+## The lung arcs around her (Isaac's hold-breath bars) turn amber when her air is under this
+## many times the gasp line (HoldBreath.quiet_exhale_lung_threshold), and red at the line.
+const ARC_AMBER_AT := 2.0
 
 var feedback: Node
 var _edge: ColorRect
@@ -96,9 +99,11 @@ func _draw_character_arcs() -> void:
 		var threshold: float = clampf(breath.quiet_exhale_lung_threshold / 100.0, 0.0, 1.0)
 		var radius: float = (30.0 - feedback.pulse * (1.8 if feedback.strain > 0.3 else 0.4)) * scale_factor
 		var fill := Color("b7d8d2")
-		if breath.lung_percent <= breath.quiet_exhale_lung_threshold or breath.exertion_percent >= 80.0:
+		# Red on the mechanic's own lines: so little air that letting go is a gasp, or tired
+		# enough that the HUD warns (the forced gasp is on its way). Amber a little before.
+		if breath.lung_percent <= breath.quiet_exhale_lung_threshold or breath.exertion_percent >= breath.exertion_warn_percent:
 			fill = Color("d64f42").lerp(Color("f2b0a0"), feedback.pulse * 0.45)
-		elif breath.lung_percent <= 38.0:
+		elif breath.lung_percent <= breath.quiet_exhale_lung_threshold * ARC_AMBER_AT:
 			fill = Color("e2a45b")
 		fill.a = (0.68 + feedback.pulse * 0.24) * effect_strength
 		for side_value in [0.0, PI]:

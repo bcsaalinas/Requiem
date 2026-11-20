@@ -105,6 +105,9 @@ static func current() -> SoundSettings:
 @export_range(0.0, 5.0, 0.05, "suffix:s") var music_fade_hunt := 0.25
 ## If a hunt begins and no scream is heard within this long, the hunt music starts anyway.
 @export_range(0.1, 5.0, 0.05, "suffix:s") var music_hunt_latest := 0.8
+## Level of the hunt music (assets/audio/music/hunt.wav, a loud recording: at 0 it would be
+## about 11 dB louder than every other track). Up = the chase is louder.
+@export_range(-40.0, 6.0, 0.5, "suffix:dB") var music_hunt_db := -8.0
 ## Level of the rising tone (pitch_riser_01) that starts with the scream.
 @export_range(-40.0, 6.0, 0.5, "suffix:dB") var music_riser_db := -6.0
 ## It lost the trail: the hunt music gives way to the thin search tone over this long.
@@ -232,6 +235,11 @@ static func current() -> SoundSettings:
 ## to it, in dB, at the start of the prayer (x) and at its end (y). It rises with her progress
 ## and leaves with the world.
 @export var prayer_tone_db := Vector2(-18.0, -4.0)
+## At an altar that says so (the Hacienda's), she prays aloud: one voice from the set
+## viv/prayer_voice, on the sound-effects bus, never dulled. Its level is the set's (set_gain_db). When
+## she lets go before the end, the voice is gone in this long; a prayer that is cut (death, a
+## new attempt) cuts it at once. The noise that gives her away is the altar's own, not this.
+@export_range(0.0, 2.0, 0.01, "suffix:s") var prayer_voice_fade := 0.25
 
 @export_group("House: its own voice")
 ## No sound of the house may be louder than this (LUFS).
@@ -332,6 +340,13 @@ static func current() -> SoundSettings:
 ## Clarity is 1 (every detail) up to this distance, and falls evenly to 0 where ring 1 ends.
 @export_range(0.0, 60.0, 0.5, "suffix:u") var clarity_full_u := 4.0
 
+@export_group("World: things she handles")
+## A trunk's latch and lid when she opens it (tutorial/chest.gd): opened normally (x), and
+## eased open on a held breath (y). How far it is heard by the entity is the chest's own.
+@export var chest_open_db := Vector2(-7.0, -15.0)
+## A fresh battery pushed into the flashlight.
+@export_range(-40.0, 6.0, 0.5, "suffix:dB") var battery_insert_db := -5.0
+
 @export_group("Sound sets")
 ## Each time a set plays, its pitch moves at random by up to this much either way (0.06 = 0.94 to 1.06).
 @export_range(0.0, 0.3, 0.01) var set_pitch_range := 0.06
@@ -347,6 +362,11 @@ static func current() -> SoundSettings:
 	"entity/cloth_fall": 8.5,
 	"entity/catch_grab": 1.5,
 	"entity/claws_run": 0.5,
+	# Sounds that came in with the Hacienda, as recorded (not yet through tools/audio/prepare_sounds.py).
+	# The bite that ends a catch (entity/kill): about as loud as the grab before it.
+	"entity/kill": -1.0,
+	# Viv praying aloud at an altar (viv/prayer_voice): a low voice, well under the entity.
+	"viv/prayer_voice": -6.0,
 }
 
 @export_group("Entity: body")

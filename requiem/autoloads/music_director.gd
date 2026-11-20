@@ -27,7 +27,7 @@ const KIT_TRACKS := {
 	"EXPLORE": "res://assets/audio/horror-jam-kit/WAV/Drone/drone_tension_02.wav",
 	"INVESTIGATE": "res://assets/audio/horror-jam-kit/WAV/Drone/drone_tension_03.wav",
 	"SEARCH": "res://assets/audio/horror-jam-kit 3/OGG/Tonal/high_tension_tone_01.ogg",
-	"HUNT": "res://assets/audio/horror-jam-kit 3/OGG/Drone/drone_tension_03.ogg",
+	"HUNT": "res://assets/audio/music/hunt.wav",
 	"PRAYER": "res://assets/audio/horror-jam-kit 3/OGG/Tonal/eerie_music_box_02.ogg",
 }
 ## The rising tone that starts with the scream, once per hunt.
@@ -285,7 +285,15 @@ func _stem_target_db(state: int, layer: int) -> float:
 	var gain := float(gains[layer]) if layer < gains.size() else 1.0
 	if gain <= 0.0001: return SILENT_DB
 	# While it searches there is almost no music: the thin tone plays well under the others.
-	return linear_to_db(gain) + (SoundSettings.current().music_search_db if state == MusicState.SEARCH else 0.0)
+	return linear_to_db(gain) + _state_db(state)
+
+## What a state's music is turned by: the search tone plays well under the others, and the
+## hunt music is a loud recording brought down to sit with them.
+func _state_db(state: int) -> float:
+	match state:
+		MusicState.SEARCH: return SoundSettings.current().music_search_db
+		MusicState.HUNT: return SoundSettings.current().music_hunt_db
+	return 0.0
 
 ## Gameplay starts (or, with null, ends): from here the music follows what the entity knows,
 ## and steps back while Viv holds her breath.

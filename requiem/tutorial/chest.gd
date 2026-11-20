@@ -23,7 +23,9 @@ const HASP := Vector2(0.0, -8.0)
 ## How far the lid is heard, in units; on a held breath it is eased open.
 @export var noise_radius_u := 3.0
 @export var quiet_noise_radius_u := 1.0
-@export var creak: AudioStream = preload("res://assets/audio/horror-jam-kit 2/WAV/Foley/creak_02.wav")
+## The latch and the lid (one sound; it replaced a door's creak). Its level is chest_open_db
+## in audio/sound_settings.gd.
+@export var creak: AudioStream = preload("res://tutorial/assets/audio/chest_latch_and_lid.wav")
 
 var is_open := false
 var focused := false
@@ -74,8 +76,8 @@ func open(quiet := false) -> bool:
 	tween.tween_property(_sprite, "position", rest, 0.09)
 	if creak != null:
 		_audio.stream = creak
-		_audio.volume_db = -16.0 if quiet else -8.0
-		_audio.pitch_scale = randf_range(1.1, 1.25)
+		var levels: Vector2 = SoundSettings.current().chest_open_db
+		_audio.volume_db = levels.y if quiet else levels.x
 		_audio.play()
 	var radius_u := quiet_noise_radius_u if quiet else noise_radius_u
 	if radius_u > 0.0:

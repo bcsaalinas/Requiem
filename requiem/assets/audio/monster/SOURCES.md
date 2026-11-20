@@ -18,6 +18,9 @@ https://freesound.org/people/DCSFX/sounds/366137/
 
 ## Devour cue
 
+In the game this file is the sound set `entity/kill` (`assets/audio/entity/kill/devour.wav`),
+played by `entities/entity_audio.gd`.
+
 `devour.wav`: wet flesh Foley + slowed tearing + Ogrebane's lowered capture growl.
 Mono 44.1 kHz WAV, 1.10 s, loudness target -13 LUFS, true-peak target -1.5 dBTP.
 Starts on hide_player at 740 ms and finishes before the 1.9 s game-over transition.

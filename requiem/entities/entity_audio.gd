@@ -68,6 +68,9 @@ const SCREAM := "entity/scream"
 const FOOT_SLAM := "entity/foot_slam"
 const LOST := "entity/lost"
 const SNIFF := "entity/sniff"
+## The bite that ends a catch: played once, when the catch folds over her (the rig's
+## hide_player moment, 0.74 s in), after the grab the animation cues itself.
+const KILL := "entity/kill"
 const STAND_DOWN := "entity/stand_down"
 const MUMBLE := "entity/mumble"
 const EXHALE := "entity/exhale"
@@ -128,6 +131,8 @@ var heard_settle := 1.0
 var _heard_target := Vector2.ZERO
 var _heard_known := false
 var _reach_known := false
+## True once this catch has sounded its kill.
+var _killed := false
 var _voices: Array[AudioStreamPlayer2D] = []
 var _next_voice := 0
 var _breath: AudioStreamPlayer2D
@@ -206,6 +211,8 @@ func _ready() -> void:
 	rig = entity.get_node_or_null("SpriteRig")
 	if rig != null and rig.has_signal(&"cue"):
 		rig.connect(&"cue", play_cue)
+	if rig != null and rig.has_signal(&"hide_player"):
+		rig.connect(&"hide_player", _on_hide_player)
 	if entity.has_signal(&"state_changed"):
 		entity.connect(&"state_changed", _on_state_changed)
 	if entity.has_signal(&"listen_started"):
@@ -292,6 +299,14 @@ func play_set(set_id: String, extra_db := 0.0, pitch := 1.0) -> AudioStreamPlaye
 	return voice
 
 
+## The catch has folded over her: the kill sound, once per catch (reset() arms it again).
+func _on_hide_player() -> void:
+	if _killed or not is_catching() or GameState.is_dead:
+		return
+	_killed = true
+	play_set(KILL)
+
+
 ## The tutorial's switch for the time before it is shown: on, it can already be heard breathing.
 func set_breathing(on: bool) -> void:
 	breathes_unseen = on
@@ -313,6 +328,7 @@ func stop_all() -> void:
 ## Back to silence, with nothing pending (an encounter was reset).
 func reset() -> void:
 	stop_all()
+	_killed = false
 	_reach_known = false         # it was moved by hand: no glide from where it was
 	_heard_wait = -1.0
 	_scream_wait = -1.0

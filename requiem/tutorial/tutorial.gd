@@ -127,7 +127,11 @@ const MANSION_ENTITY := {
 ## Beyond the end of the forest trail she simply walks on to the house: this far past the last
 ## petals (px, along the trail) the forest hands over without a key press.
 const FOREST_EXIT_REACH := 40.0
+## ...and only on the trail itself: this far to either side of it (px).
+const FOREST_EXIT_WIDTH := 110.0
 const FieldMap := preload("res://tutorial/field_map.gd")
+## The ground outside the house's south wall, porch included (house coordinates).
+const HOUSE_EXTERIOR: Array[Vector2] = [Vector2(0, 744), Vector2(1280, 744), Vector2(1280, 960), Vector2(0, 960)]
 @export_category("Entry")
 @export_enum("bedroom", "hallway", "forest", "house", "loop", "mansion_ground", "mansion_upper") var start_zone: String = "bedroom"
 @export_group("Validation")
@@ -274,6 +278,7 @@ func _ready() -> void:
 	flashlight._bar_layer.hide()
 	flashlight.set_process(false)
 	flashlight.set_process_unhandled_input(false)
+	hud.low_battery_at = flashlight.low_battery_threshold
 	flashlight.toggled.connect(func(_on: bool) -> void: hud.pulse_slot("flashlight"))
 	flashlight.toggle_rejected.connect(func() -> void:
 		if batteries <= 0: hud.reject_slot("flashlight"))
@@ -829,6 +834,7 @@ func _prompt_without_key(id: String) -> bool:
 
 func interaction_available(id: String) -> bool:
 	if collected.has(id): return false
+	if id.begins_with("altar_") and world.interactables[id]["node"].get(&"is_completed") == true: return false
 	if id=="flashlight" and has_flashlight: return false
 	if id=="friend": return zone=="house" and not friend_met
 	if id=="altar_pray": return false # The friend demonstrates prayer in this introduction.
@@ -848,8 +854,9 @@ func interact(id: String) -> void:
 	if not interaction_available(id): return
 	# Distance validation is shared by normal input and tests; no remote interactions.
 	if player.position.distance_to(world.interactables[id]["position"])>85: return
-	_player_visual("play_pickup")
 	var target: Node = world.interactables[id]["node"]
+	if id.begins_with("altar_") and target.get(&"prayer_spoken") != null: return   # held, not taken: the altar reads the key itself
+	_player_visual("play_pickup")
 	if target.get_script() == Chest:
 		_open_chest(id,target)
 		return
@@ -1083,7 +1090,7 @@ func insert_battery() -> void:
 	flashlight.battery_percent=100
 	flashlight.is_on=true
 	flashlight._refresh_light()
-	play_sound("switch",player.position)
+	play_sound("battery_insert",player.position,SoundSettings.current().battery_insert_db)
 	hud.pulse_slot("battery")
 	low_battery_hinted=false
 
@@ -1181,6 +1188,25 @@ func _sync_roof() -> void:
 	var roof_on := current == null or current.name == "Porch"
 	for id in ["ArtRoof", "ArtRoofEaves", "ArtRoofEaveCorners"]:
 		world.zones["house"].get_node(id).visible = roof_on
+	# Once she is inside, the outside is gone: the porch and the ground around the house fall
+	# dark, the way a room's cover hides a room she cannot see into.
+	_exterior_cover().visible = not roof_on
+
+## One black sheet over everything outside the house's walls (house coordinates), drawn like
+## the rooms' covers. Built once, shown only while she stands in one of the house's rooms.
+func _exterior_cover() -> Polygon2D:
+	var house: Node2D = world.zones["house"]
+	var cover := house.get_node_or_null("ExteriorCover") as Polygon2D
+	if cover == null:
+		cover = Polygon2D.new()
+		cover.name = "ExteriorCover"
+		cover.polygon = PackedVector2Array(HOUSE_EXTERIOR)
+		cover.color = Color.BLACK
+		cover.light_mask = 0
+		cover.z_index = 40
+		cover.visible = false
+		house.add_child(cover)
+	return cover
 
 ## The altar doorway's own lights stay dark for the quiet beat after the last
 ## flame; the doorway itself still answers the flashlight and other real light.
@@ -1650,7 +1676,8 @@ func _tick_ranger_checkpoint() -> void:
 func _past_forest_exit() -> bool:
 	if resetting or not dialogue.is_empty() or not world.interactables.has("forest_exit"): return false
 	var exit_at: Vector2 = world.interactables["forest_exit"]["position"]
-	return player.global_position.x >= exit_at.x + FOREST_EXIT_REACH
+	return player.global_position.x >= exit_at.x + FOREST_EXIT_REACH \
+		and absf(player.global_position.y - exit_at.y) <= FOREST_EXIT_WIDTH
 
 ## Leaving the forest for the house, by walking on or with the prompt. Only a ranger on her
 ## heels shuts the way: a stone or good timing both get her here.
@@ -1684,8 +1711,7 @@ func _interact_mansion(id: String, target: Node) -> bool:
 		_take_stairs(id)
 		return true
 	if id.begins_with("altar_"):
-		say("Hold E to pray at the altar.", 4.5)
-		return true
+		return true      # the altar itself takes the held key (level/props/mansion_altar.gd)
 	if target is Door:
 		_use_door(target as Door)
 		return true

@@ -33,7 +33,6 @@
 [ext_resource type="Script" uid="uid://bq418t2tqbd67" path="res://player/body_audio.gd" id="41_fmu53"]
 [ext_resource type="Texture2D" uid="uid://cgnxeeq8f67ks" path="res://assets/art/lights/light_flashlight_beam_solid.png" id="light_cone"]
 [ext_resource type="Texture2D" uid="uid://8lt6dl7kdtyr" path="res://assets/art/lights/light_step_circle.png" id="light_step_circle"]
-[ext_resource type="Script" path="res://player/player_juice.gd" id="19_player_juice"]
 [ext_resource type="AudioStream" uid="uid://cbg5c8japhqh5" path="res://assets/audio/footsteps/concrete_step_01.wav" id="step_1"]
 [ext_resource type="AudioStream" uid="uid://dcowx5kfeasrk" path="res://assets/audio/footsteps/concrete_step_02.wav" id="step_2"]
 [ext_resource type="AudioStream" uid="uid://4e5eua575dy3" path="res://assets/audio/footsteps/concrete_step_03.wav" id="step_3"]
@@ -151,6 +150,3 @@ script = ExtResource("32_1s1yo")
 
 [node name="BodyAudio" type="Node" parent="." unique_id=1821153835]
 script = ExtResource("41_fmu53")
-
-[node name="PlayerJuice" type="Node" parent="." unique_id=2098412511]
-script = ExtResource("19_player_juice")

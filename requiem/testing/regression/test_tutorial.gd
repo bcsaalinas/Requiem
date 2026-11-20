@@ -132,8 +132,29 @@ func _ready() -> void:
 	await complete_sound_lesson()
 	game.entity.active=false
 	game.encounter_grace=999
+	# The end of the trail: walking past it is enough, no key.
+	var trail_end: Vector2 = game.world.interactables["forest_exit"]["position"]
+	game.player.position=trail_end+Vector2(game.FOREST_EXIT_REACH-12.0,0)
+	await frames(3)
+	check(game.zone=="forest","At the last of the trail she is still in the forest")
+	game.player.position=trail_end+Vector2(game.FOREST_EXIT_REACH+4.0,0)
+	await frames(3)
+	check(game.zone=="house" and game.player.position.distance_to(game.world.marker("house","SpawnFromForest"))<24.0,"Walking past the last of the trail brings her to the old house's entrance by itself")
 	at_interaction("forest_exit")
 	check(game.zone=="house" and game.stage=="ten","House begins the turn")
+	# Outside she sees the porch and the roof; once inside, everything outside is black.
+	var house: Node2D = game.world.zones["house"]
+	await frames(4)
+	check(house.get_node("ArtRoof").visible and not game._exterior_cover().visible,"On the porch the roof is drawn and the outside is in view")
+	var porch_spot: Vector2 = game.player.position
+	game.player.position=house.global_position+Vector2(600,400)
+	await frames(6)
+	var cover: Polygon2D = game._exterior_cover()
+	check(cover.visible and cover.color==Color.BLACK and cover.light_mask==0 and not house.get_node("ArtRoof").visible,"Inside the house the porch and the forest are covered in black, whatever her light does")
+	check(Geometry2D.is_point_in_polygon(house.to_local(porch_spot),cover.polygon),"The cover reaches the porch where she stood")
+	game.player.position=porch_spot
+	await frames(6)
+	check(not game._exterior_cover().visible,"Back on the porch the outside is in view again")
 	check(step_audio.surface==&"wood","In the house she walks on wood again")
 	at_interaction("porch_rocks")
 	at_interaction("front_door")
@@ -289,6 +310,39 @@ func _ready() -> void:
 	game.mansion_grace=0.01
 	await frames(3)
 	check(game.entity.active,"After the wait it starts to walk its patrol")
+	# Praying at a Hacienda altar: aloud, once, and the entity nearby hears it.
+	var altar: Node2D = game.world.interactables["altar_1"]["node"]
+	var prayer_audio: Node = game.player.get_node("BodyAudio/Prayer")
+	game.player.position=game.world.interactables["altar_1"]["position"]+Vector2(0,40)
+	game.player.velocity=Vector2.ZERO
+	game._find_interaction()
+	check(game.nearest=="altar_1" and game.hud.prompt.text=="E · Pray at the dry fountain (hold)","An altar's prompt is in English, and is the HUD's only")
+	check(not altar.get_node("Label").visible,"The altar draws no second prompt of its own")
+	game.entity.global_position=altar.global_position+Vector2(120,0)
+	var heard := [0]
+	var on_heard := func(_at: Vector2, source: int) -> void:
+		if source==NoiseManager.SourceType.PRAY: heard[0]+=1
+	game.entity.heard_noise.connect(on_heard)
+	Input.action_press("pray")
+	await frames(45)
+	check(GameState.is_praying and GameState.prayer_source==altar,"Holding the key at the altar starts the prayer")
+	check(prayer_audio.speaking() and prayer_audio.voice.playing and prayer_audio.voice.bus==AudioBus.SFX and prayer_audio.voice_starts==1,"She prays aloud: one voice, on the sound-effects bus")
+	check(prayer_audio.voice.stream.resource_path.begins_with("res://assets/audio/viv/prayer_voice/"),"The voice is the set viv/prayer_voice")
+	var own_players := 0
+	for child in altar.get_children():
+		if child is AudioStreamPlayer2D or child is AudioStreamPlayer: own_players+=1
+	check(own_players==0,"The altar plays nothing itself, so the prayer is never heard twice")
+	check(heard[0]>0 and (game.entity.is_listening() or game.entity.get_state_name()=="HUNT"),"The entity nearby hears her praying: it stops to listen, then comes (%d noises heard, %s)" % [heard[0], game.entity.get_state_name()])
+	Input.action_release("pray")
+	game.entity.heard_noise.disconnect(on_heard)
+	game.entity.active=false
+	game.entity.global_position=game.world.marker("mansion_ground","EntitySpawn")
+	await frames(30)
+	check(not GameState.is_praying and not prayer_audio.voice.playing,"Letting go ends the prayer and her voice")
+	altar.is_completed=true
+	game._find_interaction()
+	check(game.nearest!="altar_1","An altar already prayed at offers no prompt")
+	altar.is_completed=false
 	game.entity.active=false
 	game._take_stairs("stairs_to_upper")
 	await frames(6)

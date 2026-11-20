@@ -10,14 +10,19 @@ extends HBoxContainer
 @export var player_path: NodePath
 
 @export_group("Breath")
+## Looks only: the breath bar turns amber under this much air.
 @export var breath_warn: float = 45.0
-@export var breath_critical: float = 20.0
+# The red mark on the breath bar is the mechanic's own line: HoldBreath.quiet_exhale_lung_threshold,
+# under which letting go is a gasp the entity hears. Read from her when the meters find her.
+var breath_critical: float = 20.0
 @export var beat_rate_max: float = 3.4
 
 @export_group("Exertion")
 # The bar starts pulsing and the row jitters above the player's HoldBreath.exertion_warn_percent
-# (one number, shared with her panting); read from her when the meters find her.
-var exertion_warn: float = 65.0
+# (one number, shared with her panting), read from her every frame: the meters keep no copy.
+# The tick on the exertion bar stands on that same number.
+## Looks only: the exertion bar turns red past this. The mechanic has two lines, the warning
+## above and the forced gasp at 100; this is just how late the red comes between them.
 @export var exertion_critical: float = 80.0
 
 @export_group("Feel")
@@ -219,10 +224,21 @@ func _resolve_player() -> void:
 		_actions = _player.get_node_or_null("ActionState")
 		var hold_breath: Node = _player.get_node_or_null("HoldBreath")
 		if hold_breath != null:
-			exertion_warn = hold_breath.exertion_warn_percent
+			breath_critical = hold_breath.quiet_exhale_lung_threshold
+			breath_warn = maxf(breath_warn, breath_critical)
+			if _breath_overlay != null:
+				_breath_overlay.threshold = breath_critical
 		_breath_node = _player.get_node_or_null("HoldBreath")
 		_feedback = _player.get_node_or_null("BreathFeedback")
 		_flashlight = _player.get_node_or_null("flashlight")
+		if _flashlight != null and _battery_overlay != null:
+			_battery_overlay.threshold = _flashlight.low_battery_threshold
+
+
+## The exertion % past which the bar warns: the player's own number, read live. With no
+## HoldBreath there is no exertion to warn about.
+func _warn_at() -> float:
+	return float(_breath_node.exertion_warn_percent) if _breath_node != null and is_instance_valid(_breath_node) else INF
 
 
 func set_equipment_context(spares: int) -> void:
@@ -352,6 +368,9 @@ func _drive_exertion(delta: float, action: StringName) -> void:
 	_is_resting = effort > 0.5 and action in [&"idle", &"walk"] and speed_u <= calm_u
 
 	var urgency: float = 0.0
+	var exertion_warn := _warn_at()
+	if _exertion_overlay != null:
+		_exertion_overlay.threshold = minf(exertion_warn, 100.0)
 	if effort > exertion_warn:
 		var span: float = maxf(100.0 - exertion_warn, 0.001)
 		urgency = clampf((effort - exertion_warn) / span, 0.0, 1.0)
@@ -585,13 +604,13 @@ func _draw_exertion_card(action: StringName) -> void:
 		glow = 0.7
 		badge = "GASP"
 		badge_col = UIPalette.EXERTION_HOT
-	elif effort >= exertion_critical:
+	elif effort >= maxf(exertion_critical, _warn_at()):
 		var pulse := 0.5 + 0.5 * sin(_exertion_beat)
 		border = UIPalette.EXERTION_HOT
 		glow = 0.45 + 0.45 * pulse
 		badge = "LIMIT!"
 		badge_col = UIPalette.EXERTION_HOT
-	elif effort >= exertion_warn:
+	elif effort >= _warn_at():
 		border = UIPalette.AMBER
 		glow = 0.35
 		badge = "STRAIN"

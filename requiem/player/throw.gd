@@ -111,6 +111,7 @@ func _ready() -> void:
 	_audio_player.bus = AudioBus.WORLD
 	add_child(_audio_player)
 	_release_audio_player = AudioStreamPlayer2D.new()
+	_release_audio_player.bus = AudioBus.WORLD
 	add_child(_release_audio_player)
 
 
@@ -386,7 +387,7 @@ func _play_release_clip(clips: Array[AudioStream], at: Vector2) -> void:
 	if clips.is_empty(): return
 	_release_audio_player.global_position = at
 	_release_audio_player.volume_db = volume_db - 3.0
-	_release_audio_player.stream = clips[randi() % clips.size()]
+	_release_audio_player.stream = SoundLibrary.pick_from("throw_release:" + SoundLibrary.list_key(clips), clips)
 	_release_audio_player.play()
 
 

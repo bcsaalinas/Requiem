@@ -246,6 +246,13 @@ func check_in_the_house() -> void:
 	check(all_played("catch_grab", "entity/catch_grab") and all_played("cloth_fall", "entity/cloth_fall") and all_played("sob_stops", "entity/sob_stops")
 		and count("catch_grab") == 1 and count("cloth_fall") == 1 and count("sob_stops") == 1, "The catch plays the grab, the cloth and the sob that stops, once each")
 	check(audio.breath_set() == "" and not audio.is_dragging(), "Under the catch there is no breath and no drag")
+	# The kill: once, when the catch folds over her (the rig's hide_player), never twice.
+	for tick in range(120):
+		if int(audio.plays.get(EntityAudio.KILL, 0)) > 0: break
+		await frames(1)
+	audio.rig.hide_player.emit()
+	check(int(audio.plays.get(EntityAudio.KILL, 0)) == 1 and not SoundLibrary.files(EntityAudio.KILL).is_empty(),
+		"The catch ends in the kill sound (the set entity/kill): once, even if the moment is signalled twice")
 	check(heard.all(func(entry: Dictionary) -> bool:
 		return entry.sets.all(func(set_id: String) -> bool: return entry.sets.count(set_id) == 1)), "No cue ever played the same sound twice")
 	var route: Array[Vector2] = [patrol]

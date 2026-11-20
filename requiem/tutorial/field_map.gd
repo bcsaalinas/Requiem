@@ -1,7 +1,7 @@
 extends Node
 ## Local exploration memory for the always-visible, player-centred minimap.
 const Sheet := preload("res://tutorial/minimap.gd")
-const TITLES := {"bedroom": "The bedroom", "hallway": "The hallway", "forest": "The forest", "house": "The old house", "loop": "The return", "mansion_ground": "The mansion", "mansion_upper": "Upper floor"}
+const TITLES := {"bedroom": "The bedroom", "hallway": "The hallway", "forest": "The forest", "house": "The old house", "loop": "The return", "mansion_ground": "The Hacienda", "mansion_upper": "The Hacienda, upstairs"}
 const REGIONS := preload("res://tutorial/world.gd").REGIONS
 const CELL := 96.0
 var game: Node
