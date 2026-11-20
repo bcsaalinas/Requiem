@@ -31,3 +31,4 @@ Audible clipping and perceived balance require listening with authored music ass
 - `test_jump_scare_audit`: the audit of sudden rises and of house sounds played while gated.
 - `test_prayer_audio`: prayer without voices, and its noise exactly as before.
 - `test_entity_knock`: the entity's knock, behind its switch.
+- `test_calm_beside_her`: every file of every sound the entity makes while calm, played 1.5 u from Viv in a silent house (and while she holds her breath); none may rise more than 17 dB on Master. Prints the table. About 2½ minutes.

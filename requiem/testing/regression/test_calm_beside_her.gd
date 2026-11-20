@@ -5,7 +5,9 @@ extends Node
 ## nothing (unaware, or standing still on its patrol) nothing explains such a rise. So here it
 ## stands calm 1.5 u from Viv with nothing between them (ring 3, full level), the music drone
 ## is away, and every file of every set it can sound while calm is played through its real path
-## (play_set with the cue's own gain, the idle voice's _say, its breath and drag loops starting).
+## (play_set with the cue's own gain, the idle voice's _say, its breath starting and coming back
+## from a rest, its drag starting). The one-shots are measured in the silent case: its calm
+## breathing in a rest (it comes and goes), the drone away.
 ## Each one-shot is played at the top of its random level (+set_volume_range_db): the worst case.
 ## The Master meter is read every frame the way the audit reads it. Every rise must stay at
 ## least 1 dB under the audit's threshold, also while she holds her breath (the entity +2 dB).
@@ -17,16 +19,20 @@ extends Node
 const VESTIBULE_A := Vector2(520, 400)
 ## 1.5 u from Viv, the same room, nothing between them.
 const BESIDE_HER := Vector2(568, 400)
-## What it can sound while calm: the set, the cue that plays it (its cue_gain_db), and how it
-## is started. "step"/"tick": an animation cue; "talk": its idle voice; "loop": a loop starting.
+## What it can sound while calm: the set, the cue that plays it (its cue_gain_db), how it is
+## started, and its name in the table. "step"/"tick": an animation cue; "talk": its idle voice;
+## "breath_start": its breath starting where it is put (placed()); "breath_return": its breath
+## coming back from a rest; "loop": the drag loop starting.
 const CALM_SETS := [
-	["entity/claws_walk", "footstep_left", "step"],
-	["entity/pat_tap", "claw_tick", "tick"],
-	[EntityAudio.MUMBLE, "", "talk"],
-	[EntityAudio.BREATH_CALM, "", "loop"],
-	[EntityAudio.DRAG, "", "loop"],
+	["entity/claws_walk", "footstep_left", "step", "walking claw steps"],
+	["entity/pat_tap", "claw_tick", "tick", "idle taps (claw_tick)"],
+	[EntityAudio.MUMBLE, "", "talk", "mumbled phrases"],
+	[EntityAudio.BREATH_CALM, "", "breath_start", "calm breathing, starting (placed)"],
+	[EntityAudio.BREATH_CALM, "", "breath_return", "calm breathing, back from a rest"],
+	[EntityAudio.DRAG, "", "loop", "cloth drag, starting"],
 ]
-## Short sounds are played this many times each; the loudest reading counts.
+## Short sounds are played this many times each while she holds her breath (once otherwise:
+## the meter, read many times a frame, repeats within about a dB); the loudest reading counts.
 const CLICK_TRIES := 2
 ## Meter readings per frame while a sound plays, and the pause between two (microseconds).
 const SAMPLES_PER_FRAME := 16
@@ -50,6 +56,8 @@ var noises := 0
 var master := 0
 var calm_always := true
 var kept_grace := 0.0
+## True during the pass where she holds her breath (then its breathing is in, by design).
+var holding_now := false
 ## Results per set: { file, peak, rise, rise_holding }.
 var results := {}
 
@@ -193,6 +201,8 @@ func play_file(entry: Array, file: AudioStream) -> Dictionary:
 	var only: Array[AudioStream] = [file]
 	SoundLibrary._files[set_id] = only
 	var result := {}
+	if not holding_now and kind != "breath_start":
+		rest_breath()
 	match kind:
 		"step", "tick":
 			var one := AudioStreamRandomizer.new()
@@ -211,13 +221,23 @@ func play_file(entry: Array, file: AudioStream) -> Dictionary:
 			result = await measure(says, file.get_length() / (1.0 - settings.set_pitch_range) + TAIL)
 			audio._talk.stop()
 			audio._talk_wait = 1.0e9
+		"breath_start", "breath_return":
+			SoundLibrary._sets.erase(set_id)
+			var starts := func() -> void:
+				if kind == "breath_start":
+					audio.stop_all()          # silent, then put here: a spell starts at once
+					audio.placed()
+				else:
+					audio._breath_left = 0.0  # the rest ends now: back over breath_calm_fade
+			# Starting, through one whole turn of the take (the breaths inside it rise out of near
+			# silence too); coming back, through the fade and a little after (from there on it is
+			# the same take at its own level).
+			var watch := file.get_length() + LOOP_WATCH if kind == "breath_start" else settings.breath_calm_fade + LOOP_WATCH * 2.0
+			result = await measure(starts, watch)
 		"loop":
 			SoundLibrary._sets.erase(set_id)
 			var starts := func() -> void:
-				if set_id == EntityAudio.DRAG:
-					entity.velocity = Vector2(Units.to_px(1.0), 0.0)       # it walks: its shroud drags
-				else:
-					audio.stop_all()                                         # its breath starts again
+				entity.velocity = Vector2(Units.to_px(1.0), 0.0)       # it walks: its shroud drags
 			# Watched from its start through one whole turn of the loop: the breaths inside it
 			# rise out of near silence too, not only its start.
 			result = await measure(starts, file.get_length() + LOOP_WATCH)
@@ -227,18 +247,26 @@ func play_file(entry: Array, file: AudioStream) -> Dictionary:
 		SoundLibrary._sets.erase(set_id)
 	else:
 		SoundLibrary._sets[set_id] = kept_set
-	if kind == "loop":
-		# Back to its own take of the breath, and the drag faded out, before the next sound.
-		audio.stop_all()
+	if kind in ["loop", "breath_start", "breath_return"]:
+		# The drag faded out and the breath back at rest before the next sound.
+		if not holding_now:
+			rest_breath()
 		await seconds(settings.loop_fade + 0.3)
 	return result
+
+
+## Its calm breathing in a rest, held down all the way, for as long as this lasts.
+func rest_breath() -> void:
+	audio._breath_resting = true
+	audio._breath_rest_db = EntityAudio.SILENT_DB
+	audio._breath_left = 1.0e9
 
 
 ## Every file of every calm set, beside her.
 func measure_all(holding: bool) -> void:
 	for entry: Array in CALM_SETS:
 		var set_id: String = entry[0]
-		var tries := CLICK_TRIES if entry[2] in ["step", "tick"] else 1
+		var tries := 1
 		var loudest := {"file": "", "peak": -INF, "rise": -INF}
 		for file in SoundLibrary.files(set_id):
 			var best := {"peak": -INF, "rise": -INF}
@@ -248,56 +276,61 @@ func measure_all(holding: bool) -> void:
 				best.rise = maxf(best.rise, reading.rise)
 			if best.rise > loudest.rise:
 				loudest = {"file": file.resource_path.get_file(), "stream": file, "peak": best.peak, "rise": best.rise}
-		results[set_id] = loudest
-		print("[Calm beside her] %s: loudest %s, peak %.1f dB, rise %.1f dB" % [set_id, loudest.file, loudest.peak, loudest.rise])
+		results[entry[3]] = loudest
+		print("[Calm beside her] %s: loudest %s, peak %.1f dB, rise %.1f dB" % [entry[3], loudest.file, loudest.peak, loudest.rise])
 
 
 ## The loudest file of each set again, while she holds her breath.
 func measure_loudest_holding() -> void:
 	# She holds her breath to listen: BodyAudio's own listening, held at its full amount (it
-	# runs on its own and would let go, since nobody presses the key here).
+	# runs on its own and would let go, since nobody presses the key here). Its breathing comes
+	# in while she listens, by design, so here the sounds are measured over it.
+	holding_now = true
 	body.set_process(false)
 	body.listen = 1.0
 	body._apply_listening()
 	await seconds(settings.listen_in + 0.3)
 	check(MixDirector.gain_db(AudioBus.ENTITY) >= settings.listen_entity_db - 0.01, "Holding her breath, the entity is %.0f dB up" % MixDirector.gain_db(AudioBus.ENTITY))
 	for entry: Array in CALM_SETS:
-		var set_id: String = entry[0]
-		var tries := CLICK_TRIES + 1 if entry[2] in ["step", "tick"] else 1
+		var tries := CLICK_TRIES if entry[2] in ["step", "tick"] else 1
 		var best := -INF
 		for attempt in tries:
-			var reading := await play_file(entry, results[set_id].stream)
+			if entry[2] == "breath_return":
+				rest_breath()             # in a rest when she starts to listen: it comes in
+			var reading := await play_file(entry, results[entry[3]].stream)
 			best = maxf(best, reading.rise)
-		results[set_id].rise_holding = best
+		results[entry[3]].rise_holding = best
 	body.listen = 0.0
 	body._apply_listening()
 	body.set_process(true)
+	holding_now = false
 	await seconds(settings.listen_out + 0.2)
 
 
 func print_table() -> void:
-	print("[Calm beside her] calm, 1.5 u from her, no drone · position level beside her %.1f dB (calm trim %.1f dB of position_calm_near_db %.1f) · rule: every rise at most %.0f dB" % [
+	print("[Calm beside her] calm, 1.5 u from her, no drone, its breathing in a rest · position level beside her %.1f dB (calm trim %.1f dB of position_calm_near_db %.1f) · rule: every rise at most %.0f dB" % [
 		audio.position_level_db(), audio.calm_trim_db(), settings.position_calm_near_db, settings.audit_jump_db - 1.0])
-	print("[Calm beside her] | set | loudest file | peak on Master | rise | rise while holding her breath |")
+	print("[Calm beside her] | sound | loudest file | peak on Master | rise | rise while holding her breath | set level |")
 	for entry: Array in CALM_SETS:
-		var result: Dictionary = results[entry[0]]
-		print("[Calm beside her] | %s | %s | %.1f dB | %.1f dB | %.1f dB |" % [entry[0], result.file, result.peak, result.rise, result.get("rise_holding", -1.0)])
+		var result: Dictionary = results[entry[3]]
+		print("[Calm beside her] | %s | %s | %.1f dB | %.1f dB | %.1f dB | %.1f dB |" % [entry[3], result.file, result.peak, result.rise,
+			result.get("rise_holding", -1.0), SoundLibrary.gain_db(entry[0])])
 
 
 func check_rule() -> void:
 	var limit := settings.audit_jump_db - 1.0
 	check(is_equal_approx(audio.calm_trim_db(), settings.position_calm_near_db) and settings.position_calm_near_db <= 0.0,
 		"Calm and 1.5 u from her, its position sounds are held down by the whole calm trim (%.1f dB)" % audio.calm_trim_db())
-	# What the trim would have to be, from these readings: every rise moves with it dB for dB
-	# while the house under it is quieter than the audit's floor.
-	var worst := -INF
+	# What each sound has to spare, and what it would need with no calm trim: every rise moves
+	# with the level dB for dB while the house under it is quieter than the audit's floor.
 	for entry: Array in CALM_SETS:
-		worst = maxf(worst, maxf(results[entry[0]].rise, float(results[entry[0]].get("rise_holding", -INF))) - audio.calm_trim_db())
-	print("[Calm beside her] untrimmed, the worst rise would be %.1f dB: a trim of %.1f dB is needed, %.1f dB is set" % [
-		worst, minf(0.0, limit - worst), settings.position_calm_near_db])
+		var result: Dictionary = results[entry[3]]
+		var worst := maxf(result.rise, float(result.get("rise_holding", -INF)))
+		print("[Calm beside her] %s: worst %.1f dB, %.1f dB to spare; with no calm trim it would need %.1f dB less" % [
+			entry[3], worst, limit - worst, maxf(0.0, worst - audio.calm_trim_db() - limit)])
 	for entry: Array in CALM_SETS:
-		var result: Dictionary = results[entry[0]]
-		check(result.peak > settings.audit_floor_db - 30.0, "%s was heard on Master (peak %.1f dB)" % [entry[0], result.peak])
-		check(result.rise <= limit, "Calm beside her, %s rises at most %.0f dB (%.1f dB, %s)" % [entry[0], limit, result.rise, result.file])
+		var result: Dictionary = results[entry[3]]
+		check(result.peak > settings.audit_floor_db - 30.0, "%s was heard on Master (peak %.1f dB)" % [entry[3], result.peak])
+		check(result.rise <= limit, "Calm beside her, %s rises at most %.0f dB (%.1f dB, %s)" % [entry[3], limit, result.rise, result.file])
 		check(float(result.get("rise_holding", INF)) <= limit,
 			"Also while she holds her breath (%.1f dB)" % float(result.get("rise_holding", INF)))

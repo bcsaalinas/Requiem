@@ -341,9 +341,11 @@ static func current() -> SoundSettings:
 ## down. Sharp clicks and thuds cannot be made loud enough in the file without squashing them
 ## (assets/audio/SOUND_SETS.md, "Make-up"), so the difference is made up here; a set that is
 ## too present is turned down here the same way. Any set can be listed.
-## The entity's walking claw steps (entity/claws_walk) are turned down: at their file level a
-## step beside Viv was as loud as its heard-you voice and covered its mumbling. Move it towards
-## 0 to make its steps louder, further down to make them quieter.
+## The entity's calm breathing (entity/breath_calm) is turned down so it sits well under its
+## mumbled phrases instead of covering them; towards 0 it is louder (0 is its file level).
+## Its walking claw steps (entity/claws_walk) stay at their file level: with the calm trim
+## (position_calm_near_db) a step right beside Viv in a silent house is not a sudden jump. List
+## "entity/claws_walk" here with a value below 0 to turn them down.
 @export var set_gain_db := {
 	"entity/neck_click": 6.0,
 	"entity/foot_slam": 5.0,
@@ -351,7 +353,7 @@ static func current() -> SoundSettings:
 	"entity/cloth_fall": 8.5,
 	"entity/catch_grab": 1.5,
 	"entity/claws_run": 0.5,
-	"entity/claws_walk": -9.0,
+	"entity/breath_calm": -8.0,
 }
 
 @export_group("Entity: body")
@@ -360,14 +362,20 @@ static func current() -> SoundSettings:
 ## Level change of single animation cues that reuse another cue's set: the grope while it
 ## scuttles is a softer scrape, the idle tick a much softer tap.
 @export var cue_gain_db := {"claw_grope": -4.0, "claw_tick": -8.0}
-## Its walking steps (entity/claws_walk, while it walks its patrol) do not all sound: each one
-## sounds with this chance (0.6 = about 6 steps in 10). Higher: more of its steps are heard
-## (1 = every step, as it was). Lower: its walk is sparser. Its running and scuttling steps
-## always sound.
-@export_range(0.0, 1.0, 0.05) var walk_step_chance := 0.6
-## But never more than this many walking steps in a row are silent, so its walk never goes
-## quiet for long. 0 = every step sounds.
-@export_range(0, 10) var walk_step_max_skips := 2
+## Its calm breathing (while it knows nothing) does not play all the time: it breathes for a
+## spell of this long (shortest, longest)...
+@export var breath_calm_spell := Vector2(6.0, 12.0)
+## ...then sinks away and rests this long (shortest, longest), then breathes again. Longer
+## rests: it breathes less often. (0, 0) = it never rests: it breathes all the time, as before.
+@export var breath_calm_rest := Vector2(10.0, 22.0)
+## How slowly it sinks away into a rest and comes back from one. Slow on purpose, so its return
+## is never a sudden rise. Its loop keeps running underneath, so each spell starts at a
+## different point of the take.
+@export_range(0.1, 6.0, 0.1, "suffix:s") var breath_calm_fade := 2.0
+## On: while Viv holds her breath to listen, a rest ends (over breath_calm_fade) and it keeps
+## breathing at least as long as she holds, so listening always finds it. Off: its rests ignore
+## her. (It breathes without rests anyway before it is shown and once it has heard something.)
+@export var breath_found_by_listening := true
 ## How long its breath and drag loops take to fade in or out.
 @export_range(0.0, 2.0, 0.01, "suffix:s") var loop_fade := 0.2
 ## Above this speed it counts as moving, and its shroud drags.

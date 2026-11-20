@@ -24,8 +24,9 @@ extends Node2D
 ## through the wall: they play from a holder (Heard) placed in the direction of that opening, at
 ## the distance the entity really is. What it knows is always heard from where it stands.
 ##
-## Its walking claw steps are quiet and do not all sound (about 6 in 10, never more than two
-## silent in a row), so its walk is felt without covering its voice.
+## Its calm breathing is quiet and comes and goes: a spell of breathing, then a rest, so it is
+## never a steady rattle under everything (it breathes on without rests before it is shown,
+## once it has heard something, and while Viv holds her breath to listen).
 ## While it knows nothing, its position sounds right beside her are held down a little
 ## (position_calm_near_db, gone where ring 2 ends), so nothing it does calm is a sudden jump in a
 ## silent house. Once it has heard something they are at their full level. Channel A never is.
@@ -77,8 +78,6 @@ const SNIFF := "entity/sniff"
 const STAND_DOWN := "entity/stand_down"
 const MUMBLE := "entity/mumble"
 const EXHALE := "entity/exhale"
-## Its walking claw steps: not every one sounds (walk_step_chance).
-const WALK := "entity/claws_walk"
 ## Its knock on a door. Every knock file comes from this folder, never the house's knock.
 const KNOCK := "entity/knock"
 const KNOCK_FOLDER := SoundLibrary.ROOT + KNOCK + "/"
@@ -123,10 +122,6 @@ var heard_ring := 3
 ## How many position sounds of each set were lost on the way, and the last one.
 var gaps := {}
 var last_gap := ""
-## How many walking steps were left silent on purpose (walk_step_chance), and how many in a row
-## right now. Not gaps: these are not lost on the way.
-var walk_steps_skipped := 0
-var _walk_skips_in_row := 0
 ## dB every position sound loses on the way right now, and how exactly it is placed (0..1).
 var _reach_db := 0.0
 var _panning := 1.0
@@ -135,6 +130,12 @@ var _panning := 1.0
 var _calm := 1.0
 var _calm_known := false
 var _calm_trim_db := 0.0
+## Its calm breathing's rhythm: resting or in a spell, how far the rest holds it down (dB), how
+## long this spell or rest still lasts, and whether something keeps it breathing right now.
+var _breath_resting := false
+var _breath_rest_db := 0.0
+var _breath_left := 0.0
+var _breath_held := false
 ## Where its position sounds (Channel B) play from: the entity itself, or behind a wall the
 ## direction of the opening its sound comes through (Acoustics), at the entity's own distance.
 var heard: Node2D
@@ -217,6 +218,7 @@ func _ready() -> void:
 	_drag_far.bus = AudioBus.ENTITY_FAR
 	_talk = _player("Talk", heard)
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
+	_start_breath_spell()
 	for index in AWARENESS_VOICES:
 		_aware.append(_player("Awareness%d" % index))
 	_knock = _player("Knock")
@@ -280,24 +282,7 @@ func play_cue(cue_name: String) -> AudioStreamPlayer2D:
 			_unknown_cues[cue_name] = true
 			push_warning("[EntityAudio] animation cue '%s' has no sound set" % cue_name)
 		return null
-	var set_id: String = CUE_SETS[cue_name]
-	if set_id == WALK and not _walk_step_sounds():
-		return null
-	return play_set(set_id, float(SoundSettings.current().cue_gain_db.get(cue_name, 0.0)))
-
-
-## Whether this walking step sounds: each one with walk_step_chance, but never more than
-## walk_step_max_skips silent in a row. A skipped step is counted here, never as lost on the
-## way (that is what distance does, and it still applies to the steps that do sound).
-func _walk_step_sounds() -> bool:
-	var settings := SoundSettings.current()
-	if settings.walk_step_chance >= 1.0 or _walk_skips_in_row >= settings.walk_step_max_skips \
-			or randf() < settings.walk_step_chance:
-		_walk_skips_in_row = 0
-		return true
-	_walk_skips_in_row += 1
-	walk_steps_skipped += 1
-	return false
+	return play_set(CUE_SETS[cue_name], float(SoundSettings.current().cue_gain_db.get(cue_name, 0.0)))
 
 
 ## Plays one variation of a set from the entity's position, as a position sound (Channel B):
@@ -349,11 +334,11 @@ func reset() -> void:
 	stop_all()
 	_reach_known = false         # it was moved by hand: no glide from where it was
 	_calm_known = false
+	_start_breath_spell()
 	_heard_wait = -1.0
 	_scream_wait = -1.0
 	_exhale_covered_until = -INF
 	_sniff_run_wait = -1.0
-	_walk_skips_in_row = 0
 	_talk_wait = _between(SoundSettings.current().talk_interval_patrol)
 	_end_pause(true)           # a new encounter: no knock in its first moments
 	if _duck_left >= 0.0:
@@ -565,6 +550,7 @@ func placed() -> void:
 	Acoustics.remeasure(entity)
 	_reach_known = false
 	_calm_known = false
+	_start_breath_spell()
 	_tick_reach(0.0)
 
 
@@ -782,6 +768,9 @@ func _apply_reach() -> void:
 	var far_db := linear_to_db(maxf(sqrt(1.0 - heard_clarity), 0.0001))
 	for pair: Array in [[_breath, _breath_far], [_drag, _drag_far]]:
 		var level := float(pair[0].get_meta(&"level", SILENT_DB))
+		# Its calm breathing comes and goes (spells and rests); the loop runs on underneath.
+		if pair[0] == _breath and _loop_set(_breath) == BREATH_CALM:
+			level += _breath_rest_db
 		pair[0].volume_db = _heard_db(level + near_db)
 		pair[1].volume_db = _heard_db(level + far_db)
 		pair[0].panning_strength = placing()
@@ -805,6 +794,7 @@ func _process(delta: float) -> void:
 	var breathes: bool = not dead and (shown or breathes_unseen)
 	var wanted_breath := BREATH_HUNT if _state() == "HUNT" else BREATH_CALM
 	_drive_loop(_breath, _breath_far, wanted_breath if breathes and not reacting else "", delta, reacting)
+	_tick_breath_rhythm(delta, shown)
 	# The shroud drags while it moves.
 	var active: bool = entity.get(&"active") != false
 	var moving: bool = shown and active and not dead and not reacting \
@@ -815,6 +805,66 @@ func _process(delta: float) -> void:
 		_knock.stop()
 	_tick_knock(delta)
 	_apply_reach()
+
+
+## Its calm breathing comes and goes: a spell of breathing (breath_calm_spell), then it sinks
+## away over breath_calm_fade and rests (breath_calm_rest), then it comes back over the same
+## fade. The loop is never stopped for a rest, only held down, so each spell enters the take at
+## a different point. It breathes without rests while it is not shown yet (the tutorial's unseen
+## arrival), once it has heard something (near an encounter she must be able to follow it),
+## while Viv holds her breath to listen (breath_found_by_listening) and when the rest is (0, 0).
+## When any of those ends, a fresh spell begins.
+func _tick_breath_rhythm(delta: float, shown: bool) -> void:
+	var settings := SoundSettings.current()
+	var unseen := breathes_unseen and not shown
+	var alert := Dread.awareness_of(entity, self) > Dread.Awareness.PAUSED
+	var listening := settings.breath_found_by_listening and Acoustics.focus > 0.0
+	var never_rests := settings.breath_calm_rest.y <= 0.0
+	var glide := delta * -SILENT_DB / maxf(settings.breath_calm_fade, 0.001)
+	if unseen or alert or listening or never_rests:
+		_breath_resting = false
+		_breath_held = true
+		# Listening brings a resting breath in over the fade; otherwise it is simply there.
+		_breath_rest_db = move_toward(_breath_rest_db, 0.0, glide) if listening and not (unseen or alert) else 0.0
+		return
+	if _breath_held:
+		_breath_held = false
+		_start_breath_spell(false)      # a fresh spell; a level still coming in goes on gliding
+	_breath_left -= delta
+	if _breath_left <= 0.0:
+		_breath_resting = not _breath_resting
+		_breath_left = _between(settings.breath_calm_rest if _breath_resting else settings.breath_calm_spell)
+	_breath_rest_db = move_toward(_breath_rest_db, SILENT_DB if _breath_resting else 0.0, glide)
+
+
+## A spell of calm breathing starts now; `at_once`: at its full level at once (it was put
+## somewhere by hand, or an encounter was reset), otherwise from where its fade has it.
+func _start_breath_spell(at_once := true) -> void:
+	_breath_resting = false
+	if at_once:
+		_breath_rest_db = 0.0
+	_breath_left = _between(SoundSettings.current().breath_calm_spell)
+
+
+## True while its calm breathing rests (sinking away, or away).
+func breath_resting() -> bool:
+	return _breath_resting
+
+
+## How far its calm breathing is held down by its rhythm right now (0 in a spell, down to
+## SILENT_DB in a rest), and how long this spell or rest still lasts (debug read-outs, tests).
+func breath_rest_db() -> float:
+	return _breath_rest_db
+
+
+func breath_left() -> float:
+	return _breath_left
+
+
+## True while something keeps its calm breathing going with no rests (not shown yet, it has
+## heard something, she holds her breath to listen, or rests are off).
+func breath_held() -> bool:
+	return _breath_held
 
 
 ## The idle voice. `silent`: it is listening, screaming, catching, hidden, inactive or dead.

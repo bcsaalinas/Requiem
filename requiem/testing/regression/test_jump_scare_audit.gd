@@ -21,6 +21,7 @@ const KITCHEN_FAR := Vector2(150, 200)
 ## (1.6 u), then away again. Viv stands at VESTIBULE_A.
 const SOAK_ROUTE: Array[Vector2] = [Vector2(440, 456), Vector2(552, 440), Vector2(700, 456), Vector2(552, 456)]
 const SOAK_TIME := 60.0
+const WALK := "entity/claws_walk"
 
 var failures: Array[String] = []
 var checks := 0
@@ -249,8 +250,7 @@ func check_calm_soak() -> void:
 	await frames(3)
 	entity.audio.placed()
 	var audio: EntityAudio = entity.audio
-	var steps_before := int(audio.plays.get(EntityAudio.WALK, 0))
-	var skipped_before := audio.walk_steps_skipped
+	var steps_before := int(audio.plays.get(WALK, 0))
 	var taps_before := int(audio.plays.get("entity/pat_tap", 0))
 	var said_before := int(audio.plays.get(EntityAudio.MUMBLE, 0))
 	var nearest := INF
@@ -261,14 +261,13 @@ func check_calm_soak() -> void:
 		await get_tree().process_frame
 		nearest = minf(nearest, Units.to_u(entity.global_position.distance_to(game.player.global_position)))
 		calm = calm and Dread.awareness_of(entity, audio) <= Dread.Awareness.PAUSED
-	var steps := int(audio.plays.get(EntityAudio.WALK, 0)) - steps_before
-	var skipped := audio.walk_steps_skipped - skipped_before
-	print("[Jump-scare audit] calm soak, %.0f s, no drone: %d walking steps sounded, %d skipped, %d taps, %d phrases, nearest %.1f u · %s · loudest %.1f dB" % [
-		SOAK_TIME, steps, skipped, int(audio.plays.get("entity/pat_tap", 0)) - taps_before, int(audio.plays.get(EntityAudio.MUMBLE, 0)) - said_before,
+	var steps := int(audio.plays.get(WALK, 0)) - steps_before
+	print("[Jump-scare audit] calm soak, %.0f s, no drone: %d walking steps, %d taps, %d phrases, nearest %.1f u · %s · loudest %.1f dB" % [
+		SOAK_TIME, steps, int(audio.plays.get("entity/pat_tap", 0)) - taps_before, int(audio.plays.get(EntityAudio.MUMBLE, 0)) - said_before,
 		nearest, audit.summary(), audit.loudest_db])
 	for entry: Dictionary in audit.rises:
 		print("[Jump-scare audit]   +%.1f dB (%.0f to %.0f dB) on %s, after %s · %s" % [entry.jump_db, entry.from_db, entry.to_db, entry.bus, entry.sound, entry.cause])
-	check(calm and nearest < 2.0 and steps > 10 and skipped > 0, "A minute of its calm patrol, past and up to her (nearest %.1f u, %d steps heard, %d skipped)" % [nearest, steps, skipped])
+	check(calm and nearest < 2.0 and steps > 10, "A minute of its calm patrol, past and up to her (nearest %.1f u, %d steps heard)" % [nearest, steps])
 	check(audit.unexplained().is_empty(), "With the drone away, nothing it does calm beside her is a sudden rise: %s" % audit.summary())
 	MusicDirector.turn_drone(true)
 	await place(far)

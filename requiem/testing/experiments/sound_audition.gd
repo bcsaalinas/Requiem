@@ -346,10 +346,26 @@ func where_text() -> String:
 	# Its own line, only while she pants: on the line above it would not fit the column.
 	if her_body != null and her_body.pant > 0.0:
 		her += "\nViv: panting %d%% (she is tired)" % roundi(her_body.pant * 100.0)
-	return text + "\nposition sounds: %s\nplaced %d%% · lost on the way %d · steps skipped %d\npresence %.2f · the house recedes %.2f%s" % [
+	return text + "\nposition sounds: %s\nplaced %d%% · lost on the way %d · %s\npresence %.2f · the house recedes %.2f%s" % [
 		"silent" if level <= EntityAudio.GONE_DB else "%.1f dB%s · %d%% dulled" % [level,
 			" (calm %.1f)" % voice.calm_trim_db() if voice.calm_trim_db() < -0.05 else "", roundi((1.0 - voice.heard_clarity) * 100.0)],
-		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, voice.walk_steps_skipped, Dread.presence, MixDirector.recede(), her]
+		roundi(EntityAudio.position_panning(voice.heard_u, voice.reach_limit_u()) * 100.0), lost, breath_text(voice), Dread.presence, MixDirector.recede(), her]
+
+
+## Its breath in a few words: none, its hunting breath, or its calm breathing in a spell
+## ("breath on 5 s": 5 s of this spell left), kept going with no rests ("breath on, held": it
+## has heard something, or she holds her breath) or resting ("breath rests 12 s").
+func breath_text(voice: EntityAudio) -> String:
+	var set_id := voice.breath_set()
+	if set_id == "":
+		return "no breath"
+	if set_id != EntityAudio.BREATH_CALM:
+		return "breath hunt"
+	if voice.breath_held():
+		return "breath on, held"
+	if voice.breath_resting():
+		return "breath rests %.0f s" % voice.breath_left()
+	return "breath on %.0f s" % voice.breath_left()
 
 
 ## H. The house's next effect is due now (if its gates are open).
