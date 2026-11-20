@@ -179,10 +179,6 @@ Play
 Housekeeping
 - `tutorial/zones/mansion_upper.tscn` carries a hand-written id (`uid://m4ns10nupp3r`). Godot
   warns and falls back to the path; it works. It should be re-saved from the editor.
-- `.mcp.json` (repo root) and `requiem/addons/godot-mcp/` came with the other branch. The addon
-  is not enabled. `.mcp.json` registers a server named "godot" that points at a path on one
-  machine; anyone who already has a "godot" server set up should know before they switch to
-  this branch.
 
 ## Decisions taken by default
 

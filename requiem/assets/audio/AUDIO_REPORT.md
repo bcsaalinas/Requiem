@@ -443,7 +443,7 @@ The list comes from `git diff --stat e850ec0..HEAD`: `e850ec0` is the commit jus
 - **`autoloads/game_over_ui.gd`**: no death stinger. Before: it played `jump_scare_02`.
 - **`autoloads/preferences.gd`**: the SFX slider moves World, Body, Entity and EntityFar too.
 - **`default_bus_layout.tres`**: the eight buses and their effects. Before: Music, Ambience, SFX, UI.
-- **`project.godot`**: the four new autoloads and the bus layout entry (your MCP lines are separate and untouched).
+- **`project.godot`**: the four new autoloads and the bus layout entry (your own local lines in that file are separate and untouched).
 - **`altar/altar.tscn`**: the whispering file removed. **`altar/body_altar.gd`**: plays on World, no take twice running.
 - **`level/door/door.gd`**, **`tutorial/chest.gd`**: on World. Nothing else in the door changed.
 - **`tutorial/tutorial.gd`**: story sounds on World and through the house voice; the surface per zone; the entity's hidden breathing off in every zone; the house's doors handed to the house voice. Before: its own unease logic, story sounds on SFX, a drag sound on the catch.
