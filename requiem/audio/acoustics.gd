@@ -188,6 +188,12 @@ func _find_opening(result: AcousticReading, world: World2D, skipped: Array[RID])
 			return
 
 
+## Whether a wall stands between two points of a world (furniture and bodies do not count).
+## Call it from _physics_process (it casts a ray).
+func wall_between(from: Vector2, to: Vector2, world: World2D, skipped: Array[RID] = []) -> bool:
+	return _wall_between(from, to, world, skipped)
+
+
 ## One ray on the wall layer. Furniture and bodies on that layer are looked past.
 func _wall_between(from: Vector2, to: Vector2, world: World2D, skipped: Array[RID]) -> bool:
 	if from.is_equal_approx(to):

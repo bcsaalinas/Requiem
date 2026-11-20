@@ -471,8 +471,8 @@ static func current() -> SoundSettings:
 @export_group("Entity: what it knows (Channel A)")
 ## The heard-you cue plays at full level out to this distance. It must cover every place a
 ## detection can come from: the largest noise Viv can make (8 u: a thrown object, the prayer
-## pulse) x its sharpest hearing (1.6) x 1.25 = 16 u. The fairness test fails if this is less.
-@export_range(4.0, 60.0, 0.5, "suffix:u") var heard_full_u := 16.0
+## pulse) x its faintest hearing (faint_gain, 3.5) = 28 u. The fairness test fails if this is less.
+@export_range(4.0, 60.0, 0.5, "suffix:u") var heard_full_u := 32.0
 ## Beyond that distance the heard-you cue drops by this much per unit...
 @export_range(0.0, 3.0, 0.05, "suffix:dB/u") var heard_fall_db_per_u := 0.5
 ## ...but never below this: it never falls silent, wherever Viv stands.

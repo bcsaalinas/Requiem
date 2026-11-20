@@ -28,8 +28,19 @@ extends Node
 #   - the last cue it played on each channel: A, what it knows (heard, scream, lost,
 #     stand_down...) and B, where it is (claws, breath, sniffing...);
 #   - whether the house voice may speak, and if not, why;
-#   - the jump-scare audit (jump_scare_audit.gd): sudden rises on Master and what explains them.
+#   - the jump-scare audit (jump_scare_audit.gd): sudden rises on Master and what explains them;
+#   - what the entity made of the last noise it weighed (see below).
 # It only reads: it changes no sound and makes no noise.
+#
+# WHAT IT HEARS. Around every noise ring two thin circles show how far the entity that is out
+# in the world would hear that noise in open air: red = clearly heard (a hunt), amber = barely
+# heard (it comes to check). Walls and closed doors make the real distance longer, so the
+# last line of the read-out gives the entity's own verdict on the last noise it weighed:
+#   it hears (x2.0 / x3.5): INVESTIGATE · last noise FOOTSTEP 3.0 u: FAINT at 7.4 u
+#   (clear <= 6.0, faint <= 10.5) · wall in the way · 1 closed door
+# While it listens the line also says what the listening will end in (-> HUNT or -> INVESTIGATE).
+# Where the Director is on (the Hacienda) the line ends with it: its pressure, whether it is
+# backing off, and the last patrol marker it chose with that marker's walking distance to Viv.
 
 const PX_PER_UNIT: float = Units.PX_PER_UNIT
 const JumpScareAudit := preload("res://testing/tools/jump_scare_audit.gd")
@@ -38,6 +49,12 @@ const AUDIO_SEARCH_EVERY := 0.5
 ## The read-out says a doorway is "ahead" when it is less than this far to either side of Viv
 ## (in units): the sound then comes from neither side.
 const HEARD_AHEAD_U := 0.5
+
+
+## The two open-air hearing circles drawn around a noise: clearly heard, barely heard.
+const CLEAR_COLOR := Color(1.0, 0.35, 0.3)
+const FAINT_COLOR := Color(1.0, 0.8, 0.35)
+const HEARD_NAMES := ["NOT HEARD", "FAINT", "CLEAR"]
 
 
 ## Nodo interno que hace el dibujo. Vive dentro del CanvasLayer.
@@ -173,6 +190,7 @@ func _draw_noises(c: Node2D) -> void:
 		return
 
 	var font := ThemeDB.fallback_font
+	var ears := hearer()
 
 	for n in _noises:
 		var age: float = n["age"]
@@ -193,6 +211,16 @@ func _draw_noises(c: Node2D) -> void:
 		if ring < 1.0:
 			c.draw_arc(center, radius * ring, 0.0, TAU, 48,
 				Color(col.r, col.g, col.b, (1.0 - ring) * life), 3.0, true)
+
+		# How far the entity out in the world hears this noise in open air: clearly (a hunt)
+		# and barely (it comes to check).
+		if ears != null:
+			var clear_px: float = radius * float(ears.get(&"clear_gain"))
+			var faint_px: float = radius * maxf(float(ears.get(&"faint_gain")), float(ears.get(&"clear_gain")))
+			c.draw_arc(center, clear_px, 0.0, TAU, 96, Color(CLEAR_COLOR, 0.6 * life), 1.0, true)
+			c.draw_arc(center, faint_px, 0.0, TAU, 96, Color(FAINT_COLOR, 0.45 * life), 1.0, true)
+			c.draw_string(font, center + Vector2(4.0, -clear_px - 3.0), "clear", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(CLEAR_COLOR, 0.8 * life))
+			c.draw_string(font, center + Vector2(4.0, -faint_px - 3.0), "faint", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(FAINT_COLOR, 0.7 * life))
 
 		# Centro exacto: es el punto al que camina la entidad, no donde estas tu.
 		c.draw_line(center - Vector2(6, 0), center + Vector2(6, 0), Color(col.r, col.g, col.b, life), 1.5)
@@ -332,4 +360,42 @@ func audio_text() -> String:
 	lines.append("last cue · what it knows (A): %s · where it is (B): %s" % [_cue_text(_last_knows), _cue_text(_last_where)])
 	lines.append("house voice: %s" % HouseVoice.status())
 	lines.append("jump audit: %s" % audit.summary())
+	lines.append(hearing_text())
 	return "\n".join(lines)
+
+
+## The entity whose hearing the overlay shows: the first one that is out in the world.
+func hearer() -> Node2D:
+	if not is_inside_tree():
+		return null
+	for node in get_tree().get_nodes_in_group(&"entity"):
+		var entity := node as Node2D
+		if entity != null and entity.is_visible_in_tree() and entity.has_method(&"measure_noise"):
+			return entity
+	return null
+
+
+## What the entity made of the last noise it weighed, and what it is doing about it.
+func hearing_text() -> String:
+	var ears := hearer()
+	if ears == null:
+		return "it hears: nothing is out"
+	var parts: Array[String] = [String(ears.call(&"get_state_name"))]
+	if ears.has_method(&"listen_outcome_name") and String(ears.call(&"listen_outcome_name")) != "":
+		parts.append("listening -> %s" % ears.call(&"listen_outcome_name"))
+	var last: Dictionary = ears.get(&"last_judgement")
+	if last.is_empty():
+		parts.append("no noise weighed yet")
+	else:
+		parts.append("last noise %s %.1f u: %s at %.1f u (clear <= %.1f, faint <= %.1f)" % [_name_for(int(last.get("source", -1))),
+			float(last.radius_u), HEARD_NAMES[clampi(int(last.heard), 0, 2)], float(last.distance_u), float(last.clear_u), float(last.faint_u)])
+		if bool(last.blocked):
+			parts.append("wall in the way")
+		if int(last.doors) > 0:
+			parts.append("%d closed door%s" % [int(last.doors), "" if int(last.doors) == 1 else "s"])
+	if int(ears.get(&"persistence_max")) > 0:
+		parts.append("learned %d/%d" % [int(ears.get(&"persistence")), int(ears.get(&"persistence_max"))])
+	var director: Object = ears.get(&"director")
+	if director != null and bool(director.get(&"enabled")):
+		parts.append("director: %s" % director.call(&"status"))
+	return "it hears (x%.1f / x%.1f): %s" % [float(ears.get(&"clear_gain")), float(ears.get(&"faint_gain")), " · ".join(parts)]

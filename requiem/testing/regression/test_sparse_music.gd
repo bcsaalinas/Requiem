@@ -243,8 +243,8 @@ func check_awareness_wins() -> void:
 	music.clear()
 	cues.clear()
 	entity.listen_time_range = Vector2(0.8, 0.8)
-	entity.hunt_persistence = 1.5
-	entity.search_duration = 3.0
+	entity.hunt_linger = 1.5
+	entity.search_duration_range = Vector2(3.0, 3.0)
 	entity._patrol_wait = 999.0
 	NoiseManager.emit_noise(entity.global_position + Vector2.LEFT * Units.to_px(3.0), Units.to_px(40.0), NoiseManager.SourceType.ENVIRONMENT)
 	check(await until(func() -> bool: return MusicDirector.current_state == MusicDirector.MusicState.HEARD, 0.5), "It hears something: the music goes to its silence")
@@ -273,8 +273,8 @@ func check_awareness_wins() -> void:
 	check(music.map(func(change: Dictionary) -> int: return change.to) == [MusicDirector.MusicState.HEARD, MusicDirector.MusicState.HUNT, MusicDirector.MusicState.SEARCH, explore],
 		"The music of the whole encounter is what it was: silence, hunt, thin tone, exploration")
 	entity.listen_time_range = Vector2(0.7, 1.2)
-	entity.hunt_persistence = 5.0
-	entity.search_duration = 5.0
+	entity.hunt_linger = 3.0
+	entity.search_duration_range = Vector2(12.0, 18.0)
 
 
 ## Prayer and the menu have their own music; a new attempt opens with the drone.

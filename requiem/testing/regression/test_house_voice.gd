@@ -442,7 +442,7 @@ func check_gates() -> void:
 	entity.active = true
 	entity.set_physics_process(true)
 	entity.listen_time_range = Vector2(0.8, 0.8)
-	entity.search_duration = 3.0
+	entity.search_duration_range = Vector2(3.0, 3.0)
 	var before := noises
 	NoiseManager.emit_noise(entity.global_position + Vector2.LEFT * Units.to_px(3.0), Units.to_px(40.0), NoiseManager.SourceType.ENVIRONMENT)
 	noises = before              # that one was this test's, not the house's
@@ -455,7 +455,7 @@ func check_gates() -> void:
 		during += await insist(0.1)
 		seen[Dread.awareness] = true
 		if Dread.awareness == Dread.Awareness.HUNTING:
-			entity._hunt_timer = entity.hunt_persistence       # the trail goes cold
+			entity._hunt_timer = entity.hunt_linger       # the trail goes cold
 		if seen.has(Dread.Awareness.SEARCHING) and Dread.awareness <= Dread.Awareness.PAUSED:
 			break
 	check(seen.has(Dread.Awareness.HEARD) and seen.has(Dread.Awareness.HUNTING) and seen.has(Dread.Awareness.SEARCHING) and during == 0,

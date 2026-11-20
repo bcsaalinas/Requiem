@@ -11,8 +11,15 @@ extends Node2D
 
 signal opened
 signal closed
+## A body pushed it open (push_open): who, and whether it was slammed.
+signal pushed(by: Node2D, slammed: bool)
+## A body tried it and it is locked.
+signal rattled(by: Node2D)
 
 enum Style { FRONT, SIDE }
+## What a body that walks into a closed door wants to do with it (its wants_door(door) answers):
+## push it open, stand in front of it for now and push it later, or slam it.
+enum Push { OPEN, WAIT, SLAM }
 
 @export var style := Style.FRONT:
 	set(value):
@@ -47,6 +54,11 @@ enum Style { FRONT, SIDE }
 ## Radius when the door is eased open or shut while the player holds their breath.
 @export var quiet_noise_radius_u := 1.0
 @export var creak: AudioStream
+## The door pushed open by a body, slammed open by one, and tried while locked. Each one empty:
+## the creak stands in for it (lower and heavier, loud and short, a short strain).
+@export var pushed_sound: AudioStream
+@export var slam_sound: AudioStream
+@export var locked_sound: AudioStream
 
 ## Bodies in this group push a closed, unlocked door open when they reach it (the entity).
 @export var opened_by_group: StringName = &"entity"
@@ -70,6 +82,20 @@ enum Style { FRONT, SIDE }
 @export var close_label := "Close"
 @export var locked_label := "Locked"
 
+## Every door of a running level is in this group.
+const DOOR_GROUP := &"doors"
+## A door pushed open by a body: the creak, lower and heavier, until it has its own sound.
+const PUSHED_VOLUME_DB := -6.0
+const PUSHED_PITCH := Vector2(0.72, 0.84)
+## Slammed open (a hunt): louder, shorter, and the leaf swings in a fraction of its time.
+const SLAM_VOLUME_DB := -3.0
+const SLAM_PITCH := Vector2(1.3, 1.45)
+const SLAM_SWING := 0.35
+## Tried while locked: a short strain of the wood, until it has its own rattle.
+const LOCKED_VOLUME_DB := -10.0
+const LOCKED_PITCH := Vector2(1.5, 1.7)
+const LOCKED_STRAIN := 0.4
+
 ## Leaf art: 160x34 px canvas drawn hinged on the left, swinging south; the pivot is the hinge-end
 ## corner of the swing face. The closed leaf sits 23 art px below the top of the frame.
 const LEAF_CANVAS_Y := 23.0
@@ -83,6 +109,10 @@ var focused := false
 var _tween: Tween
 var _hinge_base := Vector2.ZERO
 var _leaf_body_pending := false
+## 1 for an ordinary swing; less while a slam is being started.
+var _swing_scale := 1.0
+## Counts the door's sounds, so that a cut meant for one never stops the next.
+var _sound_token := 0
 
 
 func _ready() -> void:
@@ -98,6 +128,10 @@ func _ready() -> void:
 	var doorway := get_node_or_null("Doorway") as Area2D
 	if doorway != null and not Engine.is_editor_hint():
 		doorway.body_entered.connect(_on_doorway_body_entered)
+	if not Engine.is_editor_hint():
+		# The entity finds doors here: a closed one on a sound's way muffles it, and a search
+		# ends through one.
+		add_to_group(DOOR_GROUP)
 
 
 func _process(_delta: float) -> void:
@@ -113,7 +147,39 @@ func _process(_delta: float) -> void:
 
 func _on_doorway_body_entered(body: Node2D) -> void:
 	if opened_by_group != &"" and body.is_in_group(opened_by_group) and body.is_visible_in_tree():
-		open()
+		push_open(body)
+
+
+## A body walked into it (the entity). Viv hears the door; nothing here is one of her noises,
+## so no NoiseManager event is sent and the entity never hunts its own door.
+## - Locked: it is tried (the rattle), and the body is told (door_refused(door)).
+## - Otherwise the body is asked what it wants (wants_door(door) -> Push): it may stand in
+##   front of the door first and call push_open() again later, or slam it.
+## Returns true when the door opened.
+func push_open(by: Node2D) -> bool:
+	if is_open:
+		return false
+	if locked:
+		_play_door_sound(locked_sound, LOCKED_VOLUME_DB, LOCKED_PITCH, 0.0 if locked_sound != null else LOCKED_STRAIN)
+		rattled.emit(by)
+		if by != null and by.has_method(&"door_refused"):
+			by.call(&"door_refused", self)
+		return false
+	var push: int = Push.OPEN
+	if by != null and by.has_method(&"wants_door"):
+		push = int(by.call(&"wants_door", self))
+	if push == Push.WAIT:
+		return false
+	var slammed := push == Push.SLAM
+	_swing_scale = SLAM_SWING if slammed else 1.0
+	open(false, true)
+	_swing_scale = 1.0
+	if slammed:
+		_play_door_sound(slam_sound, SLAM_VOLUME_DB, SLAM_PITCH)
+	else:
+		_play_door_sound(pushed_sound, PUSHED_VOLUME_DB, PUSHED_PITCH)
+	pushed.emit(by, slammed)
+	return true
 
 
 ## Opens the door. Returns false when it is locked or already open.
@@ -204,7 +270,7 @@ func _animate(target: float) -> void:
 		swing = target
 		return
 	_tween = create_tween()
-	_tween.tween_property(self, "swing", target, swing_time * absf(target - swing)) \
+	_tween.tween_property(self, "swing", target, swing_time * _swing_scale * absf(target - swing)) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT if target > swing else Tween.EASE_IN)
 
 
@@ -290,17 +356,35 @@ func _apply_swing() -> void:
 
 
 func _make_noise(quiet: bool) -> void:
-	var audio := get_node_or_null("Audio") as AudioStreamPlayer2D
-	if audio != null and creak != null:
-		audio.stream = creak
-		audio.volume_db = -14.0 if quiet else -6.0
-		audio.pitch_scale = randf_range(0.92, 1.05)
-		audio.play()
+	_play_creak(-14.0 if quiet else -6.0, Vector2(0.92, 1.05))
 	if Engine.is_editor_hint():
 		return
 	var radius_u := quiet_noise_radius_u if quiet else noise_radius_u
 	if radius_u > 0.0:
 		NoiseManager.emit_noise(get_noise_origin(), radius_u * Units.PX_PER_UNIT, NoiseManager.SourceType.DOOR)
+
+
+## The door's sound alone, for Viv's ears: nothing here is a noise the entity can hear.
+func _play_creak(volume_db: float, pitch: Vector2) -> void:
+	_play_door_sound(creak, volume_db, pitch)
+
+
+## Plays `stream` (the creak when it is empty) from the doorway. `cut_after` > 0 stops it
+## after that long: the creak cut short is what stands in for a rattle.
+func _play_door_sound(stream: AudioStream, volume_db: float, pitch: Vector2, cut_after := 0.0) -> void:
+	var audio := get_node_or_null("Audio") as AudioStreamPlayer2D
+	var sound := stream if stream != null else creak
+	if audio == null or sound == null:
+		return
+	audio.stream = sound
+	audio.volume_db = volume_db
+	audio.pitch_scale = randf_range(pitch.x, pitch.y)
+	audio.play()
+	_sound_token += 1
+	if cut_after > 0.0 and is_inside_tree():
+		var token := _sound_token
+		get_tree().create_timer(cut_after).timeout.connect(func() -> void:
+			if token == _sound_token and audio.playing: audio.stop())
 
 
 ## Centre of the doorway gap in global coordinates.

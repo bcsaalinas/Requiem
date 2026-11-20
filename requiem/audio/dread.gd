@@ -21,7 +21,7 @@ extends Node
 ##   UNAWARE    walking its patrol (or not there at all)
 ##   PAUSED     standing still on its patrol
 ##   HEARD      it heard something and stands listening
-##   SEARCHING  it lost the trail and looks for it
+##   SEARCHING  it lost the trail and looks for it, or it barely heard something and comes to check
 ##   HUNTING    it knows, from the moment it stops listening (the scream) on
 ##   CAUGHT     it has her: the catch, and the game over screen after it
 enum Awareness { UNAWARE, PAUSED, HEARD, SEARCHING, HUNTING, CAUGHT }
@@ -91,9 +91,10 @@ func awareness_of(entity: Node2D, audio: Node = null) -> int:
 	match int(entity.get(&"current_state")):
 		EntityAudio.HUNT:
 			return Awareness.HUNTING
-		EntityAudio.SEARCH:
+		EntityAudio.SEARCH, EntityAudio.INVESTIGATE:
+			# A check (it barely heard something and comes to look) is a search of its own.
 			return Awareness.SEARCHING
-	# On patrol. (INVESTIGATE is never entered; if it were, it would count as patrol too.)
+	# On patrol.
 	var standing: bool = entity.get(&"active") != false and entity is CharacterBody2D \
 		and (entity as CharacterBody2D).velocity.length() <= Units.to_px(SoundSettings.current().moving_speed_u)
 	return Awareness.PAUSED if standing else Awareness.UNAWARE
