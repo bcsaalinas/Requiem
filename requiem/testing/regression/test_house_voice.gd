@@ -19,6 +19,11 @@ const DOOR_SCENE := preload("res://level/door/door_side.tscn")
 ## Where the door tests' effect sounds (arena px): the locked and the open door are nearer to it
 ## than any door that may be left ajar.
 const EFFECT_AT := Vector2(700, 260)
+## A second knock for the tests that need two knock files (not added to the repo: put in the
+## knock set's place for the test only). Not one of house_effects, not of the entity.
+const SECOND_KNOCK := "res://assets/audio/horror-jam-kit 2/WAV/Foley/metal_scrape_01.wav"
+## Effect rolls driven directly to measure the share of knocks.
+const ROLLS := 600
 
 var failures: Array[String] = []
 var checks := 0
@@ -32,6 +37,9 @@ var noises := 0
 var sounds: Array[Dictionary] = []
 var thinnings := 0
 var captions_before := false
+## Times a knock was asked for (hurry_knock) by insist(), and knocks that sounded meanwhile.
+var knock_asks := 0
+var knocks_heard := 0
 
 
 func check(condition: bool, message: String) -> void:
@@ -68,6 +76,7 @@ func _ready() -> void:
 	check_no_house()
 	await set_up()
 	await check_effects()
+	await check_knocks()
 	await check_nothing()
 	await check_gates()
 	await check_answer()
@@ -118,6 +127,19 @@ func check_settings() -> void:
 		"Thinning the ambience wins over the slow mood of the house, and anything she does wins over it")
 	check(SoundLibrary.files(HouseVoice.SETTLE).is_empty() and SoundLibrary.files(HouseVoice.EFFECTS).is_empty() and SoundLibrary._warned.is_empty(),
 		"The house's own sound folders are empty today, and that is not a warning")
+	check(near(settings.house_knock_share, 0.6, 0.001) and near(settings.house_knock_max_gain_db, 4.0, 0.001) and settings.house_knock_caption != "",
+		"Most effects are knocks (60%), and a knock may be turned up by 4 dB at most")
+	var knocks: Array[Dictionary] = HouseVoice.knocks()
+	check(SoundLibrary.files(HouseVoice.KNOCK).is_empty() and not SoundLibrary._warned.has(HouseVoice.KNOCK) and knocks.size() == 1
+		and knocks[0].file == settings.house_knock and near(float(knocks[0].lufs), -28.9, 0.001) and knocks[0].caption == "[Knocking, somewhere in the house]"
+		and HouseVoice.effects().size() == settings.house_effects.size(),
+		"Today the house knocks with one file, the answer's own (-28.9 LUFS, with its caption); house/knock is empty, and effects() is as it was")
+	var knock_lufs := float(knocks[0].lufs) if not knocks.is_empty() else NAN
+	check(near(HouseVoice.knock_level_for(knock_lufs), settings.house_max_lufs - knock_lufs, 0.001) and near(knock_lufs + HouseVoice.knock_level_for(knock_lufs), settings.house_max_lufs, 0.001),
+		"A knock plays at the loudest the house may be: today's file %.1f dB up, at %.0f LUFS" % [HouseVoice.knock_level_for(knock_lufs), knock_lufs + HouseVoice.knock_level_for(knock_lufs)])
+	check(near(HouseVoice.knock_level_for(-40.0), settings.house_knock_max_gain_db, 0.001) and near(HouseVoice.knock_level_for(-14.0), settings.house_max_lufs + 14.0, 0.001)
+		and -14.0 + HouseVoice.knock_level_for(-14.0) <= settings.house_max_lufs + 0.001,
+		"A very quiet knock file is turned up by %.0f dB at most; a loud one is turned down to -26 LUFS" % settings.house_knock_max_gain_db)
 
 
 func check_no_house() -> void:
@@ -188,12 +210,17 @@ func room_of(at: Vector2) -> String:
 	return ""
 
 
+## With house_knock_share 0 the effects are as they were before the knocks: each effect,
+## the knock among them, in turn, never twice running.
 func check_effects() -> void:
+	var share_before: float = settings.house_knock_share
+	settings.house_knock_share = 0.0
 	sounds.clear()
 	thinnings = 0
 	for roll in 60:
 		HouseVoice.hurry()
 		await ticks(2)
+	settings.house_knock_share = share_before
 	var effects := sounds.filter(func(sound: Dictionary) -> bool: return sound.family == &"effect")
 	check(effects.size() + thinnings == 60 and effects.size() >= 35, "Each time its turn comes it makes an effect or thins the ambience (%d effects, %d times nothing)" % [effects.size(), thinnings])
 	check(thinnings >= 1 and thinnings <= 25, "About one roll in six is nothing (%d in 60)" % thinnings)
@@ -222,6 +249,144 @@ func check_effects() -> void:
 	check(game.hud.caption.text == last.caption, "The level shows its caption: %s" % game.hud.caption.text)
 
 
+## Rolls the next effect `count` times as the house would (without playing them): the families
+## and files chosen, in order.
+func roll(count: int) -> Array[Dictionary]:
+	var picks: Array[Dictionary] = []
+	for index in count:
+		var picked: Dictionary = HouseVoice.pick_effect()
+		if picked.is_empty():
+			picks.append({"family": &"", "file": ""})
+			continue
+		HouseVoice._remember_effect(picked.entry, picked.family)
+		picks.append({"family": picked.family, "file": picked.entry.file})
+	return picks
+
+
+## The longest run of effects in a row that are the same file.
+func longest_run(picks: Array[Dictionary]) -> int:
+	var longest := 0
+	var run := 0
+	for index in picks.size():
+		run = run + 1 if index > 0 and picks[index].file == picks[index - 1].file else 1
+		longest = maxi(longest, run)
+	return longest
+
+
+## Of the picks of one family, how many times one followed the same file.
+func repeats_within(picks: Array[Dictionary], family: StringName) -> int:
+	var own := picks.filter(func(pick: Dictionary) -> bool: return pick.family == family)
+	var repeats := 0
+	for index in range(1, own.size()):
+		repeats += int(own[index].file == own[index - 1].file)
+	return repeats
+
+
+func share_of_knocks(picks: Array[Dictionary]) -> float:
+	return picks.filter(func(pick: Dictionary) -> bool: return pick.family == &"knock").size() / float(maxi(picks.size(), 1))
+
+
+## The knock: the house's signature. Most effects are a knock, at the loudest the house may be.
+func check_knocks() -> void:
+	var share_before: float = settings.house_knock_share
+	var share: float = settings.house_knock_share
+	var knock_file: String = settings.house_knock
+	# One knock file (today): a knock may follow a knock, never a third time.
+	var picks := roll(ROLLS)
+	# With one file a third knock in a row is refused, so the share heard is p(1+p)/(1+p+p²).
+	var expected := share * (1.0 + share) / (1.0 + share + share * share)
+	check(near(share_of_knocks(picks), expected, 0.06) and share_of_knocks(picks) > 0.4,
+		"With one knock file, %.0f%% of %d effects are knocks (%.0f%% expected: a 60%% chance each time, never a third in a row)" % [share_of_knocks(picks) * 100.0, ROLLS, expected * 100.0])
+	var others: Array[Dictionary] = picks.filter(func(pick: Dictionary) -> bool: return pick.family == &"effect")
+	var each_other := {}
+	for pick in others: each_other[pick.file] = int(each_other.get(pick.file, 0)) + 1
+	var most_other := 0
+	for file: String in each_other: most_other = maxi(most_other, int(each_other[file]))
+	check(each_other.size() == settings.house_effects.size() - 1 and not each_other.has(knock_file) and share_of_knocks(picks) * ROLLS > 2.0 * most_other,
+		"The rest are the creak, the fall and the chair; knocks come more than twice as often as any of them (%s)" % [each_other])
+	check(longest_run(picks) <= HouseVoice.KNOCKS_IN_A_ROW and picks.any(func(pick: Dictionary) -> bool: return pick.family == &"knock")
+		and not picks.any(func(pick: Dictionary) -> bool: return pick.family == &""),
+		"Two knocks may follow each other, never three effects in a row of the one knock file (longest run %d)" % longest_run(picks))
+	check(repeats_within(picks, &"effect") == 0, "The other effects never repeat among themselves")
+	# Share 1, one file: knock, knock, then one of the others.
+	settings.house_knock_share = 1.0
+	picks = roll(60)
+	var after_two := true
+	for index in range(2, picks.size()):
+		if picks[index - 1].family == &"knock" and picks[index - 2].family == &"knock" and picks[index - 1].file == picks[index - 2].file:
+			after_two = after_two and picks[index].family == &"effect"
+	check(near(share_of_knocks(picks), 2.0 / 3.0, 0.05) and after_two and longest_run(picks) <= HouseVoice.KNOCKS_IN_A_ROW,
+		"At share 1 with one file every effect is a knock but each third, which is one of the others (%.0f%% knocks)" % (share_of_knocks(picks) * 100.0))
+	# Share 0: as before there were knocks.
+	settings.house_knock_share = 0.0
+	picks = roll(ROLLS)
+	var used := {}
+	for pick in picks: used[pick.file] = true
+	check(share_of_knocks(picks) == 0.0 and used.has(knock_file) and used.size() == settings.house_effects.size() and longest_run(picks) == 1,
+		"At share 0 the knock is just one of the effects, never twice running, as it was")
+	# Two knock files (a stand-in in house/knock for the test): never the same file twice running.
+	var second: Array[AudioStream] = [load(SECOND_KNOCK) as AudioStream]
+	SoundLibrary._files[HouseVoice.KNOCK] = second
+	settings.house_knock_share = share
+	check(HouseVoice.knocks().size() == 2 and HouseVoice.knocks()[1].file == SECOND_KNOCK and near(float(HouseVoice.knocks()[1].lufs), settings.house_set_lufs, 0.001)
+		and HouseVoice.knocks()[1].caption == settings.house_knock_caption and HouseVoice.effects().size() == settings.house_effects.size(),
+		"A file dropped in house/knock becomes a knock with no code change (at %.0f LUFS, with the knocking caption), not another effect" % settings.house_set_lufs)
+	picks = roll(ROLLS)
+	var files := {}
+	for pick in picks:
+		if pick.family == &"knock": files[pick.file] = true
+	check(near(share_of_knocks(picks), share, 0.06) and files.size() == 2,
+		"With two knock files, %.0f%% of %d effects are knocks (%.0f%% asked), from both files" % [share_of_knocks(picks) * 100.0, ROLLS, share * 100.0])
+	check(repeats_within(picks, &"knock") == 0 and repeats_within(picks, &"effect") == 0, "Never the same knock file twice running, nor the same other effect")
+	settings.house_knock_share = 1.0
+	picks = roll(40)
+	check(share_of_knocks(picks) == 1.0 and repeats_within(picks, &"knock") == 0, "At share 1 with two files every effect is a knock, the two in turn")
+	# The dropped file is heard as a knock: after the house's own knock, the next is the other.
+	HouseVoice._remember_effect(HouseVoice.knocks()[0], &"knock")
+	sounds.clear()
+	HouseVoice.hurry_knock()
+	await ticks(3)
+	check(sounds.size() == 1 and sounds[0].family == &"knock" and sounds[0].file == SECOND_KNOCK
+		and near(sounds[0].level, HouseVoice.knock_level_for(settings.house_set_lufs), 0.01) and sounds[0].caption == settings.house_knock_caption,
+		"And it is heard as a knock, at its level, with its caption (%s)" % [sounds.map(func(sound: Dictionary) -> String: return "%s %s" % [sound.family, String(sound.file).get_file()])])
+	SoundLibrary._files.erase(HouseVoice.KNOCK)
+	settings.house_knock_share = share
+	await seconds(settings.house_nothing_time + settings.house_nothing_fade + 0.2)
+	# Today's knock, played as the house plays it: at -26 LUFS, from another room, on World, soft.
+	var chance_before: float = settings.house_ajar_chance
+	settings.house_ajar_chance = 1.0
+	HouseVoice.begin_run()
+	HouseVoice._knocks_running = 0
+	HouseVoice._last_knock = ""
+	sounds.clear()
+	thinnings = 0
+	var history_before := HouseVoice.history.size()
+	HouseVoice.hurry_knock()
+	await ticks(3)
+	var knock: Dictionary = sounds[0] if not sounds.is_empty() else {}
+	var lufs := lufs_of(knock_file)
+	check(sounds.size() == 1 and thinnings == 0 and knock.family == &"knock" and knock.file == knock_file and HouseVoice.history.back().family == &"knock",
+		"Asked for (J), a knock comes, never a nothing, and is told apart as a knock in the history")
+	check(not knock.is_empty() and near(knock.level, HouseVoice.knock_level_for(lufs), 0.01) and near(lufs + knock.level, settings.house_max_lufs, 0.01)
+		and lufs + knock.level <= settings.house_max_lufs + 0.001,
+		"It plays %.1f dB up: at %.1f LUFS, the loudest the house may be, never louder" % [knock.get("level", NAN), lufs + float(knock.get("level", NAN))])
+	check(not knock.is_empty() and room_of(knock.at) not in ["", "Vestibule"] and knock.bus == AudioBus.WORLD and near(knock.start_db, knock.level + settings.house_attack_from_db, 0.5)
+		and knock.caption == "[Knocking, somewhere in the house]" and game.hud.caption.text == knock.caption,
+		"From a room she is not in, on World, with a soft start, and the level shows its caption")
+	check(HouseVoice._effect_wait >= settings.house_effect_gap.x - 2.0 and HouseVoice._ajar_wait >= 0.0,
+		"Like any effect it sets the next one 90 s away or more (%.0f s), and a door may be found ajar after it" % HouseVoice._effect_wait)
+	HouseVoice._ajar_wait = -1.0
+	settings.house_ajar_chance = chance_before
+	HouseVoice.begin_run()
+	check(not HouseVoice.status().is_empty() and HouseVoice.knock_text() == "knocks 60% of effects, 1 knock file" and HouseVoice.status().contains(HouseVoice.knock_text()),
+		"The read-out says what the next effect can be: %s" % HouseVoice.status())
+	HouseVoice._knocks_running = HouseVoice.KNOCKS_IN_A_ROW
+	HouseVoice._last_knock = knock_file
+	check(HouseVoice.knock_text().begins_with("next effect not a knock"), "And when two knocks have just come, that the next will not be one: %s" % HouseVoice.knock_text())
+	settings.house_knock_share = share_before
+	await seconds(settings.house_attack + 0.1)
+
+
 func check_nothing() -> void:
 	await seconds(settings.house_nothing_time + settings.house_nothing_fade + 0.3)      # any thinning from the rolls above is over
 	var mood: float = settings.threat_world_db * MixDirector.recede()
@@ -245,14 +410,18 @@ func insist(time: float) -> int:
 	thinnings = 0
 	var until := now() + time
 	while now() < until:
-		HouseVoice.hurry()
+		HouseVoice.hurry_knock()
+		knock_asks += 1
 		HouseVoice._settle_wait = 0.0
 		HouseVoice.answer()
 		await ticks(1)
+	knocks_heard += sounds.filter(func(sound: Dictionary) -> bool: return sound.family == &"knock").size()
 	return sounds.size() + thinnings
 
 
 func check_gates() -> void:
+	knock_asks = 0
+	knocks_heard = 0
 	# Near.
 	var far: Vector2 = entity.global_position
 	entity.global_position = house + VESTIBULE_B
@@ -311,9 +480,11 @@ func check_gates() -> void:
 	made = await insist(0.3)
 	check(held == "she is praying" and made == 0, "While she prays the house is silent")
 	GameState.is_praying = false
+	check(knock_asks > 20 and knocks_heard == 0 and HouseVoice.violations == 0,
+		"Near, alert, just after a cue and while she prays, a knock asked for %d times never comes" % knock_asks)
 	await ticks(2)
 	made = await insist(0.2)
-	check(made >= 1, "Once every gate is open, it speaks")
+	check(made >= 1 and knocks_heard >= 1, "Once every gate is open, it speaks (asked for, a knock)")
 	await seconds(settings.house_nothing_time + settings.house_nothing_fade + 0.2)
 
 

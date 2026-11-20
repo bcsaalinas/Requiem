@@ -1,6 +1,6 @@
 # Requiem — Audio report
 
-The sound system of the brief, Steps 1 to 18, on the branch `audio/sound-system`, and one follow-up (19 November 2026: the entity's calm breathing quieter and coming and going, everything calm softer right beside her; marked **Follow-up** below). Nothing is pushed.
+The sound system of the brief, Steps 1 to 18, on the branch `audio/sound-system`, and two follow-ups (19 November 2026: the entity's calm breathing quieter and coming and going, everything calm softer right beside her, marked **Follow-up** below; and the house knocks more, marked **Follow-up (knocks)**). Nothing is pushed.
 
 How to read it. "Viv" is the player. "The entity" is the blind creature. Distances are in units: 1 u = 32 px, about one step and a half. Levels are in dB (decibels: 6 dB is about twice as loud, 10 dB sounds about twice as loud to the ear, 18 dB is a big jump). LUFS is a measure of how loud a sound feels over its whole length (−12 LUFS is loud, −32 LUFS is a whisper). "Set" means one folder of sounds under `assets/audio/`: the game picks one file of the folder at random each time, never the same one twice in a row.
 
@@ -34,6 +34,7 @@ Contents: 1 What each step delivered · 2 Decisions taken by default · 3 Revert
 **Step 9 — Viv: her body and her listening** (`0c76df6`). Her breath takes are her own sets (`viv/hold_in`, `exhale`, `gasp`, `forced_gasp`, in `player/player.tscn`), noise radii unchanged. `player/body_audio.gd` gives her a breathing loop (calm, nervous, panting) that stops while she holds her breath. Holding her breath is listening: Music, Ambience and World go soft (2500 Hz), the entity comes up 2 dB, ring 1 reaches 1.3 times further, half its gaps close. Walking hides 6 dB of the entity's far sounds, sprinting 12 dB.
 
 **Step 10 — The house voice** (`9ffd908`). `audio/house_voice.gd` (HouseVoice): quiet settling sounds (folder empty, so silent), rare effects (a knock, a creak, something falling, a chair) 90–150 s apart, and one roll in six "nothing" (the ambience thins for 4 s). Always from a room she is not in, on World, no louder than −26 LUFS, with a soft start. It is silent while the entity is alert, inside ring 2, within 20 s of an awareness cue, or while she prays, and it says why in words. One loud thing she does may be answered by one knock about a second later. The tutorial's own unease before the key now plays through it.
+**Follow-up (knocks), 19 November 2026:** the knock is now the house's signature while it is safe. Of its effects, 60 % are a knock (`house_knock_share`; with today's single knock file about half, since a third knock in a row is never allowed), the rest the creak, the fall and the chair; the time between effects (90–150 s) and the "nothing" are unchanged. A knock plays at −26 LUFS, the loudest any house sound may be (today's file is turned up 2.9 dB; never more than 4 dB, `house_knock_max_gain_db`), instead of 2.9 dB under it. Its knocks are the answer's file plus anything in `house/knock` (empty). It is still refused by every gate, and it is reported as `knock`. The answer is unchanged.
 
 **Step 11 — Sparse music** (`64e86ee`). During exploration the drone stays 40–90 s and is away 40–90 s on its own clock, fading slowly both ways, whatever the entity does. Every awareness reaction of Step 6 still wins (`music_director.gd`).
 
@@ -125,6 +126,7 @@ Folders under `assets/audio/entity`, `assets/audio/viv` and `assets/audio/house`
 | `viv/steps_forest` | The same concrete steps. | The same, on earth, leaves and twigs. |
 | `house/settle` | Silence: the house has no settling sounds. | Very quiet wood creaks and pipe ticks, single short files; they are levelled to −26 LUFS and played 10 dB under it. |
 | `house/effects` | The four effects listed in `house_effects`: a knock, a creak, something falling, a chair. | More rare, ambiguous house sounds; each joins the four, levelled to −26 LUFS, with the caption `house_effect_caption`. |
+| `house/knock` | **Follow-up (knocks).** The one knock file, `door_knock_01` (the answer's). | Single knocks on wood or a door, one per file, from a room away. Each becomes one of the house's knocks (taken as −26 LUFS, caption `house_knock_caption`). With two or more, the same file is never heard twice running and 60 % of effects are knocks. |
 | `house/prayer_tone` | Silence during prayer (the music box still plays, low-passed). | One soft looping tone (OGG with loop on); it rises from −18 dB to −4 dB under the file with her progress. |
 
 **Sets with a single take** (they cannot avoid repeating; a second file would let them vary):
@@ -213,8 +215,10 @@ All 53 audio files in `tutorial/assets/audio/new_audio/` (in 27 set folders, 20 
 
 | Value | Now | What moving it does |
 |---|---|---|
-| `house_effect_gap` | 90–150 s | Time between two rare effects. |
-| `house_max_lufs` | −26 LUFS | The loudest any house sound may be. |
+| `house_effect_gap` | 90–150 s | Time between two rare effects (knocks included): shorter, every effect and knock comes oftener. Keep it at about 90 s or more. |
+| `house_knock_share` | 0.6 | **Follow-up (knocks).** Of the effects, the chance each is a knock. Higher: more knocks, fewer creaks, falls and chairs (1 = only knocks, still never three in a row from one file). 0: the knock is one effect among the four, as before. With one knock file the share heard is lower (about 49 % at 0.6) because a third in a row is refused; a second file in `house/knock` brings it to the full 60 %. |
+| `house_knock_max_gain_db` | 4 dB | **Follow-up (knocks).** How much a quiet knock file may be turned up to reach `house_max_lufs`. Today's needs 2.9 dB. Lower: knocks quieter than the other effects again (0 = never turned up). It cannot make a knock louder than `house_max_lufs`. |
+| `house_max_lufs` | −26 LUFS | The loudest any house sound may be. Knocks play right at it: raising it is what makes knocks louder (and every other house sound may follow). |
 | `house_after_cue` | 20 s | Quiet after any awareness cue before the house may speak. |
 | `house_nothing_one_in` | 6 | One roll in this many is "nothing" (the ambience thins). |
 | `house_ajar_chance` | 0.5 | Chance a door is found ajar after an effect (once per run). `house_ajar` off = never. |
@@ -354,6 +358,8 @@ One full run of all 30 suites (`python3 testing/run_checks.py`), 19 November 202
 
 **Follow-up, 19 November 2026** (only the suites that cover the change were run, one at a time; no full run): Entity audio **60/60** (45 + 15 new: 14 for the calm breathing's level, spells, rests, fades and when it never rests, 1 that the hunting breath is untouched), Rings **82/82** (68 + 14 new: the holding-down while calm), Jump-scare audit **66/66** (64 + 2 new: a minute of its calm patrol up to her with the drone away), a new suite, Calm beside her **25/25** (`test_calm_beside_her`: every file of every calm sound beside her, normal and holding her breath, about 2½ minutes), Entity knock 57/57, Awareness 76/76 (unchanged, no check edited), Idle voice 34/34, Body audio 100/100, Tutorial 123/123 (the unseen arrival still breathes), Test Lab 120/121 (the known failure). The game's log stayed clean through the live checks.
 
+**Follow-up (knocks), 19 November 2026** (only the suites that cover the change were run, one at a time; no full run): House voice **118/118** (96 + 22 new: the knock settings, its level, 600 rolls with one and with two knock files, share 0 and share 1, a file dropped in `house/knock`, a knock heard with its level, room, bus, soft start and caption, its effect gap and door ajar, the read-out, every gate refusing a knock; `check_effects` now runs at share 0, the behaviour it describes), Jump-scare audit **68/68** (66 + 2 new: the knock at its new level from the nearest place, drone away and no entity, rose 3.5 to 5.7 dB on Master, peak about −20 to −25 dB, across three runs; one existing check now counts knocks among the house's effects), Test Lab 120/121 (the known failure), Tutorial 123/123, Audio mix 56/56. Live, in the Sound Audition (the entity stopped at the far end of the house, since on its patrol it kept walking into Viv's room): 12 presses of H gave 7 knocks, 2 creaks, 2 chairs and 1 "nothing"; every knock at +2.9 dB (−26 LUFS); the read-out said `knocks 60% of effects, 1 knock file`, and after two knocks running `next effect not a knock (2 knocks in a row)` (J then gave a fall, the next J a knock). With the entity beside her, J and H gave nothing and the line said `silent: it is near (ring 3)`; through an encounter (key 1) `silent: it is alert (hunting)`, then `an awareness cue played 10 s ago (20 s of quiet first)`, and the knock asked for only came once the house was safe again. The audit: 0 unexplained rises (the 2 it logged were the encounter's, explained), 0 house sounds while gated, `HouseVoice.violations` 0. No error or warning in the game's log.
+
 **Known failures** (they predate the audio work or sit outside it; unchanged):
 - Kiosk: "The last shot brings out the entity".
 - Sprint feedback: "Every sprint source, movement, effect and interruption scenario completes" (a script error in the test itself: `test_sprint_feedback.gd` line 253 reads `position` on a Dictionary).
@@ -374,7 +380,8 @@ One full run of all 30 suites (`python3 testing/run_checks.py`), 19 November 202
 - **Claw taps and breathing next to her (fairness).** **Follow-up, 19 November 2026: softened** (section 7, question 4: no calm sound beside her rises more than about 16 dB, and the 3-minute reproduction gave no rise). What was found before, kept for reference: with the music drone away (the house at its quietest), an unaware entity standing right next to Viv (ring 3) can rise more than 18 dB out of the quiet with its idle claw taps (`entity/pat_tap`) and its breathing; the audit logs these as UNEXPLAINED. You said of the pat_tap rise "Leave it for now". Measured again for this report: see section 7, question 4.
 - **The heard-you cue is loud by design.** It rises about 20–25 dB to about −1 dB peak. It is the learnable warning itself, so the audit counts it as explained; listen whether it is too much.
 - **Eli's praying** in the tutorial (`tutorial/assets/audio/prayer.wav`) was left alone: is it a "voice saying words"?
-- **The answering knock** gets nearer, not louder, because its file is already quieter than every limit (Step 17).
+- **The answering knock** gets nearer, not louder, because its file is already quieter than every limit (Step 17). (The house's own knocks, since the knocks follow-up, are turned up to −26 LUFS; the answer was left as it was.)
+- **Knocks at −26 LUFS are still quiet** (follow-up, knocks): from the nearest room in a silent house a knock peaks about −20 to −25 dB on Master, a few dB over the ambience. If they still do not catch the ear, `house_max_lufs` is what makes them louder (it is the cap for every house sound); `house_knock_max_gain_db` only lets a quieter file reach it. Files of your own in `house/knock`, recorded closer and drier, will carry better than the kit's knock.
 - **The scream** has three files but two of them sound nearly the same: a third distinct take needs a recording.
 - **Single-take sets** cannot avoid repeating (section 4).
 - **`prepare_sounds.py`** would level raw footstep files to −28 LUFS (breath level) and does not cut takes that hold several steps (Step 13). Drop finished one-step files straight into the folders instead.
@@ -412,7 +419,7 @@ The list comes from `git diff --stat e850ec0..HEAD`: `e850ec0` is the commit jus
 - **`audio/sound_library.gd`** (new): turns a folder into a set; picks without repeating; warns once on a missing set.
 - **`audio/dread.gd`** (new, autoload Dread): what the entity knows (awareness), threat, presence.
 - **`audio/acoustics.gd`**, **`audio/acoustic_reading.gd`** (new, autoload Acoustics): how far its sound really travels, ring, clarity, the doorway.
-- **`audio/house_voice.gd`** (new, autoload HouseVoice): the house's own sounds, gates, answers, escalation, the door found ajar. Before: a smaller "unease" logic inside `tutorial/tutorial.gd`.
+- **`audio/house_voice.gd`** (new, autoload HouseVoice): the house's own sounds, gates, answers, escalation, the door found ajar. Before: a smaller "unease" logic inside `tutorial/tutorial.gd`. **Follow-up (knocks)**: `knocks()`, `pick_effect()`, `knock_level_for()`, `hurry_knock()`, `knock_text()`, the `knock` family, the `house/knock` set.
 
 ### The entity
 - **`entities/entity_audio.gd`** (new): every sound of the entity, both channels, the rings, the doorway, the idle voice, the knock.

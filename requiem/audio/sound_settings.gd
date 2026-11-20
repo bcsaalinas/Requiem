@@ -254,10 +254,23 @@ static func current() -> SoundSettings:
 ]
 ## The effect used to answer something loud she did. One of house_effects.
 @export_file("*.wav", "*.ogg") var house_knock := "res://assets/audio/horror-jam-kit 2/WAV/Foley/door_knock_01.wav"
-## How loud the files in assets/audio/house/settle and house/effects are made (LUFS).
+## How loud the files in assets/audio/house/settle, house/effects and house/knock are made (LUFS).
 @export_range(-50.0, -10.0, 0.5, "suffix:LUFS") var house_set_lufs := -26.0
 ## The caption for an effect that comes from assets/audio/house/effects.
 @export var house_effect_caption := "[Something moves, somewhere in the house]"
+## The knocks: the house's own signature while it is safe. Its knocks are house_knock (above)
+## and every file dropped in assets/audio/house/knock. Of the effects (not the "nothing"),
+## this share are knocks; the rest are the other effects. Higher: more knocks and fewer
+## creaks, falls and chairs (1 = only knocks); 0 = the knock is just one effect among the
+## others, as it was before. How often effects come at all is house_effect_gap.
+@export_range(0.0, 1.0, 0.05) var house_knock_share := 0.6
+## A knock plays at the loudest the house may be (house_max_lufs). A quiet knock file is turned
+## up to get there, but by no more than this, so that its background hiss is not dragged up
+## with it. Higher: a quiet file can be brought further up (louder knocks); 0: knocks are only
+## ever turned down, like every other house sound.
+@export_range(0.0, 12.0, 0.5, "suffix:dB") var house_knock_max_gain_db := 4.0
+## The caption for a knock that comes from assets/audio/house/knock.
+@export var house_knock_caption := "[Knocking, somewhere in the house]"
 ## Seconds from one effect to the next (a random time in this span). Never less than about 90.
 @export var house_effect_gap := Vector2(90.0, 150.0)
 ## Once it is safe again, the house waits this long (a random time in this span) before an
