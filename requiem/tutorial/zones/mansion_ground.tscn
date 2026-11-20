@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" uid="uid://carenk35ti2lg" path="res://level/props/chest.tscn" id="25_barrels"]
 [ext_resource type="PackedScene" path="res://level/props/standing_lamp.tscn" id="26_clock"]
 [ext_resource type="Script" path="res://tutorial/zones/mansion_ground.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/art/lights/light_lamp_pool.png" id="route_light"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_stairs"]
 size = Vector2(96, 96)
@@ -327,6 +328,29 @@ metadata/interaction_id = "altar_1"
 metadata/interaction_label = "Pray at the dry fountain (hold)"
 metadata/interaction_offset = Vector2(0, -20)
 
+[node name="FountainRouteLight" type="PointLight2D" parent="Props"]
+position = Vector2(1120, 1280)
+color = Color(0.95, 0.76, 0.47, 1)
+energy = 0.8
+texture_scale = 1.35
+texture = ExtResource("route_light")
+
+[node name="HearthRouteLight" type="PointLight2D" parent="Props"]
+enabled = false
+position = Vector2(760, 768)
+color = Color(0.95, 0.76, 0.47, 1)
+energy = 1.1
+texture_scale = 1.35
+texture = ExtResource("route_light")
+
+[node name="StairRouteLight" type="PointLight2D" parent="Props"]
+enabled = false
+position = Vector2(1992, 1216)
+color = Color(0.95, 0.76, 0.47, 1)
+energy = 1.1
+texture_scale = 1.35
+texture = ExtResource("route_light")
+
 [node name="PatioRocks" type="Node2D" parent="Props"]
 position = Vector2(1280, 960)
 script = ExtResource("16_art")
@@ -336,6 +360,12 @@ metadata/interaction_label = "Take 3 stones"
 
 [node name="GranComedorTable" parent="Props" instance=ExtResource("20_dining")]
 position = Vector2(384, 1568)
+
+[node name="DiningKeyChest" parent="Props" instance=ExtResource("9_chest")]
+position = Vector2(512, 1632)
+metadata/interaction_id = "chest_dining_key"
+metadata/interaction_label = "Open the dining-room chest"
+metadata/interaction_offset = Vector2(0, 8)
 
 [node name="GranComedorWardrobe" parent="Props" instance=ExtResource("11_wardrobe")]
 position = Vector2(160, 1472)

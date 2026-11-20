@@ -14,6 +14,8 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 @export_group("Ritual")
 @export var altar_name: String = "Ofrenda"
 @export var pray_duration: float = 12.0
+var offering_display: Sprite2D
+var _can_place_offering: Callable
 
 @export_group("Ruido (u)")
 @export var pray_noise_radius_u: float = 6.0
@@ -33,6 +35,8 @@ const PX_PER_UNIT: float = Units.PX_PER_UNIT
 var jugador_cerca: bool = false
 var tiempo_interaccion: float = 0.0
 var is_completed: bool = false
+var offering_placed := false
+var _wait_for_prayer_release := false
 
 @onready var label_texto: Label = $Label
 @onready var barra_progreso: ProgressBar = $ProgressBar
@@ -68,13 +72,19 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_completed:
 		return
+	var pray_key := Input.is_action_pressed("pray") or Input.is_key_pressed(KEY_E)
+	if pray_key and Input.is_action_pressed("hold_breath"):
+		_wait_for_prayer_release = true
+	if _wait_for_prayer_release and not pray_key:
+		_wait_for_prayer_release = false
 
 	# Detección directa por distancia al jugador (máxima robustez)
 	var player := get_tree().get_first_node_in_group("player") as CharacterBody2D
 	if is_instance_valid(player):
 		jugador_ref = player
-		var dist := global_position.distance_to(player.global_position)
-		jugador_cerca = dist <= 140.0
+		var offset: Vector2 = get_meta("interaction_offset", Vector2.ZERO)
+		var distance := (global_position + offset).distance_to(player.global_position)
+		jugador_cerca = distance <= 85.0
 	else:
 		jugador_cerca = false
 		jugador_ref = null
@@ -83,7 +93,6 @@ func _process(delta: float) -> void:
 		cancel_prayer(true)
 		return
 
-	var pray_key := Input.is_action_pressed("pray") or Input.is_key_pressed(KEY_E)
 	if jugador_cerca and pray_key:
 		if is_instance_valid(barra_progreso):
 			barra_progreso.show()
@@ -119,7 +128,26 @@ func _process(delta: float) -> void:
 
 func _player_can_pray() -> bool:
 	return not is_completed and not GameState.is_dead and is_instance_valid(jugador_ref) \
-		and jugador_ref.is_inside_tree()
+		and jugador_ref.can_process() and can_begin_prayer() \
+		and not _wait_for_prayer_release
+
+
+func can_begin_prayer() -> bool:
+	return not is_completed and offering_placed and _can_place_offering.is_valid() and _can_place_offering.call()
+
+
+func place_offering() -> void:
+	if not _can_place_offering.is_valid() or not _can_place_offering.call():
+		return
+	offering_placed = true
+	_wait_for_prayer_release = true
+	if is_instance_valid(offering_display):
+		offering_display.show()
+
+
+func configure_offering(display: Sprite2D, can_place: Callable) -> void:
+	offering_display = display
+	_can_place_offering = can_place
 
 
 func get_prayer_elapsed() -> float:

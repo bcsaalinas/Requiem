@@ -22,6 +22,7 @@ const PICKUP_PROMPT_GAP := 12.0
 @onready var shade: ColorRect = $Screen/StoryFade
 @onready var help_panel: PanelContainer = $Screen/PauseMenu
 @onready var inventory: HBoxContainer = $Screen/Inventory
+@onready var offering_inventory: HBoxContainer = $Screen/OfferingInventory
 @onready var breath_hint: HBoxContainer = $Screen/BreathHint
 @onready var alert: VBoxContainer = $Screen/Alert
 @onready var altars_tracker: Control = $Screen/AltarsTracker
@@ -29,6 +30,7 @@ const PICKUP_PROMPT_GAP := 12.0
 @onready var altars_bar: ProgressBar = $Screen/AltarsTracker/VBox/Bar
 var _slots: Dictionary = {}
 var _counts: Dictionary = {}
+var _offering_labels: Dictionary = {}
 var _slot_rejects: Dictionary = {}
 var _slot_base_x: Dictionary = {}
 var _hint_clock := 0.0
@@ -156,6 +158,26 @@ func set_key(held: bool) -> void:
 		_slots["key"] = slot
 	_slots["key"].visible = held
 
+func show_offering(id: String, item_name: String, texture: Texture2D) -> void:
+	if not _slots.has(id):
+		var slot := _slots.flashlight.duplicate(0) as HBoxContainer
+		slot.name = id
+		slot.alignment = BoxContainer.ALIGNMENT_CENTER
+		slot.modulate = Color.WHITE
+		slot.scale = Vector2.ONE
+		(slot.get_node("Icon") as TextureRect).texture = texture
+		_offering_labels[id] = item_name.to_upper()
+		_slots[id] = slot
+		offering_inventory.add_child(slot)
+		slot.draw.connect(_draw_slot_card.bind(id))
+	_slots[id].show()
+	# Give the container a frame to position a slot before scaling it around its center.
+	pulse_slot.call_deferred(id)
+
+func hide_offering(id: String) -> void:
+	if _offering_labels.has(id):
+		_slots[id].hide()
+
 func show_key_hint(message: String, window_position: Vector2) -> void:
 	key_hint.text = message
 	key_hint.visible = not message.is_empty()
@@ -272,6 +294,9 @@ func _draw_slot_card(kind: String) -> void:
 			else:
 				state_text = "THROW"
 				state_color = UIPalette.TEXT
+		_:
+			state_text = _offering_labels.get(kind, "")
+			state_color = UIPalette.TEXT
 
 	if reject_t > 0.0:
 		bg = bg.lerp(Color(0.28, 0.07, 0.07, 0.92), reject_t * 0.85)
@@ -289,12 +314,15 @@ func _draw_slot_card(kind: String) -> void:
 		1.0
 	)
 	var font := ThemeDB.fallback_font
-	if font != null:
+	if font != null and not key_text.is_empty():
 		var key_rect := Rect2(rect.position.x + 4.0, footer_y + 2.0, 14.0, 12.0)
 		slot.draw_rect(key_rect, Color(0.14, 0.16, 0.16, 0.95), true)
 		slot.draw_rect(key_rect, Color(border.r, border.g, border.b, 0.7), false, 1.0)
 		slot.draw_string(font, Vector2(key_rect.position.x + 4.0, footer_y + 11.5), key_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, UIPalette.TEXT)
 		slot.draw_string(font, Vector2(key_rect.end.x + 5.0, footer_y + 11.5), state_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9, state_color)
+	elif font != null and not state_text.is_empty():
+		slot.draw_string(font, Vector2(rect.position.x, footer_y + 11.5), state_text,
+			HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 9, state_color)
 
 	# Flashlight active beam glow dot in top-right corner of card.
 	if kind == "flashlight" and _flashlight_on and _battery_percent > 0.0:
