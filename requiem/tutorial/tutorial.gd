@@ -1044,7 +1044,7 @@ func _pop_loot(from: Vector2, texture: Texture2D, slot: String) -> void:
 	play_sound("pickup",player.position)
 	var item := Sprite2D.new()
 	item.texture = texture
-	item.scale = Vector2.ONE * Units.ART_SCALE
+	item.scale = Vector2.ONE * Units.PICKUP_ART_SCALE
 	item.z_index = 44
 	var unlit := CanvasItemMaterial.new()
 	unlit.light_mode = CanvasItemMaterial.LIGHT_MODE_UNSHADED
@@ -1056,7 +1056,7 @@ func _pop_loot(from: Vector2, texture: Texture2D, slot: String) -> void:
 	tween.tween_interval(0.4)
 	tween.tween_property(item,"global_position",player.global_position+Vector2(0,-12),0.22) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tween.parallel().tween_property(item,"scale",Vector2.ONE*Units.ART_SCALE*0.4,0.22)
+	tween.parallel().tween_property(item,"scale",Vector2.ONE*Units.PICKUP_ART_SCALE*0.4,0.22)
 	tween.tween_callback(item.queue_free)
 	if slot != "": tween.tween_callback(hud.pulse_slot.bind(slot))
 
@@ -1097,7 +1097,7 @@ func _animate_rocks(pile: Vector2) -> void:
 	for index in range(3):
 		var pebble := Sprite2D.new()
 		pebble.texture = load("res://assets/art/items/item_pebble_%s.png" % ["a","b","c"][index])
-		pebble.scale = Vector2.ONE * Units.ART_SCALE
+		pebble.scale = Vector2.ONE * Units.PICKUP_ART_SCALE
 		pebble.z_index = 44
 		world.add_child(pebble)
 		var start := pile+Vector2(randf_range(-10,10),randf_range(-6,4))

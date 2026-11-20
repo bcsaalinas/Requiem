@@ -7,6 +7,10 @@ extends Node2D
 ## Draws a small pickup this many px higher than its node, so it can rest on a desk or a chest
 ## while it still y-sorts at the furniture's front edge.
 @export var lift := 0.0
+## Any other pickup art (story notes, offerings, keys): drawn and cued like the built-in items.
+@export var item_texture: Texture2D
+## Optional two-frame glint sheet for `item_texture`.
+@export var item_glint: Texture2D
 @export_group("Actor animation")
 const Materials := preload("res://tutorial/materials.gd")
 const VELADORA := preload("res://assets/art/ritual/ritual_veladora.png")
@@ -62,18 +66,20 @@ func _ready() -> void:
 	z_index = 1
 	# One light layer: every light reaches every receiver; walls, doors and tall props occlude.
 	light_mask = 1
-	if kind != "candle" and not ITEMS.has(kind):
+	var item_art := _item_art()
+	if kind != "candle" and item_art == null:
 		material = Materials.scenery_material()
-	if ITEMS.has(kind):
-		glint = Sprite2D.new()
-		glint.name = "Glint"
-		glint.texture = ITEM_GLINTS[kind]
-		glint.hframes = 2
-		glint.scale = Vector2.ONE * Units.ART_SCALE
-		glint.position = Vector2(0.0, -lift)
-		add_child(glint,false,Node.INTERNAL_MODE_BACK)
-	if ITEMS.has(kind):
-		_add_pickup_cues(ITEMS[kind])
+	if item_art != null:
+		var glint_sheet: Texture2D = item_glint if item_texture != null else ITEM_GLINTS.get(kind)
+		if glint_sheet != null:
+			glint = Sprite2D.new()
+			glint.name = "Glint"
+			glint.texture = glint_sheet
+			glint.hframes = 2
+			glint.scale = Vector2.ONE * Units.PICKUP_ART_SCALE
+			glint.position = Vector2(0.0, -lift)
+			add_child(glint,false,Node.INTERNAL_MODE_BACK)
+		_add_pickup_cues(item_art)
 	if kind == "phone":
 		_add_phone_screen()
 	if kind in ["rocks"]:
@@ -96,6 +102,11 @@ func _ready() -> void:
 		rim_sprite.material = rim_material
 		add_child(rim_sprite,false,Node.INTERNAL_MODE_BACK)
 
+## The art of a pickup: the exported texture, else the built-in item for `kind`, else null.
+func _item_art() -> Texture2D:
+	return item_texture if item_texture != null else ITEMS.get(kind) as Texture2D
+
+
 ## True for the things she takes or reads off a surface (they carry the pickup cues).
 func is_pickup() -> bool:
 	return is_instance_valid(beacon)
@@ -113,7 +124,7 @@ func _add_pickup_cues(item_texture: Texture2D) -> void:
 	outline.texture = item_texture
 	outline.region_enabled = true
 	outline.region_rect = Rect2(Vector2(-1.0, -1.0), item_texture.get_size() + Vector2(2.0, 2.0))
-	outline.scale = Vector2.ONE * Units.ART_SCALE
+	outline.scale = Vector2.ONE * Units.PICKUP_ART_SCALE
 	outline.position = at
 	outline.visible = false
 	outline.material = ShaderMaterial.new()
@@ -141,7 +152,7 @@ func _add_phone_screen() -> void:
 	screen.name = "Screen"
 	screen.texture = PHONE_LIT
 	screen.hframes = 2
-	screen.scale = Vector2.ONE * Units.ART_SCALE
+	screen.scale = Vector2.ONE * Units.PICKUP_ART_SCALE
 	screen.position = Vector2(0.0, -lift)
 	screen.material = unlit
 	add_child(screen,false,Node.INTERNAL_MODE_BACK)
@@ -186,9 +197,9 @@ func _tick_beacon() -> void:
 
 
 func _draw() -> void:
-	if ITEMS.has(kind):
-		var texture: Texture2D = ITEMS[kind]
-		var size := texture.get_size() * Units.ART_SCALE
+	var texture := _item_art()
+	if texture != null:
+		var size := texture.get_size() * Units.PICKUP_ART_SCALE
 		draw_texture_rect(texture, Rect2(Vector2(0.0, -lift) - size * 0.5, size), false)
 		return
 	if DETAIL_REGIONS.has(kind):
@@ -236,7 +247,7 @@ func _draw_detail() -> void:
 	var size := Vector2(32,32)
 	# Pickups at real scale next to the 58 px girl; the focus rim keeps them readable.
 	match kind:
-		"rocks": size=Vector2(30,23)
+		"rocks": size=Vector2(30,23)*Units.PICKUP_SCALE
 		"candle": size=Vector2(25,27)
 	var bottom := 12.0
 	paint_sprite(DETAILS,Rect2(Vector2(-size.x*.5,bottom-size.y-lift),size),region)

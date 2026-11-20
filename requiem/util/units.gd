@@ -42,6 +42,17 @@ const ART_SCALE: float = 0.4
 ## Zoom unico de la camara (ART_SCALE * CAMERA_ZOOM = 1).
 const CAMERA_ZOOM: float = 2.5
 
+# Los objetos que Viv toma o lee (pilas, piedras, notas, llaves, ofrendas) se
+# dibujan un 25% mas grandes que la cuadricula 1:1 para que se lean junto a ella.
+# Es el unico lugar donde vive ese numero: el arte final de esos objetos se puede
+# redibujar a este tamano y entonces bajar esto a 1.0 sin tocar nada mas.
+
+## Cuanto mas grandes que el arte 1:1 se ven los objetos que se recogen.
+const PICKUP_SCALE: float = 1.25
+
+## Escala de sprite para esos objetos (ART_SCALE * PICKUP_SCALE).
+const PICKUP_ART_SCALE: float = ART_SCALE * PICKUP_SCALE
+
 
 static func to_px(units: float) -> float:
 	return units * PX_PER_UNIT

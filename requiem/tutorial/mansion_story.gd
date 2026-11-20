@@ -8,6 +8,13 @@ const BURNER := preload("res://assets/art/ritual/ritual_copal_burner.png")
 const BATTERY := preload("res://assets/art/items/item_battery.png")
 const STONE := preload("res://assets/art/items/item_pebble_a.png")
 const BEACON := preload("res://tutorial/hint_beacon.gd")
+const Art := preload("res://tutorial/art.gd")
+# Glint sheets for the placeholder art that has one; offerings get theirs with the final sprites.
+const GLINTS := {
+	NOTE: preload("res://assets/art/items/item_note_glint.png"),
+	BATTERY: preload("res://assets/art/items/item_battery_glint.png"),
+	STONE: preload("res://assets/art/items/item_pebble_a_glint.png"),
+}
 
 const ALTARS := {
 	"altar_1": {"item": "fountain_marigold", "clue": "fountain_dedication", "after": [], "words": "Inés, I leave you a marigold so your name is remembered."},
@@ -166,27 +173,31 @@ func _texture(id: String) -> Texture2D:
 	return item[2]
 
 
+## Chest loot and altar offerings: drawn at the same size as every pickup (Units.PICKUP_ART_SCALE).
 func _sprite(texture: Texture2D) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.texture = texture
-	var longest_side := maxf(texture.get_width(), texture.get_height())
-	sprite.scale = Vector2.ONE * 22.0 / maxf(1.0, longest_side)
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.scale = Vector2.ONE * Units.PICKUP_ART_SCALE
 	return sprite
 
 
+## Notes and loose offerings are ordinary pickups: same size, glint, star and focus outline.
 func _add_prop(id: String, label: String, floor_id: String, at: Vector2, texture: Texture2D) -> void:
-	var sprite := _sprite(texture)
-	sprite.name = id
-	game.world.zones[floor_id].get_node("Props").add_child(sprite)
-	sprite.position = at
-	_add_beacon(sprite)
-	game.world.interactables[id] = {"node": sprite, "position": sprite.global_position, "label": label}
+	var prop := Art.new()
+	prop.name = id
+	prop.kind = "story_item"
+	prop.item_texture = texture
+	prop.item_glint = GLINTS.get(texture)
+	game.world.zones[floor_id].get_node("Props").add_child(prop)
+	prop.position = at
+	game.world.interactables[id] = {"node": prop, "position": prop.global_position, "label": label}
 
 
 func _add_beacon(sprite: Sprite2D) -> void:
-	# Keep the beacon on an unscaled child so tiny art doesn't hide its apparent size.
+	# The star keeps the size it has everywhere else, whatever the scale of the sprite it marks.
 	var beacon := BEACON.new()
-	beacon.scale = Vector2.ONE / sprite.scale
+	beacon.scale = Vector2.ONE * Units.ART_SCALE / sprite.scale
 	sprite.add_child(beacon)
 
 
