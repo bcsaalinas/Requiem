@@ -69,8 +69,11 @@ not the file.
 
 **From `audio/sound-system`, after the first merge**: the entity's calm breathing is quieter
 and comes and goes (it was a steady rattle); everything it does while calm is softer right
-beside her. The house's own voice (creaks, knocks, the answer to a loud noise) now also speaks
-in the Hacienda, from the places of the entity's patrol, only while it is far and calm.
+beside her. The house knocks more: while the entity is far and calm, most of the house's rare
+sounds are now a knock, at the loudest a house sound may be, and any file dropped in
+`assets/audio/house/knock/` becomes one of its knocks. The house's own voice (creaks, knocks,
+the answer to a loud noise) now also speaks in the Hacienda, from the places of the entity's
+patrol, only while it is far and calm.
 
 ## Cleaned up on the way
 
@@ -98,16 +101,16 @@ in the Hacienda, from the places of the entity's patrol, only while it is far an
 |---|---|---|---|
 | Menu flow | 34/34 | Audio mix | 56/56 |
 | Kiosk | 348/349 ¹ | Entity audio | 61/61 |
-| Tutorial (with the Hacienda route) | 154/154 | Awareness | 76/76 |
+| Tutorial (with the Hacienda route) | 154/154 | Awareness | 76/76 ² |
 | Doors and rooms | 23/23 | Idle voice | 34/34 |
 | Breath events | 36/36 | Threat | 64/64 |
 | Breath feedback | 49/49 | Acoustics | 48/48 |
 | Throw feedback | 70/70 | Rings | 82/82 |
 | Prayer feedback | 73/73 | Body audio | 100/100 |
-| Sprint feedback | 62/63 ¹ | House voice | 96/96 |
+| Sprint feedback | 62/63 ¹ | House voice | 118/118 |
 | Footstep audio | 83/83 | Sparse music | 34/34 |
-| Player action | 56/56 | Jump-scare audit | 66/66 |
-| Player motion | 134/134 | Heart | 34/34 |
+| Player action | 56/56 | Jump-scare audit | 68/68 |
+| Player motion | 133/133 | Heart | 34/34 |
 | Player pose | 24/24 | Prayer audio | 48/48 |
 | Phantom camera | 166/170 ¹ | Entity knock | 57/57 |
 | Level | 11/11 | Calm beside her | 25/25 |
@@ -115,8 +118,13 @@ in the Hacienda, from the places of the entity's patrol, only while it is far an
 
 ¹ The same checks fail on `audio/sound-system` before the merge (Kiosk "The last shot brings
 out the entity", a Sprint feedback script error, four Phantom camera checks, Test Lab "Real
-high-exertion holding shows strain"). Nothing new fails. The runner prints FAIL for a suite even
-at 34/34 when the engine reports leftovers at exit: read the counts.
+high-exertion holding shows strain"). Nothing new fails.
+
+² 75/76 inside the full run ("one scrape, then silence"), 76/76 run alone: a timing flake that
+suite already had.
+
+The runner prints FAIL for a suite even at 34/34 when the engine reports leftovers at exit:
+read the counts.
 
 **A scripted play of the real game** (not test mode), from the main menu, 29 steps, all passed:
 the menu's Play button; the bedroom; walking east past the end of the trail with the key held;
@@ -147,6 +155,11 @@ Sound
   were judged by level only.
 - **The kill sound** follows the grab by about 0.7 s; they have not been heard together by a
   person.
+- **The house's knocks are still quiet**: at their limit they peak only a few dB above the
+  ambience. `house_max_lufs` makes every house sound louder; closer, drier knock recordings in
+  `assets/audio/house/knock/` would carry better than the kit's file. With one knock file about
+  half of the house's effects are knocks (a third in a row is refused); a second file brings it
+  to the set 60 %.
 
 Looks
 - **The Hacienda is very dark**, and its walls and floors are generated tiles, not final art.
