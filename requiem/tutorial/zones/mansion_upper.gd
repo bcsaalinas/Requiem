@@ -7,7 +7,24 @@ const TUTORIAL_ARCHITECTURE := preload("res://assets/art/tiles/tileset_architect
 
 func _ready() -> void:
 	_build_walls()
+	_bake_navigation()
 	_build_tutorial_floor()
+
+
+## The walls are built here, at load, so the mesh the entity walks on is baked here too, from
+## them and the props (group "mansion_nav"). The mesh stored in the scene is one rectangle
+## over the whole floor: without this every path is a straight line through the walls, the
+## entity grinds against them, and sound measured along its path (audio/acoustics.gd) passes
+## through them as if they were not there. Doors are not part of it: the mesh runs through
+## every doorway, and a closed door is pushed open by the entity that reaches it.
+func _bake_navigation() -> void:
+	if walls == null:
+		return
+	walls.update_internals()
+	for child in get_children():
+		var navigation := child as NavigationRegion2D
+		if navigation != null:
+			navigation.bake_navigation_polygon(false)
 
 
 func _build_tutorial_floor() -> void:
