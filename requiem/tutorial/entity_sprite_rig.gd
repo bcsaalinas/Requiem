@@ -730,7 +730,7 @@ func _tick_scuttle(ms: float) -> void:
 	var step := int(_clock / run.loop.ms)
 	var scan: Array = motion.search_scan
 	var rolls: Array = motion.roll_deg
-	var col_name: String = scan[step % scan.size()] if _entity.get_state_name() == "SEARCH" else "c0"
+	var col_name: String = scan[step % scan.size()] if _entity.get_state_name() in ["SEARCH", "INVESTIGATE"] else "c0"
 	var row := int(_i / 2.0) % 2
 	_show_head("head_quiet", row * 9 + COLS.find(col_name), _vec(motion.offset_px_by_loop_frame[str(_i)]), rolls[step % rolls.size()])
 

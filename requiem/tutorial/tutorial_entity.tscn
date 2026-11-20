@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://pbobwcgulhtt" path="res://tutorial/entity.gd" id="2_w5oec"]
 [ext_resource type="Material" uid="uid://b7avlt81d8aq" path="res://tutorial/entity_lit_material.tres" id="4_3vwg4"]
 [ext_resource type="Script" uid="uid://cy2hvh4ym86bb" path="res://tutorial/entity_sprite_rig.gd" id="4_qnmqh"]
+[ext_resource type="Script" path="res://entities/entity_director.gd" id="5_director"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_3vwg4"]
 resource_local_to_scene = true
@@ -25,3 +26,6 @@ shape = SubResource("CircleShape2D_3vwg4")
 [node name="SpriteRig" type="Node2D" parent="." index="4" unique_id=1474053926]
 script = ExtResource("4_qnmqh")
 lit_material = ExtResource("4_3vwg4")
+
+[node name="Director" type="Node" parent="."]
+script = ExtResource("5_director")

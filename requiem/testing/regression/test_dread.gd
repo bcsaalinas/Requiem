@@ -231,8 +231,8 @@ func check_unaware() -> void:
 ## Roam, heard, scream, hunt, lost, search, gave up.
 func check_encounter() -> void:
 	entity.listen_time_range = Vector2(1.2, 1.2)
-	entity.hunt_persistence = 4.0
-	entity.search_duration = 5.0
+	entity.hunt_linger = 4.0
+	entity.search_duration_range = Vector2(5.0, 5.0)
 	await arm(home)
 	await seconds(settings.threat_lag.y + 0.3)
 	clear()
@@ -245,6 +245,7 @@ func check_encounter() -> void:
 	# It hears something.
 	var heard_at := now()
 	NoiseManager.emit_noise(spot, Units.to_px(40.0), NoiseManager.SourceType.ENVIRONMENT)
+	await frames(2)            # sent between two physics steps: it is weighed in the next one
 	check(entity.is_listening(), "It hears the sound that starts the encounter")
 	await until(func() -> bool: return MusicDirector.current_state == heard_state, 0.5)
 	var cut := changed_to(music, heard_state)

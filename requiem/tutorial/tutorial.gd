@@ -119,6 +119,12 @@ const HALL_STIR_MARGIN := 0.75
 const ZONE_DOORS := ["bedroom_exit", "hall_back", "hall_exit", "forest_back", "front_door", "loop_end"]
 ## The Hacienda: the first night after the tutorial, on two floors joined by the stairs.
 const MANSION_ZONES := ["mansion_ground", "mansion_upper"]
+## The first house is where "it listens before it hunts" is learned, so its ears are gentler
+## there: a noise is clearly heard (a hunt) within its radius x HOUSE_CLEAR_GAIN and barely
+## heard (it comes to check) within x HOUSE_FAINT_GAIN. In the Hacienda it has the entity
+## scene's own values (2.0 and 3.5). See docs/ENTITY_REDESIGN.md.
+const HOUSE_CLEAR_GAIN := 1.5
+const HOUSE_FAINT_GAIN := 2.5
 ## Where its patrol starts on each floor, how many patrol points the floor has, and how long it
 ## waits before it starts to move once she arrives (seconds).
 const MANSION_ENTITY := {
@@ -207,6 +213,15 @@ var has_thrown := false
 var prayer_captioned := false
 var breathing_captioned := false
 var entity_was_screaming := false
+## The entity scene's own hearing (clear_gain, faint_gain), read once before any zone changes it.
+var _entity_ears := Vector2.ZERO
+## The entity scene's own chance of a stop mid-way on patrol, read the same way (-1: not yet).
+var _entity_stop_chance := -1.0
+## And its learning and its claw taps (-1: not yet).
+var _entity_persistence_max := -1
+var _entity_claw_taps := true
+## The zone the entity was last set up for.
+var _entity_zone := ""
 var banner_time := 0.0
 var encounter_grace := 0.0
 var heard_length := 0.0
@@ -450,6 +465,25 @@ func enter_zone(next_zone: String, spawn := Vector2.INF, save := true, arrival_d
 
 func _configure_entity() -> void:
 	entity.revisit_chance = 0.35
+	# Its ears: the scene's own values in the Hacienda, gentler everywhere before it.
+	if _entity_ears == Vector2.ZERO:
+		_entity_ears = Vector2(entity.clear_gain, entity.faint_gain)
+	if _entity_stop_chance < 0.0:
+		_entity_stop_chance = entity.patrol_stop_chance
+	var first_house := zone not in MANSION_ZONES
+	entity.clear_gain = HOUSE_CLEAR_GAIN if first_house else _entity_ears.x
+	entity.faint_gain = HOUSE_FAINT_GAIN if first_house else _entity_ears.y
+	# The Director and the stops mid-way belong to the Hacienda: the first house is six
+	# markers in three rooms, and its encounter is taught, not hunted.
+	if entity.director != null:
+		entity.director.enabled = not first_house
+	entity.patrol_stop_chance = 0.0 if first_house else _entity_stop_chance
+	# So do learning from escaped hunts and the claw taps.
+	if _entity_persistence_max < 0:
+		_entity_persistence_max = entity.persistence_max
+		_entity_claw_taps = entity.claw_taps
+	entity.persistence_max = 0 if first_house else _entity_persistence_max
+	entity.claw_taps = _entity_claw_taps and not first_house
 	entity.hide()
 	entity.active=false
 	# Its unseen breathing belongs to the heard phase that switched it on: never to the next zone.
@@ -481,10 +515,15 @@ func _configure_entity() -> void:
 		var mansion_points: Array[Vector2] = []
 		for index in range(1, int(floor_plan["points"]) + 1):
 			mansion_points.append(world.marker(zone, "Patrol%d" % index))
+		# What it learned from the hunts she escaped lasts the night: the stairs do not undo it.
+		# A death does (and it never learns from one).
+		var learned: int = entity.persistence if (_entity_zone in MANSION_ZONES and not resetting) else 0
 		entity.reset_encounter(world.marker(zone, String(floor_plan["spawn"])), mansion_points)
+		entity.persistence = mini(learned, entity.persistence_max)
 		entity.get_node("CollisionShape2D").set_deferred("disabled", false)
 		entity.show()
 		mansion_grace = float(floor_plan["grace"])
+	_entity_zone = zone
 
 ## Its own sounds start: the heard phase, which ends with it standing in the house.
 func _begin_presence() -> void:

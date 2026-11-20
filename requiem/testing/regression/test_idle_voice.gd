@@ -176,8 +176,8 @@ func check_silences() -> void:
 
 
 func check_search() -> void:
-	entity.search_duration = 60.0
-	entity._hunt_timer = entity.hunt_persistence
+	entity.search_duration_range = Vector2(60.0, 60.0)
+	entity._hunt_timer = entity.hunt_linger
 	await frames(3)
 	check(entity.get_state_name() == "SEARCH" and audio._talk_wait >= settings.talk_interval_search.x - 0.2,
 		"When the search begins, its next phrase is at least 10 s away")

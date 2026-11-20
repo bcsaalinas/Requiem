@@ -119,7 +119,10 @@ func largest_player_noise_u() -> float:
 func check_reach() -> void:
 	var largest := largest_player_noise_u()
 	check(is_equal_approx(largest, 8.0), "The largest noise Viv can make is 8 u (found %.1f u)" % largest)
-	var needed: float = largest * entity.alert_hearing_multiplier * entity.calm_hearing_multiplier
+	# Its faintest hearing: the entity scene's own ears (the Hacienda's), not the gentler house's.
+	var ears: CharacterBody2D = preload("res://tutorial/tutorial_entity.tscn").instantiate()
+	var needed: float = largest * maxf(ears.faint_gain, entity.faint_gain)
+	ears.free()
 	check(settings.heard_full_u >= needed, "The heard-you cue is at full level out to %.1f u; detections can come from %.1f u" % [settings.heard_full_u, needed])
 	check(settings.heard_floor_db >= settings.audible_db and settings.scream_floor_db >= settings.audible_db
 		and settings.far_floor_db >= settings.audible_db, "No awareness cue can fall below what counts as audible, at any distance")
@@ -183,9 +186,16 @@ func check_detections() -> void:
 	# A sound it does not hear makes no cue: the cue only ever means "it heard".
 	await arm(home)
 	game.player.global_position = home + Vector2.RIGHT * Units.to_px(5.0)
-	NoiseManager.emit_noise(game.player.global_position, Units.to_px(3.0), NoiseManager.SourceType.FOOTSTEP)
+	# A held-breath step 5 u away: outside even its faintest hearing (1 u x faint_gain).
+	check(Units.to_px(1.0) * entity.faint_gain < Units.to_px(5.0), "A held-breath step is not heard from 5 u (it carries %.1f u at most)" % entity.faint_gain)
+	NoiseManager.emit_noise(game.player.global_position, Units.to_px(1.0), NoiseManager.SourceType.CROUCH)
 	await frames(30)
 	check(not entity.is_listening() and events.is_empty() and listens == 0, "A step it cannot hear makes no cue")
+	# The walking step that used to go unheard there is barely heard now: the click, and no scream.
+	NoiseManager.emit_noise(game.player.global_position, Units.to_px(3.0), NoiseManager.SourceType.FOOTSTEP)
+	await frames(30)
+	check(entity.is_listening() and listens == 1 and entity.listen_outcome_name() == "INVESTIGATE" and moments(&"heard").size() == 2
+		and moments(&"scream").is_empty(), "A walking step from 5 u is barely heard: the cue plays, and it is on its way to a check, not a hunt")
 	var voice_db: float = SoundLibrary.gain_db(EntityAudio.HEARD_VOICE) + settings.heard_voice_gain_db
 	check(voice_db > SoundLibrary.gain_db("entity/mumble") and SoundLibrary.gain_db(EntityAudio.NECK_CLICK) >= 4.0,
 		"The heard-you voice plays above any idle talking, and the click is brought up to it")
@@ -241,8 +251,8 @@ func check_without_animation() -> void:
 
 ## One whole encounter: heard, scream, hunt, lost, search, gave up. Then a second one.
 func check_encounter() -> void:
-	entity.hunt_persistence = 1.5
-	entity.search_duration = 3.6
+	entity.hunt_linger = 1.5
+	entity.search_duration_range = Vector2(3.6, 3.6)
 	await arm(home)
 	audio._last_scream = -INF       # the screams of the checks above are not part of this encounter
 	var spot: Vector2 = game.world.marker("house", "Patrol2")

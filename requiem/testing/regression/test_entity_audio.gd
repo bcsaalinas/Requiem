@@ -229,8 +229,8 @@ func check_in_the_house() -> void:
 
 	# The trail goes cold: it scuttles, gropes, and feels the floor.
 	heard.clear()
-	entity._hunt_timer = entity.hunt_persistence
-	entity.search_duration = 60.0
+	entity._hunt_timer = entity.hunt_linger
+	entity.search_duration_range = Vector2(60.0, 60.0)
 	for tick in range(900):
 		await frames(1)
 		if count("scuttle_step_left") + count("scuttle_step_right") >= 2 and count("claw_grope") >= 1 and count("claw_scrape") + count("pat_tap") >= 1: break
