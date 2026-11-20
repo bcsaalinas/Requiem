@@ -307,6 +307,9 @@ func _ready() -> void:
 	check(game.hud.altars_tracker.visible and GameState.altars_completed==0,"The altar count shows in the Hacienda, at none")
 	check(game.checkpoint.zone=="mansion_ground" and step_audio.surface==&"wood","Arriving is a checkpoint, and she walks on wood")
 	check(game.field_map.sheet.visible and game.field_map.TITLES.has(game.zone),"The minimap is up in the Hacienda")
+	check(not game.dialogue.is_empty(), "Viv points out the courtyard when she arrives")
+	while not game.dialogue.is_empty():
+		game.advance_dialogue()
 	# The house's own voice is in the Hacienda too: from the places of the patrol, never beside her.
 	var voice_spot := HouseVoice.spot_away()
 	var patrol_places: Array[Vector2] = []
@@ -320,6 +323,16 @@ func _ready() -> void:
 	# Praying at a Hacienda altar: aloud, once, and the entity nearby hears it.
 	var altar: Node2D = game.world.interactables["altar_1"]["node"]
 	var prayer_audio: Node = game.player.get_node("BodyAudio/Prayer")
+	at_interaction("altar_1", Vector2(0, 40))
+	Input.action_press("pray")
+	await frames(3)
+	check(not GameState.is_praying, "The dry fountain requires an offering before prayer")
+	Input.action_release("pray")
+	at_interaction("fountain_dedication", Vector2(0, 25))
+	at_interaction("fountain_marigold", Vector2(0, 25))
+	at_interaction("altar_1", Vector2(0, 40))
+	check(altar.offering_placed and altar.offering_display.visible, "The marigold appears on the altar after placement")
+	await frames(3)
 	game.player.position=game.world.interactables["altar_1"]["position"]+Vector2(0,40)
 	game.player.velocity=Vector2.ZERO
 	game._find_interaction()
@@ -352,6 +365,9 @@ func _ready() -> void:
 	altar.is_completed=false
 	game.entity.active=false
 	game._take_stairs("stairs_to_upper")
+	check(game.zone=="mansion_ground","The chapel dedication opens the stairs")
+	game.world.interactables["altar_4"]["node"].is_completed=true
+	game._take_stairs("stairs_to_upper")
 	await frames(6)
 	check(game.zone=="mansion_upper" and game.entity.visible,"The stairs lead to the upper floor, where it also walks")
 	await frames(2)
@@ -370,7 +386,10 @@ func _ready() -> void:
 	GameState.reset()
 	check(GameState.altars_completed==GameState.total_altars,"A retry keeps the altars she has prayed at")
 	at_interaction("mansion_main_porton",Vector2(0,-60))
-	check(game.complete and not game.entity.active and game.sequence=="ending","Leaving through the gate ends the night")
+	check(game.complete and not game.entity.active and game.zone=="house" and not game.dialogue.is_empty(),"Leaving through the gate leads to Eli on the porch")
+	while not game.dialogue.is_empty():
+		game.advance_dialogue()
+	check(game.sequence=="ending","The conversation with Eli ends the night")
 	game.queue_free()
 	Preferences.captions=old_captions
 	await frames(3)

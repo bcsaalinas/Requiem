@@ -119,6 +119,18 @@ grow_horizontal = 0
 theme_override_constants/separation = 18
 alignment = 2
 
+[node name="OfferingInventory" type="HBoxContainer" parent="Screen"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -610.0
+offset_top = 108.0
+offset_right = -26.0
+offset_bottom = 164.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 18
+alignment = 2
+
 [node name="AltarsTracker" type="PanelContainer" parent="Screen" unique_id=987654321]
 visible = false
 layout_mode = 1

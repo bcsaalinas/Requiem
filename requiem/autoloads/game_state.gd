@@ -27,6 +27,8 @@ var total_altars: int = 7
 func begin_prayer(altar: Node) -> bool:
 	if is_dead or not is_instance_valid(altar):
 		return false
+	if altar.has_method("can_begin_prayer") and not altar.can_begin_prayer():
+		return false
 	if is_instance_valid(prayer_source):
 		return prayer_source == altar and is_praying
 	prayer_source = altar

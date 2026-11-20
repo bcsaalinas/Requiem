@@ -8,6 +8,7 @@ const HintBeacon := preload("res://tutorial/hint_beacon.gd")
 const Chest := preload("res://tutorial/chest.gd")
 const KEY_ART := preload("res://assets/art/items/item_key.png")
 const NOTE_ART := preload("res://assets/art/items/item_note.png")
+const MansionStory := preload("res://tutorial/mansion_story.gd")
 const ATTACK_CANDLE_STEP := 0.6
 const ATTACK_LAST_PAUSE := 1.0
 ## Total dark after the last flame, long enough to doubt the light is coming back.
@@ -152,6 +153,7 @@ var flashlight: PointLight2D
 var field_map: Node
 ## Counts down after she arrives on a Hacienda floor; at zero the entity there starts to move.
 var mansion_grace := 0.0
+var mansion_story := MansionStory.new()
 ## 1 the moment it starts to hunt, easing back to 0: the screen's jolt (Atmosphere film).
 var hunt_intro_effect := 0.0
 var zone := "bedroom"
@@ -284,6 +286,9 @@ func _ready() -> void:
 	flashlight.toggled.connect(func(_on: bool) -> void: hud.pulse_slot("flashlight"))
 	flashlight.toggle_rejected.connect(func() -> void:
 		if batteries <= 0: hud.reject_slot("flashlight"))
+	mansion_story.setup(self)
+	GameState.prayer_started.connect(_on_mansion_prayer_started)
+	GameState.prayer_ended.connect(_on_mansion_prayer_ended)
 	GameState.altar_completed.connect(_on_altar_prayed)
 	GameState.all_altars_completed.connect(_on_all_altars_prayed)
 	for stairs_id: String in ["stairs_to_upper", "stairs_to_ground"]:
@@ -456,7 +461,7 @@ func _configure_entity() -> void:
 	world.props["friend"].visible = not attack_finished
 	# The opening forest and impossible room suggest a presence through spatial sound.
 	# No invisible active monster: the physical threat exists only after the altar attack.
-	if zone == "house" and attack_finished:
+	if zone == "house" and attack_finished and not complete:
 		var points: Array[Vector2] = []
 		for index in range(1,7):
 			points.append(world.marker("house","Patrol%d" % index))
@@ -822,8 +827,7 @@ func _find_interaction() -> void:
 	var distance:=85.0
 	for id in world.interactables:
 		if not interaction_available(id): continue
-		var at: Vector2=world.interactables[id]["position"]
-		var d:=player.position.distance_to(at)
+		var d := _interaction_distance(id)
 		if d<distance:
 			distance=d
 			nearest=id
@@ -836,13 +840,25 @@ func _find_interaction() -> void:
 		var target: Node2D = world.interactables[nearest]["node"]
 		# Anything she takes carries its prompt right above it; the key hint keeps the space under her.
 		var drawn_pickup: bool = target.has_method("is_pickup") and target.is_pickup()
-		var pickup: bool = drawn_pickup or interaction_label(nearest)=="Take"
+		var chest_loot := mansion_story.chest_displays.get(nearest) as Sprite2D
+		var pickup: bool = drawn_pickup or interaction_label(nearest).begins_with("Take")
 		var anchor: Vector2 = target.get_prompt_anchor() if drawn_pickup else world.interactables[nearest]["position"]
+		if chest_loot != null and chest_loot.visible:
+			anchor = chest_loot.global_position
 		hud.place_prompt(PixelDisplay.world_to_ui(anchor),false,pickup)
 
 func _prompt_without_key(id: String) -> bool:
 	var node: Node = world.interactables[id]["node"]
-	return id=="loop_back" or (node is Door and node.locked and not (id=="front_door" and door_unlocked))
+	return id=="loop_back" or (mansion_story.label(id).is_empty() and node is Door and node.locked and not (id=="front_door" and door_unlocked))
+
+func _interaction_distance(id: String) -> float:
+	var entry: Dictionary = world.interactables[id]
+	var distance := player.global_position.distance_to(entry["position"])
+	# The prompt is drawn above the leaf. Use the doorway too so both sides can reach the lock.
+	if id == "front_door" or not mansion_story.key_for_door(id).is_empty():
+		var door: Door = entry["node"]
+		distance = minf(distance, player.global_position.distance_to(door.global_position))
+	return distance
 
 func interaction_available(id: String) -> bool:
 	if collected.has(id): return false
@@ -854,8 +870,12 @@ func interaction_available(id: String) -> bool:
 	return true
 
 func interaction_label(id: String) -> String:
+	var story_label := mansion_story.label(id)
+	if not story_label.is_empty(): return story_label
+	if id == "stairs_to_upper" and not mansion_story.completed("altar_4"):
+		return "Check the stair gate"
 	if id=="window" and window_broken: return "Reach in for the latch"
-	if id=="front_door" and attack_finished and not key_used: return "Unlock" if has_key else "Try the door"
+	if id=="front_door" and attack_finished and not key_used: return "Unlock front door" if has_key else "Try the door"
 	if id=="front_door" and door_unlocked: return "Open"
 	var node: Node = world.interactables[id]["node"]
 	if node is Door and node.is_open and id in ZONE_DOORS and _zone_door_active(id): return "Go"
@@ -865,9 +885,9 @@ func interaction_label(id: String) -> String:
 func interact(id: String) -> void:
 	if not interaction_available(id): return
 	# Distance validation is shared by normal input and tests; no remote interactions.
-	if player.position.distance_to(world.interactables[id]["position"])>85: return
+	if _interaction_distance(id) > 85.0: return
 	var target: Node = world.interactables[id]["node"]
-	if id.begins_with("altar_") and target.get(&"prayer_spoken") != null: return   # held, not taken: the altar reads the key itself
+	if zone in MANSION_ZONES and mansion_story.interact(id): return
 	_player_visual("play_pickup")
 	if target.get_script() == Chest:
 		_open_chest(id,target)
@@ -955,7 +975,7 @@ func interact(id: String) -> void:
 				_house_answers()
 			elif attack_finished and in_presence():
 				# It is coming in through this door: she has to let it pass before she can use it.
-				say("Not yet. It's right there, between me and the door. Hide.",6)
+				say("This is the right key. Hide until it passes, then unlock the front door.",6)
 			elif attack_finished and not key_used:
 				key_used=true
 				front_door.locked=false
@@ -992,6 +1012,7 @@ func _open_chest(id: String, chest: Node2D) -> void:
 	chest.open(breath.is_holding)
 
 func _on_chest_opened(loot: String, id: String) -> void:
+	if MansionStory.CHESTS.has(id): return
 	var chest: Node2D = world.interactables[id]["node"]
 	var from: Vector2 = chest.get_loot_origin()
 	match loot:
@@ -1010,7 +1031,7 @@ func _on_chest_opened(loot: String, id: String) -> void:
 		"key":
 			has_key=true
 			_pop_loot(from,KEY_ART,"key")
-			say("A key.",4)
+			say("The key to the front door. Get out once the way is clear.",7)
 			_key_candle_falls()
 		_:
 			say("Empty.",3)
@@ -1511,7 +1532,10 @@ func _go_through(id: String) -> void:
 			enter_zone("mansion_ground",world.marker("mansion_ground","SpawnEntrance"),true,"mansion_main_porton")
 			play_sound("impossible",player.position)
 			caption("[The house shifts]")
-			say("This isn't outside either.",6)
+			show_dialogue([
+				"VIV: This door was supposed to lead outside. The gate here is sealed.",
+				"VIV: There's a light in the courtyard. I should see what's there.",
+			])
 	door.snap(false)
 
 ## Arriving through a door: it is open behind the player and swings shut once they step away.
@@ -1714,10 +1738,7 @@ func _interact_mansion(id: String, target: Node) -> bool:
 			mansion_grace = 0.0
 			porton.locked = false
 			porton.open(breath.is_holding)
-			say("The seal is broken.", 8.0)
-			sequence = "ending"
-			sequence_time = 0
-			sequence_step = 0
+			_begin_mansion_epilogue()
 		return true
 	if id.begins_with("stairs_to_"):
 		_take_stairs(id)
@@ -1725,7 +1746,10 @@ func _interact_mansion(id: String, target: Node) -> bool:
 	if id.begins_with("altar_"):
 		return true      # the altar itself takes the held key (level/props/mansion_altar.gd)
 	if target is Door:
-		_use_door(target as Door)
+		if target.locked:
+			say(target.locked_label, 5.0)
+		else:
+			_use_door(target as Door)
 		return true
 	if id.begins_with("battery_"):
 		batteries += 1
@@ -1748,6 +1772,9 @@ func _on_stairs_entered(body: Node2D, id: String) -> void:
 func _take_stairs(id: String) -> void:
 	if resetting: return
 	if id == "stairs_to_upper" and zone == "mansion_ground":
+		if not mansion_story.completed("altar_4"):
+			say("The stair gate is sealed. The chapel altar may open it.", 5.0)
+			return
 		enter_zone("mansion_upper", world.marker("mansion_upper", "SpawnFromStairs"))
 	elif id == "stairs_to_ground" and zone == "mansion_upper":
 		enter_zone("mansion_ground", world.marker("mansion_ground", "SpawnFromUpper"))
@@ -1756,11 +1783,48 @@ func _take_stairs(id: String) -> void:
 	play_sound("door", player.position)
 	caption("[Stairs creak]")
 
+func _on_mansion_prayer_started(altar: Node) -> void:
+	var id := String(altar.get_meta("interaction_id", ""))
+	if MansionStory.ALTARS.has(id):
+		say(MansionStory.ALTARS[id]["words"], altar.pray_duration)
+
+
+func _on_mansion_prayer_ended(altar: Node, _immediate: bool) -> void:
+	var id := String(altar.get_meta("interaction_id", ""))
+	if MansionStory.ALTARS.has(id) and hud.subtitle.text == MansionStory.ALTARS[id]["words"]:
+		say("")
+
+
 func _on_altar_prayed(altar_node: Node) -> void:
 	hud.set_altars_count(GameState.altars_completed, GameState.total_altars)
 	play_sound("switch", player.position, 2.0)
-	say("The offering is lit. (%d / %d)" % [GameState.altars_completed, GameState.total_altars], 5.0)
+	var response := mansion_story.on_altar_completed(altar_node)
+	say("%s (%d / %d)" % [response, GameState.altars_completed, GameState.total_altars], 6.0)
 	save_checkpoint()
+
+
+func _begin_mansion_epilogue() -> void:
+	var porch: Vector2 = world.marker("house", "SpawnFromForest")
+	enter_zone("house", porch, false)
+	var eli: Node2D = world.props["friend"]
+	eli.global_position = porch + Vector2(92, -12)
+	eli.fallen = false
+	eli.show()
+	eli.rig.set_rate(&"upper", 1.0)
+	eli.rig.set_rate(&"lower", 1.0)
+	eli.face_and_stand(player.global_position)
+	show_dialogue([
+		"VIV: I found what you wrote. Inés asked you to open the door.",
+		"ELI: I heard her. I had the key, and I left.",
+		"VIV: Come on. When we get home, you're going to tell them what happened.",
+	], _finish_mansion_epilogue)
+
+
+func _finish_mansion_epilogue() -> void:
+	sequence = "ending"
+	sequence_time = 0.0
+	sequence_step = 0
+
 
 func _on_all_altars_prayed() -> void:
 	hud.set_altars_count(GameState.total_altars, GameState.total_altars)
