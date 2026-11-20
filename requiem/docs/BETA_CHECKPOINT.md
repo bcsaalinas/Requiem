@@ -47,7 +47,7 @@ All its prompts and altar names are in English now (they were Spanish).
 |---|---|---|---|
 | Chase music | `assets/audio/music/hunt.wav` | while it hunts her (starts with the scream) | `music_hunt_db` (−8 dB) |
 | Kill | `assets/audio/entity/kill/devour.wav` | once per catch, as she disappears | `set_gain_db` `"entity/kill"` (−1 dB) |
-| Viv prays aloud | `assets/audio/viv/prayer_voice/prayer_female.mp3` | while she holds the prayer at a Hacienda altar; fades when she lets go | `set_gain_db` `"viv/prayer_voice"` (−6 dB), `prayer_voice_fade` |
+| Viv prays aloud | `assets/audio/viv/prayer_voice/prayer_female.mp3` | while she holds the prayer at a Hacienda altar; fades when she lets go | `set_gain_db` `"viv/prayer_voice"` (−12 dB), `prayer_voice_fade` |
 | Battery | `tutorial/assets/audio/battery_insert.wav` | a spare battery goes in (B) | `battery_insert_db` (−5 dB) |
 | Trunk | `tutorial/assets/audio/chest_latch_and_lid.wav` | a trunk opens | `chest_open_db` (−7 dB, −15 dB on a held breath) |
 

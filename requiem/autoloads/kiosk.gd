@@ -1,8 +1,9 @@
 extends Node
 ## Show-floor behaviour: the build looks after itself between visitors.
 ##
-## R / Select drops a run straight back to the title. Sixty seconds without input hands the screen
-## to attract mode, and any input there wakes the title again. Only the production scenes are
+## Select drops a run straight back to the title; R does the same from the pause menu and the game
+## over screen only, so a hand on WASD cannot end a run. Sixty seconds without input hands the
+## screen to attract mode, and any input there wakes the title again. Only the production scenes are
 ## watched, so the Test Lab, the captures and the regression rigs behave exactly as before.
 
 const TITLE_SCENE := "res://tutorial/main_menu.tscn"
@@ -61,8 +62,14 @@ func _on_window_input(event: InputEvent) -> void:
 		return
 	if scene.scene_file_path == ATTRACT_SCENE:
 		go_to_title()
-	elif event.is_action_pressed("fast_reset") and owns_reset(scene):
+	elif event.is_action_pressed("fast_reset") and owns_reset(scene) and _reset_allowed(event):
 		go_to_title()
+
+
+## R sits beside E, F and WASD: during play it does nothing (bug: a visitor's run restarted on a
+## slipped key). It resets from the pause menu and the game over screen; Select resets anywhere.
+func _reset_allowed(event: InputEvent) -> bool:
+	return not event is InputEventKey or PauseMenu.is_open or GameState.is_dead
 
 
 func _can_idle() -> bool:

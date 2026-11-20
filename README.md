@@ -25,7 +25,7 @@ There is no Continue option or persistent gameplay save.
 ## Show-floor build
 
 - Boots to the main menu in fullscreen at a 1280×720 canvas presented at 1080p (the window cannot be resized).
-- R / controller Select returns a run straight to the title screen (`autoloads/kiosk.gd`).
+- Controller Select returns a run straight to the title screen; R does the same from the pause menu and the game over screen only, never during play (`autoloads/kiosk.gd`).
 - After 60 seconds without input the build hands the screen to attract mode (`tutorial/attract_mode.tscn`); any input returns to the title. Loading is excluded, and only the production scenes are watched.
 - Instructions, dialogue and vital captions keep a 2 m legibility floor (`UIPalette.MIN_TEXT_SIZE`). Confirm on the actual monitor.
 - Safety killzones (`tutorial/safety_killzones.gd`) keep the player from leaving the playable area.

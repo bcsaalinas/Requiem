@@ -20,6 +20,12 @@ const RELIGHT_SECONDS := 0.75
 const HEARD_PHASE := 20.0
 const HEARD_PHASE_RETRY := 8.0
 const HEARD_BEAM_WAIT := 3.0
+## When it stands up it is never beside her: at least this far away (px). Playtest: it used to
+## appear where she stood, which read as an unfair jump scare. She hears it come; she is never
+## handed it.
+const ARRIVAL_MIN_DISTANCE := 10.0 * Units.PX_PER_UNIT
+## The places in the house it can stand up at, besides the spots of its own path in (Markers).
+const ARRIVAL_MARKERS := ["EntityArrive", "EntitySpawn", "Patrol1", "Patrol2", "Patrol3", "Patrol4", "Patrol5", "Patrol6"]
 ## After the blackout the house is only sound, in three stages. Unease: the house itself, from
 ## rooms she is not in, for as long as she searches. Presence (the heard phase above): the thing
 ## in it, from the moment she lifts the key out of its trunk. Then, at last, something to see.
@@ -111,7 +117,13 @@ const PLAYER_SOUNDS := [NoiseManager.SourceType.FOOTSTEP, NoiseManager.SourceTyp
 ## Seconds a warned parent keeps listening before settling again.
 const PARENT_LISTEN_TIME := 3.5
 const PARENT_FILL_MASK := 128
-const PARENT_FILL_ENERGY := 1.0
+const PARENT_FILL_ENERGY := 1.8
+## The catch: the room's light falls out through the opened door (the wedge on the floor), and a
+## warm pool comes up around the doorway with it so the opening is seen at once. The pool jumps
+## to its peak as the leaf swings, then rests a little lower.
+const PARENT_CATCH_SPILL_ENERGY := 2.6
+const PARENT_CATCH_POOL_SCALE := 0.9
+const PARENT_CATCH_POOL_ENERGY := Vector2(2.4, 1.7)
 ## A parent door starts to stir when her next step falls short of it by less than this fraction of
 ## the step's reach (walking 3 u: 72 px; held 1 u: 24 px), so holding the breath visibly settles it.
 const HALL_STIR_MARGIN := 0.75
@@ -768,7 +780,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if _paused: return
-	# In the shipping run R belongs to Kiosk: it drops the whole run back to the title.
+	# In the shipping run R belongs to Kiosk (title reset from the pause and game over screens only).
 	if key==KEY_R and not resetting and not Kiosk.owns_reset(self):
 		request_reset("")
 		get_viewport().set_input_as_handled()
@@ -1281,10 +1293,33 @@ func _arrive(place: Vector2, target: Vector2) -> void:
 	arrival_target=target
 	arrival_wait=HEARD_BEAM_WAIT
 
+## Where it stands up: where it was last heard, unless she is close to that. Then the place of
+## the house nearest to that sound that is still far from her; with none far enough (she cannot
+## be near all of them), the farthest one.
+func _arrival_spot(preferred: Vector2) -> Vector2:
+	var her: Vector2 = player.global_position
+	if preferred.distance_to(her)>=ARRIVAL_MIN_DISTANCE: return preferred
+	var house: Vector2 = world.zones["house"].global_position
+	var spots: Array[Vector2] = []
+	for step: Dictionary in PRESENCE_PATH: spots.append(house+step["spot"])
+	for id: String in ARRIVAL_MARKERS: spots.append(world.marker("house",id))
+	var best := preferred
+	var best_is_far := false
+	for spot in spots:
+		var far := spot.distance_to(her)>=ARRIVAL_MIN_DISTANCE
+		if far and (not best_is_far or spot.distance_to(preferred)<best.distance_to(preferred)):
+			best=spot
+			best_is_far=true
+		elif not far and not best_is_far and spot.distance_to(her)>best.distance_to(her):
+			best=spot
+	return NavigationServer2D.map_get_closest_point(world.landmarks["HouseNavigation"].get_navigation_map(),best)
+
 func _tick_arrival(delta: float) -> void:
 	arrival_wait-=delta
-	if arrival_wait>0 and _in_beam(arrival_place): return
-	entity.global_position=arrival_place
+	# Chosen now, not when it was first heard: she may have walked up to where it was.
+	var spot := _arrival_spot(arrival_place)
+	if arrival_wait>0 and _in_beam(spot): return
+	entity.global_position=spot
 	entity.get_node("CollisionShape2D").set_deferred("disabled",false)
 	entity.show()
 	entity.active=true
@@ -1475,12 +1510,25 @@ func _parent_doorway_notice(listener: ParentListener) -> void:
 	spill.texture = preload("res://assets/art/lights/light_door_spill.png")
 	spill.texture_scale = 0.4
 	spill.color = Color("e9b77a")
-	spill.energy = 1.25
+	spill.energy = PARENT_CATCH_SPILL_ENERGY
 	world.zones["hallway"].add_child(spill)
 	spill.global_position = closest_door.global_position + Vector2(0.0, 29.2)
+	# Bug: with the slit glow gone the doorway was darker open than shut, and the catch was missed.
+	var pool := PointLight2D.new()
+	pool.texture = preload("res://assets/art/lights/light_lamp_pool.png")
+	pool.texture_scale = PARENT_CATCH_POOL_SCALE
+	pool.color = Color("e9b77a")
+	pool.energy = 0.0
+	pool.shadow_enabled = true
+	world.zones["hallway"].add_child(pool)
+	pool.global_position = closest_door.global_position + Vector2(0.0, 29.2)
+	var rise := pool.create_tween()
+	rise.tween_property(pool, "energy", PARENT_CATCH_POOL_ENERGY.x, 0.12)
+	rise.tween_property(pool, "energy", PARENT_CATCH_POOL_ENERGY.y, 0.35)
 	GameState.state_reset.connect(func():
 		notice.queue_free()
 		spill.queue_free()
+		pool.queue_free()
 		fill.queue_free()
 		for blocker in blockers: blocker.visible = true
 		closest_door.swing = 1.0 if closest_door.is_open else 0.0, CONNECT_ONE_SHOT)

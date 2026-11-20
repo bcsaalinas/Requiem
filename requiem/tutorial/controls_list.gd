@@ -11,5 +11,5 @@ const ROWS := [
 	["B", "Battery"],
 	["Q", "Throw"],
 	["Esc / H", "Pause"],
-	["R / Select", "Back to title"],
+	["Esc, then R", "Back to title"],
 ]

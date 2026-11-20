@@ -18,6 +18,16 @@ func at_interaction(id: String, offset:=Vector2(0,45)) -> void:
 	game.player.velocity=Vector2.ZERO
 	game.interact(id)
 
+## True when the player's own collision shape fits at a place (nothing solid there).
+func fits(at: Vector2) -> bool:
+	var shape_node: CollisionShape2D = game.player.get_node("CollisionShape2D")
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = shape_node.shape
+	query.collision_mask = game.player.collision_mask
+	query.exclude = [game.player.get_rid()]
+	query.transform = Transform2D(0.0, at + shape_node.position)
+	return game.player.get_world_2d().direct_space_state.intersect_shape(query, 1).is_empty()
+
 func _ready() -> void:
 	game=preload("res://tutorial/tutorial.tscn").instantiate()
 	game.test_mode=true
@@ -146,6 +156,10 @@ func _ready() -> void:
 	var house: Node2D = game.world.zones["house"]
 	await frames(4)
 	check(house.get_node("ArtRoof").visible and not game._exterior_cover().visible,"On the porch the roof is drawn and the outside is in view")
+	# Bug: a gap beside each end of the porch let her walk round the outside of the house.
+	for corner: Vector2 in [Vector2(48,720),Vector2(1232,720)]:
+		check(not fits(house.global_position+corner),"The porch is closed off beside the house at %s" % corner)
+		check(fits(house.global_position+Vector2(corner.x,800)),"The end of the porch at x=%d stays walkable" % corner.x)
 	var porch_spot: Vector2 = game.player.position
 	game.player.position=house.global_position+Vector2(600,400)
 	await frames(6)
@@ -273,6 +287,17 @@ func _ready() -> void:
 	at_interaction("front_door",Vector2(0,-55))
 	await frames(2)
 	check(game.zone=="house" and front_door.locked and not game.key_used,"While it is coming in, the front door is not a way out")
+	# Bug: it used to stand up right where she was. Beside its last sound, or beside the door it
+	# comes in by, it picks a place far from her instead.
+	var last_heard: Vector2 = house_origin+game.PRESENCE_PATH[-1]["spot"]
+	var before_arrival: Vector2 = game.player.position
+	for near: Vector2 in [last_heard+Vector2(40,0),front_door.global_position+Vector2(0,-60),house_origin+Vector2(608,384),house_origin+Vector2(240,400),house_origin+Vector2(1008,400)]:
+		game.player.position=near
+		for preferred: Vector2 in [last_heard,front_door.global_position]:
+			var spot: Vector2 = game._arrival_spot(preferred)
+			check(spot.distance_to(near)>=game.ARRIVAL_MIN_DISTANCE-16.0,"With her at %s it stands up far from her, not at %s" % [(near-house_origin).round(),(preferred-house_origin).round()])
+	game.player.position=house_origin+Vector2(240,400)
+	check(game._arrival_spot(last_heard).is_equal_approx(last_heard),"With her in another room it still stands up where it was last heard")
 	# Run the heard phase out: it drags in from the door, breathes, and only then stands there.
 	game.flashlight.is_on=false
 	game.encounter_grace=0.05
@@ -282,6 +307,7 @@ func _ready() -> void:
 	check(game.heard_step==game.PRESENCE_PATH.size(),"Its sounds walk the whole path in from the front door")
 	check(game.entity.visible and game.entity.active and not game.in_presence(),"Only after its sounds does it appear")
 	check(game.entity.global_position.distance_to(house_origin+game.PRESENCE_PATH[-1]["spot"])<48.0,"It stands up where it was last heard")
+	game.player.position=before_arrival
 	game.entity.active=false
 	game.flashlight.is_on=game.flashlight.battery_percent>0.0
 	at_interaction("front_door",Vector2(0,-55))

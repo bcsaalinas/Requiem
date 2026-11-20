@@ -386,7 +386,8 @@ static func current() -> SoundSettings:
 	# The bite that ends a catch (entity/kill): about as loud as the grab before it.
 	"entity/kill": -1.0,
 	# Viv praying aloud at an altar (viv/prayer_voice): a low voice, well under the entity.
-	"viv/prayer_voice": -6.0,
+	# Half of what it was (-6 dB): at -6 it was too loud in play.
+	"viv/prayer_voice": -12.0,
 }
 
 @export_group("Entity: body")

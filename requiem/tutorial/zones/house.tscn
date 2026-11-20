@@ -75,6 +75,9 @@ size = Vector2(32, 224)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7jk8c"]
 size = Vector2(1280, 32)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_porch_corner"]
+size = Vector2(32, 96)
+
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_qf4s4"]
 vertices = PackedVector2Array(369, 143, 369, 463, 353, 315, 353, 217, 1071, 251, 1081, 199, 1169, 199, 1169, 497, 1080, 497, 1071, 157, 1081, 143, 847, 143, 945, 157, 847, 463, 945, 251, 785, 497, 431, 463, 431, 164.60156, 536, 164.60156, 691, 191, 785, 463, 536, 143, 691, 143, 785, 191, 1080, 575, 1169, 575, 1169, 625, 913, 625, 913, 579, 847, 579, 847, 497, 785, 625, 431, 625, 431, 497, 369, 497, 369, 625, 205, 625, 205, 579, 219, 315, 111, 579, 111, 211, 217, 211, 219, 217, 217, 145, 111, 145, 111, 143)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7, 8), PackedInt32Array(5, 4, 9, 10), PackedInt32Array(11, 10, 9, 12), PackedInt32Array(13, 11, 12, 14), PackedInt32Array(15, 16, 17, 18, 19, 20), PackedInt32Array(18, 21, 22, 19), PackedInt32Array(19, 23, 20), PackedInt32Array(24, 25, 26, 27, 28), PackedInt32Array(28, 29, 30), PackedInt32Array(15, 31, 32, 33), PackedInt32Array(34, 35, 36, 37, 38, 2), PackedInt32Array(37, 39, 40, 41, 42, 38), PackedInt32Array(43, 44, 45, 0), PackedInt32Array(43, 0, 3, 42, 41), PackedInt32Array(34, 2, 1), PackedInt32Array(34, 1, 16, 33), PackedInt32Array(15, 33, 16), PackedInt32Array(15, 20, 13, 30), PackedInt32Array(8, 24, 28, 30, 13, 14, 4)])
@@ -580,6 +583,14 @@ shape = SubResource("RectangleShape2D_h1ce3")
 [node name="South" type="CollisionShape2D" parent="Edges" unique_id=898530661]
 position = Vector2(640, 944)
 shape = SubResource("RectangleShape2D_7jk8c")
+
+[node name="WestCorner" type="CollisionShape2D" parent="Edges"]
+position = Vector2(48, 688)
+shape = SubResource("RectangleShape2D_porch_corner")
+
+[node name="EastCorner" type="CollisionShape2D" parent="Edges"]
+position = Vector2(1232, 688)
+shape = SubResource("RectangleShape2D_porch_corner")
 
 [node name="HouseNavigation" type="NavigationRegion2D" parent="." unique_id=1285337116]
 navigation_polygon = SubResource("NavigationPolygon_qf4s4")
