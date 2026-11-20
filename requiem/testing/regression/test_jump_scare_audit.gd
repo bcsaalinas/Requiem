@@ -392,7 +392,8 @@ func line(index: int) -> String:
 func check_read_out() -> void:
 	await seconds(0.6)
 	var text: String = overlay.audio_text()
-	check(text.split("\n").size() == 5 and overlay.audio_label.text == text, "With the overlay on, the read-out shows five lines")
+	check(text.split("\n").size() == 6 and overlay.audio_label.text == text, "With the overlay on, the read-out shows six lines")
+	check(text.split("\n")[5].begins_with("it hears") and overlay.hearing_text() == text.split("\n")[5], "The last one says what the entity made of the last noise: %s" % text.split("\n")[5])
 	check(line(0).contains("threat %.2f (%s)" % [Dread.threat, Dread.awareness_name()]) and line(0).contains("presence %.2f" % Dread.presence),
 		"Threat and presence: %s" % line(0))
 	check(overlay.nearest_voice() == entity.audio and line(1).begins_with("it: ring 0, gone · clarity 0.00 · wall in the way: "),
@@ -523,8 +524,8 @@ func check_encounter() -> void:
 	await place(house + VESTIBULE_B)
 	cues.clear()
 	entity.listen_time_range = Vector2(0.9, 0.9)
-	entity.hunt_persistence = 2.0
-	entity.search_duration = 3.0
+	entity.hunt_linger = 2.0
+	entity.search_duration_range = Vector2(3.0, 3.0)
 	NoiseManager.emit_noise(entity.global_position + Vector2.RIGHT * Units.to_px(3.0), Units.to_px(40.0), NoiseManager.SourceType.ENVIRONMENT)
 	await frames(3)
 	check(Dread.awareness == Dread.Awareness.HEARD and line(3) == "house voice: silent: it is alert (heard)", "It hears: the read-out says why the house is silent: %s" % line(3))
@@ -545,5 +546,5 @@ func check_encounter() -> void:
 		"Every sudden rise had its warning or was her own, and the house kept its gates")
 	check(audit.loudest_db > settings.audit_floor_db, "And the encounter was loud enough to be measured (loudest %.0f dB)" % audit.loudest_db)
 	entity.listen_time_range = Vector2(0.7, 1.2)
-	entity.hunt_persistence = 5.0
-	entity.search_duration = 5.0
+	entity.hunt_linger = 3.0
+	entity.search_duration_range = Vector2(12.0, 18.0)

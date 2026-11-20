@@ -3,12 +3,17 @@ extends Node2D
 ## Lifts the cover of the room the player stands in and of every room joined to it by an open
 ## door; every other room stays hidden. Put all Rooms of a zone under this node.
 
+## Every RoomVisibility of a running level is in this group.
+const ROOMS_GROUP := &"rooms"
+
 ## The room the player was last seen in (kept while they cross a doorway gap).
 var current: Room
 var _inside: Array[Room] = []
 
 
 func _ready() -> void:
+	# The entity asks which room a sound was in, to end its search at one of that room's doors.
+	add_to_group(ROOMS_GROUP)
 	for room in get_rooms():
 		room.player_entered.connect(_on_player_entered)
 		room.player_exited.connect(_on_player_exited)

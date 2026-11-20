@@ -91,6 +91,8 @@ const SILENT_DB := -60.0
 const GONE_DB := -80.0
 ## EntityAI.State, as state_changed reports it.
 const PATROL := 0
+## The check: it barely heard something and comes to look. It sounds like a search.
+const INVESTIGATE := 1
 const SEARCH := 2
 const HUNT := 3
 ## Every player does its own falling off with distance; this switches the engine's off.
@@ -443,11 +445,14 @@ func _on_state_changed(previous: int, current: int) -> void:
 		# still comes: no scream, no hunt.
 		var animated: bool = rig != null and rig.is_visible_in_tree() and rig.is_processing()
 		_scream_wait = settings.scream_cue_wait + SCREAM_AFTER_INHALE if animated else 0.0
-	if current != SEARCH:
+	# A check sounds like a search: the lower, rarer talk and the sniffing. The "lost you"
+	# groan stays the hunt's alone.
+	var searching := current == SEARCH or current == INVESTIGATE
+	if not searching:
 		_sniff_wait = -1.0
 		_sniff_run_wait = -1.0
 		_sniffs_left = 0
-	if current == SEARCH:
+	elif previous != SEARCH and previous != INVESTIGATE:
 		_talk_wait = _between(settings.talk_interval_search)
 		_sniff_run_wait = _between(settings.sniff_run_interval)
 	if previous == HUNT and current == SEARCH:
@@ -892,7 +897,7 @@ func _tick_voice(delta: float, state: String, moving: bool, silent: bool) -> voi
 			_talk.stop()
 	if silent or state == "HUNT":
 		return
-	var searching := state == "SEARCH"
+	var searching := state == "SEARCH" or state == "INVESTIGATE"
 	_still_for = 0.0 if moving else _still_for + delta
 	_talk_wait -= delta
 	if _talk.playing:
