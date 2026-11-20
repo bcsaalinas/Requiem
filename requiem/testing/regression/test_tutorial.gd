@@ -307,6 +307,13 @@ func _ready() -> void:
 	check(game.hud.altars_tracker.visible and GameState.altars_completed==0,"The altar count shows in the Hacienda, at none")
 	check(game.checkpoint.zone=="mansion_ground" and step_audio.surface==&"wood","Arriving is a checkpoint, and she walks on wood")
 	check(game.field_map.sheet.visible and game.field_map.TITLES.has(game.zone),"The minimap is up in the Hacienda")
+	# The house's own voice is in the Hacienda too: from the places of the patrol, never beside her.
+	var voice_spot := HouseVoice.spot_away()
+	var patrol_places: Array[Vector2] = []
+	for index in range(1, 9): patrol_places.append(game.world.marker("mansion_ground","Patrol%d" % index))
+	check(HouseVoice.in_a_house() and not HouseVoice.story_holds and patrol_places.has(voice_spot)
+		and voice_spot.distance_to(game.player.global_position)>=Units.to_px(SoundSettings.current().house_min_distance_u),
+		"The house's own voice is in the Hacienda: from a place of the patrol, never right beside her (%s)" % voice_spot)
 	game.mansion_grace=0.01
 	await frames(3)
 	check(game.entity.active,"After the wait it starts to walk its patrol")

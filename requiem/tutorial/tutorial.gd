@@ -124,6 +124,8 @@ const MANSION_ENTITY := {
 	"mansion_ground": {"spawn": "EntitySpawn", "points": 8, "grace": 6.0},
 	"mansion_upper": {"spawn": "Patrol1", "points": 6, "grace": 4.0},
 }
+## The name the house voice knows a floor of the Hacienda by (it has no rooms of its own).
+const HACIENDA_VOICE := "hacienda"
 ## Beyond the end of the forest trail she simply walks on to the house: this far past the last
 ## petals (px, along the trail) the forest hands over without a key press.
 const FOREST_EXIT_REACH := 40.0
@@ -502,10 +504,20 @@ func _play_stream(stream: AudioStream, at: Vector2, volume: float) -> void:
 	var audio := HouseVoice.play(stream,at,volume,randf_range(0.92,1.06),self)
 	if audio != null: audio.add_to_group("tutorial_audio")
 
-## The house voice speaks only in the house: tell it where its rooms are. Before the key and
-## while the thing arrives, this script tells the story itself (the unease and the presence
-## below) and the house voice keeps out of it; after that the house is its own.
+## The house voice speaks in the house and in the Hacienda: tell it where its rooms are. In the
+## house, before the key and while the thing arrives, this script tells the story itself (the
+## unease and the presence below) and the house voice keeps out of it; after that the house is
+## its own. The Hacienda is its own from the first step: it has no rooms to name, so its sounds
+## come from the places of the entity's patrol on this floor, never from right beside her
+## (house_min_distance_u), and only while the entity is far and calm (the house voice's gates).
 func _enter_house_voice() -> void:
+	if zone in MANSION_ZONES:
+		var places: Array[Vector2] = []
+		for index in range(1, int(MANSION_ENTITY[zone]["points"]) + 1):
+			places.append(world.marker(zone, "Patrol%d" % index))
+		HouseVoice.enter({HACIENDA_VOICE: places}, func() -> String: return "", player)
+		HouseVoice.story_holds = false
+		return
 	if zone!="house":
 		HouseVoice.leave()
 		return
